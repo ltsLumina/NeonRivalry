@@ -1,32 +1,45 @@
+#region
 using UnityEngine;
+using UnityEngine.InputSystem;
+#endregion
 
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] float moveSpeed;
     [SerializeField] float jumpForce;
 
+    Vector2 moveInput;
+
     // Cached References
+    StateMachine stateMachine;
     public Rigidbody2D PlayerRB { get; private set; }
 
-    void Start() => PlayerRB = GetComponent<Rigidbody2D>();
-
-    void Update()
+    void Start()
     {
-        Move();
-        
-        if (Input.GetKeyDown(KeyCode.Space)) Jump();
+        stateMachine = new StateMachine();
+        stateMachine.ChangeState(new IdleState());
+        PlayerRB = GetComponent<Rigidbody2D>();
     }
 
-    void Move()
-    {
-        float moveInput = Input.GetAxisRaw("Horizontal");
-        float speed = moveInput * moveSpeed;
+    void FixedUpdate() => Move();
 
-        PlayerRB.velocity = new Vector2(speed, PlayerRB.velocity.y);
-    }
+    // --- Movement ---
 
-    void Jump()
-    {
-        PlayerRB.velocity = new Vector2(PlayerRB.velocity.x, jumpForce);
+    void OnMove(InputValue value) => moveInput = value.Get<Vector2>();
+
+    void Move() => PlayerRB.MovePosition(PlayerRB.position + moveInput * (moveSpeed * Time.fixedDeltaTime));
+
+    // --- Jumping ---
+
+    void OnJump(InputValue value) => stateMachine.ChangeState(new JumpState(10, 1));
+
+    // --- Attacking ---
+
+    void OnAttack()
+    { // Change to attack state
+        stateMachine.ChangeState(new AttackState());
+
+        // Update the state machine
+        stateMachine.Update();
     }
 }
