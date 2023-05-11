@@ -4,8 +4,15 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
+    HealthBar healthBar;
+
+    void Start()
+    {
+        healthBar = FindObjectOfType<HealthBar>();
+    }
+
     void Update()
     {
-        HealthBar.TakingDamage();
+        healthBar.TakingDamage();
     }
 }

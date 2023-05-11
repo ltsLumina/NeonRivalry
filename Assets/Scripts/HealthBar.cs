@@ -6,16 +6,12 @@ using UnityEngine.UI;
 
 public class HealthBar : MonoBehaviour
 {
-    public static Slider healthBar;
+    [SerializeField] Slider rHealthBar;
+    [SerializeField] Slider lHealthBar;
 
-    public void Start()
+    public void TakingDamage()
     {
-        healthBar = GetComponent<Slider>();
-    }
-
-    public static void TakingDamage()
-    {
-        if (healthBar.value == 0)
+        if (Input.GetKeyDown(KeyCode.R))
         {
             SceneManagerExtended.ReloadScene();
         }
@@ -29,8 +25,9 @@ public class HealthBar : MonoBehaviour
         }
     }
 
-    public static void ChangeHealthBar(int damage)
+    void ChangeHealthBar(int damage)
     {
-        healthBar.value -= damage;
+        lHealthBar.value -= damage;
+        rHealthBar.value -= damage;
     }
 }
