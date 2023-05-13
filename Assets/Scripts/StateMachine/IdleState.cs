@@ -1,5 +1,9 @@
-﻿public class IdleState : StateMachine.IState
+﻿using UnityEngine;
+
+public class IdleState : StateMachine.IState
 {
+    public PlayerController Player { get; }
+    public Rigidbody2D PlayerRB { get; }
     public void OnEnter()
     {
         // Play the idle animation.
