@@ -1,20 +1,19 @@
 ﻿using UnityEngine;
 
-public class IdleState : StateMachine.IState
+public class IdleState : State
 {
-    public PlayerController Player { get; }
-    public Rigidbody2D PlayerRB { get; }
-    public void OnEnter()
+
+    public override void OnEnter()
     {
         // Play the idle animation.
     }
 
-    public void UpdateState()
+    public override void UpdateState()
     {
         // Handle idle logic, such as checking for input, etc.
     }
 
-    public void OnExit()
+    public override void OnExit()
     {
         // Perform any necessary cleanup or exit actions
     }

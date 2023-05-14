@@ -1,28 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class StateMachine : MonoBehaviour
+public abstract class State
 {
-    public State CurrentState { get; private set; }
-
-    public enum CharacterState
-    {
-        Idle,
-        Move,
-        Attack,
-        Jump,
-        // Add more states as needed
-    }
-
-    public void SetState(State newState)
-    {
-        CurrentState?.OnExit();
-        CurrentState = newState;
-        CurrentState.OnEnter();
-    }
-
-    public void Update() => CurrentState?.UpdateState();
+    public abstract void OnEnter();
+    public abstract void OnExit();
+    public abstract void UpdateState();
 }
 
 //TODO: HERE'S THE PLAN:

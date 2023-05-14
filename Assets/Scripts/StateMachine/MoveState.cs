@@ -1,35 +1,36 @@
 ﻿using UnityEngine;
 
-public class MoveState : StateMachine.IState
+public class MoveState : State
 {
-    public PlayerController Player { get; }
-    public Rigidbody2D PlayerRB { get; }
-
+    PlayerController player;
+    Rigidbody2D playerRB;
     float speed;
 
-    public MoveState(PlayerController player, Rigidbody2D playerRB, float moveSpeed)
+    public MoveState(MoveStateData data)
     {
-        Player        = player;
-        PlayerRB      = playerRB;
-        speed         = moveSpeed;
+        // Initialize any properties or fields that require data
+
+        // Access the data from the Scriptable Object
+        player   = data.Player;
+        playerRB = data.PlayerRB;
+        speed    = data.moveSpeed;
     }
 
-    public void OnEnter()
+    public override void OnEnter()
     {
         // Play the move animation.
-        Debug.Log("Current State: " + GetType().Name);
     }
 
-    public void UpdateState()
+    public override void UpdateState()
     {
-       // Handle move logic, such as checking for input, etc.
-       if (Player.MoveInput != Vector2.zero)
-           PlayerRB.MovePosition(PlayerRB.position + Player.MoveInput * (speed * Time.fixedDeltaTime));
+        //Handle move logic, such as checking for input, etc.
+       if (player.MoveInput != Vector2.zero)
+           playerRB.MovePosition(playerRB.position + player.MoveInput * (speed * Time.fixedDeltaTime));
        else
            OnExit();
     }
 
-    public void OnExit()
+    public override void OnExit()
     {
         // Perform any necessary cleanup or exit actions
     }

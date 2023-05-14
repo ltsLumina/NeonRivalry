@@ -2,31 +2,30 @@
 using UnityEngine;
 #endregion
 
-public class JumpState : StateMachine.IState
+public class JumpState : State
 {
     float jumpDuration;
     float jumpForce;
     float jumpTimer;
 
-    public JumpState(float force, float duration, PlayerController player, Rigidbody2D playerRB)
+    public JumpState(JumpStateData data)
     {
-        jumpForce    = force;
-        jumpDuration = duration;
-
-        Player       = player;
-        PlayerRB     = playerRB;
+        Player    = data.Player;
+        PlayerRB  = data.Player.GetComponent<Rigidbody2D>();
+        jumpForce = data.jumpForce;
+        jumpDuration = data.jumpDuration;
     }
 
     public PlayerController Player { get; }
     public Rigidbody2D PlayerRB { get; }
-    public void OnEnter()
+    public override void OnEnter()
     {
         // Apply jump force or initiate jump animation
         jumpTimer = 0f;
         Debug.Log("Jump enter!");
     }
 
-    public void UpdateState()
+    public override void UpdateState()
     {
         // Handle jump logic, such as applying force, checking for jump height, etc.
         jumpTimer += Time.deltaTime;
@@ -38,7 +37,7 @@ public class JumpState : StateMachine.IState
             OnExit();
     }
 
-    public void OnExit()
+    public override void OnExit()
     {
         // Perform any necessary cleanup or exit actions
         // For example, reset jump-related variables or animations

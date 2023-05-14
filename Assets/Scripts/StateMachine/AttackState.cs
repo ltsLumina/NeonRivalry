@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using static UnityEngine.Debug;
 
-public class AttackState : StateMachine.IState
+public class AttackState : State
 {
     float attackTimer;
     float attackDuration;
@@ -11,15 +11,13 @@ public class AttackState : StateMachine.IState
         attackDuration = duration;
     }
 
-    public PlayerController Player { get; }
-    public Rigidbody2D PlayerRB { get; }
-    public void OnEnter()
+    public override void OnEnter()
     {
         // Play the attack animation.
         Log("Attacked!");
     }
 
-    public void UpdateState()
+    public override void UpdateState()
     {
         // attack, wait for attack to finish, then exit
         if (attackTimer >= attackDuration)
@@ -27,12 +25,10 @@ public class AttackState : StateMachine.IState
         else
             attackTimer += Time.deltaTime;
 
-        Log(attackTimer);
-
         // Handle attack logic, such as checking for attack duration, etc.
     }
 
-    public void OnExit()
+    public override void OnExit()
     {
         // Perform any necessary cleanup or exit actions
     }
