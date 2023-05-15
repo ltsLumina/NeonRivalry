@@ -1,50 +1,114 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class StateMachine : MonoBehaviour
 {
+    [SerializeField] public StateData stateData;
+
+    // Cached References
+    public PlayerController Player { get; private set; }
+    public Rigidbody2D PlayerRB { get; private set; }
+    public InputManager PlayerInput { get; private set; }
+
     public State CurrentState { get; private set; }
 
-    public enum CharacterState
+    void Start()
     {
-        Idle,
-        Move,
-        Attack,
-        Jump,
-        // Add more states as needed
+        Player      = FindObjectOfType<PlayerController>();
+        PlayerRB    = Player.GetComponent<Rigidbody2D>();
+        PlayerInput = FindObjectOfType<InputManager>();
     }
 
     public void SetState(State newState)
     {
-        CurrentState?.OnExit();
+        CurrentState?.OnExit(this);
         CurrentState = newState;
-        CurrentState.OnEnter();
+        CurrentState.OnEnter(this);
     }
 
-    public void Update() => CurrentState?.UpdateState();
+    public void Update()
+    {
+        CurrentState?.UpdateState(this);
+    }
+
+    /// <summary>
+    /// Handles changing the state of the state machine.
+    /// </summary>
+    /// <param name="stateType"> The state to transition into. </param>
+    public void HandleStateChange(State.StateType stateType)
+    {
+        switch (stateType)
+        {
+            case State.StateType.Idle when PlayerInput.MoveInput == Vector2.zero && Player.IsGrounded():
+                SetState(new IdleState());
+                break;
+
+            case State.StateType.Walk:
+                CheckStateDataAndExecute(stateData.moveStateData, data => SetState(new MoveState(data)));
+                break;
+
+            case State.StateType.Jump:
+                CheckStateDataAndExecute(stateData.jumpStateData, data => SetState(new JumpState(data)));
+                break;
+
+            case State.StateType.Attack:
+                CheckStateDataAndExecute(stateData.attackStateData, data => SetState(new AttackState(data)));
+                break;
+
+            case State.StateType.Knockdown:
+                break;
+
+            case State.StateType.Dead:
+                break;
+
+            // - Unused States -
+            case State.StateType.Run:
+            case State.StateType.Block:
+            case State.StateType.HitStun:
+            case State.StateType.None:
+
+            // If you wish to add more states, make sure to run the CheckStateDataAndExecute method like all the other states.
+
+            default:
+                throw new ArgumentOutOfRangeException(nameof(stateType), stateType, null);
+        }
+    }
+
+    // I totally wrote this method myself and didn't copy it from the internet.
+    // Checks if the state data is null or default, and if it is, it throws an error.
+    static void CheckStateDataAndExecute<T>(T stateData, Action<T> executeCode)
+    {
+        if (EqualityComparer<T>.Default.Equals(stateData, default))
+            Debug.LogError(
+                $"The state data of type {typeof(T)} is null or default. " +
+                           "Please assign the correct data in the inspector via the 'Systems' prefab.");
+        else executeCode(stateData);
+    }
 }
 
-//TODO: HERE'S THE PLAN:
-#region HOW TO MAKE STATE MACHINE
-// Here's a recommended approach:
-//
-// 1. Create individual state classes:
-// Create separate classes for each state, such as IdleState, AttackState, JumpState, KnockdownState, etc.
-// These classes should implement the IState interface or extend a base state class.
-//
-// 2. Implement state-specific behavior:
-// Inside each state class, you define the logic and behavior specific to that state.
-// For example, in the AttackState, you would handle attack animations, damage calculations, and any other actions associated with attacking.
-// Similarly, in the JumpState, you would handle the jumping behavior, apply forces, and manage the jump duration.
-//
-// 3. State transitions:
-// Within each state class, you can determine when and how to transition to other states.
-// For example, in the AttackState, you might transition to the IdleState once the attack animation is complete or based on certain conditions.
-// These transitions can be handled by calling methods on the state machine or using events.
-//
-// 4. Player controller script:
-// The player controller script would then contain the state machine and handle the high-level coordination between the states.
-// It would manage the state transitions, handle input, and update the current state accordingly.
-// The player controller script would not contain the detailed logic of each state but would orchestrate their execution.
-#endregion
+[Serializable]
+public struct StateData
+{
+    public MoveStateData moveStateData;
+    public JumpStateData jumpStateData;
+    public AttackStateData attackStateData;
+}
+
+#if UNITY_EDITOR
+[CustomEditor(typeof(StateMachine))]
+public class StateMachineEditor : Editor
+{
+    // custom editor that displays the current state of the state machine in the inspector
+    public override void OnInspectorGUI()
+    {
+        base.OnInspectorGUI();
+
+        var stateMachine = (StateMachine) target;
+        EditorGUILayout.LabelField("Current State", stateMachine.CurrentState?.GetType().Name);
+
+        EditorUtility.SetDirty(stateMachine);
+    }
+}
+#endif

@@ -1,10 +1,25 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public abstract class State
 {
-    public abstract void OnEnter();
-    public abstract void OnExit();
-    public abstract void UpdateState();
+    public enum StateType
+    {
+        Idle,
+        Walk,       // Walk indicates that the player is moving.
+        Run,        // Run indicates that the player is moving faster than walking.
+        Jump,
+        Attack,
+        Block,
+        HitStun,    // HitStun indicates that the player has been hit and is unable to move or attack for a short period of time.
+        Knockdown,  // Knockdown indicates that the player has been knocked down and is unable to move or attack for a short period of time.
+        Dead,
+        None,       // None is a special state that is used to indicate that the there is no player, and therefore, no state.
+    }
+
+    public abstract void OnEnter(StateMachine stateMachine);
+    public abstract void OnExit(StateMachine stateMachine);
+    public abstract void UpdateState(StateMachine stateMachine);
 }
 
 //TODO: HERE'S THE PLAN:

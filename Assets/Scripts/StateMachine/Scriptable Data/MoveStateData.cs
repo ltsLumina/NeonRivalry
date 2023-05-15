@@ -1,17 +1,8 @@
-﻿#region
-using UnityEngine;
-#endregion
+﻿using UnityEngine;
 
-[CreateAssetMenu(fileName = "MoveState Data", menuName = "Scriptable Objects/MoveState Data")]
+[CreateAssetMenu(fileName = "MoveStateData", menuName = "State Data/MoveState Data", order = 0)]
 public class MoveStateData : ScriptableObject
 {
-    // Define properties or fields to hold the required data
-
-    InputManager input;
-
-    public float moveSpeed;
-    // Add other properties as needed
-    public PlayerController Player { get; }
-
-    public Rigidbody2D PlayerRB { get; }
+    [SerializeField] float moveSpeed;
+    public float MoveSpeed => moveSpeed;
 }

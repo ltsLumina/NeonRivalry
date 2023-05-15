@@ -1,6 +1,5 @@
 #region
 using UnityEngine;
-using static Essentials.Attributes;
 #endregion
 
 /// <summary>
@@ -8,23 +7,14 @@ using static Essentials.Attributes;
 /// </summary>
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] float moveSpeed;
-    [SerializeField] float jumpForce;
-
-    [Header("Read-Only Fields"), SerializeField, ReadOnly]
-    Vector2 moveInput;
-
     // Cached References
     StateMachine stateMachine;
     InputManager input;
-    MoveStateData moveStateData;
+
+    [SerializeField] float groundDistance = 0.2f;
+    [SerializeField] LayerMask groundLayer;
 
     public Rigidbody2D PlayerRB { get; private set; }
-    public Vector2 MoveInput
-    {
-        get => moveInput;
-        set => moveInput = value;
-    }
 
     void Start()
     {
@@ -33,28 +23,14 @@ public class PlayerController : MonoBehaviour
         PlayerRB = GetComponent<Rigidbody2D>();
     }
 
-    void Update()
+    public bool IsGrounded()
     {
-        stateMachine.Update();
+        return Physics2D.Raycast(transform.position, Vector2.down, groundDistance, groundLayer);
     }
 
-    void FixedUpdate()
+    void OnDrawGizmos()
     {
-        // MoveState moveState = new MoveState(this, PlayerRB, moveSpeed);
-        // stateMachine.SetState(moveState);
-    }
-
-    public void HandleStateChange(State newState)
-    {
-        switch (newState)
-        {
-            case IdleState idleState:
-                stateMachine.SetState(new IdleState());
-                break;
-
-            case MoveState moveState:
-                stateMachine.SetState(new MoveState(moveStateData));
-                break;
-        }
+        Gizmos.color = Color.red;
+        Gizmos.DrawRay(transform.position, Vector3.down * groundDistance);
     }
 }

@@ -1,16 +1,20 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
+using static Essentials.Attributes;
 
 public class InputManager : MonoBehaviour
 {
+    [Header("Read-Only Fields"), SerializeField, ReadOnly]
+    Vector2 moveInput;
+
     PlayerController player;
-    StateMachine.CharacterState characterState;
     StateMachine stateMachine;
 
-
-    [Header("State Data")]
-    [SerializeField] JumpStateData jumpStateData;
-    [SerializeField] MoveStateData moveStateData;
+    public Vector2 MoveInput
+    {
+        get => moveInput;
+        private set => moveInput = value;
+    }
 
     void Start()
     {
@@ -18,25 +22,21 @@ public class InputManager : MonoBehaviour
         stateMachine = FindObjectOfType<StateMachine>();
     }
 
-    void Update()
-    {
-        stateMachine.CurrentState.UpdateState();
-    }
+    void Update() => stateMachine.CurrentState.UpdateState(stateMachine);
 
     public void OnMove(InputValue value)
     {
-        player.MoveInput = value.Get<Vector2>();
-        player.HandleStateChange(new MoveState(moveStateData));
+        MoveInput = value.Get<Vector2>();
+        stateMachine.HandleStateChange(State.StateType.Walk);
     }
 
     void OnJump(InputValue value)
     {
-        Debug.Log("Jumped!");
-        player.HandleStateChange(new JumpState(jumpStateData));
+        stateMachine.HandleStateChange(State.StateType.Jump);
     }
 
     void OnAttack(InputValue value)
     {
-        Debug.Log("Attacked!");
+        stateMachine.HandleStateChange(State.StateType.Attack);
     }
 }
