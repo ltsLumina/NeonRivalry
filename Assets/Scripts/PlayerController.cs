@@ -1,5 +1,8 @@
 #region
+using System;
+using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 #endregion
 
 /// <summary>
@@ -7,20 +10,23 @@ using UnityEngine;
 /// </summary>
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] float groundDistance = 0.2f;
+    [SerializeField] LayerMask groundLayer;
+
     // Cached References
     StateMachine stateMachine;
     InputManager input;
-
-    [SerializeField] float groundDistance = 0.2f;
-    [SerializeField] LayerMask groundLayer;
 
     public Rigidbody2D PlayerRB { get; private set; }
 
     void Start()
     {
         stateMachine = FindObjectOfType<StateMachine>();
-        stateMachine.SetState(new IdleState());
-        PlayerRB = GetComponent<Rigidbody2D>();
+        input        = GetComponent<InputManager>();
+        PlayerRB     = GetComponent<Rigidbody2D>();
+
+        // Set the default state.
+        stateMachine.HandleStateChange(State.StateType.None);
     }
 
     public bool IsGrounded()

@@ -24,15 +24,16 @@ public class AttackState : State
     {
         // attack, wait for attack to finish, then exit
         if (attackTimer >= attackDuration)
-            OnExit();
+            OnExit(stateMachine);
         else
             attackTimer += Time.deltaTime;
 
         // Handle attack logic
     }
 
-    public override void OnExit(StateMachine stateMachine = null)
+    public override void OnExit(StateMachine stateMachine)
     {
         // Perform any necessary cleanup or exit actions
+        stateMachine.EnterIdleState();
     }
 }

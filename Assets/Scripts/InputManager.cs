@@ -1,5 +1,8 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
 using static Essentials.Attributes;
 
 public class InputManager : MonoBehaviour
@@ -8,7 +11,10 @@ public class InputManager : MonoBehaviour
     Vector2 moveInput;
 
     PlayerController player;
+    Rigidbody2D playerRB;
     StateMachine stateMachine;
+    public InputAction action;
+    bool isRunning;
 
     public Vector2 MoveInput
     {
@@ -16,18 +22,40 @@ public class InputManager : MonoBehaviour
         private set => moveInput = value;
     }
 
+    void OnEnable() => action.Enable();
+    void OnDisable() => action.Disable();
+
     void Start()
     {
         player       = FindObjectOfType<PlayerController>();
+        playerRB     = player.GetComponent<Rigidbody2D>();
         stateMachine = FindObjectOfType<StateMachine>();
     }
 
-    void Update() => stateMachine.CurrentState.UpdateState(stateMachine);
+    void Update()
+    {
+        if (action.triggered)
+        {
+            isRunning = true;
+            Debug.Log($"isRunning: {isRunning}");
+        }
+    }
 
-    public void OnMove(InputValue value)
+    void OnMove(InputValue value)
     {
         MoveInput = value.Get<Vector2>();
-        stateMachine.HandleStateChange(State.StateType.Walk);
+
+        if (player.IsGrounded())
+        {
+            // Regular Walk State
+            stateMachine.HandleStateChange(State.StateType.Walk);
+        }
+
+        if (player.IsGrounded() && isRunning)
+        {
+            // Running State
+            stateMachine.HandleStateChange(State.StateType.Run);
+        }
     }
 
     void OnJump(InputValue value)

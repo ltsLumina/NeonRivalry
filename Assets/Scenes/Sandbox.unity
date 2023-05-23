@@ -353,20 +353,8 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 323316177474802617, guid: 6f331347ace53074cb26d46cacbec1d3, type: 3}
-      propertyPath: groundDistance
-      value: 1.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 323316177474802617, guid: 6f331347ace53074cb26d46cacbec1d3, type: 3}
-      propertyPath: groundLayer.m_Bits
-      value: 64
-      objectReference: {fileID: 0}
     - target: {fileID: 421975285420853384, guid: 6f331347ace53074cb26d46cacbec1d3, type: 3}
       propertyPath: m_Name
-      value: Player
-      objectReference: {fileID: 0}
-    - target: {fileID: 421975285420853384, guid: 6f331347ace53074cb26d46cacbec1d3, type: 3}
-      propertyPath: m_TagString
       value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 1144944269674105434, guid: 6f331347ace53074cb26d46cacbec1d3, type: 3}
@@ -383,7 +371,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6647826687636412292, guid: 6f331347ace53074cb26d46cacbec1d3, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -2
+      value: -2.81
       objectReference: {fileID: 0}
     - target: {fileID: 6647826687636412292, guid: 6f331347ace53074cb26d46cacbec1d3, type: 3}
       propertyPath: m_LocalPosition.z
@@ -416,6 +404,46 @@ PrefabInstance:
     - target: {fileID: 6647826687636412292, guid: 6f331347ace53074cb26d46cacbec1d3, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7971723410968020893, guid: 6f331347ace53074cb26d46cacbec1d3, type: 3}
+      propertyPath: action.m_Id
+      value: eb538ec5-2dfa-4442-bc22-f6455280552f
+      objectReference: {fileID: 0}
+    - target: {fileID: 7971723410968020893, guid: 6f331347ace53074cb26d46cacbec1d3, type: 3}
+      propertyPath: action.m_Name
+      value: Action
+      objectReference: {fileID: 0}
+    - target: {fileID: 7971723410968020893, guid: 6f331347ace53074cb26d46cacbec1d3, type: 3}
+      propertyPath: action.m_Type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7971723410968020893, guid: 6f331347ace53074cb26d46cacbec1d3, type: 3}
+      propertyPath: action.m_Processors
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7971723410968020893, guid: 6f331347ace53074cb26d46cacbec1d3, type: 3}
+      propertyPath: action.m_Interactions
+      value: Hold
+      objectReference: {fileID: 0}
+    - target: {fileID: 7971723410968020893, guid: 6f331347ace53074cb26d46cacbec1d3, type: 3}
+      propertyPath: action.m_ExpectedControlType
+      value: Button
+      objectReference: {fileID: 0}
+    - target: {fileID: 7971723410968020893, guid: 6f331347ace53074cb26d46cacbec1d3, type: 3}
+      propertyPath: action.m_SingletonActionBindings.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7971723410968020893, guid: 6f331347ace53074cb26d46cacbec1d3, type: 3}
+      propertyPath: action.m_SingletonActionBindings.Array.data[0].m_Id
+      value: 7e71320c-8d36-4943-b494-6a9e08aa8c80
+      objectReference: {fileID: 0}
+    - target: {fileID: 7971723410968020893, guid: 6f331347ace53074cb26d46cacbec1d3, type: 3}
+      propertyPath: action.m_SingletonActionBindings.Array.data[0].m_Path
+      value: <Keyboard>/shift
+      objectReference: {fileID: 0}
+    - target: {fileID: 7971723410968020893, guid: 6f331347ace53074cb26d46cacbec1d3, type: 3}
+      propertyPath: action.m_SingletonActionBindings.Array.data[0].m_Action
+      value: Action
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

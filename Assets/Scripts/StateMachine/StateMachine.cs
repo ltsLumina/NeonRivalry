@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -41,8 +42,9 @@ public class StateMachine : MonoBehaviour
     {
         switch (stateType)
         {
-            case State.StateType.Idle when PlayerInput.MoveInput == Vector2.zero && Player.IsGrounded():
+            case State.StateType.Idle:
                 SetState(new IdleState());
+                Debug.Log("Idle");
                 break;
 
             case State.StateType.Walk:
@@ -65,14 +67,21 @@ public class StateMachine : MonoBehaviour
 
             // - Unused States -
             case State.StateType.Run:
+                Debug.Log("RUNNING");
+                break;
+
             case State.StateType.Block:
             case State.StateType.HitStun:
+
             case State.StateType.None:
+                Debug.Log(
+                    "'None' state selected. This state is used when there is no state to transition to, or there is no player.");
+                break;
 
             // If you wish to add more states, make sure to run the CheckStateDataAndExecute method like all the other states.
 
             default:
-                throw new ArgumentOutOfRangeException(nameof(stateType), stateType, null);
+                throw new ArgumentOutOfRangeException(nameof(stateType), stateType, "The state type is not valid.");
         }
     }
 
@@ -85,6 +94,29 @@ public class StateMachine : MonoBehaviour
                 $"The state data of type {typeof(T)} is null or default. " +
                            "Please assign the correct data in the inspector via the 'Systems' prefab.");
         else executeCode(stateData);
+    }
+
+    bool CheckIdle()
+    {
+        return PlayerInput.MoveInput == Vector2.zero && PlayerRB.velocity == Vector2.zero && Player.IsGrounded();
+    }
+
+    public void EnterIdleState()
+    {
+        StartCoroutine(EnterIdle());
+    }
+
+    IEnumerator EnterIdle()
+    {
+        if (CheckIdle())
+        {
+            yield return new WaitForSeconds(0.5f);
+
+            if (CheckIdle())
+            {
+                HandleStateChange(State.StateType.Idle);
+            }
+        }
     }
 }
 

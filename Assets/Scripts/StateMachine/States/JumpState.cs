@@ -5,8 +5,7 @@ using static UnityEngine.Debug;
 
 public class JumpState : State
 {
-    bool hasJumped;
-    float jumpDuration = 0.2f;
+    float jumpDuration = 0.5f;
     float jumpForce;
     float jumpTimer;
 
@@ -15,9 +14,8 @@ public class JumpState : State
         jumpForce = stateData.JumpForce;
     }
 
-    public override void OnEnter(StateMachine stateMachine = null)
+    public override void OnEnter(StateMachine stateMachine)
     {
-        hasJumped = false;
         // Initiate jump animation
         Log("Entered Jump State");
 
@@ -35,20 +33,18 @@ public class JumpState : State
             if (stateMachine.Player.IsGrounded())
             {
                 stateMachine.PlayerRB.AddForce(Vector2.up * jumpForce);
-                hasJumped = true;
             }
         }
         else
         {
             // Jump duration exceeded, transition to another state
-            OnExit();
+            OnExit(stateMachine);
         }
     }
 
-    public override void OnExit(StateMachine stateMachine = null)
+    public override void OnExit(StateMachine stateMachine)
     {
-        hasJumped = true;
-
+        stateMachine.EnterIdleState();
         // Perform any necessary cleanup or exit actions
         // For example, reset jump-related variables or animations
     }

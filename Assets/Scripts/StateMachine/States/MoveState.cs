@@ -30,11 +30,15 @@ public class MoveState : State
             Vector2 movement = new Vector2(moveInput.x, 0) * (moveSpeed * Time.fixedDeltaTime);
             stateMachine.PlayerRB.velocity = movement;
         }
-        else { OnExit(); }
+        else
+        {
+            OnExit(stateMachine);
+        }
     }
 
-    public override void OnExit(StateMachine stateMachine = null)
+    public override void OnExit(StateMachine stateMachine)
     {
+        stateMachine.EnterIdleState();
         // Perform any necessary cleanup or exit actions
     }
 }

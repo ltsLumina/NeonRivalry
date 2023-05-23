@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 7504424737855161531}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -49,9 +49,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d17e004f39cd0240b6118eb5da62b38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 10
-  jumpForce: 10
-  moveInput: {x: 0, y: 0}
+  groundDistance: 1.2
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!114 &7971723410968020893
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -64,6 +65,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0521fac985f046d3af0221671d71dfa1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  moveInput: {x: 0, y: 0}
 --- !u!114 &1144944269674105434
 MonoBehaviour:
   m_ObjectHideFlags: 0
