@@ -32,22 +32,19 @@ public abstract class State
     }
 
     // This dictionary is used to determine the priority of each state.
-    // The higher the value, the higher the priority.
-    // If you try to enter a state with a higher priority than the current state, the current state will be interrupted.
     protected readonly Dictionary<StateType, int> statePriorities = new()
-    {
-    //TODO: Adjust the system to allow for states with the same priority, allowing for more complex state transitions.
-    { Idle, 1 },
-    { Walk, 2 },
-    { Run, 3 },
-    { Jump, 4 },
-    { Fall, 5},
-    { Attack, 6 },
-    { Block, 7 },
-    { HitStun, 8 },
-    { Knockdown, 10 },
-    { Dead, 99 },
-    { None, 100 }
+    { //TODO: Adjust the system to allow for states with the same priority, allowing for more complex state transitions.
+      { Idle, 1 },
+      { Walk, 2 },
+      { Run, 3 },
+      { Jump, 4 },
+      { Fall, 5},
+      { Attack, 6 },
+      { Block, 7 },
+      { HitStun, 8 },
+      { Knockdown, 10 },
+      { Dead, 99 },
+      { None, 100 }
     };
 
     /// <summary>
@@ -57,6 +54,7 @@ public abstract class State
 
     /// <summary>
     /// The priority of the state. The higher the value, the higher the priority.
+    /// //TODO: Implement this again at a later date.
     /// </summary>
     public abstract int Priority { get; }
 
