@@ -1,4 +1,6 @@
 ﻿#region
+using System;
+using System.Collections;
 using UnityEngine;
 #endregion
 
@@ -8,7 +10,6 @@ public class MoveState : State
 
     public override StateType Type => StateType.Walk;
     public override int Priority => statePriorities[Type];
-    public override bool Interrupted { get; set; }
 
     public bool IsMoving { get; private set; }
 
@@ -37,13 +38,11 @@ public class MoveState : State
 
         if (moveInput.x != 0)
         {
-            Vector2 movement = new Vector2(moveInput.x, 0) * (moveSpeed * Time.fixedDeltaTime);
+            Vector2 movement = new Vector2(moveInput.x, 0) * (moveSpeed * Time.deltaTime);
             player.PlayerRB.velocity = movement;
         }
-        else
-        {
-            OnExit();
-        }
+        else { OnExit(); }
+
     }
 
     public override void OnExit()
@@ -52,10 +51,4 @@ public class MoveState : State
         // Debug.Log("Exited Move State");
         IsMoving = false;
     }
-
-    public override void OnInterrupt()
-    {
-        Debug.Log("Move interrupted!");
-    }
-
 }

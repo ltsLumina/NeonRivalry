@@ -4,16 +4,13 @@ using static Essentials.Attributes;
 
 /// <summary>
 /// Handles all player input, such as movement, jumping, attacking, etc.
-/// Partial class, see InputChecks.cs for the input checks.
+/// Partial class, see StateChecks.cs for the input checks.
 /// </summary>
 [RequireComponent(typeof(PlayerInput))]
-public partial class InputManager : MonoBehaviour
+public class InputManager : MonoBehaviour
 {
-    [SerializeField] float idleTimeThreshold;
-
     [Header("Read-Only Fields")]
     [SerializeField, ReadOnly] Vector2 moveInput;
-    [SerializeField, ReadOnly] float idleTime;
 
     // Cached References
     StateMachine stateMachine;
@@ -24,6 +21,7 @@ public partial class InputManager : MonoBehaviour
 
     // temporary
     bool isRunning;
+    bool jumpInputIsHeld;
 
     public Vector2 MoveInput
     {
@@ -44,8 +42,6 @@ public partial class InputManager : MonoBehaviour
 
     void Update()
     {
-        CheckIdle();
-
         if (runKeyModifier.triggered)
         {
             isRunning = true;
@@ -59,12 +55,13 @@ public partial class InputManager : MonoBehaviour
 
         //TODO: Walking and jumping on controller is weird, fix it.
         //TODO: Might have something to do with our ground check.
-        if (player.IsGrounded())
+        if (player.IsGrounded() && !player.IsJumping() && !player.IsFalling())
         {
             // Regular Walk State
             stateMachine.HandleStateChange(State.StateType.Walk);
         }
 
+        //TODO: isRunning is a temporary state for testing purposes.
         if (player.IsGrounded() && isRunning)
         {
             // Running State
@@ -72,24 +69,24 @@ public partial class InputManager : MonoBehaviour
         }
     }
 
-    void OnJump(InputValue value) { stateMachine.HandleStateChange(State.StateType.Jump); }
-
-    void OnAttack(InputValue value) { stateMachine.HandleStateChange(State.StateType.Attack); }
-
-    void CheckIdle()
+    void OnJump(InputValue value)
     {
-        // Check if the player is idle.
-        if (IsIdle())
-        {
-            idleTime += Time.deltaTime;
+        jumpInputIsHeld = value.isPressed;
 
-            // If the player has been idle for longer than the threshold, trigger the idle state.
-            if (idleTime > idleTimeThreshold)
-            {
-                stateMachine.HandleStateChange(State.StateType.Idle);
-                idleTime = 0;
-            }
+        if (player.IsGrounded())
+        {
+            stateMachine.HandleStateChange(State.StateType.Jump);
         }
-        else { idleTime = 0; }
+    }
+
+    //TODO: rework this system.
+    public bool JumpInputIsHeld()
+    {
+        return jumpInputIsHeld;
+    }
+
+    void OnAttack(InputValue value)
+    {
+        stateMachine.HandleStateChange(State.StateType.Attack);
     }
 }

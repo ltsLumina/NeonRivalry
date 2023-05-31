@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
+/// <summary>
+/// The state machine that handles the player's state.
+/// Allows for easy state transitions and state management.
+/// </summary>
 public class StateMachine : MonoBehaviour
 {
     [SerializeField] public StateData stateData;
 
     // Cached References
-    //TODO: I am considering using a different approach than using a singleton reference for all states to access the player.what is
+    //TODO: I am considering using a different approach than using a singleton reference for all states to access the player.
     PlayerController player;
 
     // -- State Related --
@@ -28,33 +32,15 @@ public class StateMachine : MonoBehaviour
 
     /// <summary>
     ///     Sets the state of the state machine.
-    ///     <remarks>If you want to change the state, use HandleStateChange() instead. </remarks>
+    ///     <remarks> If you want to change the state, use HandleStateChange() instead. </remarks>
     /// </summary>
     /// <param name="newState">The new state we transition into.</param>
     /// <seealso cref="HandleStateChange(State.StateType)"/>
     void SetState(State newState)
     {
-        // Checks if the current state is null, or if the new state has a higher priority than the current state.
-        // If the new state has a lower or equal priority, the current state is entered like normal.
-        // If the new state has a higher priority, the current state is interrupted and the interrupt logic is handled.
-        if (CurrentState == null || newState.Priority <= CurrentState.Priority)
-        {
-            CurrentState?.OnExit();
-            CurrentState = newState;
-            CurrentState?.OnEnter();
-        }
-        // Checks if the new state has a higher priority than the current state.
-        else if (newState.Priority > CurrentState.Priority)
-        {
-            // Interrupt the current state and handle the interrupt logic.
-            CurrentState.Interrupted = true;
-            CurrentState?.OnInterrupt();
-            CurrentState?.OnExit();
-
-            // Set the new state and enter it.
-            CurrentState = newState;
-            CurrentState.OnEnter();
-        }
+        CurrentState?.OnExit();
+        CurrentState = newState;
+        CurrentState?.OnEnter();
     }
 
     // Runs the current state's update method, allowing for the state to run its logic.
@@ -68,6 +54,7 @@ public class StateMachine : MonoBehaviour
     /// Handles changing the state of the state machine.
     /// </summary>
     /// <param name="stateType"> The state to transition into. </param>
+    /// <param name="stateAction"> A optional action to pass in to each state. </param>
     public void HandleStateChange(State.StateType stateType)
     {
         // Do NOT run any other code than the CheckStateDataAndExecute() method in this switch statement.
@@ -84,6 +71,10 @@ public class StateMachine : MonoBehaviour
 
             case State.StateType.Jump:
                 CheckStateDataAndExecute(stateData.jumpStateData, data => SetState(new JumpState(player, data)));
+                break;
+
+            case State.StateType.Fall:
+                CheckStateDataAndExecute(stateData.fallStateData, data => SetState(new FallState(player, data)));
                 break;
 
             case State.StateType.Attack:
@@ -110,9 +101,8 @@ public class StateMachine : MonoBehaviour
 
             // -- Default State --
 
-            case State.StateType.None:
-                Debug.Log(
-                    "'None' state selected. This state is used when there is no state to transition to, or there is no player.");
+            case State.StateType.None: // The None state uses the defaultStateData which is primarily used for debugging. (It's a template for new state data)
+                SetState(new NoneState(player));
                 break;
 
             // If you wish to add more states, make sure to run the CheckStateDataAndExecute method like all the other states.
@@ -144,6 +134,7 @@ public struct StateData
 {
     public MoveStateData moveStateData;
     public JumpStateData jumpStateData;
+    public FallStateData fallStateData;
     public AttackStateData attackStateData;
 }
 

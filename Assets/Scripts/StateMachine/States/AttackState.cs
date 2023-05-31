@@ -1,11 +1,11 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class AttackState : State
 {
     // -- Abstract Variables --
     public override StateType Type => StateType.Attack;
     public override int Priority => statePriorities[Type];
-    public override bool Interrupted { get; set; }
 
     public bool IsAttacking { get; private set; }
 
@@ -32,11 +32,19 @@ public class AttackState : State
 
     public override void UpdateState()
     {
-        // attack, wait for attack to finish, then exit
-        if (attackTimer >= attackDuration)
-            OnExit();
+        //TODO: Currently the ground and air attacks are the same, but this will change later.
+        if (player.IsGrounded() && !player.IsFalling())
+        { // If the player is on the ground, perform a grounded attack.
+            // attack, wait for attack to finish, then exit
+            if (attackTimer >= attackDuration) OnExit();
+            else attackTimer += Time.deltaTime;
+        }
         else
-            attackTimer += Time.deltaTime;
+        { // If the player is in the air, perform an aerial attack.
+            // attack, wait for attack to finish, then exit
+            if (attackTimer >= attackDuration) OnExit();
+            else attackTimer += Time.deltaTime;
+        }
 
         // Handle attack logic
     }
@@ -48,10 +56,5 @@ public class AttackState : State
         IsAttacking = false;
 
         player.GetComponentInChildren<SpriteRenderer>().color = new Color(1f, 0.21f, 0.38f, 0.75f);
-    }
-
-    public override void OnInterrupt()
-    {
-        // Debug.Log("Attack interrupted!");
     }
 }

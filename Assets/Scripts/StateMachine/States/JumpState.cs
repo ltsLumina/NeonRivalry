@@ -7,12 +7,14 @@ public class JumpState : State
 {
     public override StateType Type => StateType.Jump;
     public override int Priority => statePriorities[Type];
-    public override bool Interrupted { get; set; }
     public bool IsJumping { get; private set; }
 
-    float jumpDuration = 0.2f;
     float jumpForce;
+
     float jumpTimer;
+    float jumpDuration = 0.75f;
+    float preJumpDuration = 0.2f;
+    float variableJumpHeightFactor = 0.5f;
 
     public JumpState(PlayerController player, JumpStateData stateData) : base(player)
     {
@@ -30,15 +32,34 @@ public class JumpState : State
 
     public override void UpdateState()
     {
-        jumpTimer += Time.deltaTime;
-
-        // Check if jump duration is not exceeded
-        if (jumpTimer < jumpDuration)
+        if (jumpTimer < preJumpDuration)
         {
-            // Handle jump logic, such as applying force, checking for jump height, etc.
+            // Handle pre-jump logic, such as preparing for the jump animation or charging up the jump
+            // This phase can be used for anticipation or other pre-jump actions
+
+            // Example: Charging up the jump
+            if (player.InputManager.JumpInputIsHeld())
+            {
+                // Charge up the jump force or perform any other actions
+                // You can store the charged jump force in a variable and use it in the jump phase below
+                // Example: chargedJumpForce = CalculateChargedJumpForce();
+            }
+        }
+        else if (jumpTimer < jumpDuration)
+        {
+            // Handle jump logic, such as applying jump force, controlling jump height, etc.
+
+            // Example: Applying jump force
             if (player.IsGrounded())
             {
-                player.PlayerRB.AddForce(Vector2.up * jumpForce);
+                // Apply the jump force
+                player.PlayerRB.AddForce(Vector2.up * (jumpForce * Time.deltaTime), ForceMode2D.Impulse);
+            }
+            else if (!player.InputManager.JumpInputIsHeld())
+            {
+                // Allow for variable jump height by reducing the upward velocity when the jump button is released
+                // Example: Reduce the upward velocity by a certain factor
+                player.PlayerRB.velocity = new Vector2(player.PlayerRB.velocity.x, player.PlayerRB.velocity.y * variableJumpHeightFactor);
             }
         }
         else
@@ -46,20 +67,17 @@ public class JumpState : State
             // Jump duration exceeded, transition to another state
             OnExit();
         }
+
+        jumpTimer += Time.deltaTime;
     }
 
     public override void OnExit()
     {
         // Perform any necessary cleanup or exit actions
         // Debug.Log("Exited Jump State");
+
+        StateMachine.Instance.HandleStateChange(StateType.Fall);
+
         IsJumping = false;
-    }
-
-    public override void OnInterrupt()
-    {
-        Debug.Log("Jump interrupted!");
-
-        //TODO: check what the current state is, and run specific interrupt code depending on the state.
-
     }
 }
