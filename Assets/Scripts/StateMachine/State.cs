@@ -1,10 +1,23 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
+using static State.StateType;
 
+/// <summary>
+/// The base class for all states in the game.
+/// </summary>
 public abstract class State
 {
+    protected readonly PlayerController player;
+
+    protected State(PlayerController player)
+    {
+        this.player = player;
+    }
+
+    // StateType is used to indicate the type of state that the player is in.
     public enum StateType
     {
+        // The values of the enum are used to determine the priority of the state.
+        // They should all be unique, and the higher the value, the higher the priority.
         Idle,
         Walk,       // Walk indicates that the player is moving.
         Run,        // Run indicates that the player is moving faster than walking.
@@ -13,35 +26,68 @@ public abstract class State
         Block,
         HitStun,    // HitStun indicates that the player has been hit and is unable to move or attack for a short period of time.
         Knockdown,  // Knockdown indicates that the player has been knocked down and is unable to move or attack for a short period of time.
-        Dead,
-        None,       // None is a special state that is used to indicate that the there is no player, and therefore, no state.
+        Dead,       // Dead indicates that the player has died and is unable to move or attack. This takes priority over all other states and should always be the highest priority.
+        None,       // None is a special state that is used to indicate that there is no player, and therefore, no state.
     }
 
-    public abstract void OnEnter(StateMachine stateMachine);
-    public abstract void OnExit(StateMachine stateMachine);
-    public abstract void UpdateState(StateMachine stateMachine);
-}
+    // This dictionary is used to determine the priority of each state.
+    // The higher the value, the higher the priority.
+    protected readonly Dictionary<StateType, int> statePriorities = new()
+    {
+    //TODO: Adjust the system to allow for states with the same priority, allowing for more complex state transitions.
+    { Idle, 1 },
+    { Walk, 2 },
+    { Run, 3 },
+    { Jump, 4 },
+    { Attack, 5 },
+    { Block, 6 },
+    { HitStun, 7 },
+    { Knockdown, 8 },
+    { Dead, 99 },
+    { None, 0 }
+    };
 
-//TODO: HERE'S THE PLAN:
-#region HOW TO MAKE STATE MACHINE
-// Here's a recommended approach:
-//
-// 1. Create individual state classes:
-// Create separate classes for each state, such as IdleState, AttackState, JumpState, KnockdownState, etc.
-// These classes should implement the IState interface or extend a base state class.
-//
-// 2. Implement state-specific behavior:
-// Inside each state class, you define the logic and behavior specific to that state.
-// For example, in the AttackState, you would handle attack animations, damage calculations, and any other actions associated with attacking.
-// Similarly, in the JumpState, you would handle the jumping behavior, apply forces, and manage the jump duration.
-//
-// 3. State transitions:
-// Within each state class, you can determine when and how to transition to other states.
-// For example, in the AttackState, you might transition to the IdleState once the attack animation is complete or based on certain conditions.
-// These transitions can be handled by calling methods on the state machine or using events.
-//
-// 4. Player controller script:
-// The player controller script would then contain the state machine and handle the high-level coordination between the states.
-// It would manage the state transitions, handle input, and update the current state accordingly.
-// The player controller script would not contain the detailed logic of each state but would orchestrate their execution.
-#endregion
+    /// <summary>
+    /// The type of the state.
+    /// </summary>
+    public abstract StateType Type { get; }
+
+    /// <summary>
+    /// The priority of the state. The higher the value, the higher the priority.
+    /// </summary>
+    public abstract int Priority { get; }
+
+    /// <summary>
+    /// Indicates whether the state has been interrupted.
+    /// </summary>
+    public abstract bool Interrupted { get; set; }
+
+    // -- State Machine Methods --
+
+    /// <summary>
+    /// Called when the state is entered.
+    /// </summary>
+    public abstract void OnEnter();
+
+    /// <summary>
+    /// Called when the state is exited.
+    /// </summary>
+    public abstract void OnExit();
+
+    /// <summary>
+    /// Called to update the state's logic.
+    /// Run any logic that needs to be run every frame in this method.
+    /// </summary>
+    public abstract void UpdateState();
+
+    // -- State Transitions --
+
+    /// <summary>
+    ///     Called when the state is interrupted by a higher-priority state.
+    ///     For example, if the player is in the Jump state, and then the player is hit, the Jump state will be interrupted by
+    ///     the HitStun state.
+    ///     This means that we run the OnInterrupt() method of the Jump state to do interrupt actions, and then the OnEnter()
+    ///     method of the HitStun state.
+    /// </summary>
+    public abstract void OnInterrupt();
+}

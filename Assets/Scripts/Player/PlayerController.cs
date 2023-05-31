@@ -8,6 +8,7 @@ using UnityEngine.InputSystem;
 /// <summary>
 /// THIS IS NOT FINAL, I AM TESTING. NONE OF THIS WORKS OR IS MEANT TO WORK.
 /// </summary>
+[RequireComponent(typeof(Rigidbody2D), typeof(InputManager))]
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] float groundDistance = 0.2f;
@@ -15,18 +16,15 @@ public class PlayerController : MonoBehaviour
 
     // Cached References
     StateMachine stateMachine;
-    InputManager input;
 
     public Rigidbody2D PlayerRB { get; private set; }
+    public InputManager InputManager { get; private set; }
 
     void Start()
     {
-        stateMachine = FindObjectOfType<StateMachine>();
-        input        = GetComponent<InputManager>();
+        stateMachine = StateMachine.Instance;
         PlayerRB     = GetComponent<Rigidbody2D>();
-
-        // Set the default state.
-        stateMachine.HandleStateChange(State.StateType.None);
+        InputManager = GetComponent<InputManager>();
     }
 
     public bool IsGrounded()

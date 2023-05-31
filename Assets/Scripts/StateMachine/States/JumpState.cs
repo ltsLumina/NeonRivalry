@@ -1,28 +1,34 @@
 ﻿#region
 using UnityEngine;
-using static UnityEngine.Debug;
 #endregion
 
+//TODO: Possibly make a fall state?
 public class JumpState : State
 {
-    float jumpDuration = 0.5f;
+    public override StateType Type => StateType.Jump;
+    public override int Priority => statePriorities[Type];
+    public override bool Interrupted { get; set; }
+    public bool IsJumping { get; private set; }
+
+    float jumpDuration = 0.2f;
     float jumpForce;
     float jumpTimer;
 
-    public JumpState(JumpStateData stateData)
+    public JumpState(PlayerController player, JumpStateData stateData) : base(player)
     {
         jumpForce = stateData.JumpForce;
     }
 
-    public override void OnEnter(StateMachine stateMachine)
+    public override void OnEnter()
     {
         // Initiate jump animation
-        Log("Entered Jump State");
+        //Log("Entered Jump State");
+        IsJumping = true;
 
-        stateMachine.Player.GetComponentInChildren<SpriteRenderer>().color = Color.yellow;
+        player.GetComponentInChildren<SpriteRenderer>().color = Color.yellow;
     }
 
-    public override void UpdateState(StateMachine stateMachine)
+    public override void UpdateState()
     {
         jumpTimer += Time.deltaTime;
 
@@ -30,22 +36,30 @@ public class JumpState : State
         if (jumpTimer < jumpDuration)
         {
             // Handle jump logic, such as applying force, checking for jump height, etc.
-            if (stateMachine.Player.IsGrounded())
+            if (player.IsGrounded())
             {
-                stateMachine.PlayerRB.AddForce(Vector2.up * jumpForce);
+                player.PlayerRB.AddForce(Vector2.up * jumpForce);
             }
         }
         else
         {
             // Jump duration exceeded, transition to another state
-            OnExit(stateMachine);
+            OnExit();
         }
     }
 
-    public override void OnExit(StateMachine stateMachine)
+    public override void OnExit()
     {
-        stateMachine.EnterIdleState();
         // Perform any necessary cleanup or exit actions
-        // For example, reset jump-related variables or animations
+        // Debug.Log("Exited Jump State");
+        IsJumping = false;
+    }
+
+    public override void OnInterrupt()
+    {
+        Debug.Log("Jump interrupted!");
+
+        //TODO: check what the current state is, and run specific interrupt code depending on the state.
+
     }
 }

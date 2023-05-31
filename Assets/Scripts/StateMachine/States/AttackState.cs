@@ -1,39 +1,57 @@
 ﻿using UnityEngine;
-using static UnityEngine.Debug;
 
 public class AttackState : State
 {
+    // -- Abstract Variables --
+    public override StateType Type => StateType.Attack;
+    public override int Priority => statePriorities[Type];
+    public override bool Interrupted { get; set; }
+
+    public bool IsAttacking { get; private set; }
+
+    // -- State Specific Variables --
+    //TODO: these are temporary
     float attackTimer;
     float attackDuration;
 
-    public AttackState(AttackStateData stateData)
+    // -- Constructor --
+    public AttackState(PlayerController player, AttackStateData stateData) : base(player)
     {
         attackTimer = stateData.AttackTimer;
         attackDuration = stateData.AttackDuration;
     }
 
-    public override void OnEnter(StateMachine stateMachine)
+    public override void OnEnter( )
     {
         // Play the attack animation.
-        Log("Entered Attack State");
+        //Debug.Log("Entered Attack State");
+        IsAttacking = true;
 
-        stateMachine.Player.GetComponentInChildren<SpriteRenderer>().color = Color.red;
+        player.GetComponentInChildren<SpriteRenderer>().color = Color.red;
     }
 
-    public override void UpdateState(StateMachine stateMachine)
+    public override void UpdateState()
     {
         // attack, wait for attack to finish, then exit
         if (attackTimer >= attackDuration)
-            OnExit(stateMachine);
+            OnExit();
         else
             attackTimer += Time.deltaTime;
 
         // Handle attack logic
     }
 
-    public override void OnExit(StateMachine stateMachine)
+    public override void OnExit()
     {
         // Perform any necessary cleanup or exit actions
-        stateMachine.EnterIdleState();
+        //Debug.Log("Exited Attack State");
+        IsAttacking = false;
+
+        player.GetComponentInChildren<SpriteRenderer>().color = new Color(1f, 0.21f, 0.38f, 0.75f);
+    }
+
+    public override void OnInterrupt()
+    {
+        // Debug.Log("Attack interrupted!");
     }
 }

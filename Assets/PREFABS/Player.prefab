@@ -65,7 +65,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0521fac985f046d3af0221671d71dfa1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  idleTimeThreshold: 1.5
   moveInput: {x: 0, y: 0}
+  idleTime: 0
+  action:
+    m_Name: Action
+    m_Type: 1
+    m_ExpectedControlType: Button
+    m_Id: eb538ec5-2dfa-4442-bc22-f6455280552f
+    m_Processors: 
+    m_Interactions: Hold
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 7e71320c-8d36-4943-b494-6a9e08aa8c80
+      m_Path: <Keyboard>/shift
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Action
+      m_Flags: 0
+    m_Flags: 0
 --- !u!114 &1144944269674105434
 MonoBehaviour:
   m_ObjectHideFlags: 0

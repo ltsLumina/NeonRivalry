@@ -183,7 +183,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.1509434, g: 0.1509434, b: 0.1509434, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -406,44 +406,16 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7971723410968020893, guid: 6f331347ace53074cb26d46cacbec1d3, type: 3}
-      propertyPath: action.m_Id
-      value: eb538ec5-2dfa-4442-bc22-f6455280552f
+      propertyPath: deadzone
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 7971723410968020893, guid: 6f331347ace53074cb26d46cacbec1d3, type: 3}
-      propertyPath: action.m_Name
-      value: Action
+      propertyPath: runKeyModifier.m_Id
+      value: 4543a91e-07c5-477d-a7ae-ac57715c6111
       objectReference: {fileID: 0}
     - target: {fileID: 7971723410968020893, guid: 6f331347ace53074cb26d46cacbec1d3, type: 3}
-      propertyPath: action.m_Type
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7971723410968020893, guid: 6f331347ace53074cb26d46cacbec1d3, type: 3}
-      propertyPath: action.m_Processors
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 7971723410968020893, guid: 6f331347ace53074cb26d46cacbec1d3, type: 3}
-      propertyPath: action.m_Interactions
-      value: Hold
-      objectReference: {fileID: 0}
-    - target: {fileID: 7971723410968020893, guid: 6f331347ace53074cb26d46cacbec1d3, type: 3}
-      propertyPath: action.m_ExpectedControlType
-      value: Button
-      objectReference: {fileID: 0}
-    - target: {fileID: 7971723410968020893, guid: 6f331347ace53074cb26d46cacbec1d3, type: 3}
-      propertyPath: action.m_SingletonActionBindings.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7971723410968020893, guid: 6f331347ace53074cb26d46cacbec1d3, type: 3}
-      propertyPath: action.m_SingletonActionBindings.Array.data[0].m_Id
-      value: 7e71320c-8d36-4943-b494-6a9e08aa8c80
-      objectReference: {fileID: 0}
-    - target: {fileID: 7971723410968020893, guid: 6f331347ace53074cb26d46cacbec1d3, type: 3}
-      propertyPath: action.m_SingletonActionBindings.Array.data[0].m_Path
-      value: <Keyboard>/shift
-      objectReference: {fileID: 0}
-    - target: {fileID: 7971723410968020893, guid: 6f331347ace53074cb26d46cacbec1d3, type: 3}
-      propertyPath: action.m_SingletonActionBindings.Array.data[0].m_Action
-      value: Action
+      propertyPath: runKeyModifier.m_Name
+      value: Run Key Modifier
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
