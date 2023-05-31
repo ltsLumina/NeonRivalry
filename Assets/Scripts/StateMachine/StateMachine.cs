@@ -38,9 +38,25 @@ public class StateMachine : MonoBehaviour
     /// <seealso cref="HandleStateChange(State.StateType)"/>
     void SetState(State newState)
     {
-        CurrentState?.OnExit();
-        CurrentState = newState;
-        CurrentState?.OnEnter();
+        // Checks if the current state is null, or if the new state has a higher priority than the current state.
+        // If the new state has a lower or equal priority, the current state is entered like normal.
+        // If the new state has a higher priority, the current state is interrupted and the interrupt logic is handled.
+        if (CurrentState == null || newState.Priority <= CurrentState.Priority)
+        {
+            CurrentState?.OnExit();
+            CurrentState = newState;
+            CurrentState?.OnEnter();
+        }
+        // Checks if the new state has a higher priority than the current state.
+        else if (newState.Priority > CurrentState.Priority)
+        {
+            // Interrupt the current state and handle the interrupt logic.
+            //CurrentState?.OnInterrupt();
+            CurrentState?.OnExit();
+            // Set the new state and enter it.
+            CurrentState = newState;
+            CurrentState.OnEnter();
+        }
     }
 
     // Runs the current state's update method, allowing for the state to run its logic.
@@ -54,7 +70,6 @@ public class StateMachine : MonoBehaviour
     /// Handles changing the state of the state machine.
     /// </summary>
     /// <param name="stateType"> The state to transition into. </param>
-    /// <param name="stateAction"> A optional action to pass in to each state. </param>
     public void HandleStateChange(State.StateType stateType)
     {
         // Do NOT run any other code than the CheckStateDataAndExecute() method in this switch statement.

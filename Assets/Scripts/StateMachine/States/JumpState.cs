@@ -76,7 +76,7 @@ public class JumpState : State
         // Perform any necessary cleanup or exit actions
         // Debug.Log("Exited Jump State");
 
-        StateMachine.Instance.HandleStateChange(StateType.Fall);
+        //StateMachine.Instance.HandleStateChange(StateType.Fall);
 
         IsJumping = false;
     }

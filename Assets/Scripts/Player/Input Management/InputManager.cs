@@ -73,7 +73,7 @@ public class InputManager : MonoBehaviour
     {
         jumpInputIsHeld = value.isPressed;
 
-        if (player.IsGrounded())
+        if (player.IsGrounded() && !player.IsFalling())
         {
             stateMachine.HandleStateChange(State.StateType.Jump);
         }
