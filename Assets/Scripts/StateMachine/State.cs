@@ -33,7 +33,7 @@ public abstract class State
 
     // This dictionary is used to determine the priority of each state.
     //TODO: Adjust the system to allow for states with the same priority, allowing for more complex state transitions.
-    protected readonly static Dictionary<StateType, int> statePriorities = new()
+    protected readonly Dictionary<StateType, int> statePriorities = new()
     {
     { Idle, 1 },
     { Walk, 2 },
@@ -45,7 +45,7 @@ public abstract class State
     { HitStun, 8 },
     { Knockdown, 10 },
     { Dead, 99 },
-    { None, 100 }
+    { None, 0 }
     };
 
     /// <summary>
@@ -57,7 +57,7 @@ public abstract class State
     /// The priority of the state. The higher the value, the higher the priority.
     /// //TODO: Implement this again at a later date.
     /// </summary>
-    public abstract int Priority { get; }
+    public virtual int Priority { get; }
 
     // -- State Machine Methods --
 

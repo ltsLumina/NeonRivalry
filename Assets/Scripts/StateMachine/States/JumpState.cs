@@ -7,6 +7,7 @@ public class JumpState : State
 {
     public override StateType Type => StateType.Jump;
     public override int Priority => statePriorities[Type];
+
     public bool IsJumping { get; private set; }
 
     float jumpForce;
@@ -76,7 +77,8 @@ public class JumpState : State
         // Perform any necessary cleanup or exit actions
         // Debug.Log("Exited Jump State");
 
-        //StateMachine.Instance.HandleStateChange(StateType.Fall);
+        //This is technically causing the stack overflow.
+        StateMachine.Instance.HandleStateChange(StateType.Fall);
 
         IsJumping = false;
     }

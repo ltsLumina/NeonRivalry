@@ -31,7 +31,10 @@ public class FallState : State
 
     public override void UpdateState()
     {
-        // Handle fall logic
+        if (player.IsGrounded())
+        {
+            OnExit();
+        }
     }
 
     public override void OnExit()

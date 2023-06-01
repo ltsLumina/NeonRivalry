@@ -2,7 +2,7 @@
 
 public class NoneState : State
 {
-    public override StateType Type => StateType.Idle;
+    public override StateType Type => StateType.None;
     public override int Priority => statePriorities[Type];
 
     public NoneState(PlayerController player) : base(player)
