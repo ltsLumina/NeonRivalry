@@ -1,18 +1,22 @@
-using System;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    HealthBar healthBar;
+    PlayerController player;
+    NewHealthbar newHealthbar;
 
     void Start()
     {
-        healthBar = FindObjectOfType<HealthBar>();
+        player = FindObjectOfType<PlayerController>();
+        newHealthbar = FindObjectOfType<NewHealthbar>();
+        
+        // Set the player's health to the max value.
+        SetHealth();
     }
 
-    void Update()
+    void SetHealth()
     {
-        healthBar.TakingDamage();
+        newHealthbar.LHealthbar.value = 100;
+        newHealthbar.RHealthbar.value = 100;
     }
 }
