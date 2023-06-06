@@ -6,8 +6,12 @@ using static State.StateType;
 /// </summary>
 public abstract class State
 {
+    // Cached References
     protected readonly PlayerController player;
 
+    // -- State Related -- //
+    
+    // Constructor to set the player reference.
     protected State(PlayerController player)
     {
         this.player = player;
@@ -33,33 +37,41 @@ public abstract class State
 
     // This dictionary is used to determine the priority of each state.
     //TODO: Adjust the system to allow for states with the same priority, allowing for more complex state transitions.
-    protected readonly Dictionary<StateType, int> statePriorities = new()
-    {
-    { Idle, 1 },
-    { Walk, 2 },
-    { Run, 3 },
-    { Jump, 4 },
-    { Fall, 5 },
-    { Attack, 6 },
-    { Block, 7 },
-    { HitStun, 8 },
-    { Knockdown, 10 },
-    { Dead, 99 },
-    { None, 0 }
-    };
+    protected readonly Dictionary<StateType, int> statePriorities = new ()
+    { { Idle, 1 },
+      { Walk, 2 },
+      { Run, 3 },
+      { Jump, 4 },
+      { Fall, 5 },
+      { Attack, 6 },
+      { Block, 7 },
+      { HitStun, 8 },
+      { Knockdown, 10 },
+      { Dead, 99 },
+      { None, 0 } };
 
-    /// <summary>
-    /// The type of the state.
-    /// </summary>
-    public abstract StateType Type { get; }
+    //TODO: FIX THIS. player non static
+    // This dictionary is used to determine if a state can be interrupted.
+    // By using a dictionary, we can easily change the interruptibility of a state without having to change the state itself.
+    protected readonly Dictionary<StateType, bool> interruptibilityRules = new ()
+    { { Idle, false },
+      { Walk, player.IsIdle() },
+      { Run, player.IsIdle() },
+      { Jump, player.IsAttacking() || player.IsGrounded() },
+      { Fall, player.IsAttacking() || player.IsGrounded() || player.IsJumping() },
+      { Attack, false },
+      { Dead, false },
+      { None, false } };
 
-    /// <summary>
-    /// The priority of the state. The higher the value, the higher the priority.
-    /// //TODO: Implement this again at a later date.
-    /// </summary>
-    public virtual int Priority { get; }
+    // -- State Methods --
 
-    // -- State Machine Methods --
+
+      /// <summary>
+      /// The priority of the state. The higher the value, the higher the priority.
+      /// </summary>
+      public abstract int Priority { get; }
+
+    public abstract bool CanBeInterrupted();
 
     /// <summary>
     /// Called when the state is entered.

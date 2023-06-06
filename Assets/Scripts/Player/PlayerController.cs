@@ -61,7 +61,7 @@ public partial class PlayerController : MonoBehaviour
             // If the player has been idle for longer than the threshold, trigger the idle state.
             if (idleTime > idleTimeThreshold)
             {
-                stateMachine.HandleStateChange(State.StateType.Idle);
+                stateMachine.TransitionToState(State.StateType.Idle);
                 idleTime = 0;
             }
         }

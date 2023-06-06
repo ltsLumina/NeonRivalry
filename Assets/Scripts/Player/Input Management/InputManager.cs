@@ -58,14 +58,14 @@ public class InputManager : MonoBehaviour
         if (player.IsGrounded() && !player.IsJumping() && !player.IsFalling())
         {
             // Regular Walk State
-            stateMachine.HandleStateChange(State.StateType.Walk);
+            stateMachine.TransitionToState(State.StateType.Walk);
         }
 
         //TODO: isRunning is a temporary state for testing purposes.
         if (player.IsGrounded() && isRunning)
         {
             // Running State
-            stateMachine.HandleStateChange(State.StateType.Run);
+            stateMachine.TransitionToState(State.StateType.Run);
         }
     }
 
@@ -75,7 +75,7 @@ public class InputManager : MonoBehaviour
 
         if (player.IsGrounded() && !player.IsFalling())
         {
-            stateMachine.HandleStateChange(State.StateType.Jump);
+            stateMachine.TransitionToState(State.StateType.Jump);
         }
     }
 
@@ -87,6 +87,6 @@ public class InputManager : MonoBehaviour
 
     void OnAttack(InputValue value)
     {
-        stateMachine.HandleStateChange(State.StateType.Attack);
+        stateMachine.TransitionToState(State.StateType.Attack);
     }
 }

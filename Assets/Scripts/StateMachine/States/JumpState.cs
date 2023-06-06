@@ -2,10 +2,9 @@
 using UnityEngine;
 #endregion
 
-//TODO: Possibly make a fall state?
 public class JumpState : State
 {
-    public override StateType Type => StateType.Jump;
+    static StateType Type => StateType.Jump;
     public override int Priority => statePriorities[Type];
 
     public bool IsJumping { get; private set; }
@@ -20,6 +19,13 @@ public class JumpState : State
     public JumpState(PlayerController player, JumpStateData stateData) : base(player)
     {
         jumpForce = stateData.JumpForce;
+    }
+
+    public override bool CanBeInterrupted()
+    {
+        // return true if the player is attacking or is grounded
+        Debug.Log("JumpState: CanBeInterrupted()");
+        return interruptibilityRules[Type];
     }
 
     public override void OnEnter()
@@ -60,7 +66,7 @@ public class JumpState : State
             {
                 // Allow for variable jump height by reducing the upward velocity when the jump button is released
                 // Example: Reduce the upward velocity by a certain factor
-                player.PlayerRB.velocity = new Vector2(player.PlayerRB.velocity.x, player.PlayerRB.velocity.y * variableJumpHeightFactor);
+                player.PlayerRB.velocity = new (player.PlayerRB.velocity.x, player.PlayerRB.velocity.y * variableJumpHeightFactor);
             }
         }
         else
@@ -76,10 +82,10 @@ public class JumpState : State
     {
         // Perform any necessary cleanup or exit actions
         // Debug.Log("Exited Jump State");
-
-        //This is technically causing the stack overflow.
-        StateMachine.Instance.HandleStateChange(StateType.Fall);
-
+        
         IsJumping = false;
+        
+        // transition to fall state
+        StateMachine.Instance.TransitionToState(StateType.Fall);
     }
 }

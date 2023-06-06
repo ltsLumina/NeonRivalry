@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using static State;
+using static State.StateType;
+using static UnityEditor.EditorGUILayout;
 
 /// <summary>
 /// The state machine that handles the player's state.
@@ -19,104 +22,93 @@ public class StateMachine : MonoBehaviour
     public static StateMachine Instance { get; private set; }
     public State CurrentState { get; private set; }
 
+
     void Start()
     {
-        // Get a reference to the StateMachine component.
-        Instance = GetComponent<StateMachine>();
+        // Get a reference to the StateMachine.
+        Instance = this;
 
         player = FindObjectOfType<PlayerController>();
 
         // Set the default state.
-        HandleStateChange(State.StateType.None);
+        TransitionToState(None);
     }
 
     /// <summary>
     ///     Sets the state of the state machine.
-    ///     <remarks> If you want to change the state, use HandleStateChange() instead. </remarks>
+    ///     <remarks> If you want to change the state, use TransitionToState() instead. </remarks>
     /// </summary>
     /// <param name="newState">The new state we transition into.</param>
-    /// <seealso cref="HandleStateChange(State.StateType)"/>
+    /// <seealso cref="TransitionToState"/>
     void SetState(State newState)
     {
         // Checks if the current state is null, or if the new state has a higher priority than the current state.
         // If the new state has a lower or equal priority, the current state is entered like normal.
-        // If the new state has a higher priority, the current state is interrupted and the interrupt logic is handled.
-        if (CurrentState == null || newState.Priority <= CurrentState.Priority)
+        if (CurrentState != null && newState.Priority > CurrentState.Priority && CurrentState.CanBeInterrupted())
         {
+            //Debug.Log("Interrupting current state and exiting!");
             CurrentState?.OnExit();
-            CurrentState = newState;
-            CurrentState?.OnEnter();
         }
-        // Checks if the new state has a higher priority than the current state.
-        else if (newState.Priority > CurrentState.Priority)
-        {
-            // Interrupt the current state and handle the interrupt logic.
-            //CurrentState?.OnInterrupt();
-            CurrentState?.OnExit();
-            // Set the new state and enter it.
-            CurrentState = newState;
-            CurrentState.OnEnter();
-        }
+
+        //Debug.Log("Entering: " + newState);
+        CurrentState = newState;
+        CurrentState?.OnEnter();
     }
 
     // Runs the current state's update method, allowing for the state to run its logic.
-    public void Update()
-    {
-        CurrentState?.UpdateState();
-        Debug.Log(CurrentState);
-    }
+    public void Update() => CurrentState?.UpdateState();
 
     /// <summary>
     /// Handles changing the state of the state machine.
     /// </summary>
     /// <param name="stateType"> The state to transition into. </param>
-    public void HandleStateChange(State.StateType stateType)
+    public void TransitionToState(StateType stateType)
     {
         // Do NOT run any other code than the CheckStateDataAndExecute() method in this switch statement.
         // Handle any other logic in the state itself.
         switch (stateType)
         {
-            case State.StateType.Idle:
+            case Idle:
                 SetState(new IdleState(player)); //TODO: Add state data, potentially. (Such as idleTimeThreshold)
                 break;
 
-            case State.StateType.Walk:
+            case Walk:
                 CheckStateDataAndExecute(stateData.moveStateData, data => SetState(new MoveState(player, data)));
                 break;
 
-            case State.StateType.Jump:
+            case Jump:
                 CheckStateDataAndExecute(stateData.jumpStateData, data => SetState(new JumpState(player, data)));
                 break;
 
-            case State.StateType.Fall:
+            case Fall:
                 CheckStateDataAndExecute(stateData.fallStateData, data => SetState(new FallState(player, data)));
                 break;
 
-            case State.StateType.Attack:
+            case Attack:
                 CheckStateDataAndExecute(stateData.attackStateData, data => SetState(new AttackState(player, data)));
                 break;
 
             // - Unused States -
-            case State.StateType.Knockdown:
+            case Knockdown:
                 break;
 
-            case State.StateType.Dead:
+            case Dead:
                 break;
 
-            case State.StateType.Run:
+            case Run:
                 Debug.Log("RUNNING");
                 // technically unused (only used for debugging)
                 break;
 
-            case State.StateType.Block:
+            case Block:
                 break;
 
-            case State.StateType.HitStun:
+            case HitStun:
                 break;
 
             // -- Default State --
 
-            case State.StateType.None: // The None state uses the defaultStateData which is primarily used for debugging. (It's a template for new state data)
+            case None: // The None state uses the defaultStateData which is primarily used for debugging. (It's a template for new state data)
                 SetState(new NoneState(player));
                 break;
 
@@ -168,7 +160,17 @@ public class StateMachineEditor : Editor
         base.OnInspectorGUI();
 
         var stateMachine = (StateMachine) target;
-        EditorGUILayout.LabelField("Current State", stateMachine.CurrentState?.GetType().Name);
+
+        LabelField("Current State", stateMachine.CurrentState?.GetType().Name);
+        
+            Space();
+        
+        // For debugging purposes, to see if the related bool is true or false, even if the state is not the current state.
+        LabelField("State Booleans", EditorStyles.boldLabel);
+        LabelField("IsMoving: ", stateMachine.CurrentState is MoveState {IsMoving: true } ? "True" : "False"); 
+        LabelField("IsJumping: ", stateMachine.CurrentState is JumpState {IsJumping: true } ? "True" : "False");
+        LabelField("IsFalling: ", stateMachine.CurrentState is FallState {IsFalling: true } ? "True" : "False");
+        LabelField("IsAttacking: ", stateMachine.CurrentState is AttackState {IsAttacking: true } ? "True" : "False");
 
         EditorUtility.SetDirty(stateMachine);
     }

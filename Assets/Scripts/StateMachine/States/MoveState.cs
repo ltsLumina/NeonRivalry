@@ -1,6 +1,4 @@
 ﻿#region
-using System;
-using System.Collections;
 using UnityEngine;
 #endregion
 
@@ -8,7 +6,7 @@ public class MoveState : State
 {
     float moveSpeed;
 
-    public override StateType Type => StateType.Walk;
+    static StateType Type => StateType.Walk;
     public override int Priority => statePriorities[Type];
 
     public bool IsMoving { get; private set; }
@@ -18,7 +16,13 @@ public class MoveState : State
         moveSpeed = stateData.MoveSpeed;
     }
 
-    public override void OnEnter()
+    public override bool CanBeInterrupted()
+    {
+        // return true if the player is doing anything other than moving
+        return interruptibilityRules[Type];
+    }
+    
+        public override void OnEnter()
     {
         // Play the move animation.
         // Log("Entered Walk State");

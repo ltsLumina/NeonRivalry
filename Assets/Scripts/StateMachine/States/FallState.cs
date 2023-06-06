@@ -2,8 +2,7 @@
 
 public class FallState : State
 {
-    // -- Abstract Variables --
-    public override StateType Type => StateType.Fall;
+    static StateType Type => StateType.Fall;
     public override int Priority => statePriorities[Type];
 
     public bool IsFalling { get; private set; }
@@ -18,6 +17,13 @@ public class FallState : State
     {
         fallTimer = stateData.FallTimer;
         fallDuration = stateData.FallDuration;
+    }
+
+    public override bool CanBeInterrupted()
+    {
+        // return true if the player is attacking or is grounded
+        Debug.Log("FallState: CanBeInterrupted()");
+        return interruptibilityRules[Type];
     }
 
     public override void OnEnter()
@@ -40,7 +46,7 @@ public class FallState : State
     public override void OnExit()
     {
         // Perform any necessary cleanup or exit actions
-        //Debug.Log("Exited Fall State");
+        Debug.Log("Exited Fall State");
         IsFalling = false;
     }
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 public class AttackState : State
 {
     // -- Abstract Variables --
-    public override StateType Type => StateType.Attack;
+    static StateType Type => StateType.Attack;
     public override int Priority => statePriorities[Type];
 
     public bool IsAttacking { get; private set; }
@@ -21,6 +21,8 @@ public class AttackState : State
         attackDuration = stateData.AttackDuration;
     }
 
+    public override bool CanBeInterrupted() => interruptibilityRules[Type]; //TODO: this will change later, when there are more states with higher priority.
+
     public override void OnEnter( )
     {
         // Play the attack animation.
@@ -36,17 +38,29 @@ public class AttackState : State
         if (player.IsGrounded() && !player.IsFalling())
         { // If the player is on the ground, perform a grounded attack.
             // attack, wait for attack to finish, then exit
-            if (attackTimer >= attackDuration) OnExit();
-            else attackTimer += Time.deltaTime;
+            if (attackTimer >= attackDuration)
+            {
+                OnExit();
+            }
+            else
+            {
+                attackTimer += Time.deltaTime;
+                Debug.Log("Attacking on the ground!");
+            }
         }
         else
         { // If the player is in the air, perform an aerial attack.
             // attack, wait for attack to finish, then exit
-            if (attackTimer >= attackDuration) OnExit();
-            else attackTimer += Time.deltaTime;
+            if (attackTimer >= attackDuration)
+            {
+                OnExit();
+            }
+            else
+            {
+                attackTimer += Time.deltaTime;
+                Debug.Log("Attacking in the air!");
+            }
         }
-
-        // Handle attack logic
     }
 
     public override void OnExit()

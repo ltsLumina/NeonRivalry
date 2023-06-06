@@ -2,11 +2,13 @@
 
 public class NoneState : State
 {
-    public override StateType Type => StateType.None;
+    static StateType Type => StateType.None;
     public override int Priority => statePriorities[Type];
 
     public NoneState(PlayerController player) : base(player)
     { }
+
+    public override bool CanBeInterrupted() => interruptibilityRules[Type];
 
     public override void OnEnter()
     {

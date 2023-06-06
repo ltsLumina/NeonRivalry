@@ -2,11 +2,17 @@
 
 public class IdleState : State
 {
-    public override StateType Type => StateType.Idle;
+    static StateType Type => StateType.Idle;
     public override int Priority => statePriorities[Type];
 
     public IdleState(PlayerController player) : base(player)
-    { }
+    { /*Empty Constructor as the Idle state doesn't require anything. (Yet) */ }
+
+    public override bool CanBeInterrupted()
+    {
+        // return true if the player is not idle
+        return interruptibilityRules[Type]; //TODO: this might change later, if necessary.
+    }
 
     public override void OnEnter()
     {

@@ -3,6 +3,7 @@
 // This is a partial class, which allows us to split the class definition across multiple files.
 // This is useful for keeping the code organized and easy to read.
 // This file contains all of the input checks, such as checking if the player is moving, jumping, etc.
+//TODO: In hindsight, maybe I should put this into its own class rather than as a partial class of PlayerController.
 public partial class PlayerController // StateChecks.cs
 {
     public bool IsMoving()
@@ -19,7 +20,7 @@ public partial class PlayerController // StateChecks.cs
 
     public bool IsFalling()
     {
-        return IsGrounded() && PlayerRB.velocity.y < 0 && stateMachine.CurrentState is FallState
+        return !IsGrounded() && PlayerRB.velocity.y < 0 && stateMachine.CurrentState is FallState
         { IsFalling: true };
     }
 
@@ -30,7 +31,7 @@ public partial class PlayerController // StateChecks.cs
     }
 
     //TODO: check if this is actually a reasonable way to check if the player is idle.
-    bool IsIdle()
+    public bool IsIdle()
     {
         return !IsMoving() && !IsJumping() && !IsFalling() && !IsAttacking();
     }
