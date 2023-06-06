@@ -21,7 +21,11 @@ public class AttackState : State
         attackDuration = stateData.AttackDuration;
     }
 
-    public override bool CanBeInterrupted() => interruptibilityRules[Type]; //TODO: this will change later, when there are more states with higher priority.
+    public override bool CanBeInterrupted()
+    {
+        //TODO: this will change later, when there are more states with higher priority.
+        return interruptibilityRules[Type];
+    }
 
     public override void OnEnter( )
     {

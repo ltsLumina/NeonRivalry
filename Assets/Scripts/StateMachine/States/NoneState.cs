@@ -8,7 +8,10 @@ public class NoneState : State
     public NoneState(PlayerController player) : base(player)
     { }
 
-    public override bool CanBeInterrupted() => interruptibilityRules[Type];
+    public override bool CanBeInterrupted()
+    {
+        return interruptibilityRules[Type];
+    }
 
     public override void OnEnter()
     {

@@ -49,19 +49,18 @@ public abstract class State
       { Knockdown, 10 },
       { Dead, 99 },
       { None, 0 } };
-
-    //TODO: FIX THIS. player non static
+    
     // This dictionary is used to determine if a state can be interrupted.
     // By using a dictionary, we can easily change the interruptibility of a state without having to change the state itself.
-    protected readonly Dictionary<StateType, bool> interruptibilityRules = new ()
-    { { Idle, false },
-      { Walk, player.IsIdle() },
-      { Run, player.IsIdle() },
-      { Jump, player.IsAttacking() || player.IsGrounded() },
-      { Fall, player.IsAttacking() || player.IsGrounded() || player.IsJumping() },
-      { Attack, false },
-      { Dead, false },
-      { None, false } };
+    // protected readonly Dictionary<StateType, bool> interruptibilityRules = new ()
+    // { { Idle, false },
+    //   { Walk, player.IsIdle() },
+    //   { Run, player.IsIdle() },
+    //   { Jump, player.IsAttacking() || player.IsGrounded() },
+    //   { Fall, player.IsAttacking() || player.IsGrounded() || player.IsJumping() },
+    //   { Attack, false },
+    //   { Dead, false },
+    //   { None, false } };
 
     // -- State Methods --
 
