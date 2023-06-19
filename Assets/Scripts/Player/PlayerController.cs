@@ -1,7 +1,7 @@
 #region
 using System;
 using UnityEngine;
-using static Essentials.Attributes;
+using static Lumina.Essentials.Attributes;
 #endregion
 
 /// <summary>

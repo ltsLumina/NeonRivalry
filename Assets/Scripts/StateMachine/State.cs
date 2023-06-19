@@ -15,6 +15,16 @@ public abstract class State
     protected State(PlayerController player)
     {
         this.player = player;
+
+        interruptibilityRules = new ()
+        { { Idle, false },
+          { Walk, this.player.IsIdle() },
+          { Run, this.player.IsIdle() },
+          { Jump, this.player.IsAttacking() || this.player.IsGrounded() },
+          { Fall, this.player.IsAttacking() || this.player.IsGrounded() || this.player.IsJumping() },
+          { Attack, false },
+          { Dead, false },
+          { None, false } };
     }
 
     // StateType is used to indicate the type of state that the player is in.
@@ -48,27 +58,19 @@ public abstract class State
       { HitStun, 8 },
       { Knockdown, 10 },
       { Dead, 99 },
-      { None, 0 } };
+      { None, 0 } 
+    };
     
     // This dictionary is used to determine if a state can be interrupted.
     // By using a dictionary, we can easily change the interruptibility of a state without having to change the state itself.
-    // protected readonly Dictionary<StateType, bool> interruptibilityRules = new ()
-    // { { Idle, false },
-    //   { Walk, player.IsIdle() },
-    //   { Run, player.IsIdle() },
-    //   { Jump, player.IsAttacking() || player.IsGrounded() },
-    //   { Fall, player.IsAttacking() || player.IsGrounded() || player.IsJumping() },
-    //   { Attack, false },
-    //   { Dead, false },
-    //   { None, false } };
+    protected readonly Dictionary<StateType, bool> interruptibilityRules;
 
     // -- State Methods --
 
-
-      /// <summary>
-      /// The priority of the state. The higher the value, the higher the priority.
-      /// </summary>
-      public abstract int Priority { get; }
+    /// <summary>
+    ///     The priority of the state. The higher the value, the higher the priority.
+    /// </summary>
+    public abstract int Priority { get; }
 
     public abstract bool CanBeInterrupted();
 

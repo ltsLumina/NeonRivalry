@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using static Essentials.Attributes;
+using static Lumina.Essentials.Attributes;
 
 [CreateAssetMenu(fileName = "AttackStateData", menuName = "State Data/AttackState Data", order = 0)]
 public class AttackStateData : ScriptableObject

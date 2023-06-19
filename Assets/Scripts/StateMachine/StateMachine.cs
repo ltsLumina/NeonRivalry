@@ -4,7 +4,9 @@ using UnityEditor;
 using UnityEngine;
 using static State;
 using static State.StateType;
+#if UNITY_EDITOR
 using static UnityEditor.EditorGUILayout;
+#endif
 
 /// <summary>
 /// The state machine that handles the player's state.

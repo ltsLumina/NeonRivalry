@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
-using static Essentials.Attributes;
+using static Lumina.Essentials.Attributes;
 
 /// <summary>
 /// Handles all player input, such as movement, jumping, attacking, etc.
