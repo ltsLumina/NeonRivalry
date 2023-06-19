@@ -6,7 +6,7 @@ using static UnityEditor.EditorGUILayout;
 using static UnityEngine.GUILayout;
 using Slider = UnityEngine.UI.Slider;
 
-public class NewHealthbar : MonoBehaviour
+public class Healthbar : MonoBehaviour
 {
     [Header("Serialized References")]
     [SerializeField] Slider leftHealthbar;
@@ -92,14 +92,14 @@ public class NewHealthbar : MonoBehaviour
     }
 }
 
-[CustomEditor(typeof(NewHealthbar))]
-public class NewHealthbarEditor : Editor
+[CustomEditor(typeof(Healthbar))]
+public class HealthbarEditor : Editor
 {
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
         
-        var healthbar = (NewHealthbar) target;
+        var healthbar = (Healthbar) target;
 
         EditorGUILayout.Space(15);
 

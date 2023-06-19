@@ -1,14 +1,14 @@
 ﻿using UnityEngine;
-using static Essentials.Sequencing;
+using static Lumina.Essentials.Sequencing;
 
 public class HealthbarManager : MonoBehaviour
 {
     // Cached References
-    NewHealthbar newHealthbar;
+    Healthbar healthbar;
 
     void Start()
     {
-        newHealthbar = FindObjectOfType<NewHealthbar>();
+        healthbar = FindObjectOfType<Healthbar>();
         
         // Set the player's health to the max value.
         SetHealth();
@@ -18,16 +18,16 @@ public class HealthbarManager : MonoBehaviour
 
     void SetHealth()
     {
-        newHealthbar.LeftHealthbarValue  = 100;
-        newHealthbar.RightHealthbarValue = 100;
+        healthbar.LeftHealthbarValue  = 100;
+        healthbar.RightHealthbarValue = 100;
     }
 
     public void ReloadOnDeath()
     {
         // Unsubscribe from the onPlayerDeath event
-        NewHealthbar.onPlayerDeath -= ReloadOnDeath;
+        Healthbar.onPlayerDeath -= ReloadOnDeath;
         
-        StartCoroutine(WaitForSeconds(() =>
+        StartCoroutine(DelayedAction(() =>
         {
             Debug.Log("Either Player has died, reloading scene.");
             SceneManagerExtended.ReloadScene();
@@ -43,7 +43,7 @@ public class HealthbarManager : MonoBehaviour
         if (Input.GetKey(KeyCode.L))
         {
             // This method does not kill the player, it only decrements the health to 1.
-            newHealthbar.AdjustHealthbar(true, 1, 100);
+            healthbar.AdjustHealthbar(true, 1, 100);
         }
     }
 }
