@@ -48,9 +48,6 @@ public class FallState : State
         // Debug.Log("Exited Fall State");
 
         // Play land animation.
-
-        // Transition to idle state once land animation is finished.
-        StateMachine.Instance.TransitionToState(StateType.Idle);
         IsFalling = false;
     }
 }

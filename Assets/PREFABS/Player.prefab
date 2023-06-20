@@ -34,8 +34,9 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5525648781399608160}
+  - {fileID: 7202867546344971742}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &323316177474802617
 MonoBehaviour:
@@ -49,10 +50,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d17e004f39cd0240b6118eb5da62b38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  idleTimeThreshold: 0
+  idleTimeThreshold: 2
   idleTime: 0
-  groundDistance: 1.2
-  groundCheck: {fileID: 0}
+  groundDistance: 0.5
+  groundCheck: {fileID: 7202867546344971742}
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -73,10 +74,18 @@ MonoBehaviour:
     m_Name: Run Key Modifier
     m_Type: 0
     m_ExpectedControlType: 
-    m_Id: 4acd3fc4-c92a-48d0-9a7e-b2fd5e735c97
+    m_Id: 4543a91e-07c5-477d-a7ae-ac57715c6111
     m_Processors: 
     m_Interactions: 
-    m_SingletonActionBindings: []
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 01c7ab42-059e-4651-b82b-835b2d3606f9
+      m_Path: <Keyboard>/shift
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Run Key Modifier
+      m_Flags: 0
     m_Flags: 0
 --- !u!114 &1144944269674105434
 MonoBehaviour:
@@ -226,6 +235,37 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: 0}
   m_Size: {x: 1, y: 2}
   m_Direction: 0
+--- !u!1 &976289678973055103
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7202867546344971742}
+  m_Layer: 0
+  m_Name: GroundCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7202867546344971742
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 976289678973055103}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6647826687636412292}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3549039904017844166
 GameObject:
   m_ObjectHideFlags: 0

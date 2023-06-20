@@ -63,11 +63,10 @@ public class AttackState : State
                 // Play airborne attack animation.
                 // Once the animation finishes/attackDuration is over, transition to the fall state.
                 player.GetComponentInChildren<SpriteRenderer>().color = new Color(1f, 0.21f, 0.38f, 0.75f); // Pink now refers to airborne attacks.
-
-                if (attackTimer >= attackDuration)
-                {
-                    StateMachine.Instance.TransitionToState(StateType.Fall);
-                }
+            }
+            else
+            {
+                TransitionTo(StateType.Fall);
             }
         }
     }
@@ -77,7 +76,7 @@ public class AttackState : State
         // Perform any necessary cleanup or exit actions
         // Debug.Log("Exited Attack State");
 
-        StateMachine.Instance.TransitionToState(StateType.Idle);
+        TransitionTo(StateType.Idle);
         IsAttacking = false;
     }
 }

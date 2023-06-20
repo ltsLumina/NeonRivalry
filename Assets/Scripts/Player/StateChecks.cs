@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static State;
+using Debug = UnityEngine.Debug;
 
 // This is a partial class, which allows us to split the class definition across multiple files.
 // This is useful for keeping the code organized and easy to read.
@@ -9,39 +11,64 @@ using UnityEngine;
 //TODO: In hindsight, maybe I should put this into its own class rather than as a partial class of PlayerController.
 public partial class PlayerController // StateChecks.cs
 {
+    // -- State Checks --
+    
     public bool IsGrounded()
     {
-        // Perform an overlap check using the player's collider
-        // and a layer mask that includes the ground or platform layer.
         Collider2D[] colliders = Physics2D.OverlapBoxAll(groundCheck.position, Vector3.one * groundDistance, 0f, groundLayer);
 
-        // Check if any colliders are found (indicating the player is grounded)
-        return colliders.Length > 0;
+        bool isGrounded = colliders.Length > 0;
+        
+        //if (isGrounded) { Debug.Log("IsGrounded() is true"); }
+
+        return isGrounded;
     }
-    
+
     public bool IsMoving()
     {
-        return InputManager.MoveInput != Vector2.zero && PlayerRB.velocity != Vector2.zero && IsGrounded() && stateMachine.CurrentState is MoveState
+        bool isMoving = InputManager.MoveInput.x != 0 && PlayerRB.velocity.x != 0 && IsGrounded() && stateMachine.CurrentState is MoveState
         { IsMoving: true };
+
+        //Debug.Log("IsMoving() is true");
+
+        return isMoving;
     }
 
+    // ReSharper disable Unity.PerformanceAnalysis
     public bool IsJumping()
     {
-        return !IsGrounded() && PlayerRB.velocity.y > 0 && stateMachine.CurrentState is JumpState
+        bool isJumping = IsGrounded() && PlayerRB.velocity.y > 0  && stateMachine.CurrentState is JumpState
         { IsJumping: true };
+
+        if (isJumping) { Debug.Log("IsJumping() is true"); }
+
+        return isJumping;
     }
 
+    // ReSharper disable Unity.PerformanceAnalysis
     public bool IsFalling()
     {
-        return !IsGrounded() && PlayerRB.velocity.y < 0 && stateMachine.CurrentState is FallState
+        bool isFalling = !IsGrounded() && PlayerRB.velocity.y <= 0 && stateMachine.CurrentState is FallState
         { IsFalling: true };
+
+        if (isFalling) { Debug.Log("IsFalling() is true"); }
+
+        return isFalling;
     }
 
+
+    // ReSharper disable Unity.PerformanceAnalysis
     public bool IsAttacking()
     {
-        return stateMachine.CurrentState is AttackState
+        //TODO: This is a temporary implementation. We need to check if the player is attacking some other way.
+        bool isAttacking = Input.GetKeyDown(KeyCode.Mouse0) && stateMachine.CurrentState is AttackState
         { IsAttacking: true };
+
+        if (isAttacking) { Debug.Log("IsAttacking() is true"); }
+
+        return isAttacking;
     }
+
 
     /// <summary>
     ///     This method checks if the player is airborne, which is defined as not being grounded, jumping, or falling.
@@ -58,8 +85,7 @@ public partial class PlayerController // StateChecks.cs
     /// <remarks>I just wanted a reason to name a boolean "IsDisabled" lol</remarks>
     /// <returns>True if the player is in a hitstun state or blocking, false otherwise.</returns>
     //public bool IsDisabled() => IsHitstun() || IsBlocking();
-
-    //TODO: check if this is actually a reasonable way to check if the player is idle.
+    
     public bool IsIdle()
     {
         // Create a list of conditions to check. If any of them are true, the player is not idle.
@@ -72,6 +98,18 @@ public partial class PlayerController // StateChecks.cs
         };
         
         // Check all conditions, return false if any of them are true
-        return conditions.All(condition => condition());
+        return conditions.All(condition => condition()) && stateMachine.CurrentState is IdleState;
+    }
+
+    public bool CanMove() => !IsIdle();
+    public bool CanJump() => !IsAirborne();
+    public bool CanAttack() => !IsAttacking();
+
+    // -- Gizmos --
+
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireCube(groundCheck.position, Vector3.one * groundDistance);
     }
 }

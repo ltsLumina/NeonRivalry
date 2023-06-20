@@ -23,16 +23,9 @@ public partial class PlayerController : MonoBehaviour
     // Cached References
     StateMachine stateMachine;
     Animator anim;
-    
-    public event Action OnEnterIdleState;
 
     public Rigidbody2D PlayerRB { get; private set; }
     public InputManager InputManager { get; private set; }
-
-    void Awake()
-    {
-        OnEnterIdleState += () => stateMachine.TransitionToState(StateType.Idle);
-    }
 
     void Start()
     {
@@ -43,9 +36,7 @@ public partial class PlayerController : MonoBehaviour
 
     void Update()
     {
-        idleTime += Time.deltaTime;
-
-        CheckIdle();
+        //CheckIdle();
     }
 
     // -- State Checks --
@@ -56,21 +47,15 @@ public partial class PlayerController : MonoBehaviour
         // Check if the player is idle.
         if (IsIdle())
         {
-            // If the player has been idle for longer than the threshold, trigger the idle state.
-            if (idleTime > idleTimeThreshold)
+            // If the player is idle, we add to the idle time.
+            idleTime += Time.deltaTime;
+
+            // If the idle time is greater than the threshold, we transition to the idle state.
+            if (idleTime >= idleTimeThreshold)
             {
-                OnEnterIdleState?.Invoke();
-                idleTime = 0;
+                stateMachine.TransitionToState(StateType.Idle);
             }
         }
         else { idleTime = 0; }
-    }
-
-    // -- Gizmos --
-
-    void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireCube(groundCheck.position, Vector3.one * groundDistance);
     }
 }

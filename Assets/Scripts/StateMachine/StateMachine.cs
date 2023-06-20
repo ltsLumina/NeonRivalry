@@ -4,6 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using static State;
 using static State.StateType;
+using Debug = UnityEngine.Debug;
 #if UNITY_EDITOR
 using static UnityEditor.EditorGUILayout;
 #endif
@@ -12,7 +13,7 @@ using static UnityEditor.EditorGUILayout;
 /// The state machine that handles the player's state.
 /// Allows for easy state transitions and state management.
 /// </summary>
-public class StateMachine : MonoBehaviour
+public class StateMachine : SingletonPersistent<StateMachine>
 {
     [SerializeField] public StateData stateData;
 
@@ -20,15 +21,10 @@ public class StateMachine : MonoBehaviour
     PlayerController player;
 
     // -- State Related --
-    public static StateMachine Instance { get; private set; }
     public State CurrentState { get; private set; }
-
-
+    
     void Start()
     {
-        // Get a reference to the StateMachine.
-        Instance = this;
-
         player = FindObjectOfType<PlayerController>();
 
         // Set the default state.
@@ -47,35 +43,36 @@ public class StateMachine : MonoBehaviour
         // If the new state has a lower or equal priority, the current state is entered like normal.
         if (CurrentState != null && newState.Priority > CurrentState.Priority && CurrentState.CanBeInterrupted())
         {
+            // If the current state can be interrupted, we exit the current state.
             CurrentState?.OnExit();
         }
         
+        // Set the new state and enter it.
         CurrentState = newState;
         CurrentState?.OnEnter();
     }
 
-    // Runs the current state's update method, allowing for the state to run its logic.
+    // Runs the current state's update method.
     public void Update() => CurrentState?.UpdateState();
 
     /// <summary>
-    /// Handles changing the state of the state machine.
+    /// Handles the transition between states.
     /// </summary>
     /// <param name="stateType"> The state to transition into. </param>
     public void TransitionToState(StateType stateType)
     {
         // Do NOT run any other code than the CheckStateDataAndExecute() method in this switch statement.
-        // Handle any other logic in the state itself.
         switch (stateType)
         {
             case Idle:
-                SetState(new IdleState(player)); //TODO: Add state data, potentially. (Such as idleTimeThreshold)
+                SetState(new IdleState(player)); //TODO: Add state data, potentially. (Such as idleTimeThreshold. Currently handled in the player controller.)
                 break;
 
-            case Walk:
+            case Walk when player.CanMove(): //TODO: rework
                 CheckStateDataAndExecute(stateData.moveStateData, data => SetState(new MoveState(player, data)));
                 break;
 
-            case Jump:
+            case Jump when player.CanJump():
                 CheckStateDataAndExecute(stateData.jumpStateData, data => SetState(new JumpState(player, data)));
                 break;
 

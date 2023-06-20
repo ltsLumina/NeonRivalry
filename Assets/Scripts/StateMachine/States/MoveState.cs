@@ -51,12 +51,11 @@ public class MoveState : State
     public override void OnExit()
     {
         // Perform any necessary cleanup or exit actions
-        Debug.Log("Exited Move State");
+        //Debug.Log("Exited Move State");
 
         player.PlayerRB.velocity = Vector2.zero;
         
-        // Enter idle state and reset the IsMoving flag
-        StateMachine.Instance.TransitionToState(StateType.Idle);
+        // Reset the IsMoving flag
         IsMoving = false;
     }
 }

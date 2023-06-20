@@ -74,6 +74,10 @@ public abstract class State
       { Dead, false },
       { None, false } };
 
+    // -- Base Methods --
+
+    protected static void TransitionTo(StateType newState) => StateMachine.Instance.TransitionToState(newState);
+
     // -- State Methods --
 
     /// <summary>

@@ -13,9 +13,7 @@ public class JumpState : State
     float jumpForce;
 
     float jumpTimer;
-    float jumpDuration = 0.75f;
-    float preJumpDuration = 0.2f;
-    float variableJumpHeightFactor = 0.5f;
+    float jumpDuration = 0.5f;
 
     public JumpState(PlayerController player, JumpStateData stateData) : base(player)
     {
@@ -40,43 +38,20 @@ public class JumpState : State
 
     public override void UpdateState()
     {
-        if (jumpTimer < preJumpDuration)
-        {
-            // Handle pre-jump logic, such as preparing for the jump animation or charging up the jump
-            // This phase can be used for anticipation or other pre-jump actions
+        // Handle jump logic, such as applying jump force
 
-            // Example: Charging up the jump
-            if (player.InputManager.JumpInputIsHeld())
-            {
-                // Charge up the jump force or perform any other actions
-                // You can store the charged jump force in a variable and use it in the jump phase below
-                // Example: chargedJumpForce = CalculateChargedJumpForce();
-            }
-        }
-        else if (jumpTimer < jumpDuration)
+        if (jumpTimer < jumpDuration)
         {
-            // Handle jump logic, such as applying jump force, controlling jump height, etc.
-
-            // Example: Applying jump force
-            if (player.IsGrounded())
-            {
-                // Apply the jump force
-                player.PlayerRB.AddForce(Vector2.up * (jumpForce * Time.fixedDeltaTime), ForceMode2D.Impulse);
-            }
-            else if (!player.InputManager.JumpInputIsHeld())
-            {
-                // Allow for variable jump height by reducing the upward velocity when the jump button is released
-                // Example: Reduce the upward velocity by a certain factor
-                player.PlayerRB.velocity = new (player.PlayerRB.velocity.x, player.PlayerRB.velocity.y * variableJumpHeightFactor);
-            }
+            // Apply the jump force
+            player.PlayerRB.AddForce(Vector2.up * (jumpForce * Time.fixedDeltaTime), ForceMode2D.Impulse);
         }
-        else
+        else if (jumpTimer >= jumpDuration && player.PlayerRB.velocity.y < 0)
         {
             // Jump duration exceeded, transition to another state
             OnExit();
-            
-            // transition to fall state
-            StateMachine.Instance.TransitionToState(StateType.Fall);
+
+            // Transition to fall state
+            //StateMachine.Instance.TransitionToState(StateType.Fall);
         }
 
         jumpTimer += Time.deltaTime;
