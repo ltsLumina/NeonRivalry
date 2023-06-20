@@ -19,7 +19,7 @@ public class MoveState : State
     public override bool CanBeInterrupted()
     {
         // return true if the player is doing anything other than moving
-        return player.IsAttacking() || player.IsJumping();
+        return player.IsAttacking() || player.IsAirborne(); //TODO: THIS NEVER RETURNS TRUE
     }
 
     public override void OnEnter()

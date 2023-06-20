@@ -43,6 +43,22 @@ public partial class PlayerController // StateChecks.cs
         { IsAttacking: true };
     }
 
+    /// <summary>
+    ///     This method checks if the player is airborne, which is defined as not being grounded, jumping, or falling.
+    ///     Used as shorthand for writing the above three methods.
+    /// </summary>
+    /// <returns> True if the player is airborne, false otherwise. </returns>
+    public bool IsAirborne() => !IsGrounded() || IsJumping() || IsFalling();
+
+    /// <summary>
+    ///     This method checks if the player is disabled, which is defined as being stunned by a hit (hitstun), or in a
+    ///     blocking stance.
+    ///     Used as shorthand for writing the above two methods.
+    /// </summary>
+    /// <remarks>I just wanted a reason to name a boolean "IsDisabled" lol</remarks>
+    /// <returns>True if the player is in a hitstun state or blocking, false otherwise.</returns>
+    //public bool IsDisabled() => IsHitstun() || IsBlocking();
+
     //TODO: check if this is actually a reasonable way to check if the player is idle.
     public bool IsIdle()
     {

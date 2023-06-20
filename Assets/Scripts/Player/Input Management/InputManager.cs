@@ -21,7 +21,7 @@ public class InputManager : MonoBehaviour
     public InputAction runKeyModifier;
 
     // temporary
-    bool isRunning;
+    bool isRunningKeyHeld;
     bool jumpInputIsHeld;
 
     public Vector2 MoveInput
@@ -45,8 +45,8 @@ public class InputManager : MonoBehaviour
     {
         if (runKeyModifier.triggered)
         {
-            isRunning = true;
-            Debug.Log($"isRunning: {isRunning}");
+            isRunningKeyHeld = true;
+            Debug.Log($"isRunning: {isRunningKeyHeld}");
         }
     }
 
@@ -57,15 +57,14 @@ public class InputManager : MonoBehaviour
         MoveInput = value.Get<Vector2>();
 
         //TODO: Walking and jumping on controller is weird, fix it.
-        //TODO: Might have something to do with our ground check.
-        if (player.IsGrounded() && !player.IsJumping() && !player.IsFalling() && !player.IsAttacking())
+        if (player.IsIdle())
         {
             // Regular Walk State
             stateMachine.TransitionToState(State.StateType.Walk);
         }
 
         //TODO: isRunning is a temporary state for testing purposes.
-        if (player.IsGrounded() && isRunning)
+        if (player.IsIdle() && isRunningKeyHeld)
         {
             // Running State
             stateMachine.TransitionToState(State.StateType.Run);
@@ -75,8 +74,8 @@ public class InputManager : MonoBehaviour
     void OnJump(InputValue value)
     {
         jumpInputIsHeld = value.isPressed;
-
-        if (player.IsGrounded() && !player.IsFalling())
+        
+        if (!player.IsAirborne())
         {
             stateMachine.TransitionToState(State.StateType.Jump);
         }
