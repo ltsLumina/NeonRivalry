@@ -15,16 +15,6 @@ public abstract class State
     protected State(PlayerController player)
     {
         this.player = player;
-
-        interruptibilityRules = new ()
-        { { Idle, false },
-          { Walk, this.player.IsIdle() },
-          { Run, this.player.IsIdle() },
-          { Jump, this.player.IsAttacking() || this.player.IsGrounded() },
-          { Fall, this.player.IsAttacking() || this.player.IsGrounded() || this.player.IsJumping() },
-          { Attack, false },
-          { Dead, false },
-          { None, false } };
     }
 
     // StateType is used to indicate the type of state that the player is in.
@@ -63,7 +53,26 @@ public abstract class State
     
     // This dictionary is used to determine if a state can be interrupted.
     // By using a dictionary, we can easily change the interruptibility of a state without having to change the state itself.
-    protected readonly Dictionary<StateType, bool> interruptibilityRules;
+    // protected readonly Dictionary<StateType, bool> interruptibilityRules = new ()
+    // { { Idle, false },
+    //   { Walk, player.IsIdle() },
+    //   { Run, player.IsIdle() },
+    //   { Jump, player.IsAttacking() || player.IsGrounded() || player.IsFalling() },
+    //   { Fall, player.IsAttacking() || player.IsGrounded() || player.IsJumping() },
+    //   { Attack, false },
+    //   { Dead, false },
+    //   { None, false } };
+
+    // Attempt at new interruptibility system.
+    protected readonly Dictionary<StateType, bool> interruptibilityRules = new ()
+    { { Idle, false },
+      { Walk, true },
+      { Run, true },
+      { Jump, true },
+      { Fall, true },
+      { Attack, false },
+      { Dead, false },
+      { None, false } };
 
     // -- State Methods --
 

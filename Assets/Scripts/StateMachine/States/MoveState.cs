@@ -19,10 +19,10 @@ public class MoveState : State
     public override bool CanBeInterrupted()
     {
         // return true if the player is doing anything other than moving
-        return interruptibilityRules[Type];
+        return player.IsAttacking() || player.IsJumping();
     }
-    
-        public override void OnEnter()
+
+    public override void OnEnter()
     {
         // Play the move animation.
         // Log("Entered Walk State");
@@ -42,17 +42,24 @@ public class MoveState : State
 
         if (moveInput.x != 0)
         {
-            Vector2 movement = new Vector2(moveInput.x, 0) * (moveSpeed * Time.deltaTime);
+            Vector2 movement = new Vector2(moveInput.x, 0) * (moveSpeed * Time.fixedDeltaTime);
             player.PlayerRB.velocity = movement;
         }
-        else { OnExit(); }
-
+        else
+        {
+            OnExit();
+        }
     }
 
     public override void OnExit()
     {
         // Perform any necessary cleanup or exit actions
-        // Debug.Log("Exited Move State");
+        Debug.Log("Exited Move State");
+
+        player.PlayerRB.velocity = Vector2.zero;
+        
+        // Enter idle state and reset the IsMoving flag
+        StateMachine.Instance.TransitionToState(StateType.Idle);
         IsMoving = false;
     }
 }

@@ -23,7 +23,7 @@ public class FallState : State
     {
         // return true if the player is attacking or is grounded
         Debug.Log("FallState: CanBeInterrupted()");
-        return interruptibilityRules[Type];
+        return player.IsAttacking() || player.IsGrounded() || player.IsJumping();
     }
 
     public override void OnEnter()
@@ -47,6 +47,11 @@ public class FallState : State
     {
         // Perform any necessary cleanup or exit actions
         Debug.Log("Exited Fall State");
+
+        // Play land animation.
+
+        // Transition to idle state once land animation is finished.
+        StateMachine.Instance.TransitionToState(StateType.Idle);
         IsFalling = false;
     }
 }

@@ -17,7 +17,6 @@ public class StateMachine : MonoBehaviour
     [SerializeField] public StateData stateData;
 
     // Cached References
-    //TODO: I am considering using a different approach than using a singleton reference for all states to access the player.
     PlayerController player;
 
     // -- State Related --

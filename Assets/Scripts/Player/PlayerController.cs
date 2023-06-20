@@ -2,6 +2,7 @@
 using System;
 using UnityEngine;
 using static Lumina.Essentials.Attributes;
+using static State;
 #endregion
 
 /// <summary>
@@ -22,9 +23,16 @@ public partial class PlayerController : MonoBehaviour
     // Cached References
     StateMachine stateMachine;
     Animator anim;
+    
+    public event Action OnEnterIdleState;
 
     public Rigidbody2D PlayerRB { get; private set; }
     public InputManager InputManager { get; private set; }
+
+    void Awake()
+    {
+        OnEnterIdleState += () => stateMachine.TransitionToState(StateType.Idle);
+    }
 
     void Start()
     {
@@ -40,16 +48,6 @@ public partial class PlayerController : MonoBehaviour
         CheckIdle();
     }
 
-    public bool IsGrounded()
-    {
-        // Perform an overlap check using the player's collider
-        // and a layer mask that includes the ground or platform layer.
-        Collider2D[] colliders = Physics2D.OverlapBoxAll(groundCheck.position, Vector3.one * groundDistance, 0f, groundLayer);
-
-        // Check if any colliders are found (indicating the player is grounded)
-        return colliders.Length > 0;
-    }
-
     // -- State Checks --
     // Related: StateChecks.cs
 
@@ -61,7 +59,7 @@ public partial class PlayerController : MonoBehaviour
             // If the player has been idle for longer than the threshold, trigger the idle state.
             if (idleTime > idleTimeThreshold)
             {
-                stateMachine.TransitionToState(State.StateType.Idle);
+                OnEnterIdleState?.Invoke();
                 idleTime = 0;
             }
         }

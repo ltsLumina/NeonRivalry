@@ -1,11 +1,22 @@
 #region
+using System;
 using UnityEngine;
 #endregion
 
 public class GameManager : MonoBehaviour
 {
-    void Start()
+    const int TARGET_FPS = 60;
+    
+    void Awake()
     {
-        Application.targetFrameRate = 60; 
+        Application.targetFrameRate = TARGET_FPS; 
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Backspace))
+        {
+            SceneManagerExtended.ReloadScene();
+        }
     }
 }

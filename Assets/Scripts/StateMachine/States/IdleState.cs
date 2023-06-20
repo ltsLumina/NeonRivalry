@@ -11,7 +11,8 @@ public class IdleState : State
     public override bool CanBeInterrupted()
     {
         // return true if the player is not idle
-        return interruptibilityRules[Type]; //TODO: this might change later, if necessary.
+        //TODO: Might want to make everything interrupt Idle for a smoother gameplay experience. As it is now, the player has to wait for the idle animation to finish before they can move. (probably)
+        return false;
     }
 
     public override void OnEnter()
@@ -23,10 +24,6 @@ public class IdleState : State
     public override void UpdateState()
     {
         // Handle idle logic, such as checking for input, etc.
-        if (player.InputManager.MoveInput.x != 0)
-        {
-            OnExit();
-        }
     }
 
     public override void OnExit()

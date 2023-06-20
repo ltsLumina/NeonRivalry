@@ -1,5 +1,6 @@
 ﻿#region
 using UnityEngine;
+using static UnityEngine.Debug;
 #endregion
 
 public class JumpState : State
@@ -24,8 +25,8 @@ public class JumpState : State
     public override bool CanBeInterrupted()
     {
         // return true if the player is attacking or is grounded
-        Debug.Log("JumpState: CanBeInterrupted()");
-        return interruptibilityRules[Type];
+        //Log("JumpState: CanBeInterrupted()");
+        return player.IsAttacking() || player.IsGrounded() || player.IsFalling();
     }
 
     public override void OnEnter()
@@ -60,7 +61,7 @@ public class JumpState : State
             if (player.IsGrounded())
             {
                 // Apply the jump force
-                player.PlayerRB.AddForce(Vector2.up * (jumpForce * Time.deltaTime), ForceMode2D.Impulse);
+                player.PlayerRB.AddForce(Vector2.up * (jumpForce * Time.fixedDeltaTime), ForceMode2D.Impulse);
             }
             else if (!player.InputManager.JumpInputIsHeld())
             {
@@ -73,6 +74,9 @@ public class JumpState : State
         {
             // Jump duration exceeded, transition to another state
             OnExit();
+            
+            // transition to fall state
+            StateMachine.Instance.TransitionToState(StateType.Fall);
         }
 
         jumpTimer += Time.deltaTime;
@@ -84,8 +88,5 @@ public class JumpState : State
         // Debug.Log("Exited Jump State");
         
         IsJumping = false;
-        
-        // transition to fall state
-        StateMachine.Instance.TransitionToState(StateType.Fall);
     }
 }

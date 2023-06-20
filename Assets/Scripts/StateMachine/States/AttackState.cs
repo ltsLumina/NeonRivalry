@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class AttackState : State
 {
@@ -10,27 +9,26 @@ public class AttackState : State
     public bool IsAttacking { get; private set; }
 
     // -- State Specific Variables --
-    //TODO: these are temporary
-    float attackTimer;
-    float attackDuration;
+    // TODO: these are temporary
+    private float attackTimer;
+    private float attackDuration;
 
     // -- Constructor --
     public AttackState(PlayerController player, AttackStateData stateData) : base(player)
     {
-        attackTimer = stateData.AttackTimer;
         attackDuration = stateData.AttackDuration;
     }
 
     public override bool CanBeInterrupted()
     {
-        //TODO: this will change later, when there are more states with higher priority.
+        // TODO: this will change later, when there are more states with higher priority.
         return interruptibilityRules[Type];
     }
 
-    public override void OnEnter( )
+    public override void OnEnter()
     {
         // Play the attack animation.
-        //Debug.Log("Entered Attack State");
+        // Debug.Log("Entered Attack State");
         IsAttacking = true;
 
         player.GetComponentInChildren<SpriteRenderer>().color = Color.red;
@@ -38,41 +36,50 @@ public class AttackState : State
 
     public override void UpdateState()
     {
-        //TODO: Currently the ground and air attacks are the same, but this will change later.
-        if (player.IsGrounded() && !player.IsFalling())
-        { // If the player is on the ground, perform a grounded attack.
-            // attack, wait for attack to finish, then exit
-            if (attackTimer >= attackDuration)
-            {
-                OnExit();
-            }
-            else
+        Debug.Log(attackTimer); // DEBUG
+        
+        if (player.IsGrounded())
+        {
+            // Perform a grounded attack if the player is on the ground.
+            if (attackTimer < attackDuration)
             {
                 attackTimer += Time.deltaTime;
                 Debug.Log("Attacking on the ground!");
-            }
-        }
-        else
-        { // If the player is in the air, perform an aerial attack.
-            // attack, wait for attack to finish, then exit
-            if (attackTimer >= attackDuration)
-            {
-                OnExit();
+
+                // Play ground attack animation.
+                // Exits the attack state once the animation finishes/the attack duration is over.
             }
             else
             {
+                OnExit();
+            }
+        }
+        else
+        {
+            // Perform an aerial attack if the player is in the air.
+            if (attackTimer < attackDuration)
+            {
                 attackTimer += Time.deltaTime;
                 Debug.Log("Attacking in the air!");
+
+                // Play airborne attack animation.
+                // Once the animation finishes/attackDuration is over, transition to the fall state.
+                player.GetComponentInChildren<SpriteRenderer>().color = new Color(1f, 0.21f, 0.38f, 0.75f); // Pink now refers to airborne attacks.
+
+                if (attackTimer >= attackDuration)
+                {
+                    StateMachine.Instance.TransitionToState(StateType.Fall);
+                }
             }
         }
     }
 
-    public override void OnExit()
+    public override void OnExit() // Only called by the ground attack in this case, as the airborne attack transitions to the fall state.
     {
         // Perform any necessary cleanup or exit actions
-        //Debug.Log("Exited Attack State");
-        IsAttacking = false;
+        // Debug.Log("Exited Attack State");
 
-        player.GetComponentInChildren<SpriteRenderer>().color = new Color(1f, 0.21f, 0.38f, 0.75f);
+        StateMachine.Instance.TransitionToState(StateType.Idle);
+        IsAttacking = false;
     }
 }

@@ -17,6 +17,7 @@ public class InputManager : MonoBehaviour
     PlayerController player;
     Rigidbody2D playerRB;
 
+    // Serialized InputAction. Must be public as it can't be serialized through [SerializeField].
     public InputAction runKeyModifier;
 
     // temporary
@@ -49,6 +50,8 @@ public class InputManager : MonoBehaviour
         }
     }
 
+    // -- Input Handling --
+    
     void OnMove(InputValue value)
     {
         MoveInput = value.Get<Vector2>();
