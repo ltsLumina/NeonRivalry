@@ -58,7 +58,7 @@ public class InputManager : MonoBehaviour
 
         //TODO: Walking and jumping on controller is weird, fix it.
         //TODO: Might have something to do with our ground check.
-        if (player.IsGrounded() && !player.IsJumping() && !player.IsFalling())
+        if (player.IsGrounded() && !player.IsJumping() && !player.IsFalling() && !player.IsAttacking())
         {
             // Regular Walk State
             stateMachine.TransitionToState(State.StateType.Walk);

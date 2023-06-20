@@ -47,11 +47,9 @@ public class StateMachine : MonoBehaviour
         // If the new state has a lower or equal priority, the current state is entered like normal.
         if (CurrentState != null && newState.Priority > CurrentState.Priority && CurrentState.CanBeInterrupted())
         {
-            //Debug.Log("Interrupting current state and exiting!");
             CurrentState?.OnExit();
         }
-
-        //Debug.Log("Entering: " + newState);
+        
         CurrentState = newState;
         CurrentState?.OnEnter();
     }

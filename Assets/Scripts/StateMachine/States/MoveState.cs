@@ -34,9 +34,6 @@ public class MoveState : State
     //MOVEMENT ISN'T MY PROBLEM HAHAHAHAHA HAVE FUN WITH THIS HEHEHE
     public override void UpdateState()
     {
-        // Check for ground
-        if (!player.IsGrounded()) return;
-
         // Handle move logic
         Vector2 moveInput = player.InputManager.MoveInput;
 

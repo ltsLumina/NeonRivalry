@@ -36,8 +36,6 @@ public class AttackState : State
 
     public override void UpdateState()
     {
-        Debug.Log(attackTimer); // DEBUG
-        
         if (player.IsGrounded())
         {
             // Perform a grounded attack if the player is on the ground.

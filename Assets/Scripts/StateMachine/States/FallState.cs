@@ -22,7 +22,6 @@ public class FallState : State
     public override bool CanBeInterrupted()
     {
         // return true if the player is attacking or is grounded
-        Debug.Log("FallState: CanBeInterrupted()");
         return player.IsAttacking() || player.IsGrounded() || player.IsJumping();
     }
 
@@ -46,7 +45,7 @@ public class FallState : State
     public override void OnExit()
     {
         // Perform any necessary cleanup or exit actions
-        Debug.Log("Exited Fall State");
+        // Debug.Log("Exited Fall State");
 
         // Play land animation.
 
