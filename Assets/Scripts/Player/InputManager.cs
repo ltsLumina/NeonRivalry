@@ -55,7 +55,7 @@ public class InputManager : MonoBehaviour
     {
         MoveInput = value.Get<Vector2>();
 
-        //TODO: Walking and jumping on controller is weird, fix it.
+        //TODO: CanMove does not work as intended. If I change it to IsGrounded, it works as expected.
         if (player.CanMove())
         {
             // Regular Walk State

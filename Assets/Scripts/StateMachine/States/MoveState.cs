@@ -39,7 +39,7 @@ public class MoveState : State
 
         if (moveInput.x != 0)
         {
-            Vector2 movement = new Vector2(moveInput.x, 0) * (moveSpeed * Time.fixedDeltaTime);
+            Vector2 movement = new Vector2(moveInput.x, 0) * (moveSpeed * Time.deltaTime);
             player.PlayerRB.velocity = movement;
         }
         else
@@ -52,8 +52,6 @@ public class MoveState : State
     {
         // Perform any necessary cleanup or exit actions
         //Debug.Log("Exited Move State");
-
-        player.PlayerRB.velocity = Vector2.zero;
         
         // Reset the IsMoving flag
         IsMoving = false;

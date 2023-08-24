@@ -48,7 +48,7 @@ public partial class PlayerController // StateChecks.cs
     // ReSharper disable Unity.PerformanceAnalysis
     public bool IsFalling()
     {
-        bool isFalling = !IsGrounded() && PlayerRB.velocity.y <= 0 && stateMachine.CurrentState is FallState
+        bool isFalling = !IsGrounded() || PlayerRB.velocity.y < 0 && stateMachine.CurrentState is FallState
         { IsFalling: true };
 
         if (isFalling) { Debug.Log("IsFalling() is true"); }

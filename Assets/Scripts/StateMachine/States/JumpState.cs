@@ -1,6 +1,5 @@
 ﻿#region
 using UnityEngine;
-using static UnityEngine.Debug;
 #endregion
 
 public class JumpState : State
@@ -51,7 +50,7 @@ public class JumpState : State
             OnExit();
 
             // Transition to fall state
-            //StateMachine.Instance.TransitionToState(StateType.Fall);
+            StateMachine.Instance.TransitionToState(StateType.Fall);
         }
 
         jumpTimer += Time.deltaTime;

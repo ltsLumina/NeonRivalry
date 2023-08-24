@@ -18,14 +18,15 @@ public class StateMachine : SingletonPersistent<StateMachine>
     [SerializeField] public StateData stateData;
 
     // Cached References
-    PlayerController player;
+    //TODO: Make this private.
+    public PlayerController Player;
 
     // -- State Related --
     public State CurrentState { get; private set; }
     
     void Start()
     {
-        player = FindObjectOfType<PlayerController>();
+        Player = FindObjectOfType<PlayerController>();
 
         // Set the default state.
         TransitionToState(None);
@@ -65,23 +66,23 @@ public class StateMachine : SingletonPersistent<StateMachine>
         switch (stateType)
         {
             case Idle:
-                SetState(new IdleState(player)); //TODO: Add state data, potentially. (Such as idleTimeThreshold. Currently handled in the player controller.)
+                SetState(new IdleState(Player)); //TODO: Add state data, potentially. (Such as idleTimeThreshold. Currently handled in the player controller.)
                 break;
 
-            case Walk when player.CanMove(): //TODO: rework
-                CheckStateDataAndExecute(stateData.moveStateData, data => SetState(new MoveState(player, data)));
+            case Walk when Player.CanMove(): //TODO: rework
+                CheckStateDataAndExecute(stateData.moveStateData, data => SetState(new MoveState(Player, data)));
                 break;
 
-            case Jump when player.CanJump():
-                CheckStateDataAndExecute(stateData.jumpStateData, data => SetState(new JumpState(player, data)));
+            case Jump when Player.CanJump():
+                CheckStateDataAndExecute(stateData.jumpStateData, data => SetState(new JumpState(Player, data)));
                 break;
 
             case Fall:
-                CheckStateDataAndExecute(stateData.fallStateData, data => SetState(new FallState(player, data)));
+                CheckStateDataAndExecute(stateData.fallStateData, data => SetState(new FallState(Player, data)));
                 break;
 
             case Attack:
-                CheckStateDataAndExecute(stateData.attackStateData, data => SetState(new AttackState(player, data)));
+                CheckStateDataAndExecute(stateData.attackStateData, data => SetState(new AttackState(Player, data)));
                 break;
 
             // - Unused States -
@@ -105,7 +106,7 @@ public class StateMachine : SingletonPersistent<StateMachine>
             // -- Default State --
 
             case None: // The None state uses the defaultStateData which is primarily used for debugging. (It's a template for new state data)
-                SetState(new NoneState(player));
+                SetState(new NoneState(Player));
                 break;
 
             // If you wish to add more states, make sure to run the CheckStateDataAndExecute method like all the other states.
@@ -156,6 +157,7 @@ public class StateMachineEditor : Editor
         base.OnInspectorGUI();
 
         var stateMachine = (StateMachine) target;
+        var player       = stateMachine.Player;
 
         LabelField("Current State", stateMachine.CurrentState?.GetType().Name);
         
@@ -163,6 +165,7 @@ public class StateMachineEditor : Editor
         
         // For debugging purposes, to see if the related bool is true or false, even if the state is not the current state.
         LabelField("State Booleans", EditorStyles.boldLabel);
+        LabelField("IsGrounded: ", player.IsGrounded() ? "True" : "False");
         LabelField("IsMoving: ", stateMachine.CurrentState is MoveState {IsMoving: true } ? "True" : "False"); 
         LabelField("IsJumping: ", stateMachine.CurrentState is JumpState {IsJumping: true } ? "True" : "False");
         LabelField("IsFalling: ", stateMachine.CurrentState is FallState {IsFalling: true } ? "True" : "False");
