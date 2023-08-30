@@ -36,13 +36,13 @@ public class MoveState : State
     public override void UpdateState()
     {
         // Handle move logic
-        Vector2 moveInput = player.InputManager.MoveInput;
+        Vector3 moveInput = player.InputManager.MoveInput;
 
-        if (moveInput.x != 0)
+        if (moveInput.sqrMagnitude > 0.01)
         {
-            // Apply horizontal movement
-            float movementX = moveInput.x * moveSpeed * Time.deltaTime;
-            player.PlayerRB.velocity = new (movementX, player.PlayerRB.velocity.y);
+            // Apply horizontal and vertical movement
+            Vector3 movement = moveInput * (moveSpeed * Time.deltaTime);
+            player.PlayerRB.velocity = new (movement.x, player.PlayerRB.velocity.y, movement.z);
         }
         else { OnExit(); }
     }
@@ -53,8 +53,8 @@ public class MoveState : State
         //Debug.Log("Exited Move State");
 
         // Slow down the player
-        Vector2 velocity = player.PlayerRB.velocity;
-        velocity                 = new (velocity.x * 0.9f, velocity.y);
+        Vector3 velocity = player.PlayerRB.velocity;
+        velocity = new (velocity.x * 0.9f, velocity.y, velocity.z);
         player.PlayerRB.velocity = velocity;
 
         // Pass control to the idle state

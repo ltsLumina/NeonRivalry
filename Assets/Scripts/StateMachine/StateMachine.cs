@@ -157,7 +157,7 @@ public class StateMachineEditor : Editor
         base.OnInspectorGUI();
 
         var stateMachine = (StateMachine) target;
-        var player       = stateMachine.Player;
+        var player       =  stateMachine.Player;
 
         LabelField("Current State", stateMachine.CurrentState?.GetType().Name);
         

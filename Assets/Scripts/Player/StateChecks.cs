@@ -13,28 +13,13 @@ public partial class PlayerController // StateChecks.cs
 
     public bool IsGrounded()
     {
-        RaycastHit2D groundCheckRaycast = Physics2D.Raycast(groundCheck.position, Vector2.down * 10, groundDistance, groundLayer);
-
-        //if (groundCheckRaycast.collider != null) { Debug.Log("IsGrounded() is true"); }
-
-        return groundCheckRaycast.collider != null;
+        bool isHit = Physics.Raycast(groundCheck.position, Vector3.down, out RaycastHit _, 1, groundLayer);
+    
+        // Uncomment this line if you want to debug the IsGrounded() method.
+        // if (isHit) { Debug.Log("IsGrounded() is true"); }
+    
+        return isHit;
     }
-
-    //TODO: DO THIS WHEN WE HAVE A 3D PROJECT
-    #region 3D implementation of IsGrounded for later.
-    // public bool IsGrounded()
-    // {
-    //     // Use Physics.Raycast for 3D. The Vector3.down replaces Vector2.down.
-    //     RaycastHit groundCheckRaycast;
-    //
-    //     bool isHit = Physics.Raycast(groundCheck.position, Vector3.down, out groundCheckRaycast, 10, groundLayer);
-    //
-    //     // Uncomment this line if you want to debug the IsGrounded() method.
-    //     // if (isHit) { Debug.Log("IsGrounded() is true"); }
-    //
-    //     return isHit;
-    // }
-    #endregion
 
     public bool IsMoving()
     {

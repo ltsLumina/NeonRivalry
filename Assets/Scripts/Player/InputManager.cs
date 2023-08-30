@@ -15,7 +15,7 @@ public class InputManager : MonoBehaviour
     // Cached References
     StateMachine stateMachine;
     PlayerController player;
-    Rigidbody2D playerRB;
+    Rigidbody playerRB;
 
     // Serialized InputAction. Must be public as it can't be serialized through [SerializeField].
     public InputAction runKeyModifier;
@@ -37,7 +37,7 @@ public class InputManager : MonoBehaviour
     {
         stateMachine = StateMachine.Instance;
         player       = GetComponent<PlayerController>();
-        playerRB     = GetComponent<Rigidbody2D>();
+        playerRB     = GetComponent<Rigidbody>();
     }
 
     void Update()
@@ -51,11 +51,11 @@ public class InputManager : MonoBehaviour
         // check if player is moving
         //TODO: This somehow, technically works. I don't know why or how, but it does.
         //TODO: Look into it later.
-        if (MoveInput.x != 0 && stateMachine.CurrentState is not MoveState && stateMachine.CurrentState is not JumpState)
-        {
-            Debug.Log("Player is moving");
-            stateMachine.TransitionToState(State.StateType.Walk);
-        }
+        // if (MoveInput.x != 0 && stateMachine.CurrentState is not MoveState && stateMachine.CurrentState is not JumpState)
+        // {
+        //     Debug.Log("Player is moving");
+        //     stateMachine.TransitionToState(State.StateType.Walk);
+        // }
     }
 
     // -- Input Handling --

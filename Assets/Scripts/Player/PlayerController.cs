@@ -7,7 +7,7 @@ using static State;
 /// <summary>
 /// THIS IS NOT FINAL, I AM TESTING. NONE OF THIS WORKS OR IS MEANT TO WORK.
 /// </summary>
-[RequireComponent(typeof(Rigidbody2D), typeof(InputManager))]
+[RequireComponent(typeof(Rigidbody), typeof(InputManager))]
 public partial class PlayerController : MonoBehaviour
 {
     [Header("Read-Only Fields")]
@@ -23,13 +23,13 @@ public partial class PlayerController : MonoBehaviour
     StateMachine stateMachine;
     Animator anim;
 
-    public Rigidbody2D PlayerRB { get; private set; }
+    public Rigidbody PlayerRB { get; private set; }
     public InputManager InputManager { get; private set; }
 
     void Start()
     {
         stateMachine = StateMachine.Instance;
-        PlayerRB     = GetComponent<Rigidbody2D>();
+        PlayerRB     = GetComponent<Rigidbody>();
         InputManager = GetComponent<InputManager>();
     }
 
