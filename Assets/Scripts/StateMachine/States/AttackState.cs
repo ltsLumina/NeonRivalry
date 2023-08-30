@@ -3,7 +3,7 @@
 public class AttackState : State
 {
     // -- Abstract Variables --
-    static StateType Type => StateType.Attack;
+    public override StateType Type => StateType.Attack;
     public override int Priority => statePriorities[Type];
 
     public bool IsAttacking { get; private set; }

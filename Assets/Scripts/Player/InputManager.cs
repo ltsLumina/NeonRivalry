@@ -47,25 +47,37 @@ public class InputManager : MonoBehaviour
             isRunningKeyHeld = true;
             Debug.Log($"isRunning: {isRunningKeyHeld}");
         }
+        
+        // check if player is moving
+        //TODO: This somehow, technically works. I don't know why or how, but it does.
+        //TODO: Look into it later.
+        if (MoveInput.x != 0 && stateMachine.CurrentState is not MoveState && stateMachine.CurrentState is not JumpState)
+        {
+            Debug.Log("Player is moving");
+            stateMachine.TransitionToState(State.StateType.Walk);
+        }
     }
 
     // -- Input Handling --
-    
+
     void OnMove(InputValue value)
     {
         MoveInput = value.Get<Vector2>();
 
         //TODO: CanMove does not work as intended. If I change it to IsGrounded, it works as expected.
-        if (player.CanMove())
+        if (player.IsGrounded())
         {
-            // Regular Walk State
+            #region Note about future update
+            // Note: I should check if the player is already moving before transitioning again.
+            // However, the IsMoving bool wont update as intended if I do that.
+            // The boolean is set to true the first time you enter the state. If it gets set to false while in the move state, it wont be updated to true until you leave
+            // and enter the state again.
+            #endregion
             stateMachine.TransitionToState(State.StateType.Walk);
-        } 
-        //TODO: isRunning is a temporary state for testing purposes.
-        else if (player.CanMove() && isRunningKeyHeld)
+        }
+        else if (player.IsGrounded() && isRunningKeyHeld)
         {
-            // Running State
-            stateMachine.TransitionToState(State.StateType.Run);
+            stateMachine.TransitionToState(State.StateType.Run); 
         }
     }
 

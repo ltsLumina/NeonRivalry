@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class JumpState : State
 {
-    static StateType Type => StateType.Jump;
+    public override StateType Type => StateType.Jump;
     public override int Priority => statePriorities[Type];
 
     public bool IsJumping { get; private set; }
@@ -12,7 +12,7 @@ public class JumpState : State
     float jumpForce;
 
     float jumpTimer;
-    float jumpDuration = 0.5f;
+    float jumpDuration = 0.2f;
 
     public JumpState(PlayerController player, JumpStateData stateData) : base(player)
     {
@@ -50,7 +50,7 @@ public class JumpState : State
             OnExit();
 
             // Transition to fall state
-            StateMachine.Instance.TransitionToState(StateType.Fall);
+            TransitionTo(StateType.Fall);
         }
 
         jumpTimer += Time.deltaTime;

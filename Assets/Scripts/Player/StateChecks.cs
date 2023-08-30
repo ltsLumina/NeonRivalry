@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using static State;
 using Debug = UnityEngine.Debug;
 
 // This is a partial class, which allows us to split the class definition across multiple files.
@@ -12,21 +10,35 @@ using Debug = UnityEngine.Debug;
 public partial class PlayerController // StateChecks.cs
 {
     // -- State Checks --
-    
+
     public bool IsGrounded()
     {
-        Collider2D[] colliders = Physics2D.OverlapBoxAll(groundCheck.position, Vector3.one * groundDistance, 0f, groundLayer);
+        RaycastHit2D groundCheckRaycast = Physics2D.Raycast(groundCheck.position, Vector2.down * 10, groundDistance, groundLayer);
 
-        bool isGrounded = colliders.Length > 0;
-        
-        //if (isGrounded) { Debug.Log("IsGrounded() is true"); }
+        //if (groundCheckRaycast.collider != null) { Debug.Log("IsGrounded() is true"); }
 
-        return isGrounded;
+        return groundCheckRaycast.collider != null;
     }
+
+    //TODO: DO THIS WHEN WE HAVE A 3D PROJECT
+    #region 3D implementation of IsGrounded for later.
+    // public bool IsGrounded()
+    // {
+    //     // Use Physics.Raycast for 3D. The Vector3.down replaces Vector2.down.
+    //     RaycastHit groundCheckRaycast;
+    //
+    //     bool isHit = Physics.Raycast(groundCheck.position, Vector3.down, out groundCheckRaycast, 10, groundLayer);
+    //
+    //     // Uncomment this line if you want to debug the IsGrounded() method.
+    //     // if (isHit) { Debug.Log("IsGrounded() is true"); }
+    //
+    //     return isHit;
+    // }
+    #endregion
 
     public bool IsMoving()
     {
-        bool isMoving = InputManager.MoveInput.x != 0 && PlayerRB.velocity.x != 0 && IsGrounded() && stateMachine.CurrentState is MoveState
+        bool isMoving = PlayerRB.velocity.x != 0 && IsGrounded() && stateMachine.CurrentState is MoveState
         { IsMoving: true };
 
         //Debug.Log("IsMoving() is true");
@@ -64,7 +76,11 @@ public partial class PlayerController // StateChecks.cs
         bool isAttacking = Input.GetKeyDown(KeyCode.Mouse0) && stateMachine.CurrentState is AttackState
         { IsAttacking: true };
 
-        if (isAttacking) { Debug.Log("IsAttacking() is true"); }
+        if (isAttacking)
+        {
+            Debug.LogWarning("IsAttacking() only works when the player is attacking with the mouse. This is a temporary implementation.");
+            Debug.Log("IsAttacking() is true");
+        }
 
         return isAttacking;
     }
@@ -84,21 +100,17 @@ public partial class PlayerController // StateChecks.cs
     /// </summary>
     /// <remarks>I just wanted a reason to name a boolean "IsDisabled" lol</remarks>
     /// <returns>True if the player is in a hitstun state or blocking, false otherwise.</returns>
+
     //public bool IsDisabled() => IsHitstun() || IsBlocking();
-    
+
     public bool IsIdle()
     {
-        // Create a list of conditions to check. If any of them are true, the player is not idle.
-        List<Func<bool>> conditions = new ()
-        { () => IsGrounded(),
-          () => !IsMoving(),
-          () => !IsJumping(),
-          () => !IsFalling(),
-          () => !IsAttacking(),
-        };
-        
-        // Check all conditions, return false if any of them are true
-        return conditions.All(condition => condition()) && stateMachine.CurrentState is IdleState;
+        return 
+            IsGrounded() 
+            && !IsMoving() 
+            && !IsJumping() 
+            && !IsFalling() 
+            && !IsAttacking();
     }
 
     public bool CanMove() => !IsIdle();

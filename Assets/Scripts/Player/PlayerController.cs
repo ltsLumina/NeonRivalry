@@ -35,7 +35,7 @@ public partial class PlayerController : MonoBehaviour
 
     void Update()
     {
-        //CheckIdle();
+        CheckIdle();
     }
 
     // -- State Checks --

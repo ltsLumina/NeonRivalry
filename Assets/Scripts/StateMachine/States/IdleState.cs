@@ -2,7 +2,7 @@
 
 public class IdleState : State
 {
-    static StateType Type => StateType.Idle;
+    public override StateType Type => StateType.Idle;
     public override int Priority => statePriorities[Type];
 
     public IdleState(PlayerController player) : base(player)

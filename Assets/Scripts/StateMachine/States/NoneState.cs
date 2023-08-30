@@ -2,7 +2,7 @@
 
 public class NoneState : State
 {
-    static StateType Type => StateType.None;
+    public override StateType Type => StateType.None;
     public override int Priority => statePriorities[Type];
 
     public NoneState(PlayerController player) : base(player)

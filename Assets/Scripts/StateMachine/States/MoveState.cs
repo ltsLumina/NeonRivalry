@@ -2,11 +2,12 @@
 using UnityEngine;
 #endregion
 
+//TODO: If you hold move, then exit the state, upon entering the state you wont move until you release and repress the move button.
 public class MoveState : State
 {
     float moveSpeed;
 
-    static StateType Type => StateType.Walk;
+    public override StateType Type => StateType.Walk;
     public override int Priority => statePriorities[Type];
 
     public bool IsMoving { get; private set; }
@@ -19,7 +20,7 @@ public class MoveState : State
     public override bool CanBeInterrupted()
     {
         // return true if the player is doing anything other than moving
-        return player.IsAttacking() || player.IsAirborne(); //TODO: THIS NEVER RETURNS TRUE
+        return player.IsAttacking() || player.IsAirborne();
     }
 
     public override void OnEnter()
@@ -39,19 +40,24 @@ public class MoveState : State
 
         if (moveInput.x != 0)
         {
-            Vector2 movement = new Vector2(moveInput.x, 0) * (moveSpeed * Time.deltaTime);
-            player.PlayerRB.velocity = movement;
+            // Apply horizontal movement
+            float movementX = moveInput.x * moveSpeed * Time.deltaTime;
+            player.PlayerRB.velocity = new (movementX, player.PlayerRB.velocity.y);
         }
-        else
-        {
-            OnExit();
-        }
+        else { OnExit(); }
     }
 
     public override void OnExit()
     {
         // Perform any necessary cleanup or exit actions
         //Debug.Log("Exited Move State");
+
+        // Slow down the player
+        Vector2 velocity = player.PlayerRB.velocity;
+        velocity                 = new (velocity.x * 0.9f, velocity.y);
+        player.PlayerRB.velocity = velocity;
+
+        // Pass control to the idle state
         
         // Reset the IsMoving flag
         IsMoving = false;

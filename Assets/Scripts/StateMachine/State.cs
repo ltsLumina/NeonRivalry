@@ -17,6 +17,8 @@ public abstract class State
         this.player = player;
     }
 
+    public abstract StateType Type { get; }
+
     // StateType is used to indicate the type of state that the player is in.
     public enum StateType
     {

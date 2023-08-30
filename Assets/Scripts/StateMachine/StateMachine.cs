@@ -18,7 +18,7 @@ public class StateMachine : SingletonPersistent<StateMachine>
     [SerializeField] public StateData stateData;
 
     // Cached References
-    //TODO: Make this private.
+    //TODO: Make this private. It is used to reference the player from the editor for debugging purposes.
     public PlayerController Player;
 
     // -- State Related --
@@ -62,27 +62,27 @@ public class StateMachine : SingletonPersistent<StateMachine>
     /// <param name="stateType"> The state to transition into. </param>
     public void TransitionToState(StateType stateType)
     {
-        // Do NOT run any other code than the CheckStateDataAndExecute() method in this switch statement.
+        // Do NOT run any other code than the CheckStateDataThenExecute() method in this switch statement.
         switch (stateType)
         {
             case Idle:
                 SetState(new IdleState(Player)); //TODO: Add state data, potentially. (Such as idleTimeThreshold. Currently handled in the player controller.)
                 break;
 
-            case Walk when Player.CanMove(): //TODO: rework
-                CheckStateDataAndExecute(stateData.moveStateData, data => SetState(new MoveState(Player, data)));
+            case Walk when Player.IsGrounded():
+                CheckStateDataThenExecute(stateData.moveStateData, data => SetState(new MoveState(Player, data)));
                 break;
 
             case Jump when Player.CanJump():
-                CheckStateDataAndExecute(stateData.jumpStateData, data => SetState(new JumpState(Player, data)));
+                CheckStateDataThenExecute(stateData.jumpStateData, data => SetState(new JumpState(Player, data)));
                 break;
 
             case Fall:
-                CheckStateDataAndExecute(stateData.fallStateData, data => SetState(new FallState(Player, data)));
+                CheckStateDataThenExecute(stateData.fallStateData, data => SetState(new FallState(Player, data)));
                 break;
 
             case Attack:
-                CheckStateDataAndExecute(stateData.attackStateData, data => SetState(new AttackState(Player, data)));
+                CheckStateDataThenExecute(stateData.attackStateData, data => SetState(new AttackState(Player, data)));
                 break;
 
             // - Unused States -
@@ -109,7 +109,7 @@ public class StateMachine : SingletonPersistent<StateMachine>
                 SetState(new NoneState(Player));
                 break;
 
-            // If you wish to add more states, make sure to run the CheckStateDataAndExecute method like all the other states.
+            // If you wish to add more states, make sure to run the CheckStateDataThenExecute method like all the other states.
 
             default:
                 throw new ArgumentOutOfRangeException(nameof(stateType), stateType, "The state type is not valid.");
@@ -119,7 +119,7 @@ public class StateMachine : SingletonPersistent<StateMachine>
     // I totally wrote this method myself and didn't copy it from the internet.
     // Checks if the state data is null or default, and if it is, it throws an error.
     // ReSharper disable Unity.PerformanceAnalysis
-    static void CheckStateDataAndExecute<T>(T stateData, Action<T> executeCode)
+    static void CheckStateDataThenExecute<T>(T stateData, Action<T> executeCode)
     {
         if (EqualityComparer<T>.Default.Equals(stateData, default))
             Debug.LogError(
@@ -165,11 +165,15 @@ public class StateMachineEditor : Editor
         
         // For debugging purposes, to see if the related bool is true or false, even if the state is not the current state.
         LabelField("State Booleans", EditorStyles.boldLabel);
-        LabelField("IsGrounded: ", player.IsGrounded() ? "True" : "False");
-        LabelField("IsMoving: ", stateMachine.CurrentState is MoveState {IsMoving: true } ? "True" : "False"); 
-        LabelField("IsJumping: ", stateMachine.CurrentState is JumpState {IsJumping: true } ? "True" : "False");
-        LabelField("IsFalling: ", stateMachine.CurrentState is FallState {IsFalling: true } ? "True" : "False");
-        LabelField("IsAttacking: ", stateMachine.CurrentState is AttackState {IsAttacking: true } ? "True" : "False");
+
+        using (new EditorGUI.DisabledScope(true))
+        {
+            Toggle("IsGrounded", player.IsGrounded());
+            Toggle("IsMoving", stateMachine.CurrentState is MoveState {IsMoving: true });
+            Toggle("IsJumping", stateMachine.CurrentState is JumpState {IsJumping: true });
+            Toggle("IsFalling", stateMachine.CurrentState is FallState {IsFalling: true });
+            Toggle("IsAttacking", stateMachine.CurrentState is AttackState {IsAttacking: true });
+        }
 
         EditorUtility.SetDirty(stateMachine);
     }

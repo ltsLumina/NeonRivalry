@@ -2,7 +2,7 @@
 
 public class FallState : State
 {
-    static StateType Type => StateType.Fall;
+    public override StateType Type => StateType.Fall;
     public override int Priority => statePriorities[Type];
 
     public bool IsFalling { get; private set; }
