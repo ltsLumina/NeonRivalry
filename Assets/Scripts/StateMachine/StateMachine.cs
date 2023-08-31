@@ -77,6 +77,7 @@ public class StateMachine : SingletonPersistent<StateMachine>
                 break;
 
             case Walk when !Player.IsGrounded():
+                // Fallback state for whenever the player tries to move after jumping or attacking so they can keep moving after landing or finishing an attack.
                 break;
             
             case Jump when Player.CanJump():
