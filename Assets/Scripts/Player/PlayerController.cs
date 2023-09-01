@@ -12,7 +12,7 @@ public partial class PlayerController : MonoBehaviour
 {
     [Header("Read-Only Fields")]
     [SerializeField] float idleTimeThreshold;
-    [SerializeField, ReadOnly] float idleTime;
+    [SerializeField, ReadOnly] public float idleTime;
 
     [Header("Ground Check")]
     [SerializeField] float groundDistance = 0.2f;

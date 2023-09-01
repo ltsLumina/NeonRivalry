@@ -50,6 +50,9 @@ public class StateMachine : SingletonPersistent<StateMachine>
         
         // Set the new state and enter it.
         CurrentState = newState;
+
+        Player.idleTime = 0;
+        
         CurrentState?.OnEnter();
     }
 
@@ -73,6 +76,10 @@ public class StateMachine : SingletonPersistent<StateMachine>
                 CheckStateDataThenExecute(stateData.moveStateData, data => SetState(new MoveState(Player, data)));
                 break;
 
+            case Walk when !Player.IsGrounded():
+                // Fallback state for whenever the player tries to move after jumping or attacking so they can keep moving after landing or finishing an attack.
+                break;
+            
             case Jump when Player.CanJump():
                 CheckStateDataThenExecute(stateData.jumpStateData, data => SetState(new JumpState(Player, data)));
                 break;

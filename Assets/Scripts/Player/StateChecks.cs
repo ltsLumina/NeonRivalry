@@ -99,7 +99,9 @@ public partial class PlayerController // StateChecks.cs
     }
 
     public bool CanMove() => !IsIdle();
+
     public bool CanJump() => !IsAirborne();
+
     public bool CanAttack() => !IsAttacking();
 
     // -- Gizmos --
