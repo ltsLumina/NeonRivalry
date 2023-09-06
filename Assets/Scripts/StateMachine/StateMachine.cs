@@ -1,13 +1,14 @@
-﻿using System;
+﻿#region
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using static State;
 using static State.StateType;
-using Debug = UnityEngine.Debug;
 #if UNITY_EDITOR
 using static UnityEditor.EditorGUILayout;
 #endif
+#endregion
 
 /// <summary>
 /// The state machine that handles the player's state.
@@ -51,6 +52,7 @@ public class StateMachine : SingletonPersistent<StateMachine>
         // Set the new state and enter it.
         CurrentState = newState;
 
+        //TODO: dont like this. find a better way to do this.
         Player.idleTime = 0;
         
         CurrentState?.OnEnter();
