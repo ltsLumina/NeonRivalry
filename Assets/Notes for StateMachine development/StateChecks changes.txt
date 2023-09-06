@@ -1,0 +1,3 @@
+instead of IsMoving methods in StateChecks.cs, use pattern matching to check if the player is e.g Moving, Jumping etc.
+That way I can handle WHEN e.g IsMoving, IsJumping, etc. become true, rather than in a seperate script.
+I.e, Make the States themself decide the functionality.
