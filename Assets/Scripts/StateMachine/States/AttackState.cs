@@ -52,7 +52,7 @@ public class AttackState : State
                 OnExit();
             }
         }
-        else
+        else 
         {
             // Perform an aerial attack if the player is in the air.
             if (attackTimer < attackDuration)
