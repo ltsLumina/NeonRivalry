@@ -1,0 +1,37 @@
+Idle State:
+
+If the player initiates a movement input (e.g., pressing a direction on the input device).
+If the player performs an attack action.
+If the player gets hit by an enemy attack.
+Move State:
+
+If the player performs an attack action.
+If the player gets hit by an enemy attack that interrupts movement.
+If the player initiates a jump action.
+Jump State:
+
+If the player performs an attack action.
+If the player gets hit by an enemy attack that interrupts jumps.
+If the player releases the jump input.
+If the player reaches the peak of the jump and starts falling.
+Attack State:
+
+If the player gets hit by an enemy attack that interrupts attacks.
+If the attack animation ends.
+If the player initiates a different attack action (e.g., canceling into another attack).
+Block State:
+
+If the player gets hit by an enemy unblockable attack.
+If the player releases the block input.
+If a specific duration for blocking is reached.
+HitStun State:
+
+If the hit stun duration ends.
+If the player performs a specific input to break out of hit stun.
+Knockdown State:
+
+If the knockdown duration ends.
+If the player performs a specific input to perform a recovery action.
+Dead State:
+
+No interruptions should occur since the player is unable to act.

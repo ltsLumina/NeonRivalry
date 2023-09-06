@@ -1,0 +1,15 @@
+create a state machine for the player
+switch statement that checks for each state, and performs
+code based on the state.
+
+structs (scriptable objects) with attack data
+
+split hitboxes into two
+"hurtbox" (takes damage) 
+"hitbox" (deals damage), i.e, create a hitbox when attacking
+
+- ON HIT:
+pause game for a moment to allow players to react to what just happened (called hitstop)
+during hitstop, players can buffer their next input to allow to it execute on the first possible frame.
+
+combos deal less and less damage the longer it is, else players would get destroyed

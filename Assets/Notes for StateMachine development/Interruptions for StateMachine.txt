@@ -1,0 +1,20 @@
+Certainly! Let's walk through an example scenario to see how the system would work with interruptibility conditions:
+
+The player character is currently in the "IdleState".
+The player inputs a command to perform an attack.
+The input is processed, and the state machine transitions from "IdleState" to "AttackState".
+While in the "AttackState", the player character is performing an attack animation.
+Before the attack animation completes, the player inputs a command to block.
+The input is processed, and the state machine attempts to transition from "AttackState" to "BlockState".
+Now, the interruptibility conditions come into play:
+The "AttackState" checks its CanInterrupt() method and determines if it can be interrupted by the "BlockState".
+If the attack animation has reached a specific interruptible point, the "AttackState" allows the interruption and proceeds to step 8.
+If the attack animation has not reached the interruptible point, the "AttackState" denies the interruption and remains in control.
+If the "AttackState" allows the interruption, it executes its OnExit() method and transitions to the "BlockState".
+The state machine is now in the "BlockState", and the player character starts blocking.
+
+By implementing the CanInterrupt() method and the additional logic in the SetState() method, you can introduce interruptibility conditions between specific states. 
+
+This allows for more control over state transitions and mimics the behavior of a fighting game, where certain actions can be interrupted by others based on specific conditions, such as animation frames or game rules.
+It's important to consider the specific requirements and conditions of your game to determine how interruptibility should be handled. 
+You can customize the CanInterrupt() method in each state class to define the specific conditions for interrupting or denying interruptions based on your game's mechanics.
