@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿#region
+using UnityEngine;
+#endregion
 
 public class AttackState : State
 {
@@ -52,7 +54,7 @@ public class AttackState : State
                 OnExit();
             }
         }
-        else 
+        else
         {
             // Perform an aerial attack if the player is in the air.
             if (attackTimer < attackDuration)
