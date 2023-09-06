@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using static Lumina.Essentials.Sequencing;
+//using static Lumina.Essentials.Sequencing;
 
 public class HealthbarManager : MonoBehaviour
 {
@@ -22,17 +22,17 @@ public class HealthbarManager : MonoBehaviour
         healthbar.RightHealthbarValue = 100;
     }
 
-    public void ReloadOnDeath()
-    {
-        // Unsubscribe from the onPlayerDeath event
-        Healthbar.onPlayerDeath -= ReloadOnDeath;
-        
-        StartCoroutine(DelayedAction(() =>
-        {
-            Debug.Log("Either Player has died, reloading scene.");
-            SceneManagerExtended.ReloadScene();
-        }, 1f));
-    }
+    // public void ReloadOnDeath()
+    // {
+    //     // Unsubscribe from the onPlayerDeath event
+    //     Healthbar.onPlayerDeath -= ReloadOnDeath;
+    //     
+    //     StartCoroutine(DelayedAction(() =>
+    //     {
+    //         Debug.Log("Either Player has died, reloading scene.");
+    //         SceneManagerExtended.ReloadScene();
+    //     }, 1f));
+    // }
 
     
     // DEBUGGING

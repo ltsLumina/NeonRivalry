@@ -27,7 +27,7 @@ public class Healthbar : MonoBehaviour
         healthbarManager = FindObjectOfType<HealthbarManager>();
         
         // Event subscription.
-        onPlayerDeath += healthbarManager.ReloadOnDeath;
+        //onPlayerDeath += healthbarManager.ReloadOnDeath;
     }
 
     // Properties
