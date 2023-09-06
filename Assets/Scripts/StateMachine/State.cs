@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿//NOTES FOR FUTURE ME:
+//  -   uh idk cant remember.
+
+using System.Collections.Generic;
 using static State.StateType;
 
 /// <summary>
