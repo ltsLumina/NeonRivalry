@@ -1,5 +1,6 @@
 #region
 using System;
+using JetBrains.Annotations;
 using UnityEngine;
 #endregion
 
@@ -8,10 +9,11 @@ public class InputVisualizer : MonoBehaviour
     [SerializeField] float cursorSpeed = 5f;       // Speed at which the cursor moves
     [SerializeField] GameObject cursorBackground; // Reference to the background object
     [SerializeField] Transform cursor;            // Reference to the cursor object
-    
-    [Serializable]
+
+    [Serializable, UsedImplicitly]
     public struct GridPoint
     {
+        // name is only used in inspector to identify which point is which
         public string name;
         public Vector2 position;
     }
