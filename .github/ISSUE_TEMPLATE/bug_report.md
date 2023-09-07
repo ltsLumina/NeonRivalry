@@ -20,5 +20,8 @@ Steps to reproduce the behavior:
 **Expected behavior**
 A clear and concise description of what you expected to happen.
 
+**Proposed Solution**
+Detailed thoughts on how the issue could be solved by yourself or others.
+
 **Additional context**
 Add any other context about the problem here.
