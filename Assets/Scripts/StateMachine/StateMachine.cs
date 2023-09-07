@@ -74,7 +74,7 @@ public class StateMachine : SingletonPersistent<StateMachine>
                 SetState(new IdleState(Player)); //TODO: Add state data, potentially. (Such as idleTimeThreshold. Currently handled in the player controller.)
                 break;
 
-            case Walk when Player.IsGrounded():
+            case Walk when Player.IsGrounded(): //TODO: CanMove is broken, that's why I'm using IsGrounded.
                 CheckStateDataThenExecute(stateData.moveStateData, data => SetState(new MoveState(Player, data)));
                 break;
 
@@ -86,7 +86,7 @@ public class StateMachine : SingletonPersistent<StateMachine>
                 CheckStateDataThenExecute(stateData.jumpStateData, data => SetState(new JumpState(Player, data)));
                 break;
 
-            case Fall:
+            case Fall when Player.IsFalling():
                 CheckStateDataThenExecute(stateData.fallStateData, data => SetState(new FallState(Player, data)));
                 break;
 

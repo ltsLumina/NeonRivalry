@@ -86,7 +86,7 @@ public abstract class State
     // -- State Methods --
 
     /// <summary>
-    ///     The priority of the state. The higher the value, the higher the priority.
+    ///     The priority of the state. The higher the value, the higher the priority when transitioning between states.
     /// </summary>
     public abstract int Priority { get; }
 
