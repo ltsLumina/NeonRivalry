@@ -1,6 +1,6 @@
 #region
-using UnityEngine;
 using Lumina.Essentials.Attributes;
+using UnityEngine;
 using static State;
 #endregion
 
@@ -23,13 +23,13 @@ public partial class PlayerController : MonoBehaviour
     StateMachine stateMachine;
     Animator anim;
 
-    public Rigidbody PlayerRB { get; private set; }
+    public Rigidbody Rigidbody { get; private set; }
     public InputManager InputManager { get; private set; }
 
     void Start()
     {
         stateMachine = StateMachine.Instance;
-        PlayerRB     = GetComponent<Rigidbody>();
+        Rigidbody    = GetComponent<Rigidbody>();
         InputManager = GetComponent<InputManager>();
     }
 

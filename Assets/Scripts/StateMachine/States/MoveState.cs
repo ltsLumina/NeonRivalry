@@ -42,7 +42,7 @@ public class MoveState : State
         {
             // Apply horizontal and vertical movement
             Vector3 movement = moveInput * (moveSpeed * Time.deltaTime);
-            player.PlayerRB.velocity = new (movement.x, player.PlayerRB.velocity.y, movement.z);
+            player.Rigidbody.velocity = new (movement.x, player.Rigidbody.velocity.y, movement.z);
         }
         else { OnExit(); }
     }
@@ -53,9 +53,9 @@ public class MoveState : State
         //Debug.Log("Exited Move State");
 
         // Slow down the player
-        Vector3 velocity = player.PlayerRB.velocity;
-        velocity = new (velocity.x * 0.9f, velocity.y, velocity.z);
-        player.PlayerRB.velocity = velocity;
+        Vector3 velocity = player.Rigidbody.velocity;
+        velocity                  = new (velocity.x * 0.9f, velocity.y, velocity.z);
+        player.Rigidbody.velocity = velocity;
 
         // Pass control to the idle state
         

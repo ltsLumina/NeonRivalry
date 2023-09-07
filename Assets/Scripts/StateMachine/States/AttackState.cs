@@ -9,77 +9,80 @@ public class AttackState : State
     public override int Priority => statePriorities[Type];
     
     public bool IsAttacking { get; private set; }
+    public bool IsAirborne { get; private set; }
 
     // -- State Specific Variables --
-    // TODO: these are temporary
-    private float attackTimer;
-    private float attackDuration;
+    float groundedAttackTimer;
+    float groundedAttackDuration;
+    float airborneAttackTimer;
+    float airborneAttackDuration;
 
     // -- Constructor --
     public AttackState(PlayerController player, AttackStateData stateData) : base(player)
     {
-        attackDuration = stateData.AttackDuration;
+        groundedAttackDuration = stateData.AttackDuration;
+        airborneAttackDuration = stateData.AttackDuration; //TODO Swap out variables
     }
 
     public override bool CanBeInterrupted()
     {
-        // TODO: this will change later, when there are more states with higher priority.
         return interruptibilityRules[Type];
     }
 
     public override void OnEnter()
     {
         // Play the attack animation.
-        // Debug.Log("Entered Attack State");
         IsAttacking = true;
+        IsAirborne  = !player.IsGrounded(); // Check whether the player was in air when attack started.
 
-        player.GetComponentInChildren<SpriteRenderer>().color = Color.red;
+        player.GetComponentInChildren<SpriteRenderer>().color = IsAirborne ? new (1f, 0.21f, 0.38f, 0.75f) : Color.red;
+
+        groundedAttackTimer = 0;
+        airborneAttackTimer = 0;
     }
 
     public override void UpdateState()
     {
-        if (player.IsGrounded())
+        // Player is grounded, perform grounded attack.
+        if (!IsAirborne)
         {
-            // Perform a grounded attack if the player is on the ground.
-            if (attackTimer < attackDuration)
+            // If the attack duration has not been reached, continue attacking.
+            if (groundedAttackTimer < groundedAttackDuration)
             {
-                attackTimer += Time.deltaTime;
-                Debug.Log("Attacking on the ground!");
+                groundedAttackTimer += Time.deltaTime;
 
-                // Play ground attack animation.
-                // Exits the attack state once the animation finishes/the attack duration is over.
+                if (player.IsGrounded()) Debug.Log("Attacking on the ground!");
+
+                // Play ground attack animation and logic.
+                else IsAirborne = true;
             }
-            else
-            {
-                OnExit();
-            }
+            else { OnExit(); }
         }
-        else
+        else // Player is airborne, perform airborne attack.
         {
-            // Perform an aerial attack if the player is in the air.
-            if (attackTimer < attackDuration)
+            if (airborneAttackTimer < airborneAttackDuration)
             {
-                attackTimer += Time.deltaTime;
-                Debug.Log("Attacking in the air!");
+                airborneAttackTimer += Time.deltaTime;
 
-                // Play airborne attack animation.
-                // Once the animation finishes/attackDuration is over, transition to the fall state.
-                player.GetComponentInChildren<SpriteRenderer>().color = new Color(1f, 0.21f, 0.38f, 0.75f); // Pink now refers to airborne attacks.
+                // If the player lands, cancel the attack.
+                if (player.IsGrounded())
+                {
+                    Debug.Log("Airborne Attack cancelled!");
+                    OnExit();
+                }
+                else
+                {
+                    Debug.Log("Attacking in the air!");
+
+                    // Play airborne attack animation and run logic.
+                }
             }
-            else
-            {
-                TransitionTo(StateType.Fall);
-            }
+            else { OnExit(); }
         }
     }
 
-    public override void OnExit() // Only called by the ground attack in this case, as the airborne attack transitions to the fall state.
+    public override void OnExit() 
     {
-        // Perform any necessary cleanup or exit actions
-        // Debug.Log("Exited Attack State");
-        
-        player.PlayerRB.velocity = new Vector3(0, player.PlayerRB.velocity.y, 0);
-
         TransitionTo(player.InputManager.MoveInput.x != 0 ? StateType.Walk : StateType.Idle);
         IsAttacking = false;
     }

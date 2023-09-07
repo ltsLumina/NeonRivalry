@@ -1,6 +1,8 @@
-﻿using UnityEngine;
-using UnityEngine.InputSystem;
+﻿#region
 using Lumina.Essentials.Attributes;
+using UnityEngine;
+using UnityEngine.InputSystem;
+#endregion
 
 /// <summary>
 /// Handles all player input, such as movement, jumping, attacking, etc.
@@ -56,14 +58,8 @@ public class InputManager : MonoBehaviour
         MoveInput = value.Get<Vector2>();
 
         //TODO: CanMove does not work as intended. If I change it to IsGrounded, it works as expected.
-        if (player.IsGrounded())
+        if (player.IsGrounded() && !player.IsAttacking())
         {
-            #region Note about future update
-            // Note: I should check if the player is already moving before transitioning again.
-            // However, the IsMoving bool wont update as intended if I do that.
-            // The boolean is set to true the first time you enter the state. If it gets set to false while in the move state, it wont be updated to true until you leave
-            // and enter the state again.
-            #endregion
             stateMachine.TransitionToState(State.StateType.Walk);
         }
         else if (player.IsGrounded() && isRunningKeyHeld)
@@ -86,7 +82,7 @@ public class InputManager : MonoBehaviour
         {
             stateMachine.TransitionToState(State.StateType.Attack);
         }
-        
-        
+
+        stateMachine.TransitionToState(State.StateType.Attack);
     }
 }

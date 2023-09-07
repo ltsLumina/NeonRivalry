@@ -42,9 +42,9 @@ public class JumpState : State
         if (jumpTimer < jumpDuration)
         {
             // Apply the jump force
-            player.PlayerRB.AddForce(Vector3.up * (jumpForce * Time.fixedDeltaTime), ForceMode.Impulse);
+            player.Rigidbody.AddForce(Vector3.up * (jumpForce * Time.fixedDeltaTime), ForceMode.Impulse);
         }
-        else if (jumpTimer >= jumpDuration && player.PlayerRB.velocity.y < 0)
+        else if (jumpTimer >= jumpDuration && player.Rigidbody.velocity.y < 0)
         {
             // Jump duration exceeded, transition to another state
             OnExit();
