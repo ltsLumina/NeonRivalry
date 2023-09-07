@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 #region
 using UnityEditor;
 using UnityEngine;
@@ -66,3 +67,5 @@ public class Debugger : EditorWindow
     }
     #endregion
 }
+
+#endif
