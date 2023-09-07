@@ -7,7 +7,7 @@ public class AttackState : State
     // -- Abstract Variables --
     public override StateType Type => StateType.Attack;
     public override int Priority => statePriorities[Type];
-
+    
     public bool IsAttacking { get; private set; }
 
     // -- State Specific Variables --
@@ -77,8 +77,10 @@ public class AttackState : State
     {
         // Perform any necessary cleanup or exit actions
         // Debug.Log("Exited Attack State");
+        
+        player.PlayerRB.velocity = new Vector3(0, player.PlayerRB.velocity.y, 0);
 
-        TransitionTo(StateType.Idle);
+        TransitionTo(player.InputManager.MoveInput.x != 0 ? StateType.Walk : StateType.Idle);
         IsAttacking = false;
     }
 }

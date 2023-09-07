@@ -47,15 +47,6 @@ public class InputManager : MonoBehaviour
             isRunningKeyHeld = true;
             Debug.Log($"isRunning: {isRunningKeyHeld}");
         }
-        
-        // check if player is moving
-        //TODO: This somehow, technically works. I don't know why or how, but it does.
-        //TODO: Look into it later.
-        if (MoveInput.x != 0 && stateMachine.CurrentState is not MoveState && stateMachine.CurrentState is not JumpState)
-        {
-            Debug.Log("Player is moving");
-            stateMachine.TransitionToState(State.StateType.Walk);
-        }
     }
 
     // -- Input Handling --
@@ -95,5 +86,7 @@ public class InputManager : MonoBehaviour
         {
             stateMachine.TransitionToState(State.StateType.Attack);
         }
+        
+        
     }
 }

@@ -43,7 +43,7 @@ public class StateMachine : SingletonPersistent<StateMachine>
     {
         // Checks if the current state is null, or if the new state has a higher priority than the current state.
         // If the new state has a lower or equal priority, the current state is entered like normal.
-        if (CurrentState != null && newState.Priority > CurrentState.Priority && CurrentState.CanBeInterrupted())
+        if (CurrentState != null && newState.Priority > CurrentState.Priority /*&& CurrentState.CanBeInterrupted()*/)
         {
             // If the current state can be interrupted, we exit the current state.
             CurrentState?.OnExit();
@@ -73,7 +73,7 @@ public class StateMachine : SingletonPersistent<StateMachine>
             case Idle:
                 SetState(new IdleState(Player)); //TODO: Add state data, potentially. (Such as idleTimeThreshold. Currently handled in the player controller.)
                 break;
-
+            
             case Walk when Player.IsGrounded(): //TODO: CanMove is broken, that's why I'm using IsGrounded.
                 CheckStateDataThenExecute(stateData.moveStateData, data => SetState(new MoveState(Player, data)));
                 break;

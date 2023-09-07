@@ -1,6 +1,7 @@
 ﻿//NOTES FOR FUTURE ME:
 //  -   uh idk cant remember.
 
+using System;
 using System.Collections.Generic;
 using static State.StateType;
 
@@ -21,6 +22,8 @@ public abstract class State
     }
 
     public abstract StateType Type { get; }
+
+    protected Dictionary<State.StateType, bool> allowedTransitions = new ();
 
     // StateType is used to indicate the type of state that the player is in.
     public enum StateType
@@ -82,7 +85,7 @@ public abstract class State
     // -- Base Methods --
 
     protected static void TransitionTo(StateType newState) => StateMachine.Instance.TransitionToState(newState);
-
+    
     // -- State Methods --
 
     /// <summary>
