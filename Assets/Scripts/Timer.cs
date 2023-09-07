@@ -21,8 +21,13 @@ public class Timer : MonoBehaviour
     public TimerFormats format;
     private Dictionary<TimerFormats, string> timeFormats = new Dictionary<TimerFormats, string>();
 
+    [Header("Refrences")]
+    RoundScript roundScript;
+
     private void Start()
     {
+        roundScript = FindObjectOfType<RoundScript>();
+
         timeFormats.Add(TimerFormats.whole, "0");
         timeFormats.Add(TimerFormats.TenthDecimal, "0.0");
         timeFormats.Add(TimerFormats.HundrethsDecimal, "0.00");
@@ -37,6 +42,11 @@ public class Timer : MonoBehaviour
         {
             currentTime = timerLimit;
             SetTimerText(); 
+        }
+
+        if (currentTime <= 0)
+        {
+            roundScript.timer0 = true;
         }
     }
 

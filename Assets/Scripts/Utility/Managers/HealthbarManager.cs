@@ -5,16 +5,21 @@ public class HealthbarManager : MonoBehaviour
 {
     // Cached References
     Healthbar healthbar;
+    RoundScript roundScript;
 
     void Start()
     {
         healthbar = FindObjectOfType<Healthbar>();
+        roundScript = FindObjectOfType<RoundScript>();
         
         // Set the player's health to the max value.
         SetHealth();
     }
 
-    void Update() { DEBUG_ReduceHealth(); }
+    void Update() { 
+        if (Input.GetKeyDown(KeyCode.K)) { healthbar.LeftHealthbarValue = 0; roundScript.p2HasWon = true; }
+        
+        DEBUG_ReduceHealth(); }
 
     void SetHealth()
     {
@@ -43,7 +48,7 @@ public class HealthbarManager : MonoBehaviour
         if (Input.GetKey(KeyCode.L))
         {
             // This method does not kill the player, it only decrements the health to 1.
-            healthbar.AdjustHealthbar(true, 1, 100);
+            healthbar.AdjustHealthbar(true, 0, 100);
         }
     }
 }
