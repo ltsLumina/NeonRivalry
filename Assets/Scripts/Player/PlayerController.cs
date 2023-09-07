@@ -7,17 +7,19 @@ using static State;
 /// <summary>
 /// THIS IS NOT FINAL, I AM TESTING. NONE OF THIS WORKS OR IS MEANT TO WORK.
 /// </summary>
-[RequireComponent(typeof(Rigidbody), typeof(InputManager))]
+[RequireComponent(typeof(Rigidbody))]
 public partial class PlayerController : MonoBehaviour
 {
     [Header("Read-Only Fields")]
     [SerializeField] float idleTimeThreshold;
     [SerializeField, ReadOnly] public float idleTime;
 
-    [Header("Ground Check")]
-    [SerializeField] float groundDistance = 0.2f;
-    [SerializeField] Transform groundCheck;
+    [Header("Ground Check"), Tooltip("The minimum distance the raycast must be from the ground."), SerializeField, ReadOnly]
+     float raycastDistance = 1.022f; //With the capsule collider, this is the minimum distance between player and ground.
     [SerializeField] LayerMask groundLayer;
+
+    [Header("Player Input"), SerializeField]
+     int playerIndex;
 
     // Cached References
     StateMachine stateMachine;
@@ -25,10 +27,15 @@ public partial class PlayerController : MonoBehaviour
 
     public Rigidbody Rigidbody { get; private set; }
     public InputManager InputManager { get; private set; }
-
-    void Start()
+    public int PlayerIndex
     {
-        stateMachine = StateMachine.Instance;
+        get => playerIndex;
+        set => playerIndex = value;
+    }
+
+    void Awake()
+    {
+        stateMachine = GetComponent<StateMachine>();
         Rigidbody    = GetComponent<Rigidbody>();
         InputManager = GetComponent<InputManager>();
     }

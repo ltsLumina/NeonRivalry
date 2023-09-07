@@ -12,10 +12,10 @@ public partial class PlayerController // StateChecks.cs
 
     public bool IsGrounded()
     {
-        bool isHit = Physics.Raycast(groundCheck.position, Vector3.down, out RaycastHit _, 1, groundLayer);
+        bool isHit = Physics.Raycast(transform.position, Vector3.down, raycastDistance, groundLayer);
 
         Debugger.Debug("IsGrounded() is true", State.StateType.Idle);
- 
+
         return isHit;
     }
 
@@ -98,6 +98,6 @@ public partial class PlayerController // StateChecks.cs
     void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawWireCube(groundCheck.position, Vector3.one * groundDistance);
+        Gizmos.DrawLine(transform.position, transform.position + Vector3.down * raycastDistance);
     }
 }

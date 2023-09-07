@@ -1,6 +1,8 @@
-﻿using UnityEngine;
+﻿#region
+using UnityEngine;
+#endregion
 
-[CreateAssetMenu(fileName = "MoveStateData", menuName = "State Data/MoveState Data", order = 0)]
+[CreateAssetMenu(fileName = "MoveStateData", menuName = "State Data/MoveState Data", order = 1)]
 public class MoveStateData : ScriptableObject
 {
     [SerializeField] float moveSpeed;

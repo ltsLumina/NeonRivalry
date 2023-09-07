@@ -1,7 +1,9 @@
-﻿using UnityEngine;
+﻿#region
 using Lumina.Essentials.Attributes;
+using UnityEngine;
+#endregion
 
-[CreateAssetMenu(fileName = "FallStateData", menuName = "State Data/FallState Data", order = 0)]
+[CreateAssetMenu(fileName = "FallStateData", menuName = "State Data/FallState Data", order = 3)]
 public class FallStateData : ScriptableObject
 {
     [SerializeField, ReadOnly] float fallTimer;

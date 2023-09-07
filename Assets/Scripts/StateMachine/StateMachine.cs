@@ -14,20 +14,30 @@ using static UnityEditor.EditorGUILayout;
 /// The state machine that handles the player's state.
 /// Allows for easy state transitions and state management.
 /// </summary>
-public class StateMachine : SingletonPersistent<StateMachine>
+public class StateMachine : MonoBehaviour
 {
     [SerializeField] public StateData stateData;
+    [SerializeField] PlayerController player;
 
     // Cached References
-    //TODO: Make this private. It is used to reference the player from the editor for debugging purposes.
-    public PlayerController Player;
+    public PlayerController Player
+    {
+        get => player;
+        private set => player = value;
+    }
 
     // -- State Related --
     public State CurrentState { get; private set; }
-    
-    void Start()
+
+    void Awake()
     {
-        Player = FindObjectOfType<PlayerController>();
+        Player = GetComponent<PlayerController>();
+
+        if (Player == null)
+        {
+            Debug.LogError("Player not set for StateMachine. Please set it externally.", this);
+            return;
+        }
 
         // Set the default state.
         TransitionToState(None);

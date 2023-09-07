@@ -1,7 +1,9 @@
-﻿using UnityEngine;
+﻿#region
 using Lumina.Essentials.Attributes;
+using UnityEngine;
+#endregion
 
-[CreateAssetMenu(fileName = "AttackStateData", menuName = "State Data/AttackState Data", order = 0)]
+[CreateAssetMenu(fileName = "AttackStateData", menuName = "State Data/AttackState Data", order = 4)]
 public class AttackStateData : ScriptableObject
 {
     [SerializeField, ReadOnly] float attackTimer;

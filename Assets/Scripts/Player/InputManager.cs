@@ -1,4 +1,5 @@
 ﻿#region
+using System.Linq;
 using Lumina.Essentials.Attributes;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -15,9 +16,10 @@ public class InputManager : MonoBehaviour
     [SerializeField, ReadOnly] Vector2 moveInput;
 
     // Cached References
-    StateMachine stateMachine;
     PlayerController player;
+    StateMachine stateMachine;
     Rigidbody playerRB;
+    PlayerInput playerInput;
 
     // Serialized InputAction. Must be public as it can't be serialized through [SerializeField].
     public InputAction runKeyModifier;
@@ -35,11 +37,16 @@ public class InputManager : MonoBehaviour
 
     void OnDisable() => runKeyModifier.Disable();
 
-    void Start()
+    void Awake()
     {
-        stateMachine = StateMachine.Instance;
-        player       = GetComponent<PlayerController>();
+        player       = FindObjectOfType<PlayerController>();
+        stateMachine = player.GetComponent<StateMachine>();
         playerRB     = GetComponent<Rigidbody>();
+
+        playerInput = GetComponent<PlayerInput>();
+        PlayerController[] players = FindObjectsOfType<PlayerController>();
+        int                index   = playerInput.playerIndex;
+        player = players.FirstOrDefault(p => p.PlayerIndex == index);
     }
 
     void Update()

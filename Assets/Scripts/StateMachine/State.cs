@@ -1,9 +1,11 @@
 ﻿//NOTES FOR FUTURE ME:
 //  -   uh idk cant remember.
 
-using System;
+#region
 using System.Collections.Generic;
+using UnityEngine;
 using static State.StateType;
+#endregion
 
 /// <summary>
 /// The base class for all states in the game.
@@ -23,7 +25,7 @@ public abstract class State
 
     public abstract StateType Type { get; }
 
-    protected Dictionary<State.StateType, bool> allowedTransitions = new ();
+    protected Dictionary<StateType, bool> allowedTransitions = new ();
 
     // StateType is used to indicate the type of state that the player is in.
     public enum StateType
@@ -84,7 +86,7 @@ public abstract class State
 
     // -- Base Methods --
 
-    protected static void TransitionTo(StateType newState) => StateMachine.Instance.TransitionToState(newState);
+    protected static void TransitionTo(StateType newState) => Object.FindObjectOfType<StateMachine>().TransitionToState(newState);
     
     // -- State Methods --
 
