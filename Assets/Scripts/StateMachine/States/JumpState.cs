@@ -50,7 +50,8 @@ public class JumpState : State
             OnExit();
 
             // Transition to fall state
-            TransitionTo(StateType.Fall);
+            //TransitionTo(StateType.Fall);
+            player.StateMachine.TransitionToState(StateType.Fall);
         }
 
         jumpTimer += Time.deltaTime;

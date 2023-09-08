@@ -21,7 +21,7 @@ public partial class PlayerController // StateChecks.cs
 
     public bool IsMoving()
     {
-        bool isMoving = Rigidbody.velocity.x != 0 && IsGrounded() && stateMachine.CurrentState is MoveState
+        bool isMoving = Rigidbody.velocity.x != 0 && IsGrounded() && StateMachine.CurrentState is MoveState
         { IsMoving: true };
 
         Debugger.Debug("IsMoving() is true", State.StateType.Walk);
@@ -32,7 +32,7 @@ public partial class PlayerController // StateChecks.cs
     // ReSharper disable Unity.PerformanceAnalysis
     public bool IsJumping()
     {
-        bool isJumping = IsGrounded() && Rigidbody.velocity.y > 0 && stateMachine.CurrentState is JumpState
+        bool isJumping = IsGrounded() && Rigidbody.velocity.y > 0 && StateMachine.CurrentState is JumpState
         { IsJumping: true };
 
         Debugger.Debug("IsJumping() is true", State.StateType.Jump);
@@ -43,7 +43,7 @@ public partial class PlayerController // StateChecks.cs
     // ReSharper disable Unity.PerformanceAnalysis
     public bool IsFalling()
     {
-        bool isFalling = !IsGrounded() || Rigidbody.velocity.y < 0 && stateMachine.CurrentState is FallState
+        bool isFalling = !IsGrounded() || Rigidbody.velocity.y < 0 && StateMachine.CurrentState is FallState
         { IsFalling: true };
 
         Debugger.Debug($"IsFalling() is {isFalling}", State.StateType.Fall);
@@ -55,7 +55,7 @@ public partial class PlayerController // StateChecks.cs
     public bool IsAttacking()
     {
         //TODO: This is a temporary implementation. We need to check if the player is attacking some other way.
-        bool isAttacking = stateMachine.CurrentState is AttackState
+        bool isAttacking = StateMachine.CurrentState is AttackState
         { IsAttacking: true };
 
         Debugger.Debug("IsAttacking() is true", State.StateType.Attack);

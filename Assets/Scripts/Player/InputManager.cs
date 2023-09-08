@@ -1,5 +1,4 @@
 ﻿#region
-using System.Linq;
 using Lumina.Essentials.Attributes;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -18,7 +17,6 @@ public class InputManager : MonoBehaviour
     // Cached References
     PlayerController player;
     StateMachine stateMachine;
-    Rigidbody playerRB;
     PlayerInput playerInput;
 
     // Serialized InputAction. Must be public as it can't be serialized through [SerializeField].
@@ -39,14 +37,8 @@ public class InputManager : MonoBehaviour
 
     void Awake()
     {
-        player       = FindObjectOfType<PlayerController>();
+        player       = GetComponentInParent<PlayerController>();
         stateMachine = player.GetComponent<StateMachine>();
-        playerRB     = GetComponent<Rigidbody>();
-
-        playerInput = GetComponent<PlayerInput>();
-        PlayerController[] players = FindObjectsOfType<PlayerController>();
-        int                index   = playerInput.playerIndex;
-        player = players.FirstOrDefault(p => p.PlayerIndex == index);
     }
 
     void Update()

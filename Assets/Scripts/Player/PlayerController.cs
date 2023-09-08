@@ -18,26 +18,18 @@ public partial class PlayerController : MonoBehaviour
      float raycastDistance = 1.022f; //With the capsule collider, this is the minimum distance between player and ground.
     [SerializeField] LayerMask groundLayer;
 
-    [Header("Player Input"), SerializeField]
-     int playerIndex;
-
     // Cached References
-    StateMachine stateMachine;
     Animator anim;
 
     public Rigidbody Rigidbody { get; private set; }
     public InputManager InputManager { get; private set; }
-    public int PlayerIndex
-    {
-        get => playerIndex;
-        set => playerIndex = value;
-    }
+    public StateMachine StateMachine { get; private set; }
 
     void Awake()
     {
-        stateMachine = GetComponent<StateMachine>();
+        StateMachine = GetComponent<StateMachine>();
         Rigidbody    = GetComponent<Rigidbody>();
-        InputManager = GetComponent<InputManager>();
+        InputManager = GetComponentInChildren<InputManager>();
     }
 
     void Update()
@@ -59,7 +51,7 @@ public partial class PlayerController : MonoBehaviour
             // If the idle time is greater than the threshold, we transition to the idle state.
             if (idleTime >= idleTimeThreshold)
             {
-                stateMachine.TransitionToState(StateType.Idle);
+                StateMachine.TransitionToState(StateType.Idle);
             }
         }
         else { idleTime = 0; }

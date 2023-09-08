@@ -3,7 +3,6 @@
 
 #region
 using System.Collections.Generic;
-using UnityEngine;
 using static State.StateType;
 #endregion
 
@@ -86,7 +85,7 @@ public abstract class State
 
     // -- Base Methods --
 
-    protected static void TransitionTo(StateType newState) => Object.FindObjectOfType<StateMachine>().TransitionToState(newState);
+    //protected static void TransitionTo(StateType newState) => Object.FindObjectOfType<StateMachine>().TransitionToState(newState);
     
     // -- State Methods --
 

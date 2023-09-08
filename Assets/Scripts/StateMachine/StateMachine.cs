@@ -33,12 +33,6 @@ public class StateMachine : MonoBehaviour
     {
         Player = GetComponent<PlayerController>();
 
-        if (Player == null)
-        {
-            Debug.LogError("Player not set for StateMachine. Please set it externally.", this);
-            return;
-        }
-
         // Set the default state.
         TransitionToState(None);
     }
@@ -194,7 +188,10 @@ public class StateMachineEditor : Editor
             Toggle("IsAttacking", stateMachine.CurrentState is AttackState {IsAttacking: true });
         }
 
-        EditorUtility.SetDirty(stateMachine);
+        if (Application.isPlaying)
+        {
+            EditorUtility.SetDirty(stateMachine);
+        }
     }
 }
 #endif

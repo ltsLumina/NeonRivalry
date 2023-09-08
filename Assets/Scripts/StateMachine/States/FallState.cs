@@ -48,7 +48,8 @@ public class FallState : State
         // Perform any necessary cleanup or exit actions
         // Debug.Log("Exited Fall State");
 
-        TransitionTo(player.InputManager.MoveInput.x != 0 ? StateType.Walk : StateType.Idle);
+        //TransitionTo(player.InputManager.MoveInput.x != 0 ? StateType.Walk : StateType.Idle);
+        player.StateMachine.TransitionToState(player.InputManager.MoveInput.x != 0 ? StateType.Walk : StateType.Idle);
         
         // Play land animation.
         IsFalling = false;

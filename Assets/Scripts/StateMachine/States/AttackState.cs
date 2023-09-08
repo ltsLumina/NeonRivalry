@@ -83,7 +83,8 @@ public class AttackState : State
 
     public override void OnExit() 
     {
-        TransitionTo(player.InputManager.MoveInput.x != 0 ? StateType.Walk : StateType.Idle);
+        //TransitionTo(player.InputManager.MoveInput.x != 0 ? StateType.Walk : StateType.Idle);
+        player.StateMachine.TransitionToState(player.InputManager.MoveInput.x != 0 ? StateType.Walk : StateType.Idle);
         IsAttacking = false;
     }
 }
