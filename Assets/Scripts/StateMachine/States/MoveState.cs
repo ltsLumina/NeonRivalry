@@ -59,8 +59,8 @@ public class MoveState : State
 
         // Pass control to the idle state
         
-        // Causes the player to gain too much speed when moving as the OnEnter speed gets added onto the current speed.
-        //TransitionTo(StateType.Idle);
+        // TODO: If we enter the Idle state whenever we stop moving, we'll gain a lot of speed when we start moving again as OnEnter is called.
+        //player.StateMachine.TransitionToState(StateType.Idle);
         
         // Reset the IsMoving flag
         IsMoving = false;
