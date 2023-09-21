@@ -28,10 +28,8 @@ public class CameraScript : MonoBehaviour
         smoothPath.m_Waypoints = new CinemachineSmoothPath.Waypoint[tWaypoints.Length];
         for (int i = 0; i < tWaypoints.Length; i++)
         {
-            smoothPath.m_Waypoints[i] = new CinemachineSmoothPath.Waypoint
-            {
-                position = tWaypoints[i].position
-            };
+            smoothPath.m_Waypoints[i] = new CinemachineSmoothPath.Waypoint();
+            smoothPath.m_Waypoints[i].position = tWaypoints[i].position;
         }
 
         trackedDolly.m_Path = smoothPath;
