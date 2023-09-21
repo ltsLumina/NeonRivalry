@@ -23,7 +23,7 @@ public class PlayerDeviceManager : MonoBehaviour
                 // Remove the device from both the unassigned pool and the player's assigned devices
                 unassignedDevices.Remove(device);
                 var item = playerDevices.FirstOrDefault(kvp => kvp.Value == device);
-                if (item.Key != null) { playerDevices.Remove(item.Key); }
+                playerDevices.Remove(item.Key);
                 break;
         }
     }
