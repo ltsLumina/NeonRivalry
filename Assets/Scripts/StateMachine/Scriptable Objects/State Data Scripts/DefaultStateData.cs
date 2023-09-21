@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using Lumina.Essentials.Attributes;
+﻿using Lumina.Essentials.Attributes;
+using UnityEngine;
 
 /// <summary>
 /// This scriptable object is intended to be used a template for creating new state data.

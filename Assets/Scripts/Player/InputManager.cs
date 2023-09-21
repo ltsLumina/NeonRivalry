@@ -52,36 +52,30 @@ public class InputManager : MonoBehaviour
 
     // -- Input Handling --
 
-    void OnMove(InputValue value)
+    public void OnMove(InputAction.CallbackContext context)
     {
-        MoveInput = value.Get<Vector2>();
+        MoveInput = context.ReadValue<Vector2>();
 
         //TODO: CanMove does not work as intended. If I change it to IsGrounded, it works as expected.
-        if (player.IsGrounded() && !player.IsAttacking())
+        if (context.performed && player.IsGrounded() && !player.IsAttacking())
         {
             stateMachine.TransitionToState(State.StateType.Walk);
         }
-        else if (player.IsGrounded() && isRunningKeyHeld)
-        {
-            stateMachine.TransitionToState(State.StateType.Run); 
-        }
     }
 
-    void OnJump(InputValue value)
+    public void OnJump(InputAction.CallbackContext context)
     {
-        if (player.CanJump())
+        if (context.performed && player.CanJump())
         {
             stateMachine.TransitionToState(State.StateType.Jump);
         }
     }
 
-    void OnAttack(InputValue value)
+    public void OnAttack(InputAction.CallbackContext context)
     {
-        if (player.CanAttack())
+        if (context.performed && player.CanAttack())
         {
             stateMachine.TransitionToState(State.StateType.Attack);
         }
-
-        stateMachine.TransitionToState(State.StateType.Attack);
     }
 }

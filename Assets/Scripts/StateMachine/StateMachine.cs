@@ -68,11 +68,11 @@ public class StateMachine : MonoBehaviour
     /// <summary>
     /// Handles the transition between states.
     /// </summary>
-    /// <param name="stateType"> The state to transition into. </param>
-    public void TransitionToState(StateType stateType)
+    /// <param name="state"> The state to transition into. </param>
+    public void TransitionToState(StateType state)
     {
         // Do NOT run any other code than the CheckStateDataThenExecute() method in this switch statement.
-        switch (stateType)
+        switch (state)
         {
             case Idle:
                 SetState(new IdleState(Player)); //TODO: Add state data, potentially. (Such as idleTimeThreshold. Currently handled in the player controller.)
@@ -125,7 +125,7 @@ public class StateMachine : MonoBehaviour
             // If you wish to add more states, make sure to run the CheckStateDataThenExecute method like all the other states.
 
             default:
-                throw new ArgumentOutOfRangeException(nameof(stateType), stateType, "The state type is not valid.");
+                throw new ArgumentOutOfRangeException(nameof(state), state, "The state type is not valid.");
         }
     }
 
