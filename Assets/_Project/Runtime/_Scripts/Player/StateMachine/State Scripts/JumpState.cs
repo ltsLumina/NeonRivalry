@@ -15,11 +15,12 @@ public class JumpState : State
     float jumpForce;
 
     float jumpTimer;
-    float jumpDuration = 0.2f;
+    float jumpDuration;
 
     public JumpState(PlayerController player, JumpStateData stateData) : base(player)
     {
         jumpForce = stateData.JumpForce;
+        jumpDuration = stateData.JumpDuration;
     }
 
     public override bool CanBeInterrupted()
@@ -45,9 +46,9 @@ public class JumpState : State
         if (jumpTimer < jumpDuration)
         {
             // Apply the jump force
-            player.Rigidbody.AddForce(Vector3.up * (jumpForce * Time.fixedDeltaTime), ForceMode.Impulse);
+            player.Rigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
-        else if (jumpTimer >= jumpDuration && player.Rigidbody.velocity.y < 0)
+        else if (jumpTimer >= jumpDuration /* && player.Rigidbody.velocity.y < 0 */)
         {
             // Jump duration exceeded, transition to another state
             OnExit();

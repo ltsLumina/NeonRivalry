@@ -12,14 +12,16 @@ public class FallState : State
 
     // -- State Specific Variables --
     //TODO: these are temporary
-    float fallTimer;
-    float fallDuration;
+    float playerMass;
+    float fallGravityMultiplier;
+    float jumpHaltForce;
 
     // -- Constructor --
     public FallState(PlayerController player, FallStateData stateData) : base(player)
     {
-        fallTimer = stateData.FallTimer;
-        fallDuration = stateData.FallDuration;
+        playerMass = stateData.PlayerMass;
+        fallGravityMultiplier = stateData.FallGravityMultiplier;
+        jumpHaltForce = stateData.JumpHaltForce;
     }
 
     public override bool CanBeInterrupted()
@@ -33,16 +35,30 @@ public class FallState : State
         // Play the attack animation.
         //Debug.Log("Entered Attack State");
         IsFalling = true;
-
+        player.PlayerRB.mass = playerMass;
         player.GetComponentInChildren<SpriteRenderer>().color = new Color(1f, 0.58f, 0f);
     }
 
     public override void UpdateState()
     {
+        bool hasAppliedFallForce = false;
+        bool hasAppliedJumpHalt = false;
         //TODO: this is not final. This is just a placeholder.
         if (player.IsGrounded())
         {
+            hasAppliedFallForce = false;
+            hasAppliedJumpHalt = false;
             OnExit();
+        }
+        if (player.PlayerRB.velocity.y < 0 && !hasAppliedFallForce )
+        {
+            hasAppliedFallForce = true;
+            player.PlayerRB.AddForce(fallGravityMultiplier * Vector3.down);
+        }
+        if (player.PlayerRB.velocity.y > 0 && !hasAppliedJumpHalt)
+        {
+            hasAppliedJumpHalt |= true;
+            player.PlayerRB.AddForce(jumpHaltForce * Vector3.down);
         }
     }
 

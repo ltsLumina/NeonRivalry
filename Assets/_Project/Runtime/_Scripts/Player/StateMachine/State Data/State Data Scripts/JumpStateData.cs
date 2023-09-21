@@ -6,5 +6,7 @@ using UnityEngine;
 public class JumpStateData : DefaultStateData
 {
     [SerializeField] float jumpForce;
+    [SerializeField] float jumpDuration;
     public float JumpForce => jumpForce;
+    public float JumpDuration => jumpDuration;
 }

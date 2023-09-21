@@ -2,12 +2,13 @@
 using UnityEngine;
 #endregion
 
-/*----------------------------------------------------------------------------
- * IMPORTANT NOTE: Use Time.fixedDeltaTime instead of Time.deltaTime
- *----------------------------------------------------------------------------*/
+//TODO: If you hold move, then exit the state, upon entering the state you wont move until you release and repress the move button.
 public class MoveState : State
 {
     float moveSpeed;
+    float acceleration;
+    float deceleration;
+    float velocityPower;
 
     public override StateType Type => StateType.Walk;
     public override int Priority => statePriorities[Type];
@@ -16,7 +17,10 @@ public class MoveState : State
 
     public MoveState(PlayerController player, MoveStateData stateData) : base(player)
     {
-        moveSpeed = stateData.MoveSpeed; 
+        moveSpeed = stateData.MoveSpeed;
+        acceleration = stateData.Acceleration;
+        deceleration = stateData.Deceleration;
+        velocityPower = stateData.AccelerationRate;
     }
 
     public override bool CanBeInterrupted()
@@ -37,16 +41,22 @@ public class MoveState : State
     //MOVEMENT ISN'T MY PROBLEM HAHAHAHAHA HAVE FUN WITH THIS HEHEHE
     public override void UpdateState()
     {
+        Debug.Log("Update move state was called");
         // Handle move logic
         Vector3 moveInput = player.InputManager.MoveInput;
+        int moveDirection = (int)moveInput.x;
 
-        if (moveInput.sqrMagnitude > 0.01)
-        {
-            // Apply horizontal and vertical movement
-            Vector3 movement = moveInput * (moveSpeed * Time.fixedDeltaTime);
-            player.Rigidbody.velocity = new (movement.x, player.Rigidbody.velocity.y, movement.z);
-        }
-        else { OnExit(); }
+        float targetSpeed = moveDirection * moveSpeed;
+
+        float speedDifference = targetSpeed - player.PlayerRB.velocity.x;
+
+        float accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? acceleration : deceleration;
+
+        float movement = Mathf.Pow(Mathf.Abs(speedDifference) * accelRate, velocityPower) * Mathf.Sign(speedDifference);
+
+        player.PlayerRB.AddForce(movement * Vector3.right);
+
+        OnExit();
     }
 
     public override void OnExit()
@@ -55,9 +65,9 @@ public class MoveState : State
         //Debug.Log("Exited Move State");
 
         // Slow down the player
-        Vector3 velocity = player.Rigidbody.velocity;
-        velocity                  = new (velocity.x * 0.9f, velocity.y, velocity.z);
-        player.Rigidbody.velocity = velocity;
+        // Vector3 velocity = player.PlayerRB.velocity;
+        // velocity = new (velocity.x * 0.9f, velocity.y, velocity.z);
+        // player.PlayerRB.velocity = velocity;
 
         // Pass control to the idle state
         
