@@ -1,71 +1,75 @@
-#if UNITY_EDITOR
-#region
-using UnityEditor;
+﻿#region
 using UnityEngine;
+using static Lumina.Debugging.DebuggerWindow;
 #endregion
 
-public class Debugger : EditorWindow
+// Lumina.Debugging namespace contains classes and methods related to debugging.
+namespace Lumina.Debugging
 {
-    public enum Level
+    /// <summary>
+    /// Helper class for handling common debugging tasks such as logging.
+    /// This class is specifically designed to be used within the Unity engine hence derives from MonoBehaviour.
+    /// </summary>
+    public class Debugger : MonoBehaviour
     {
-        TRACE,
-        DEBUG,
-        INFO,
-        NONE,
-    }
-
-    [MenuItem("Tools/State Debugger")]
-    static void Open()
-    {
-        var window = (Debugger) GetWindow(typeof(Debugger));
-        window.titleContent = new ("State Debugger");
-        window.Show();
-    }
-
-    // These could be set elsewhere in your code, which determines what will be logged.
-    static Level LogLevel = Level.NONE;
-    static State.StateType ActiveStateType = State.StateType.Idle;
-
-    void OnEnable()
-    {
-        Initialization();
-
-        return;
-
-        void Initialization()
+        // Displays a cyan colored prefix on every debug logs
+        static string errorMessagePrefix;
+        
+        // Default error message if no particular message is provided
+        const string defaultMessage = "An Error Has Occurred:";
+    
+        /// <summary>
+        /// Logs an informational message with an optional state type.
+        /// The message will be logged only when logging level is INFO.
+        /// </summary>
+        /// <param name="message">The content of the log message.</param>
+        /// <param name="state">The optional state type used for filtering logs.</param>
+        public static void Info(string message = "", State.StateType? state = null)
         {
-            // Close the window if there is more than one instance of the window.
-            if (Resources.FindObjectsOfTypeAll<Debugger>().Length > 1) Close();
+            if ((state == null || state == ActiveStateType) && LogLevel == Level.INFO)
+            {
+                // Change the prefix color to green for INFO logs
+                errorMessagePrefix = "<color=green>[INFO] ►</color>";
+
+                string logMsg = string.IsNullOrEmpty(message) ? $"{errorMessagePrefix} {defaultMessage}" : $"{errorMessagePrefix} {message}";
+                UnityEngine.Debug.Log(logMsg + "\n");
+            }
+        }
+
+        /// <summary>
+        /// Logs a debug message with an optional state type.
+        /// The message will be logged only when logging level is DEBUG.
+        /// </summary>
+        /// <param name="message">The content of the log message.</param>
+        /// <param name="state">The optional state type used for filtering logs.</param>
+        public static void Debug(string message = "", State.StateType? state = null)
+        {
+            if ((state == null || state == ActiveStateType) && LogLevel == Level.DEBUG)
+            {
+                // Change the prefix color to cyan for DEBUG logs
+                errorMessagePrefix = "<color=cyan>[DEBUG] ►</color>";
+
+                string logMsg = string.IsNullOrEmpty(message) ? $"{errorMessagePrefix} {defaultMessage}" : $"{errorMessagePrefix} {message}";
+                UnityEngine.Debug.Log(logMsg + "\n");
+            }
+        }
+
+        /// <summary>
+        /// Logs a trace message with an optional state type.
+        /// The message will be logged only when logging level is TRACE.
+        /// </summary>
+        /// <param name="message">The content of the log message.</param>
+        /// <param name="state">The optional state type used for filtering logs.</param>
+        public static void Trace(string message = "", State.StateType? state = null)
+        {
+            if ((state == null || state == ActiveStateType) && LogLevel == Level.TRACE)
+            {
+                // Change the prefix color to orange for TRACE logs
+                errorMessagePrefix = "<color=orange>[TRACE] ►</color>";
+
+                string logMsg = string.IsNullOrEmpty(message) ? $"{errorMessagePrefix} {defaultMessage}" : $"{errorMessagePrefix} {message}";
+                UnityEngine.Debug.Log(logMsg + "\n");
+            }
         }
     }
-
-    void OnGUI()
-    {
-        GUILayout.Label("Log Level", EditorStyles.boldLabel);
-        LogLevel = (Level) EditorGUILayout.EnumPopup(LogLevel);
-
-        GUILayout.Label("State to Debug", EditorStyles.boldLabel);
-        ActiveStateType = (State.StateType) EditorGUILayout.EnumPopup(ActiveStateType);
-    }
-
-    #region
-    public static void Info(string message, State.StateType? state = null)
-    {
-        if ((state == null || state == ActiveStateType) && LogLevel == Level.INFO) UnityEngine.Debug.Log($"INFO: {message}");
-    }
-
-    public static void Debug(string message, State.StateType? state = null)
-    {
-        if ((state == null || state == ActiveStateType) && LogLevel == Level.DEBUG) UnityEngine.Debug.Log($"DEBUG: {message}");
-
-        //TODO: Prints multiple times for each method that calls it.
-    }
-
-    public static void Trace(string message, State.StateType? state = null)
-    {
-        if ((state == null || state == ActiveStateType) && LogLevel == Level.TRACE) UnityEngine.Debug.Log($"TRACE: {message}");
-    }
-    #endregion
 }
-
-#endif

@@ -1,4 +1,5 @@
 ﻿#region
+using Lumina.Debugging;
 using UnityEngine;
 #endregion
 
@@ -12,11 +13,11 @@ public partial class PlayerController // StateChecks.cs
 
     public bool IsGrounded()
     {
-        bool isHit = Physics.Raycast(transform.position, Vector3.down, raycastDistance, groundLayer);
+        bool raycastHit = Physics.Raycast(transform.position, Vector3.down,raycastDistance,groundLayer);
+        
+        Debugger.Debug($"IsGrounded() is {raycastHit}", State.StateType.Idle);
 
-        Debugger.Debug("IsGrounded() is true", State.StateType.Idle);
-
-        return isHit;
+        return raycastHit;
     }
 
     public bool IsMoving()
@@ -24,7 +25,7 @@ public partial class PlayerController // StateChecks.cs
         bool isMoving = Rigidbody.velocity.x != 0 && IsGrounded() && StateMachine.CurrentState is MoveState
         { IsMoving: true };
 
-        Debugger.Debug("IsMoving() is true", State.StateType.Walk);
+        Debugger.Debug($"IsMoving() is {isMoving}", State.StateType.Walk);
 
         return isMoving;
     }
@@ -35,7 +36,7 @@ public partial class PlayerController // StateChecks.cs
         bool isJumping = IsGrounded() && Rigidbody.velocity.y > 0 && StateMachine.CurrentState is JumpState
         { IsJumping: true };
 
-        Debugger.Debug("IsJumping() is true", State.StateType.Jump);
+        Debugger.Debug($"IsJumping() is {isJumping}", State.StateType.Jump);
 
         return isJumping;
     }
@@ -58,7 +59,7 @@ public partial class PlayerController // StateChecks.cs
         bool isAttacking = StateMachine.CurrentState is AttackState
         { IsAttacking: true };
 
-        Debugger.Debug("IsAttacking() is true", State.StateType.Attack);
+        Debugger.Debug($"IsAttacking() is {isAttacking}", State.StateType.Attack);
 
         return isAttacking;
     }
