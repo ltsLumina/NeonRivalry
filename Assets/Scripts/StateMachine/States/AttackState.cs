@@ -1,4 +1,5 @@
 ﻿#region
+using Lumina.Debugging;
 using UnityEngine;
 #endregion
 
@@ -51,7 +52,7 @@ public class AttackState : State
             {
                 groundedAttackTimer += Time.deltaTime;
 
-                if (player.IsGrounded()) Debug.Log("Attacking on the ground!");
+                if (player.IsGrounded()) StateDebugger.Debug("Attacking on the ground!", StateType.Attack);
 
                 // Play ground attack animation and logic.
                 else IsAirborne = true;
@@ -67,12 +68,12 @@ public class AttackState : State
                 // If the player lands, cancel the attack.
                 if (player.IsGrounded())
                 {
-                    Debug.Log("Airborne Attack cancelled!");
+                    StateDebugger.Debug("Airborne Attack cancelled!", StateType.Attack);
                     OnExit();
                 }
                 else
                 {
-                    Debug.Log("Attacking in the air!");
+                    StateDebugger.Debug("Attacking in the air!", StateType.Attack);
 
                     // Play airborne attack animation and run logic.
                 }

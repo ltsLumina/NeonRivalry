@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 #region
 using UnityEditor;
 using UnityEngine;
@@ -8,9 +9,9 @@ using static State;
 namespace Lumina.Debugging
 {
 /// <summary>
-///     DebuggerWindow provides a custom editor window for the Unity Editor that is used to debug states.
+///     StateDebuggerWindow provides a custom editor window for the Unity Editor that is used to debug states.
 /// </summary>
-public class DebuggerWindow : EditorWindow
+public class StateDebuggerWindow : EditorWindow
 {
     // Level enum is used to specify the log level
     public enum Level
@@ -25,14 +26,14 @@ public class DebuggerWindow : EditorWindow
     public static Level LogLevel { get; private set; } = Level.NONE;
 
     // The debugger will only log states that match the ActiveStateType
-    public static StateType ActiveStateType { get; private set; } = StateType.Idle;
+    public static StateType ActiveStateType { get; private set; } = StateType.None;
 
     // MenuItem attribute that adds a new menu item under "Tools/State Debugger" in the Editor's menu bar.
     [MenuItem("Tools/State Debugger")]
     static void Open()
     {
-        // Creates a new DebuggerWindow or focus an existing one
-        var window = (DebuggerWindow) GetWindow(typeof(DebuggerWindow));
+        // Creates a new StateDebuggerWindow or focus an existing one
+        var window = (StateDebuggerWindow) GetWindow(typeof(StateDebuggerWindow));
 
         // Sets the window title
         window.titleContent = new ("State Debugger");
@@ -51,7 +52,7 @@ public class DebuggerWindow : EditorWindow
         void Initialization()
         {
             // Close the window if there is more than one instance of the window.
-            if (Resources.FindObjectsOfTypeAll<DebuggerWindow>().Length > 1) Close();
+            if (Resources.FindObjectsOfTypeAll<StateDebuggerWindow>().Length > 1) Close();
         }
     }
 
@@ -68,3 +69,5 @@ public class DebuggerWindow : EditorWindow
     }
 }
 }
+
+#endif

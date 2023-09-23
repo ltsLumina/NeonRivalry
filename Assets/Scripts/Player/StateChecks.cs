@@ -15,7 +15,7 @@ public partial class PlayerController // StateChecks.cs
     {
         bool raycastHit = Physics.Raycast(transform.position, Vector3.down,raycastDistance,groundLayer);
         
-        Debugger.Debug($"IsGrounded() is {raycastHit}", State.StateType.Idle);
+        StateDebugger.Debug($"IsGrounded() is {raycastHit}", State.StateType.Idle);
 
         return raycastHit;
     }
@@ -25,7 +25,7 @@ public partial class PlayerController // StateChecks.cs
         bool isMoving = Rigidbody.velocity.x != 0 && IsGrounded() && StateMachine.CurrentState is MoveState
         { IsMoving: true };
 
-        Debugger.Debug($"IsMoving() is {isMoving}", State.StateType.Walk);
+        StateDebugger.Debug($"IsMoving() is {isMoving}", State.StateType.Walk);
 
         return isMoving;
     }
@@ -36,7 +36,7 @@ public partial class PlayerController // StateChecks.cs
         bool isJumping = IsGrounded() && Rigidbody.velocity.y > 0 && StateMachine.CurrentState is JumpState
         { IsJumping: true };
 
-        Debugger.Debug($"IsJumping() is {isJumping}", State.StateType.Jump);
+        StateDebugger.Debug($"IsJumping() is {isJumping}", State.StateType.Jump);
 
         return isJumping;
     }
@@ -47,7 +47,7 @@ public partial class PlayerController // StateChecks.cs
         bool isFalling = !IsGrounded() || Rigidbody.velocity.y < 0 && StateMachine.CurrentState is FallState
         { IsFalling: true };
 
-        Debugger.Debug($"IsFalling() is {isFalling}", State.StateType.Fall);
+        StateDebugger.Debug($"IsFalling() is {isFalling}", State.StateType.Fall);
 
         return isFalling;
     }
@@ -59,7 +59,7 @@ public partial class PlayerController // StateChecks.cs
         bool isAttacking = StateMachine.CurrentState is AttackState
         { IsAttacking: true };
 
-        Debugger.Debug($"IsAttacking() is {isAttacking}", State.StateType.Attack);
+        StateDebugger.Debug($"IsAttacking() is {isAttacking}", State.StateType.Attack);
 
         return isAttacking;
     }
@@ -83,7 +83,7 @@ public partial class PlayerController // StateChecks.cs
             && !IsFalling() 
             && !IsAttacking();
 
-        Debugger.Debug($"IsIdle() is {isIdle}", State.StateType.Idle);
+        StateDebugger.Debug($"IsIdle() is {isIdle}", State.StateType.Idle);
 
         return isIdle;
     }

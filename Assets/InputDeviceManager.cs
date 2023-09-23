@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[Obsolete("This class is no longer used. It is kept for reference purposes.")]
 public class PlayerDeviceManager : MonoBehaviour
 {
     Dictionary<int, InputDevice> playerDevices = new ();
