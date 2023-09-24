@@ -1,17 +1,19 @@
 #region
-using System;
 using UnityEngine;
 #endregion
 
-public class GameManager : MonoBehaviour
+public class GameManager : SingletonPersistent<GameManager>
 {
+    // The target frame rate of the game. It is set to 60 FPS as fighting games typically run at 60 FPS.
     const int TARGET_FPS = 60;
-    
-    void Awake()
-    {
-        Application.targetFrameRate = TARGET_FPS; 
-    }
 
+    protected override void Awake()
+    {
+        base.Awake();
+        
+        Application.targetFrameRate = TARGET_FPS;
+    }
+    
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Backspace))

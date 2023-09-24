@@ -57,6 +57,7 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
+  playerID: 0
 --- !u!114 &488312444501934667
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -269,8 +270,8 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_ActionId: 5dd2e8cb-28b4-4c67-a2de-8ebe01dff6cf
-    m_ActionName: Player/Move[/Keyboard/a,/Keyboard/leftArrow,/Keyboard/d,/Keyboard/rightArrow,/Keyboard/w,/Keyboard/upArrow,/Keyboard/s,/Keyboard/downArrow,/XInputControllerWindows/dpad/up,/XInputControllerWindows/dpad/left,/XInputControllerWindows/dpad/down,/XInputControllerWindows/dpad/right,/XInputControllerWindows/leftStick]
+    m_ActionId: f07bfb5e-7fa5-4ac9-8947-ce25350a348a
+    m_ActionName: Player Controls/Move[/Keyboard/a,/Keyboard/d]
   - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 5062746852483653501}
@@ -285,8 +286,8 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_ActionId: ff3224ea-0ac9-42ad-b993-1b839d888ed9
-    m_ActionName: Player/Attack[/XInputControllerWindows/rightTrigger,/XInputControllerWindows/buttonWest,/Keyboard/f]
+    m_ActionId: 2b02e2f0-b44c-460b-af0f-8ac447831db6
+    m_ActionName: Player Controls/Attack[/Keyboard/f]
   - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 5062746852483653501}
@@ -301,17 +302,17 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_ActionId: cb91030c-24d7-406c-8d79-9ab584421310
-    m_ActionName: Player/Jump[/Keyboard/w,/Keyboard/space,/XInputControllerWindows/dpad/up,/XInputControllerWindows/leftStick/up]
+    m_ActionId: a65cab91-58dd-4458-8baa-8d932bb64409
+    m_ActionName: Player Controls/Jump[/Keyboard/w,/Keyboard/space]
   - m_PersistentCalls:
       m_Calls: []
-    m_ActionId: 2817e4a9-8289-441b-94aa-3ee3cad4324f
-    m_ActionName: Player/Crouch[/Keyboard/s,/XInputControllerWindows/leftStick/down,/XInputControllerWindows/dpad/down]
+    m_ActionId: 1c925c56-89b9-4f27-a0dc-8f2ffc177e27
+    m_ActionName: Player Controls/Crouch[/Keyboard/s]
   - m_PersistentCalls:
       m_Calls: []
-    m_ActionId: a8ba5725-5c3a-40e5-818d-ac4110dfe414
-    m_ActionName: Player/Modifier[/Keyboard/shift]
-  m_NeverAutoSwitchControlSchemes: 1
+    m_ActionId: 868195cd-5b75-4ff3-af2c-ad4aad1c6640
+    m_ActionName: Player Controls/Modifier[/Keyboard/shift]
+  m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1

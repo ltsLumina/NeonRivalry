@@ -51,7 +51,7 @@ public class InputManager : MonoBehaviour
     }
 
     // -- Input Handling --
-
+    
     public void OnMove(InputAction.CallbackContext context)
     {
         MoveInput = context.ReadValue<Vector2>();
