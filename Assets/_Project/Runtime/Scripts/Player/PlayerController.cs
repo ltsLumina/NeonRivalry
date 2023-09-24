@@ -2,6 +2,7 @@
 using Lumina.Essentials.Attributes;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 using static State;
 #endregion
 
@@ -14,6 +15,10 @@ using static State;
 [RequireComponent(typeof(Rigidbody))]
 public partial class PlayerController : MonoBehaviour
 {
+    [Header("Player Stats"), ReadOnly]
+    [SerializeField] Healthbar healthbar;
+    [SerializeField] int health;
+    
     [Header("Read-Only Fields")]
     [SerializeField] float idleTimeThreshold;
     [SerializeField, ReadOnly] public float idleTime;
@@ -28,8 +33,9 @@ public partial class PlayerController : MonoBehaviour
     // Cached References
     Animator anim;
     PlayerManager playerManager;
+    HealthbarManager healthbarManager;
 
-
+    // -- Properties --
     public int PlayerID
     {
         get => playerID;
@@ -43,13 +49,31 @@ public partial class PlayerController : MonoBehaviour
     public Rigidbody Rigidbody { get; private set; }
     public InputManager InputManager { get; private set; }
     public StateMachine StateMachine { get; private set; }
+    
+    public int Health
+    {
+        get => health;
+        set
+        {
+            health = (int)Healthbar.Slider.value;
+            health = value;
+        }
+    }
+    
+    public Healthbar Healthbar
+    {
+        get => healthbar;
+        set => healthbar = value;
+    }
 
     void Awake()
     {
-        Rigidbody    = GetComponent<Rigidbody>();
-        InputManager = GetComponentInChildren<InputManager>();
-        StateMachine = GetComponent<StateMachine>();
-        playerManager = PlayerManager.Instance;
+        // Get the player's rigidbody, input manager, and state machine.
+        Rigidbody        = GetComponent<Rigidbody>();
+        InputManager     = GetComponentInChildren<InputManager>();
+        StateMachine     = GetComponent<StateMachine>();
+        playerManager    = PlayerManager.Instance;
+        healthbarManager = HealthbarManager.Instance;
         
         Initialize();
     }
@@ -86,11 +110,23 @@ public partial class PlayerController : MonoBehaviour
             case 1:
                 PlayerManager.ChangePlayerColor(this, playerManager.PlayerColors.playerOneColor);
                 PlayerManager.SetPlayerSpawnPoint(this, playerManager.PlayerSpawns.playerOneSpawnPoint);
+
+                // Set the player's healthbar depending on the player's ID. Player 1 is on the left, Player 2 is on the right.
+                var leftHealthbar = GameObject.FindGameObjectWithTag("[Healthbar] Left").GetComponent<Healthbar>();
+                
+                healthbarManager.PlayerOne = leftHealthbar;
+                Healthbar = healthbarManager.Left;
                 break;
 
             case 2:
                 PlayerManager.ChangePlayerColor(this, playerManager.PlayerColors.playerTwoColor);
                 PlayerManager.SetPlayerSpawnPoint(this, playerManager.PlayerSpawns.playerTwoSpawnPoint);
+                
+                // Set the player's healthbar depending on the player's ID. Player 1 is on the left, Player 2 is on the right.
+                var rightHealthbar = GameObject.FindGameObjectWithTag("[Healthbar] Right").GetComponent<Healthbar>();
+
+                healthbarManager.PlayerTwo = rightHealthbar;
+                Healthbar = healthbarManager.Right;
                 break;
         }
     }
