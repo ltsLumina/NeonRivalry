@@ -55,8 +55,7 @@ public class InputManager : MonoBehaviour
     public void OnMove(InputAction.CallbackContext context)
     {
         MoveInput = context.ReadValue<Vector2>();
-
-        //TODO: CanMove does not work as intended. If I change it to IsGrounded, it works as expected.
+        
         if (context.performed && player.CanMove())
         {
             stateMachine.TransitionToState(State.StateType.Walk);
