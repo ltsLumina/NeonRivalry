@@ -2,7 +2,9 @@
 using UnityEngine;
 #endregion
 
-//TODO: If you hold move, then exit the state, upon entering the state you wont move until you release and repress the move button.
+/*----------------------------------------------------------------------------
+ * IMPORTANT NOTE: Use Time.fixedDeltaTime instead of Time.deltaTime
+ *----------------------------------------------------------------------------*/
 public class MoveState : State
 {
     float moveSpeed;
@@ -41,7 +43,7 @@ public class MoveState : State
         if (moveInput.sqrMagnitude > 0.01)
         {
             // Apply horizontal and vertical movement
-            Vector3 movement = moveInput * (moveSpeed * Time.deltaTime);
+            Vector3 movement = moveInput * (moveSpeed * Time.fixedDeltaTime);
             player.Rigidbody.velocity = new (movement.x, player.Rigidbody.velocity.y, movement.z);
         }
         else { OnExit(); }

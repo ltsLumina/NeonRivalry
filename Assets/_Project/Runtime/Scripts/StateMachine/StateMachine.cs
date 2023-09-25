@@ -62,8 +62,8 @@ public class StateMachine : MonoBehaviour
         CurrentState?.OnEnter();
     }
 
-    // Runs the current state's update method.
-    public void Update() => CurrentState?.UpdateState();
+    // Runs the current state's update method. (Fixed interval of 60 calls per second)
+    public void FixedUpdate() => CurrentState?.UpdateState();
 
     /// <summary>
     /// Handles the transition between states.

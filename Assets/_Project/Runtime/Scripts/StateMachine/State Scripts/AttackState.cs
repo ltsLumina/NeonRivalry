@@ -3,6 +3,10 @@ using Lumina.Debugging;
 using UnityEngine;
 #endregion
 
+/*----------------------------------------------------------------------------
+ * IMPORTANT NOTE: Use Time.fixedDeltaTime instead of Time.deltaTime
+ *----------------------------------------------------------------------------*/
+
 public class AttackState : State
 {
     // -- Abstract Variables --
@@ -50,7 +54,7 @@ public class AttackState : State
             // If the attack duration has not been reached, continue attacking.
             if (groundedAttackTimer < groundedAttackDuration)
             {
-                groundedAttackTimer += Time.deltaTime;
+                groundedAttackTimer += Time.fixedDeltaTime;
 
                 if (player.IsGrounded()) FGDebugger.Debug("Attacking on the ground!", LogType.Log, StateType.Attack);
 
@@ -63,7 +67,7 @@ public class AttackState : State
         {
             if (airborneAttackTimer < airborneAttackDuration)
             {
-                airborneAttackTimer += Time.deltaTime;
+                airborneAttackTimer += Time.fixedDeltaTime;
 
                 // If the player lands, cancel the attack.
                 if (player.IsGrounded())

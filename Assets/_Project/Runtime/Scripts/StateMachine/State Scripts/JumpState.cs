@@ -2,6 +2,9 @@
 using UnityEngine;
 #endregion
 
+/*----------------------------------------------------------------------------
+ * IMPORTANT NOTE: Use Time.fixedDeltaTime instead of Time.deltaTime
+ *----------------------------------------------------------------------------*/
 public class JumpState : State
 {
     public override StateType Type => StateType.Jump;

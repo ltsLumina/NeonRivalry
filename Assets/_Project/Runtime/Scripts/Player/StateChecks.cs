@@ -22,7 +22,7 @@ public partial class PlayerController // StateChecks.cs
 
     public bool IsMoving()
     {
-        bool isMoving = Rigidbody.velocity.x != 0 && IsGrounded() && StateMachine.CurrentState is MoveState
+        bool isMoving = IsGrounded() && Rigidbody.velocity.x != 0 && StateMachine.CurrentState is MoveState
         { IsMoving: true };
 
         FGDebugger.Debug($"IsMoving() is {isMoving}", LogType.Log, State.StateType.Walk);

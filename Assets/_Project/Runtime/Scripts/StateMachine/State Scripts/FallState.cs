@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 
+/*----------------------------------------------------------------------------
+ * IMPORTANT NOTE: Use Time.fixedDeltaTime instead of Time.deltaTime
+ *----------------------------------------------------------------------------*/
 public class FallState : State
 {
     public override StateType Type => StateType.Fall;
