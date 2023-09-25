@@ -1,6 +1,6 @@
-﻿using UnityEngine;
+﻿using Lumina.Essentials.Attributes;
+using UnityEngine;
 using UnityEngine.UI;
-using Lumina.Essentials.Attributes;
 
 public class Healthbar : MonoBehaviour
 {
@@ -15,7 +15,7 @@ public class Healthbar : MonoBehaviour
     public Slider Slider
     {
         get => slider;
-        set => slider = value;
+        private set => slider = value;
     }
 
     /// <summary> The player associated with this <see cref="Healthbar" />. </summary>
