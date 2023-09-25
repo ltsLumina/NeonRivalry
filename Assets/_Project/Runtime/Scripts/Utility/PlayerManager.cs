@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using Lumina.Debugging;
-using Lumina.Essentials.Attributes;
 using UnityEngine;
 
 /// <summary>
@@ -81,13 +78,13 @@ public partial class PlayerManager : SingletonPersistent<PlayerManager>
         {
             case 1:
                 tag  = "[Healthbar] Left";
-                name = "Healthbar (Player 1 (Left)";
+                name = "Healthbar (Player 1) (Left)";
                 break;
 
             case 2:
                 tag  = "[Healthbar] Right";
-                name = "Healthbar (Player 2 (Right)";
-                break;
+                name = "Healthbar (Player 2) (Right)";
+                break; 
 
             default:
                 return;
