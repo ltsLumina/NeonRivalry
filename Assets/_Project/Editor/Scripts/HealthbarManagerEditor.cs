@@ -10,54 +10,60 @@ public class HealthbarManagerEditor : Editor
         
         var manager = (HealthbarManager) target;
 
-        EditorGUILayout.Space(15);
+        DisplaySectionTitle("Healthbar Values");
         
-        // Display the values of the healthbars through sliders.
-        EditorGUILayout.LabelField("Healthbar Values", EditorStyles.largeLabel, GUILayout.Height(20));
-        
-        EditorGUILayout.Space();
+        if (manager != null) AdjustSliders(manager);
 
-        if (manager == null) return; 
-        
-        AdjustSliders(manager);
-
-        EditorGUILayout.Space();
-        
-        // Display the debugging tools.
-        EditorGUILayout.LabelField("Debugging Tools", EditorStyles.boldLabel);
+        DisplaySectionTitle("Debugging Tools");
         
         SetHealth(manager);
     }
-    
-    static void SetHealth(HealthbarManager manager)
-    { // Buttons to set the healthbars value only if players exist.
-        using (new EditorGUILayout.HorizontalScope())
-        {
-            if (manager.PlayerOne != null && GUILayout.Button("Set Left to 100")) manager.PlayerOne.Slider.value  = 100;
-            if (manager.PlayerTwo != null && GUILayout.Button("Set Right to 100")) manager.PlayerTwo.Slider.value = 100;
-        }
 
-        // Set the healthbars to 0 only if players exist.
-        using (new EditorGUILayout.HorizontalScope())
+    static void DisplaySectionTitle(string title) 
+    {
+        EditorGUILayout.Space(15);
+        EditorGUILayout.LabelField(title, EditorStyles.largeLabel, GUILayout.Height(20));
+        EditorGUILayout.Space();
+    }
+
+    static void SetHealth(HealthbarManager manager)
+    {
+        Healthbar playerOne = GetHealthbar(manager, 0);
+        Healthbar playerTwo = GetHealthbar(manager, 1);
+
+        if (playerOne != null || playerTwo != null)
         {
-            if (manager.PlayerOne != null && GUILayout.Button("Set Left to 0")) manager.PlayerOne.Slider.value  = 0;
-            if (manager.PlayerTwo != null && GUILayout.Button("Set Right to 0")) manager.PlayerTwo.Slider.value = 0;
+            SetSliderValues(playerOne, playerTwo, "Set to 100", 100);
+            SetSliderValues(playerOne, playerTwo, "Set to 0", 0);
         }
     }
 
-    static void AdjustSliders(HealthbarManager manager)
-    { // Adjust the Left Healthbar
-        if (manager.PlayerOne != null)
-        {
-            EditorGUILayout.LabelField("Left Healthbar", EditorStyles.boldLabel);
-            manager.PlayerOne.Slider.value = EditorGUILayout.IntSlider((int) manager.PlayerOne.Slider.value, 0, 100);
-        }
+    #region Utility
+    static Healthbar GetHealthbar(HealthbarManager manager, int index) =>
+        manager.Healthbars.Count > index ? manager.Healthbars[index] : null;
 
-        // Adjust the Right Healthbar
-        if (manager.PlayerTwo != null)
+    static void SetSliderValues(Healthbar playerOne, Healthbar playerTwo, string label, float value)
+    {
+        using (new EditorGUILayout.HorizontalScope())
         {
-            EditorGUILayout.LabelField("Right Healthbar", EditorStyles.boldLabel);
-            manager.PlayerTwo.Slider.value = EditorGUILayout.IntSlider((int) manager.PlayerTwo.Slider.value, 0, 100);
+            if (playerOne != null && GUILayout.Button($"Set Left {label}")) playerOne.Slider.value  = value;
+            if (playerTwo != null && GUILayout.Button($"Set Right {label}")) playerTwo.Slider.value = value;
+        }
+    }
+    #endregion
+
+    static void AdjustSliders(HealthbarManager manager)
+    {
+        if (manager.Healthbars.Count >= 1) AdjustHealthbarSlider(manager.Healthbars[0], "Left Healthbar");
+        if (manager.Healthbars.Count >= 2) AdjustHealthbarSlider(manager.Healthbars[1], "Right Healthbar");
+    }
+
+    static void AdjustHealthbarSlider(Healthbar player, string label)
+    {
+        if (player != null)
+        {
+            EditorGUILayout.LabelField(label, EditorStyles.boldLabel);
+            player.Slider.value = EditorGUILayout.IntSlider((int) player.Slider.value, 0, 100);
         }
     }
 }

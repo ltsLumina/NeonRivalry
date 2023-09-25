@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using UnityEngine;
-using UnityEngine.UI;
 
 public partial class PlayerManager
 {
@@ -16,9 +16,6 @@ public partial class PlayerManager
         
         [Space(10)]
         public PlayerSpawnPoints playerSpawnPoints;
-        
-        [Space(10)]
-        public PlayerHealthbars playerHealthbars;
     }
 
     /// <summary> Player enum is used in a context where the <see cref="PlayerController.PlayerID"/> is needed. </summary>
@@ -43,12 +40,5 @@ public partial class PlayerManager
     {
         public Vector2 playerOneSpawnPoint;
         public Vector2 playerTwoSpawnPoint;
-    }
-
-    [Serializable] //TODO: Implement this when the healthbar is done.
-    public struct PlayerHealthbars
-    {
-        public Slider playerOneHealthbar;
-        public Slider playerTwoHealthbar;
     }
 }

@@ -2,7 +2,6 @@
 using Lumina.Essentials.Attributes;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UI;
 using static State;
 #endregion
 
@@ -17,7 +16,6 @@ public partial class PlayerController : MonoBehaviour
 {
     [Header("Player Stats"), ReadOnly]
     [SerializeField] Healthbar healthbar;
-    [SerializeField] int health;
     
     [Header("Read-Only Fields")]
     [SerializeField] float idleTimeThreshold;
@@ -33,7 +31,6 @@ public partial class PlayerController : MonoBehaviour
     // Cached References
     Animator anim;
     PlayerManager playerManager;
-    HealthbarManager healthbarManager;
 
     // -- Properties --
     public int PlayerID
@@ -42,23 +39,12 @@ public partial class PlayerController : MonoBehaviour
         private set
         {
             // Clamp the playerID between 1 and 2.
-            playerID = Mathf.Clamp(playerID, 1, 2);
-            playerID = value; 
+            playerID = Mathf.Clamp(value, 1, 2);
         }
     }
     public Rigidbody Rigidbody { get; private set; }
     public InputManager InputManager { get; private set; }
     public StateMachine StateMachine { get; private set; }
-    
-    public int Health
-    {
-        get => health;
-        set
-        {
-            health = (int)Healthbar.Slider.value;
-            health = value;
-        }
-    }
     
     public Healthbar Healthbar
     {
@@ -73,7 +59,6 @@ public partial class PlayerController : MonoBehaviour
         InputManager     = GetComponentInChildren<InputManager>();
         StateMachine     = GetComponent<StateMachine>();
         playerManager    = PlayerManager.Instance;
-        healthbarManager = HealthbarManager.Instance;
         
         Initialize();
     }
@@ -110,23 +95,14 @@ public partial class PlayerController : MonoBehaviour
             case 1:
                 PlayerManager.ChangePlayerColor(this, playerManager.PlayerColors.playerOneColor);
                 PlayerManager.SetPlayerSpawnPoint(this, playerManager.PlayerSpawns.playerOneSpawnPoint);
-
-                // Set the player's healthbar depending on the player's ID. Player 1 is on the left, Player 2 is on the right.
-                var leftHealthbar = GameObject.FindGameObjectWithTag("[Healthbar] Left").GetComponent<Healthbar>();
-                
-                healthbarManager.PlayerOne = leftHealthbar;
-                Healthbar = healthbarManager.Left;
+                PlayerManager.SetPlayerHealthbar(this, PlayerID);
                 break;
 
             case 2:
                 PlayerManager.ChangePlayerColor(this, playerManager.PlayerColors.playerTwoColor);
                 PlayerManager.SetPlayerSpawnPoint(this, playerManager.PlayerSpawns.playerTwoSpawnPoint);
+                PlayerManager.SetPlayerHealthbar(this, PlayerID);
                 
-                // Set the player's healthbar depending on the player's ID. Player 1 is on the left, Player 2 is on the right.
-                var rightHealthbar = GameObject.FindGameObjectWithTag("[Healthbar] Right").GetComponent<Healthbar>();
-
-                healthbarManager.PlayerTwo = rightHealthbar;
-                Healthbar = healthbarManager.Right;
                 break;
         }
     }

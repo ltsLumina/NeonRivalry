@@ -66,10 +66,54 @@ public partial class PlayerManager : SingletonPersistent<PlayerManager>
     
     public static void AddPlayer(PlayerController player) => Players.Add(player);
     public static void RemovePlayer(PlayerController player) => Players.Remove(player);
-    public static void ChangePlayerColor(Component player, Color newColor) => player.GetComponentInChildren<MeshRenderer>().material.color = newColor;
-    public static void SetPlayerSpawnPoint(Component player, Vector2 newSpawnPoint)
+    public static void ChangePlayerColor(PlayerController player, Color newColor) => player.GetComponentInChildren<MeshRenderer>().material.color = newColor;
+    public static void SetPlayerSpawnPoint(PlayerController player, Vector2 newSpawnPoint) => player.transform.position = newSpawnPoint;
+
+    public static void SetPlayerHealthbar(PlayerController player, int playerID)
     {
-        player.transform.position = newSpawnPoint; 
-        FGDebugger.Info("New spawn point set: " + newSpawnPoint);
+        var healthbarManager = FindObjectOfType<HealthbarManager>();
+
+        // Set the player's healthbar depending on the player's ID. Player 1 is on the left, Player 2 is on the right.
+        string tag;
+        string name;
+
+        switch (playerID)
+        {
+            case 1:
+                tag  = "[Healthbar] Left";
+                name = "Healthbar (Player 1 (Left)";
+                break;
+
+            case 2:
+                tag  = "[Healthbar] Right";
+                name = "Healthbar (Player 2 (Right)";
+                break;
+
+            default:
+                return;
+        }
+
+        var healthbar = GameObject.FindGameObjectWithTag(tag).GetComponent<Healthbar>();
+        AssignHealthbar(player, healthbar, healthbarManager, name);
     }
+
+    #region Utility
+    static void AssignHealthbar(PlayerController player, Healthbar healthbar, HealthbarManager healthbarManager, string name)
+    {
+        // Assign the healthbar to the healthbar manager
+        healthbarManager.Healthbars.Add(healthbar);
+
+        // Assign the healthbar to player.
+        player.Healthbar = healthbar;
+
+        // Set the healthbar's name.
+        healthbar.name = name;
+
+        // Assign the player to the healthbar.
+        healthbar.Player = player;
+
+        // Initialize the healthbar.
+        healthbar.Initialize();
+    }
+    #endregion
 }

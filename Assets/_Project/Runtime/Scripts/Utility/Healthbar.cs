@@ -1,65 +1,53 @@
-﻿using System;
-using Lumina.Essentials.Attributes;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-using UnityEngine;
-using UnityEngine.Events;
+﻿using UnityEngine;
 using UnityEngine.UI;
+using Lumina.Essentials.Attributes;
 
 public class Healthbar : MonoBehaviour
 {
     [Header("Reference"), Space(5)]
     [SerializeField, ReadOnly] Slider slider;
-    
-    [Header("Healthbar Options"), Space(5)]
-    [SerializeField]
-    public int health;
+    [SerializeField, ReadOnly] PlayerController player;
+    //[SerializeField, ReadOnly] PlayerStats playerStats;
 
-    // Unity event for onPlayerDeath
-    public UnityEvent onPlayerDeath;
+    // -- Properties --
     
-    // Properties
     /// <summary> The slider associated with this <see cref="Healthbar"/>. </summary>
-    public Slider Slider => slider;
-
-    void Start()
+    public Slider Slider
     {
-        slider = GetComponent<Slider>();
-        Debug.Log(slider, slider);
+        get => slider;
+        set => slider = value;
     }
 
-    void Update()
+    /// <summary> The player associated with this <see cref="Healthbar" />. </summary>
+    public PlayerController Player
     {
-        health = (int) Slider.value;
+        get => player;
+        set => player = value;
+    }
+    
+    /// <summary> The player's health associated with this <see cref="Healthbar" />. </summary>
+    public int Value
+    {
+        get => (int) Slider.value;
+        set => Slider.value = value;
     }
 
-    public void OnDeath()
+    void Awake()
     {
-        Debug.Log("Player has died!");
+        Slider = GetComponent<Slider>();
+        
+        Initialize();
     }
-}
 
-#if UNITY_EDITOR
-[CustomEditor(typeof(Healthbar))]
-public class HealthbarEditor : Editor
-{
-    public override void OnInspectorGUI()
+    public void Initialize()
     {
-        base.OnInspectorGUI();
-        
-        Healthbar healthbar = (Healthbar) target;
-        Slider    slider    = healthbar.Slider;
-        
-        if (slider == null) return;
-
-        GUILayout.Space(10);
-        
-        EditorGUILayout.LabelField("Health", EditorStyles.boldLabel);
-        slider.value = EditorGUILayout.IntSlider((int) slider.value, 0, 100);
-        
-        GUILayout.Space(25);
-        
+        if (Player != null)
+        {
+            Value = (int)Slider.maxValue;
+        }
+        else
+        {
+            Value = 0;
+        }
     }
 }
-#endif
