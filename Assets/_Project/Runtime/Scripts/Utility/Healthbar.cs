@@ -17,8 +17,24 @@ public class Healthbar : MonoBehaviour
     // Properties
     /// <summary> The slider associated with this <see cref="Healthbar"/>. </summary>
     public Slider Slider => slider;
-    
-    void Awake()
+    public int Health
+    {
+        get => health;
+        set
+        {
+            // Clamp the incoming new value to the slider's min/max values
+            health = Mathf.Clamp(value, (int) Slider.minValue, (int) Slider.maxValue);
+
+            // Set the slider value to the clamped health value
+            Slider.value = health;
+            
+            // If the health is 0, invoke the onPlayerDeath event
+            bool isDead = health <= 0;
+            if (isDead) onPlayerDeath.Invoke();
+        }
+    }
+
+    void Start()
     {
         slider = GetComponent<Slider>();
     }
