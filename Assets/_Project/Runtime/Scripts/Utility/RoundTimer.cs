@@ -29,6 +29,8 @@ public class RoundTimer : MonoBehaviour
     [Header("Format Settings")]
     [SerializeField, Tooltip("If true, the timer will use a custom format.")] 
     bool customFormat;
+    [SerializeField, Tooltip("The value at which the timer will switch to a red color.")]
+    float colorSwitchValue;
     [SerializeField, Tooltip("The value at which the timer will switch to a whole number format.")] 
     float tenthSwitchValue;
     [SerializeField, Tooltip("The value at which the timer will switch to a tenth decimal format.")]
@@ -97,8 +99,8 @@ public class RoundTimer : MonoBehaviour
     {
         TimerFormat currentTimerFormat = customFormat ? GetTimerFormat() : TimerFormat.Whole;
         timerText.text  = CurrentTime.ToString(timeFormats[currentTimerFormat], CultureInfo.CurrentCulture);
-
-        timerText.color = CurrentTime <= 20.5f ? Color.red : new (0.86f, 0.86f, 0.86f);
+        
+        timerText.color = CurrentTime <= colorSwitchValue ? Color.red : new (0.86f, 0.86f, 0.86f);
     }
 
     TimerFormat GetTimerFormat() => CurrentTime < hundredthsSwitchValue ? TimerFormat.HundredthsDecimal : CurrentTime < tenthSwitchValue ? TimerFormat.TenthDecimal : TimerFormat.Whole;
