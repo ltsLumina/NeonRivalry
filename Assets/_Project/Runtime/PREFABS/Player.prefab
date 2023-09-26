@@ -52,7 +52,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healthbar: {fileID: 0}
-  health: 100
   idleTimeThreshold: 2
   idleTime: 0
   raycastDistance: 1.022
@@ -277,7 +276,7 @@ MonoBehaviour:
   - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 5062746852483653501}
-        m_TargetAssemblyTypeName: InputManager, Assembly-CSharp
+        m_TargetAssemblyTypeName: InputManager, _Project
         m_MethodName: OnAttack
         m_Mode: 0
         m_Arguments:
@@ -288,12 +287,12 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_ActionId: 2b02e2f0-b44c-460b-af0f-8ac447831db6
-    m_ActionName: Player Controls/Attack[/Keyboard/f]
+    m_ActionId: d06ea25b-14b2-4b33-aa32-2aa844a8f0d8
+    m_ActionName: Player/Attack[/Keyboard/rightCtrl]
   - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 5062746852483653501}
-        m_TargetAssemblyTypeName: InputManager, Assembly-CSharp
+        m_TargetAssemblyTypeName: InputManager, _Project
         m_MethodName: OnJump
         m_Mode: 0
         m_Arguments:
@@ -304,16 +303,16 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_ActionId: a65cab91-58dd-4458-8baa-8d932bb64409
-    m_ActionName: Player Controls/Jump[/Keyboard/w,/Keyboard/space]
+    m_ActionId: 570cd2f6-7c47-41b1-9c21-44e43b6693f0
+    m_ActionName: Player/Jump[/Keyboard/upArrow]
   - m_PersistentCalls:
       m_Calls: []
-    m_ActionId: 1c925c56-89b9-4f27-a0dc-8f2ffc177e27
-    m_ActionName: Player Controls/Crouch[/Keyboard/s]
+    m_ActionId: 21461cc7-ed90-4f47-9f76-d887ee02a6a9
+    m_ActionName: Player/Crouch[/Keyboard/downArrow]
   - m_PersistentCalls:
       m_Calls: []
-    m_ActionId: 868195cd-5b75-4ff3-af2c-ad4aad1c6640
-    m_ActionName: Player Controls/Modifier[/Keyboard/shift]
+    m_ActionId: dc541882-0ddc-4cfc-8194-caa2fa5a1e8f
+    m_ActionName: Player/Modifier[/Keyboard/shift]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
