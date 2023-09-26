@@ -3,15 +3,18 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class InputDeviceManager : MonoBehaviour
+public class InputDeviceManager : SingletonPersistent<InputDeviceManager>
 {
-    PlayerInputManager inputManager;
-    Dictionary<InputDevice, int> playerDevices = new ();
-    List<string> controlSchemes = new () { "Keyboard", "(Co-op) Keyboard", "Gamepad" };
+    readonly Dictionary<InputDevice, int> playerDevices = new ();
+    readonly List<string> controlSchemes = new () { "Keyboard", "(Co-op) Keyboard", "Gamepad" };
 
-    void Awake()
+    
+    // -- Cached References --
+    PlayerInputManager inputManager;
+
+    protected override void Awake()
     {
-        inputManager = FindObjectOfType<PlayerInputManager>();
+        inputManager = FindObjectOfType<PlayerInputManager>(); 
     }
 
     void Update()
@@ -27,12 +30,10 @@ public class InputDeviceManager : MonoBehaviour
         InputDevice device = GetActiveDevice();
 
         // Ignore if a device isn't active or is already associated with a player.
-        if (device == null || playerDevices.ContainsKey(device))
-            return;
+        if (device == null || playerDevices.ContainsKey(device)) return;
 
         // Only allow up to 3 players.
-        if (inputManager.playerCount >= 3)
-            return;
+        if (inputManager.playerCount >= 3) return;
 
         playerDevices[device] = inputManager.playerCount;
 
@@ -53,7 +54,8 @@ public class InputDeviceManager : MonoBehaviour
 
     public void OnPlayerLeft(int playerIndex)
     {
-        var item = playerDevices.FirstOrDefault(k => k.Value == playerIndex -1);
+        var item = playerDevices.FirstOrDefault(k => k.Value == playerIndex - 1);
+
         if (item.Key != null)
         {
             playerDevices.Remove(item.Key);
