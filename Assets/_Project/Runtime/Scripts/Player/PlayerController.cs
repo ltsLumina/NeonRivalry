@@ -1,4 +1,5 @@
 #region
+using System;
 using Lumina.Essentials.Attributes;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -31,6 +32,7 @@ public partial class PlayerController : MonoBehaviour
     // Cached References
     Animator anim;
     PlayerManager playerManager;
+    InputDeviceManager inputDeviceManager;
 
     // -- Properties --
     public int PlayerID
@@ -55,10 +57,11 @@ public partial class PlayerController : MonoBehaviour
     void Awake()
     {
         // Get the player's rigidbody, input manager, and state machine.
-        Rigidbody        = GetComponent<Rigidbody>();
-        InputManager     = GetComponentInChildren<InputManager>();
-        StateMachine     = GetComponent<StateMachine>();
-        playerManager    = PlayerManager.Instance;
+        Rigidbody          = GetComponent<Rigidbody>();
+        InputManager       = GetComponentInChildren<InputManager>();
+        StateMachine       = GetComponent<StateMachine>();
+        playerManager      = PlayerManager.Instance;
+        inputDeviceManager = FindObjectOfType<InputDeviceManager>();
         
         Initialize();
     }
@@ -121,6 +124,11 @@ public partial class PlayerController : MonoBehaviour
 
             Debug.LogWarning(warningMessage);
         }
+    }
+
+    void OnDestroy()
+    {
+        inputDeviceManager.OnPlayerLeft(PlayerID);
     }
 
     void Update()

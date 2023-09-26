@@ -1,13 +1,12 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class InputDeviceManager : MonoBehaviour
 {
     PlayerInputManager inputManager;
-    Dictionary<int, InputDevice> playerDevices = new ();
+    Dictionary<InputDevice, int> playerDevices = new ();
     List<string> controlSchemes = new () { "Keyboard", "(Co-op) Keyboard", "Gamepad" };
 
     void Awake()
@@ -17,7 +16,7 @@ public class InputDeviceManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Return) || Gamepad.current.startButton.wasPressedThisFrame)
+        if (Keyboard.current.enterKey.wasPressedThisFrame || Gamepad.current != null && Gamepad.current.startButton.wasPressedThisFrame)
         {
             OnJoinPlayer();
         }
@@ -25,63 +24,40 @@ public class InputDeviceManager : MonoBehaviour
 
     void OnJoinPlayer()
     {
-        // For keyboard.
-        if (Keyboard.current.wasUpdatedThisFrame && inputManager.playerCount < 3)
-        {
-            InputDevice device = Keyboard.current;
+        InputDevice device = GetActiveDevice();
 
-            int playerIndex = inputManager.playerCount;
+        // Ignore if a device isn't active or is already associated with a player.
+        if (device == null || playerDevices.ContainsKey(device))
+            return;
 
-            if (playerIndex > 1)
-            {
-                if (playerDevices.ContainsValue(device)) return;
-            }
+        // Only allow up to 3 players.
+        if (inputManager.playerCount >= 3)
+            return;
 
-            playerDevices[playerIndex] = device;
+        playerDevices[device] = inputManager.playerCount;
 
-            string controlScheme = controlSchemes[playerIndex];
-            
-            inputManager.JoinPlayer(playerIndex, -1, controlScheme, device);
+        string controlScheme = controlSchemes[playerDevices[device]];
+        inputManager.JoinPlayer(playerDevices[device], -1, controlScheme, device);
 
-            Debug.Log($"Player {playerIndex} joined using {controlScheme}");
-        }
-        
-        // For Gamepad.
-        if (Gamepad.current == null) return;
-        {
-            if (!Gamepad.current.wasUpdatedThisFrame || inputManager.playerCount >= 2) return;
-            InputDevice device = Gamepad.current;
-
-            int playerIndex = inputManager.playerCount;
-
-            if (playerIndex > 1)
-            {
-                if (playerDevices.ContainsValue(device)) return;
-            }
-
-            playerDevices[playerIndex] = device;
-            
-            string controlScheme = controlSchemes[2]; // Will always be Gamepad.
-
-            inputManager.JoinPlayer(playerIndex, -1, controlScheme, device);
-
-            Debug.Log($"Player {playerIndex} joined using {controlScheme}");
-        }
+        Debug.Log($"Player {playerDevices[device] + 1} joined using {controlScheme} control scheme!");
     }
 
-    public void OnPlayerLeave()
+    static InputDevice GetActiveDevice()
     {
-        InputDevice device = Keyboard.current;
+        if (Keyboard.current != null && Keyboard.current.wasUpdatedThisFrame) return Keyboard.current;
 
-        int playerIndex = inputManager.playerCount;
+        if (Gamepad.current != null && Gamepad.current.wasUpdatedThisFrame) return Gamepad.current;
 
-        if (playerIndex > -1)
+        return null;
+    }
+
+    public void OnPlayerLeft(int playerIndex)
+    {
+        var item = playerDevices.FirstOrDefault(k => k.Value == playerIndex -1);
+        if (item.Key != null)
         {
-            if (playerDevices.ContainsValue(device))
-            {
-                playerDevices.Remove(playerIndex);
-                Debug.Log($"Player {playerIndex} left");
-            }
+            playerDevices.Remove(item.Key);
+            Debug.Log($"Player {playerIndex} left!");
         }
     }
 }
