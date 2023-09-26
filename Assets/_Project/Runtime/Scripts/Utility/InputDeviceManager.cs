@@ -17,7 +17,7 @@ public class InputDeviceManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Return))
+        if (Input.GetKeyDown(KeyCode.Return) || Gamepad.current.startButton.wasPressedThisFrame)
         {
             OnJoinPlayer();
         }
