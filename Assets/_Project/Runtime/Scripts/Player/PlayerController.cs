@@ -102,10 +102,10 @@ public partial class PlayerController : MonoBehaviour
                 PlayerManager.ChangePlayerColor(this, playerManager.PlayerColors.playerTwoColor);
                 PlayerManager.SetPlayerSpawnPoint(this, playerManager.PlayerSpawns.playerTwoSpawnPoint);
                 PlayerManager.SetPlayerHealthbar(this, PlayerID);
-                
                 break;
         }
     }
+    
 
     void OnDisable()
     {

@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using Lumina.Debugging;
-using Lumina.Essentials.Attributes;
 using UnityEngine;
 
 /// <summary>
@@ -40,23 +37,22 @@ public partial class PlayerManager : SingletonPersistent<PlayerManager>
         Players.Clear();
     }
 
-    void OnValidate()
-    {
-        InvokePlayerActions(
-            TargetPlayerEnum, 
-            () => ChangePlayerColor(PlayerOne, playerDetails.playerColors.playerOneColor), 
-            () => ChangePlayerColor(PlayerTwo, playerDetails.playerColors.playerTwoColor));
-    }
+    void OnValidate() => InvokePlayerActions(
+        TargetPlayerEnum, 
+        () => ChangePlayerColor(PlayerOne, playerDetails.playerColors.playerOneColor), 
+        () => ChangePlayerColor(PlayerTwo, playerDetails.playerColors.playerTwoColor));
 
     // -- Utility --
 
+    #region Utility
+    
     /// <summary>
     ///     Invokes actions specified for players if conditions are met.
     /// </summary>
     /// <param name="targetPlayersToInvoke"> The target players to which the method invocation is desired.</param>
     /// <param name="playerOneAction"> The action that will be invoked for Player One if Player One is a valid player.</param>
     /// <param name="playerTwoAction"> The action that will be invoked for Player Two if Player Two is a valid player. </param>
-    public static void InvokePlayerActions(TargetPlayer targetPlayersToInvoke, Action playerOneAction = null, Action playerTwoAction = null)
+    static void InvokePlayerActions(TargetPlayer targetPlayersToInvoke, Action playerOneAction = null, Action playerTwoAction = null)
     {
         if (Players.Count <= 0) return;
 
@@ -81,13 +77,13 @@ public partial class PlayerManager : SingletonPersistent<PlayerManager>
         {
             case 1:
                 tag  = "[Healthbar] Left";
-                name = "Healthbar (Player 1 (Left)";
+                name = "Healthbar (Player 1) (Left)";
                 break;
 
             case 2:
                 tag  = "[Healthbar] Right";
-                name = "Healthbar (Player 2 (Right)";
-                break;
+                name = "Healthbar (Player 2) (Right)";
+                break; 
 
             default:
                 return;
@@ -96,8 +92,7 @@ public partial class PlayerManager : SingletonPersistent<PlayerManager>
         var healthbar = GameObject.FindGameObjectWithTag(tag).GetComponent<Healthbar>();
         AssignHealthbar(player, healthbar, healthbarManager, name);
     }
-
-    #region Utility
+    
     static void AssignHealthbar(PlayerController player, Healthbar healthbar, HealthbarManager healthbarManager, string name)
     {
         // Assign the healthbar to the healthbar manager
