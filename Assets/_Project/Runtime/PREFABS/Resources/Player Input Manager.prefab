@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 686616916511822072}
   - component: {fileID: 4906473736347066176}
-  - component: {fileID: 4195275214582981596}
+  - component: {fileID: -6479438600484439114}
   m_Layer: 0
   m_Name: Player Input Manager
   m_TagString: GameController
@@ -54,19 +54,7 @@ MonoBehaviour:
       m_Calls: []
   m_PlayerLeftEvent:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 4195275214582981596}
-        m_TargetAssemblyTypeName: InputDeviceManager, Assembly-CSharp
-        m_MethodName: OnPlayerLeave
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
   m_JoinAction:
     m_UseReference: 0
     m_Action:
@@ -86,16 +74,16 @@ MonoBehaviour:
         m_Action: Join
         m_Flags: 0
       - m_Name: 
-        m_Id: 63a6d0c1-3313-4ebd-8004-70d3206ac337
-        m_Path: <Keyboard>/enter
+        m_Id: d5fe0975-b1a3-4660-89ab-6353f36855e6
+        m_Path: <Keyboard>/tab
         m_Interactions: 
         m_Processors: 
         m_Groups: 
         m_Action: Join
         m_Flags: 0
       - m_Name: 
-        m_Id: 87c02178-d1d2-45b5-8cb8-12fe498ce7c0
-        m_Path: <Keyboard>/rightShift
+        m_Id: 63a6d0c1-3313-4ebd-8004-70d3206ac337
+        m_Path: <Keyboard>/enter
         m_Interactions: 
         m_Processors: 
         m_Groups: 
@@ -114,7 +102,7 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
---- !u!114 &4195275214582981596
+--- !u!114 &-6479438600484439114
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
