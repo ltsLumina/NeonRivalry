@@ -18,7 +18,7 @@ public class PlayerSetupMenuController : MonoBehaviour
     public void SetPlayerIndex(int playerIndex)
     {
         this.playerIndex = playerIndex;
-        titleText.SetText("Player " + (playerIndex + 1));
+        //titleText.SetText("Player " + (playerIndex + 1));
         ignoreInputTime = Time.time + ignoreInputTime;
     }
 

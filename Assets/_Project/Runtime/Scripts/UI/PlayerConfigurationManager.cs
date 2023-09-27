@@ -27,7 +27,7 @@ public class PlayerConfigurationManager : MonoBehaviour
     public void HandlePlayerJoin(PlayerInput playerInput)
     {
         Debug.Log("player joined " + playerInput.playerIndex);
-        playerInput.transform.SetParent(transform);
+        //playerInput.transform.SetParent(transform);
 
         if (playerConfigs.All(p => p.PlayerIndex != playerInput.playerIndex)) playerConfigs.Add(new (playerInput));
     }
