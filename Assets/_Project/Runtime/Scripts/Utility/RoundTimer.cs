@@ -38,7 +38,9 @@ public class RoundTimer : MonoBehaviour
 
     // Cached Values
     readonly Dictionary<TimerFormat, string> timeFormats = new ();
-    
+
+    RoundScript roundScript;
+
     // -- Properties --
     public float CurrentTime
     {
@@ -50,6 +52,7 @@ public class RoundTimer : MonoBehaviour
     {
         InitializeTimeFormats();
         FindTimerTextComponent();
+        roundScript = FindObjectOfType<RoundScript>();
 
         return;
         void FindTimerTextComponent()
@@ -101,6 +104,11 @@ public class RoundTimer : MonoBehaviour
         timerText.text  = CurrentTime.ToString(timeFormats[currentTimerFormat], CultureInfo.CurrentCulture);
         
         timerText.color = CurrentTime <= colorSwitchValue ? Color.red : new (0.86f, 0.86f, 0.86f);
+
+        if (currentTime <= 0)
+        {
+            roundScript.timer0 = true;
+        }
     }
 
     TimerFormat GetTimerFormat() => CurrentTime < hundredthsSwitchValue ? TimerFormat.HundredthsDecimal : CurrentTime < tenthSwitchValue ? TimerFormat.TenthDecimal : TimerFormat.Whole;
