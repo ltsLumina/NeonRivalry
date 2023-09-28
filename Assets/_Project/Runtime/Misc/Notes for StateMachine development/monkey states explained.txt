@@ -1,0 +1,12 @@
+idle state
+>
+jumps
+>
+transition to jumpState
+>
+before jump completes, player inputs to enter new state (e.g attack)
+>
+stateMachine attempts to transition.
+> checks if priority of new state is greater than the current
+> > if yes, interrupts (runs OnExit) and transitions to attack
+> if no, current state remains in control (no transition).

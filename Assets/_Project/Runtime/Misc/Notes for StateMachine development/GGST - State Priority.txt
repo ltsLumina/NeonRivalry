@@ -1,0 +1,11 @@
+Apologies for any confusion caused. In a state-based system like Guilty Gear, states are typically determined based on specific conditions or events rather than actively competing for control in the traditional sense. Each state is triggered or entered based on certain conditions being met.
+
+The term "competing for control" refers to situations where different states can potentially be activated or triggered simultaneously due to overlapping or conflicting conditions. In such cases, the state priority system helps resolve conflicts and determine which state should take precedence.
+
+For example, let's consider a scenario where a character can perform both a "Block" state and an "Attack" state. If the player presses both the block input and attack input simultaneously, the game needs to determine which state should take priority.
+
+In this case, the state priority system allows you to assign higher priority to the "Block" state, indicating that blocking should take precedence over attacking. As a result, if both the block and attack conditions are met, the "Block" state will be triggered, and the character will enter the blocking state instead of initiating an attack.
+
+The state priority system helps ensure consistent and predictable behavior when multiple states could potentially be triggered at the same time. It allows you to define which states have priority in specific situations to maintain control over the character's actions and prevent conflicting or unintended behavior.
+
+So, while states themselves are individually determined based on conditions, the state priority system comes into play when there are conflicting conditions or overlapping inputs, helping to resolve which state should take precedence in such situations.
