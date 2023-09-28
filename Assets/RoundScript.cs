@@ -20,6 +20,13 @@ public class RoundScript : MonoBehaviour
     public bool p2HasWon;
     public bool timer0;
 
+    locktothepath locktothepathS;
+
+    private void Start()
+    {
+        locktothepathS = FindObjectOfType<locktothepath>();
+    }
+
     private void Update()
     {
         CheckingBools();
@@ -38,12 +45,15 @@ public class RoundScript : MonoBehaviour
         }
     }
 
-    void PlayerHasWon()
+    public void PlayerHasWon()
     {
-        if (!p1HasWon)
+        if (!p1HasWon || Input.GetKeyDown(KeyCode.N))
         {
             // Move camera towards player
-            // Possibly use timeline (cutscene)
+
+
+            //locktothepathS.CameraCine();
+
 
 
         }
