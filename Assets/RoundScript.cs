@@ -30,6 +30,7 @@ public class RoundScript : MonoBehaviour
     private void Update()
     {
         CheckingBools();
+        PlayerHasWon();
     }
 
     private void CheckingBools()
@@ -47,15 +48,9 @@ public class RoundScript : MonoBehaviour
 
     public void PlayerHasWon()
     {
-        if (!p1HasWon || Input.GetKeyDown(KeyCode.N))
+        if (/*!p1HasWon||*/ Input.GetKeyDown(KeyCode.N))
         {
-            // Move camera towards player
-
-
-            //locktothepathS.CameraCine();
-
-
-
+            locktothepathS.CameraCine(PlayerManager.PlayerOne.transform);
         }
     }
 }

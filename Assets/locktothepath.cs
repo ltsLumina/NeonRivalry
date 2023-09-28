@@ -8,6 +8,8 @@ public class locktothepath : MonoBehaviour
     CinemachineVirtualCamera _vCam;
     public CinemachineDollyCart dollyCart;
 
+    [SerializeField] private int dollycartSpeed;
+
     private void Start()
     {
         _vCam = GetComponent<CinemachineVirtualCamera>();
@@ -15,14 +17,8 @@ public class locktothepath : MonoBehaviour
 
     public void CameraCine(Transform winPlayer)
     {
-        if (Input.GetKeyDown(KeyCode.M))
-        {
             _vCam.LookAt = winPlayer;
-            dollyCart.m_Speed = 0;
+            dollyCart.m_Speed = dollycartSpeed;
             dollyCart.m_Position = 0;
-            //transform.position = Vector3.Lerp(transform.position,
-            //dollyCart.transform.position, 0.01f);
-
-        }
     }
 }
