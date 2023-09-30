@@ -19,7 +19,7 @@ public class InputDeviceManager : SingletonPersistent<InputDeviceManager>
 
     void Update()
     {
-        if (Keyboard.current.enterKey.wasPressedThisFrame || Gamepad.current != null && Gamepad.current.startButton.wasPressedThisFrame)
+        if (Keyboard.current.spaceKey.wasPressedThisFrame || Gamepad.current != null && Gamepad.current.startButton.wasPressedThisFrame)
         {
             OnJoinPlayer();
         }
