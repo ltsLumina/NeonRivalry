@@ -11,4 +11,9 @@ public class MainMenuController : MonoBehaviour
             SceneManagerExtended.LoadNextScene();
         }
     }
+    
+    public void OnButtonPress()
+    {
+        SceneManagerExtended.LoadNextScene();
+    }
 }
