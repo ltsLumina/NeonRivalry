@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Linq;
+using Lumina.Essentials.Attributes;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class MainMenuController : MonoBehaviour
 {
-    [SerializeField] PlayerInput playerInput;
+    [SerializeField, ReadOnly] PlayerInput playerInput;
     string lastUsedControlScheme;
     
     public void LoadNextScene()
@@ -13,8 +14,11 @@ public class MainMenuController : MonoBehaviour
         SceneManagerExtended.LoadNextScene();
     }
 
-    void Awake()
+    void OnEnable()
     {
+        playerInput = FindObjectOfType<PlayerInput>();
+        if (playerInput == null) { Debug.LogError("No PlayerInput component was found in the scene!"); return; }
+        
         // sets the initial control scheme to the currently used one
         lastUsedControlScheme = playerInput.currentControlScheme;
 
@@ -52,7 +56,7 @@ public class MainMenuController : MonoBehaviour
 
             case "Gamepad":
                 PlayerInput.all.FirstOrDefault()                                      // Get the first active PlayerInput
-                          ?.SwitchCurrentControlScheme("Keyboard", Keyboard.current); // Switch to Keyboard&Mouse
+                          ?.SwitchCurrentControlScheme("Keyboard", Keyboard.current); // Switch to Keyboard
 
                 break;
         }
@@ -60,12 +64,11 @@ public class MainMenuController : MonoBehaviour
 
     static IEnumerator AssignGamepadToPlayerInput(PlayerInput input)
     {
-        InputDevice device = null;
+        Gamepad device = null;
 
         while (device == null)
         {
-            // Wait for any gamepad button press //TODO: change from buttonSouth to something else
-            foreach (Gamepad gamepad in Gamepad.all.Where(gamepad => gamepad.buttonSouth.wasPressedThisFrame))
+            foreach (Gamepad gamepad in Gamepad.all.Where(gamepad => gamepad.buttonSouth.wasPressedThisFrame && !PlayerInput.all.Any(p => p.devices.Contains(gamepad))))
             {
                 device = gamepad;
                 break;

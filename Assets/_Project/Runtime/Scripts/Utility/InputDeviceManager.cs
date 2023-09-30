@@ -27,16 +27,17 @@ public class InputDeviceManager : SingletonPersistent<InputDeviceManager>
 
     void OnJoinPlayer()
     {
-        //TODO: I need to prevent a join action to occur if the device is already in use as a player might have taken the device when changing control schemes.
-        
+        // Get the currently active device
         InputDevice device = GetActiveDevice();
 
-        // Ignore if a device isn't active or is already associated with a player.
+        // If no active device or if the device is already associated with a player, ignore the join request
         if (device == null || playerDevices.ContainsKey(device)) return;
 
-        // Only allow up to 2 players.
+        // Ignore the join request if there are already 2 players
         if (inputManager.playerCount >= 2) return;
 
+        // At this point, the device is not associated with any player and there are less than 2 players
+        // Therefore, associate the device with the current player count and join the player
         playerDevices[device] = inputManager.playerCount;
 
         // Determine control scheme based on type of device
@@ -45,7 +46,7 @@ public class InputDeviceManager : SingletonPersistent<InputDeviceManager>
         // Set Control Scheme
         inputManager.JoinPlayer(playerDevices[device], -1, controlScheme, device);
 
-        Debug.Log($"Player {playerDevices[device] +1} joined using {controlScheme} control scheme!");
+        Debug.Log($"Player {playerDevices[device] + 1} joined using {controlScheme} control scheme!");
     }
 
     static InputDevice GetActiveDevice()
