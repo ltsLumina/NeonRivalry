@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 public class InputDeviceManager : SingletonPersistent<InputDeviceManager>
 {
     readonly Dictionary<InputDevice, int> playerDevices = new ();
-    readonly List<string> controlSchemes = new () { "Keyboard", "(Co-op) Keyboard", "Gamepad" };
+    readonly List<string> controlSchemes = new () { "Keyboard", "Gamepad" };
 
     
     // -- Cached References --
@@ -32,15 +32,18 @@ public class InputDeviceManager : SingletonPersistent<InputDeviceManager>
         // Ignore if a device isn't active or is already associated with a player.
         if (device == null || playerDevices.ContainsKey(device)) return;
 
-        // Only allow up to 3 players.
-        if (inputManager.playerCount >= 3) return;
+        // Only allow up to 2 players.
+        if (inputManager.playerCount >= 2) return;
 
         playerDevices[device] = inputManager.playerCount;
 
-        string controlScheme = controlSchemes[playerDevices[device]];
+        // Determine control scheme based on type of device
+        string controlScheme = device is Keyboard ? "Keyboard" : "Gamepad";
+
+        // Set Control Scheme
         inputManager.JoinPlayer(playerDevices[device], -1, controlScheme, device);
 
-        Debug.Log($"Player {playerDevices[device] + 1} joined using {controlScheme} control scheme!");
+        Debug.Log($"Player {playerDevices[device] +1} joined using {controlScheme} control scheme!");
     }
 
     static InputDevice GetActiveDevice()

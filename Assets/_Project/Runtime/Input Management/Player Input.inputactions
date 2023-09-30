@@ -532,15 +532,6 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
-                },
-                {
-                    "name": "Select",
-                    "type": "Button",
-                    "id": "b09c0d36-6992-49ef-922d-12912b002810",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -733,23 +724,23 @@
                 },
                 {
                     "name": "",
-                    "id": "e6a17542-a65f-488b-9a0c-d2eac444b2dc",
-                    "path": "<Gamepad>/buttonSouth",
-                    "interactions": "Press(behavior=2)",
+                    "id": "ccf64eca-f787-4f9d-a8b4-9ad86b0cb172",
+                    "path": "<Keyboard>/enter",
+                    "interactions": "",
                     "processors": "",
-                    "groups": "Gamepad",
-                    "action": "Select",
+                    "groups": "Keyboard",
+                    "action": "Submit",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "ca899d54-0f16-4057-be9e-10e46f5515a3",
-                    "path": "<Keyboard>/enter",
-                    "interactions": "Press(behavior=2)",
+                    "id": "2d7eac40-4157-43a6-8449-c35ba181675a",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard;(Co-op) Keyboard",
-                    "action": "Select",
+                    "groups": "Gamepad",
+                    "action": "Submit",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

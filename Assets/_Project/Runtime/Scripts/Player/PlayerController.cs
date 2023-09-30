@@ -1,5 +1,4 @@
 #region
-using System;
 using Lumina.Essentials.Attributes;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -128,7 +127,7 @@ public partial class PlayerController : MonoBehaviour
 
     void OnDestroy()
     {
-        inputDeviceManager.OnPlayerLeft(PlayerID);
+        //inputDeviceManager.OnPlayerLeft(PlayerID);
     }
 
     void Update()
