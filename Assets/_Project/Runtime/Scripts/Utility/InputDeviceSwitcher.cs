@@ -43,7 +43,7 @@ public class InputDeviceSwitcher : MonoBehaviour
 
         while (device == null)
         {
-            foreach (Gamepad gamepad in Gamepad.all.Where(gamepad => gamepad.buttonSouth.wasPressedThisFrame && !PlayerInput.all.Any(p => p.devices.Contains(gamepad))))
+            foreach (Gamepad gamepad in Gamepad.all.Where(gamepad => gamepad.startButton.wasPressedThisFrame && !PlayerInput.all.Any(p => p.devices.Contains(gamepad))))
             {
                 device = gamepad;
                 break;

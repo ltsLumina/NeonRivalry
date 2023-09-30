@@ -28,12 +28,14 @@ public class ControlSchemeSwitcher : MonoBehaviour
         {
             case "Keyboard":
                 StartCoroutine(inputDeviceSwitcher.AssignGamepadToPlayerInput(playerInput));
+                Debug.LogWarning("Player " + playerToAssign + " switching to Gamepad");
                 break;
 
             case "Gamepad":
                 PlayerInput.all.FirstOrDefault()                                      // Get the first active PlayerInput
                           ?.SwitchCurrentControlScheme("Keyboard", Keyboard.current); // Switch to Keyboard
 
+                Debug.LogWarning("Player " + playerToAssign + " switching to Keyboard");
                 break;
         }
     }
