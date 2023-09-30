@@ -27,6 +27,8 @@ public class InputDeviceManager : SingletonPersistent<InputDeviceManager>
 
     void OnJoinPlayer()
     {
+        //TODO: I need to prevent a join action to occur if the device is already in use as a player might have taken the device when changing control schemes.
+        
         InputDevice device = GetActiveDevice();
 
         // Ignore if a device isn't active or is already associated with a player.
