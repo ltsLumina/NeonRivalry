@@ -31,7 +31,6 @@ public partial class PlayerController : MonoBehaviour
     // Cached References
     Animator anim;
     PlayerManager playerManager;
-    InputDeviceManager inputDeviceManager;
 
     // -- Properties --
     public int PlayerID
@@ -61,7 +60,6 @@ public partial class PlayerController : MonoBehaviour
         InputManager       = GetComponentInChildren<InputManager>();
         StateMachine       = GetComponent<StateMachine>();
         playerManager      = PlayerManager.Instance;
-        inputDeviceManager = FindObjectOfType<InputDeviceManager>();
         
         Initialize();
     }
@@ -99,14 +97,14 @@ public partial class PlayerController : MonoBehaviour
                 PlayerManager.ChangePlayerColor(this, playerManager.PlayerColors.playerOneColor);
                 PlayerManager.SetPlayerSpawnPoint(this, playerManager.PlayerSpawns.playerOneSpawnPoint);
                 PlayerManager.SetPlayerHealthbar(this, PlayerID);
-                PlayerManager.SetPlayerInput(this, inputDeviceManager.PlayerInputs[0]);
+                PlayerManager.SetPlayerInput(this, PlayerManager.PlayerInputs[0]);
                 break;
 
             case 2:
                 PlayerManager.ChangePlayerColor(this, playerManager.PlayerColors.playerTwoColor);
                 PlayerManager.SetPlayerSpawnPoint(this, playerManager.PlayerSpawns.playerTwoSpawnPoint);
                 PlayerManager.SetPlayerHealthbar(this, PlayerID);
-                PlayerManager.SetPlayerInput(this, inputDeviceManager.PlayerInputs[1]);
+                PlayerManager.SetPlayerInput(this, PlayerManager.PlayerInputs[1]);
                 break;
         }
     }
