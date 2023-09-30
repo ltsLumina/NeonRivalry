@@ -5,15 +5,24 @@ using UnityEngine.InputSystem;
 
 public class InputDeviceManager : SingletonPersistent<InputDeviceManager>
 {
+    // The key is the device and the value is the player index
     readonly Dictionary<InputDevice, int> playerDevices = new ();
-    readonly List<string> controlSchemes = new () { "Keyboard", "Gamepad" };
-
+    
+    // -- Properties --
+    
+    // Returns the list of devices that are currently associated with a player
+    public Dictionary<InputDevice, int> PlayerDevices => playerDevices;
+    
+    // Returns the list of PlayerInput components that are currently associated with a player
+    public List<PlayerInput> PlayerInputs => playerDevices.Keys.Select(device => PlayerInput.all.FirstOrDefault(p => p.devices.Contains(device))).ToList();
     
     // -- Cached References --
     PlayerInputManager inputManager;
 
     protected override void Awake()
     {
+        base.Awake();
+        
         inputManager = FindObjectOfType<PlayerInputManager>(); 
     }
 

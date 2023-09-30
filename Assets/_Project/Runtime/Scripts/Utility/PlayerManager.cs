@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 /// <summary>
 /// The PlayerManager class is used to manage ALL players in the game including their settings, properties, and actions.
@@ -110,5 +111,7 @@ public partial class PlayerManager : SingletonPersistent<PlayerManager>
         // Initialize the healthbar.
         healthbar.Initialize();
     }
+    
+    public static void SetPlayerInput(PlayerController player, PlayerInput playerInput) => player.PlayerInput = playerInput;
     #endregion
 }

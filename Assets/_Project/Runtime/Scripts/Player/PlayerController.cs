@@ -46,6 +46,7 @@ public partial class PlayerController : MonoBehaviour
     public Rigidbody Rigidbody { get; private set; }
     public InputManager InputManager { get; private set; }
     public StateMachine StateMachine { get; private set; }
+    public PlayerInput PlayerInput { get; set; }
     
     public Healthbar Healthbar
     {
@@ -98,12 +99,14 @@ public partial class PlayerController : MonoBehaviour
                 PlayerManager.ChangePlayerColor(this, playerManager.PlayerColors.playerOneColor);
                 PlayerManager.SetPlayerSpawnPoint(this, playerManager.PlayerSpawns.playerOneSpawnPoint);
                 PlayerManager.SetPlayerHealthbar(this, PlayerID);
+                PlayerManager.SetPlayerInput(this, inputDeviceManager.PlayerInputs[0]);
                 break;
 
             case 2:
                 PlayerManager.ChangePlayerColor(this, playerManager.PlayerColors.playerTwoColor);
                 PlayerManager.SetPlayerSpawnPoint(this, playerManager.PlayerSpawns.playerTwoSpawnPoint);
                 PlayerManager.SetPlayerHealthbar(this, PlayerID);
+                PlayerManager.SetPlayerInput(this, inputDeviceManager.PlayerInputs[1]);
                 break;
         }
     }
