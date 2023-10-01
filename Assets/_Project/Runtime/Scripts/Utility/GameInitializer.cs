@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerInitializer : MonoBehaviour
+public class GameInitializer : MonoBehaviour
 {
     [SerializeField] GameObject playerPrefab;
     

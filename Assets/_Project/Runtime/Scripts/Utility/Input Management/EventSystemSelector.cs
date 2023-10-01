@@ -92,7 +92,7 @@ public class EventSystemSelector : MonoBehaviour
 
                 break;
 
-            case "Dev_Game":
+            case "Game":
                 switch (localPlayerID)
                 {
                     case 1:
