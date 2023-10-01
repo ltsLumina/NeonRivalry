@@ -12,6 +12,9 @@ public partial class MoveCreator : EditorWindow
     readonly static Vector2 winSize = new (475, 565);
     
     Action activeMenu;
+    MoveData currentMove;
+    string moveName;
+    
     bool showAttributes;
     bool showResources;
     bool showProperties;
@@ -61,10 +64,9 @@ public partial class MoveCreator : EditorWindow
         createdSuccessfully = false;
 
         // Initialize the dictionary with types
-        existingMovesByType["Punch"]  = new ();
-        existingMovesByType["Kick"]   = new ();
-        existingMovesByType["Slash"]  = new ();
-        existingMovesByType["Unique"] = new ();
+        InitializeExistingMoves();
+
+        LoadExistingMoves();
         
         activeMenu = DefaultMenu;
     }
@@ -87,30 +89,17 @@ public partial class MoveCreator : EditorWindow
         DrawInstructionsGUI();
     }
 
-    #region Utility
-    void DrawBackButton()
-    {
-        using (new HorizontalScope())
-        {
-            FlexibleSpace();
-
-            if (Button("Back"))
-            {
-                createdSuccessfully = false;
-                activeMenu = DefaultMenu; 
-            }
-        }
-    }
-
+    #region GUI
+    
     void DrawHeaderGUI()
     {
         using (new HorizontalScope("box"))
         {
             Label("Create Moves / Movesets", EditorStyles.boldLabel);
 
-            if (Button("Create Moveset")) activeMenu = CreatingMovesetMenu;
+            if (Button("Manage Movesets")) activeMenu = CreatingMovesetMenu;
 
-            if (Button("Create Move"))
+            if (Button("Manage Moves"))
             {
                 showAttributes = true;
                 showResources  = true;
@@ -125,24 +114,43 @@ public partial class MoveCreator : EditorWindow
     {
         DrawBackButton();
 
-        Label("Creating Move", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField("Move Creator", EditorStyles.boldLabel);
 
-        DrawTypesGUI();
+        currentMove = (MoveData) EditorGUILayout.ObjectField("Move to Edit", currentMove, typeof(MoveData), false);
 
+        if (currentMove == null)
+        {
+            EditorGUILayout.HelpBox("Select a move or create a new one.", MessageType.Warning);
+
+            // Set the moveset name
+            moveName = EditorGUILayout.TextField("Move Name", moveName);
+
+            // If the asset name is empty, a new move called "New Move" will be created.
+            const string defaultName = "New Move";
+            string       assetName   = string.IsNullOrEmpty(moveName) ? defaultName : moveName;
+
+            if (Button($"Create {assetName}"))
+            {
+                // If the asset name is empty, a new move called "New Move" will be created.
+                if (string.IsNullOrEmpty(assetName) || assetName == "New Move")
+                {
+                    // If there already exists a move called "New Move", then the old one will be overwritten.
+                    const string warning = "Warning";
+                    string       message = WarningMessage(assetName, false);
+
+                    if (EditorUtility.DisplayDialog(warning, message, "Proceed", "Cancel")) { activeMenu = DrawCreatingMoveMenu; }
+                }
+                else { activeMenu = DrawCreatingMoveMenu; }
+            }
+
+            return;
+        }
+        
         Space(10);
-
-        DrawResourcesGUI();
-
-        Space(10);
-
-        DrawAttributesGUI();
-
-        Space(10);
-
-        DrawPropertiesGUI();
-
-        // Button to create the move
-        CreateMove();
+        
+        // Show the inspector for the moveset
+        Editor inspector = Editor.CreateEditor(currentMove);
+        inspector.OnInspectorGUI();
     }
 
     void DrawCreationTextGUI()
@@ -168,6 +176,30 @@ public partial class MoveCreator : EditorWindow
             Label("3. Click \"Create Moveset\" or \"Create Move\" again.");
             Label("4. Done! The ScriptableObject will be created.");
         }
+    }
+
+    void DrawCreatingMoveMenu()
+    {
+        DrawBackButton();
+        
+        Label("Creating Move", EditorStyles.boldLabel);
+
+        DrawTypesGUI();
+
+        Space(10);
+
+        DrawResourcesGUI();
+
+        Space(10);
+
+        DrawAttributesGUI();
+
+        Space(10);
+
+        DrawPropertiesGUI();
+
+        // Button to create the move
+        CreateMove();
     }
     
     void DrawTypesGUI()
@@ -227,6 +259,10 @@ public partial class MoveCreator : EditorWindow
 
             if (showAttributes)
             {
+                // Initialize the name of the move with the name of the ScriptableObject
+                name = moveName;
+                if (string.IsNullOrEmpty(moveName)) name = "New Move";
+                
                 name      = EditorGUILayout.TextField(nameContent, name);
                 damage    = EditorGUILayout.FloatField(damageContent, damage);
                 startup   = EditorGUILayout.FloatField(startupContent, startup);
@@ -255,6 +291,68 @@ public partial class MoveCreator : EditorWindow
             }
         }
     }
+    
+    #endregion
+
+    #region Utility
+    void InitializeExistingMoves()
+    {
+        existingMoves["Punch"]  = new ();
+        existingMoves["Kick"]   = new ();
+        existingMoves["Slash"]  = new ();
+        existingMoves["Unique"] = new ();
+    }
+    
+    void DrawBackButton()
+    {
+        using (new HorizontalScope())
+        {
+            FlexibleSpace();
+
+            if (Button("Back"))
+            {
+                createdSuccessfully = false;
+                
+                // -- Move Creator --
+                ResetMoveCreator();
+
+                // -- Moveset Creator --
+                ResetMovesetCreator();
+
+                // -- End --
+                activeMenu          = DefaultMenu; 
+            }
+        }
+    }
+    
+    void ResetMoveCreator()
+    { 
+        currentMove = null;
+        moveName    = string.Empty;
+        
+        // Reset all fields
+        type      = MoveData.Type.Punch;
+        direction = MoveData.Direction.Neutral;
+        guard     = MoveData.Guard.High;
+
+        name      = string.Empty;
+        damage    = 0;
+        startup   = 0;
+        active    = 0;
+        recovery  = 0;
+        blockstun = 0;
+
+        animation = null;
+        audioClip = null;
+        sprite    = null;
+
+        isAirborne   = false;
+        isSweep      = false;
+        isOverhead   = false;
+        isArmor      = false;
+        isInvincible = false;
+        isGuardBreak = false;
+    }
 
     void CreateMove()
     {
@@ -262,47 +360,47 @@ public partial class MoveCreator : EditorWindow
         {
             FlexibleSpace();
 
-            var move = ScriptableObject.CreateInstance<MoveData>();
+            currentMove = ScriptableObject.CreateInstance<MoveData>();
 
             const string path        = "Assets/_Project/Runtime/Scripts/Player/Attacking/Scriptable Objects/Moves";
-            const string defaultName = "New Unnamed Move";
+            const string defaultName = "New Move";
             string       assetName   = string.IsNullOrEmpty(name) ? defaultName : name;
 
-            AssetDatabase.CreateAsset(move, $"{path}/{assetName}.asset");
+            AssetDatabase.CreateAsset(currentMove, $"{path}/{assetName}.asset");
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
-            // Assign the move's values
-            move.type      = type;
-            move.direction = direction;
-            move.guard     = guard;
+            // Assign the currentMove's values
+            currentMove.type      = type;
+            currentMove.direction = direction;
+            currentMove.guard     = guard;
+            
+            currentMove.name      = name;
+            currentMove.damage    = damage;
+            currentMove.startup   = startup;
+            currentMove.active    = active;
+            currentMove.recovery  = recovery;
+            currentMove.blockstun = blockstun;
 
-            move.name      = name;
-            move.damage    = damage;
-            move.startup   = startup;
-            move.active    = active;
-            move.recovery  = recovery;
-            move.blockstun = blockstun;
+            currentMove.animation = animation;
+            currentMove.audioClip = audioClip;
+            currentMove.sprite    = sprite;
 
-            move.animation = animation;
-            move.audioClip = audioClip;
-            move.sprite    = sprite;
-
-            move.isAirborne   = isAirborne;
-            move.isSweep      = isSweep;
-            move.isOverhead   = isOverhead;
-            move.isArmor      = isArmor;
-            move.isInvincible = isInvincible;
-            move.isGuardBreak = isGuardBreak;
+            currentMove.isAirborne   = isAirborne;
+            currentMove.isSweep      = isSweep;
+            currentMove.isOverhead   = isOverhead;
+            currentMove.isArmor      = isArmor;
+            currentMove.isInvincible = isInvincible;
+            currentMove.isGuardBreak = isGuardBreak;
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
             activeMenu = DefaultMenu;
 
-            Debug.Log($"Created move {move.name}.");
-            Selection.activeObject = move;
-            EditorGUIUtility.PingObject(move);
+            Debug.Log($"Created currentMove \"{currentMove.name}\".");
+            Selection.activeObject = currentMove;
+            EditorGUIUtility.PingObject(currentMove);
 
             createdSuccessfully = true;
         }
