@@ -1,4 +1,5 @@
 ﻿#region
+using Lumina.Debugging;
 using UnityEditor;
 using UnityEngine;
 using static EditorGUIUtils;
@@ -264,9 +265,16 @@ public static class MoveCreator
             const string defaultName = "New Move";
             string       assetName   = string.IsNullOrEmpty(name) ? defaultName : name;
 
-            AssetDatabase.CreateAsset(currentMove, $"{path}/{assetName}.asset");
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
+            try { AssetDatabase.CreateAsset(currentMove, $"{path}/{assetName}.asset"); } catch (UnityException e)
+            {
+                Debug.LogError($"{FGDebugger.errorMessagePrefix} Failed to create asset. The path is probably invalid.\n{e.Message}");
+                throw;
+            }
+            finally
+            {
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+            }
 
             // Assign the currentMove's values
             currentMove.type      = type;

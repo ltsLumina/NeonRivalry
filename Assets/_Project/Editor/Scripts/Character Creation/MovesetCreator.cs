@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Lumina.Debugging;
 using UnityEditor;
 using UnityEngine;
 using static EditorGUIUtils;
@@ -207,13 +208,24 @@ public static class MovesetCreator
     static void CreateMoveset()
     {
         currentMoveset = ScriptableObject.CreateInstance<Moveset>();
-        const string path        = "Assets/_Project/Runtime/Scripts/Player/Attacking/Scriptable Objects/Movesets";
+        const string path        = "Assets/_Project/Runtime/Scripts/Player/Combat/Scriptable Objects/Movesets";
         const string defaultName = "New Moveset";
         string       assetName   = string.IsNullOrEmpty(movesetName) ? defaultName : movesetName;
         
-        AssetDatabase.CreateAsset(currentMoveset, $"{path}/{assetName}.asset");
-        AssetDatabase.SaveAssets();
-        AssetDatabase.Refresh();
+        try
+        {
+            AssetDatabase.CreateAsset(currentMoveset, $"{path}/{assetName}.asset");
+        }
+        catch (UnityException e)
+        {
+            Debug.LogError($"{FGDebugger.errorMessagePrefix} Failed to create asset. The path is probably invalid.\n{e}");
+            throw;
+        }
+        finally
+        {
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+        }
 
         Debug.Log($"Created moveset \"{currentMoveset.name}\".");
         Selection.activeObject = currentMoveset;

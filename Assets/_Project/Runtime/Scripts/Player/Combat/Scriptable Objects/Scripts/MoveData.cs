@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
 /// This is a ScriptableObject that represents a move (e.g. punch, kick, etc.) that can be used by the player.
@@ -98,4 +99,8 @@ public class MoveData : ScriptableObject
     [Tooltip("Whether the move ignores the enemy's guard.")]
     public bool isGuardBreak;
     
+    [Space(15)]
+    [Header("Move Effects")]
+    public List<MoveEffect> moveEffects;
+
 }
