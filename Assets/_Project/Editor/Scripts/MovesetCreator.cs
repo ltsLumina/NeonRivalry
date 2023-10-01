@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using static EditorGUIUtils;
 using static UnityEngine.GUILayout;
 
 public partial class MoveCreator
@@ -47,30 +47,30 @@ public partial class MoveCreator
                     string message = WarningMessage(assetName);
 
                     if (EditorUtility.DisplayDialog(warning, message, "Proceed", "Cancel")) 
-                        CreateMoveset(assetName);
+                        CreateMoveset();
                 }
-                else { CreateMoveset(assetName); }
+                else { CreateMoveset(); }
             }
             return;
         }
+
+        scrollViewPos = EditorGUILayout.BeginScrollView(scrollViewPos); // Begin ScrollView
         
         Space(10);
         
         // Show the inspector for the moveset
         Editor inspector = Editor.CreateEditor(currentMoveset);
         inspector.OnInspectorGUI();
-        
+
         Space(10);
 
         // Now, let's list the pre-made moves we can add
-        EditorGUILayout.LabelField("Existing Moves", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField(existingMovesContent, EditorStyles.boldLabel);
 
-        scrollViewPos = EditorGUILayout.BeginScrollView(scrollViewPos); // Begin ScrollView
-        
         // Remove deleted MoveData:
-        var keys = new List<string>(existingMoves.Keys);
+        List<string> keys = new (existingMoves.Keys);
 
-        foreach (var key in keys)
+        foreach (string key in keys)
         {
             // Remove null MoveData:
             existingMoves[key].RemoveAll(MoveData => MoveData == null);
@@ -79,26 +79,45 @@ public partial class MoveCreator
             if (existingMoves[key].Count == 0) existingMoves.Remove(key);
         }
         
-        foreach (KeyValuePair<string, List<MoveData>> entry in existingMoves)
+        using (new VerticalScope("box"))
         {
-            EditorGUILayout.LabelField(entry.Key);
-
-            foreach (MoveData moveData in entry.Value.Where(moveData => Button(moveData.name)))
+            foreach (KeyValuePair<string, List<MoveData>> entry in existingMoves)
             {
-                switch (moveData.type)
+                Space(5);
+                
+                using (new HorizontalScope("box"))
                 {
-                    case MoveData.Type.Punch:
-                        currentMoveset.punchMoves.Add(moveData);
-                        break;
-                    case MoveData.Type.Kick:
-                        currentMoveset.kickMoves.Add(moveData);
-                        break;
-                    case MoveData.Type.Slash:
-                        currentMoveset.slashMoves.Add(moveData);
-                        break;
-                    case MoveData.Type.Unique:
-                        currentMoveset.uniqueMoves.Add(moveData);
-                        break;
+                    EditorGUILayout.LabelField(entry.Key, Width(170));
+
+                    using (new VerticalScope("box"))
+                    {
+                        foreach (MoveData moveData in entry.Value)
+                        {
+                            Space(2.5f);
+                            
+                            if (Button(moveData.name, Height(30), MaxWidth(300)))
+                            {
+                                switch (moveData.type)
+                                {
+                                    case MoveData.Type.Punch:
+                                        currentMoveset.punchMoves.Add(moveData);
+                                        break;
+
+                                    case MoveData.Type.Kick:
+                                        currentMoveset.kickMoves.Add(moveData);
+                                        break;
+
+                                    case MoveData.Type.Slash:
+                                        currentMoveset.slashMoves.Add(moveData);
+                                        break;
+
+                                    case MoveData.Type.Unique:
+                                        currentMoveset.uniqueMoves.Add(moveData);
+                                        break;
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -139,11 +158,13 @@ public partial class MoveCreator
         return message;
     }
     
-    void CreateMoveset(string assetName)
+    void CreateMoveset()
     {
         currentMoveset = CreateInstance<Moveset>();
-        const string path = "Assets/_Project/Runtime/Scripts/Player/Attacking/Scriptable Objects/Movesets";
-
+        const string path        = "Assets/_Project/Runtime/Scripts/Player/Attacking/Scriptable Objects/Movesets";
+        const string defaultName = "New Moveset";
+        string       assetName   = string.IsNullOrEmpty(movesetName) ? defaultName : movesetName;
+        
         AssetDatabase.CreateAsset(currentMoveset, $"{path}/{assetName}.asset");
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();

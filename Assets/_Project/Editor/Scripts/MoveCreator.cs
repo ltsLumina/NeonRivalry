@@ -9,7 +9,7 @@ public partial class MoveCreator : EditorWindow
 {
     // -- Menus --
 
-    readonly static Vector2 winSize = new (475, 565);
+    readonly static Vector2 winSize = new (475, 615);
     
     Action activeMenu;
     MoveData currentMove;
@@ -97,10 +97,16 @@ public partial class MoveCreator : EditorWindow
         {
             Label("Create Moves / Movesets", EditorStyles.boldLabel);
 
-            if (Button("Manage Movesets")) activeMenu = CreatingMovesetMenu;
+            if (Button("Manage Movesets"))
+            {
+                createdSuccessfully = false;
+                activeMenu = CreatingMovesetMenu;
+            }
 
             if (Button("Manage Moves"))
             {
+                createdSuccessfully = false;
+                
                 showAttributes = true;
                 showResources  = true;
                 showProperties = true;
@@ -114,7 +120,7 @@ public partial class MoveCreator : EditorWindow
     {
         DrawBackButton();
 
-        EditorGUILayout.LabelField("Move Creator", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField("Creating Move", EditorStyles.boldLabel);
 
         currentMove = (MoveData) EditorGUILayout.ObjectField("Move to Edit", currentMove, typeof(MoveData), false);
 
@@ -311,8 +317,6 @@ public partial class MoveCreator : EditorWindow
 
             if (Button("Back"))
             {
-                createdSuccessfully = false;
-                
                 // -- Move Creator --
                 ResetMoveCreator();
 
@@ -320,7 +324,7 @@ public partial class MoveCreator : EditorWindow
                 ResetMovesetCreator();
 
                 // -- End --
-                activeMenu          = DefaultMenu; 
+                activeMenu = DefaultMenu; 
             }
         }
     }

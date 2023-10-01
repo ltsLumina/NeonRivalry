@@ -32,4 +32,6 @@ public class EditorGUIUtils : Editor
     public readonly static GUIContent isArmorContent = new ("Armor", "If checked, this move can absorb hits.");
     public readonly static GUIContent isInvincibleContent = new ("Invincible", "If checked, this move cannot be interrupted by opponent's moves.");
     public readonly static GUIContent isGuardBreakContent = new ("Guard Break", "If checked, this move breaks the opponent's guard.");
+    
+    public readonly static GUIContent existingMovesContent = new ("Existing Moves", "Due to a limitation in Unity, you must manually add moves to the moveset through the use of these buttons.");
 }
