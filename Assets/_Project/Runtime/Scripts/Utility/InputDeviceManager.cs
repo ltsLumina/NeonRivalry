@@ -13,9 +13,6 @@ public class InputDeviceManager : MonoBehaviour
     // Returns the list of devices that are currently associated with a player
     public Dictionary<InputDevice, int> PlayerDevices => playerDevices;
     
-    // Returns the list of PlayerInput components that are currently associated with a player
-    public List<PlayerInput> PlayerInputs => playerDevices.Keys.Select(device => PlayerInput.all.FirstOrDefault(p => p.devices.Contains(device))).ToList();
-    
     // -- Cached References --
     PlayerInputManager inputManager;
 
@@ -29,7 +26,7 @@ public class InputDeviceManager : MonoBehaviour
         // Check if a player is not currently in the prompt to switch control scheme.
         if (!DeviceSwitchPrompt.IsWaitingForInput)
         {
-            if (Keyboard.current.anyKey.wasPressedThisFrame || Gamepad.current != null && Gamepad.current.startButton.wasPressedThisFrame)
+            if (Keyboard.current.spaceKey.wasPressedThisFrame || Gamepad.current != null && Gamepad.current.startButton.wasPressedThisFrame)
             {
                 JoinPlayerConfig();
             }

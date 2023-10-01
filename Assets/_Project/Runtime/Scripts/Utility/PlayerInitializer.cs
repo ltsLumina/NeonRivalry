@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerInitializer : MonoBehaviour
 {
@@ -14,11 +15,11 @@ public class PlayerInitializer : MonoBehaviour
     void Update()
     {
         // Join both players
-        if (inputDeviceManager.PlayerInputs.Count == 0)
+        if (PlayerInputManager.instance.playerCount == 0)
         {
             inputDeviceManager.JoinPlayerCharacter(playerPrefab);
         }
-        else if (inputDeviceManager.PlayerInputs.Count == 1)
+        else if (PlayerInputManager.instance.playerCount == 1)
         {
             inputDeviceManager.JoinPlayerCharacter(playerPrefab);
         }
