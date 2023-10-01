@@ -1,302 +1,153 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using UnityEditor;
-using UnityEngine;
-using static EditorGUIUtils;
 using static UnityEngine.GUILayout;
 
-//TODO: Make a partial class for actual Moveset creator window.
-public class MovesetCreator : EditorWindow
+public partial class MoveCreator
 {
     // -- Menus --
+    
+    // Define list to hold moves for currently created moveset
+    Moveset currentMoveset;
 
-    readonly static Vector2 winSize = new (475, 565);
+    // Define for specifying moveset name
+    string movesetName;
     
-    Action activeMenu;
-    bool showAttributes;
-    bool showResources;
-    bool showProperties;
-    bool createdSuccessfully;
+    // List of all already created moves
+    List<MoveData> existingMoves = new ();
 
-    // -- Attributes --
-    
-    MoveData.Type type;
-    MoveData.Direction direction;
-    MoveData.Guard guard;
-    
-    new string name;
-    float damage;
-    float startup;
-    float active;
-    float recovery;
-    float blockstun;
-    
-    // -- Resources --
-    
-    AnimationClip animation;
-    AudioClip audioClip;
-    Sprite sprite;
-    
-    // -- Move Properties --
-    bool isAirborne;
-    bool isSweep;
-    bool isOverhead;
-    bool isArmor;
-    bool isInvincible;
-    bool isGuardBreak;
+    // Dictionary of known moves by type
+    Dictionary<string, List<MoveData>> existingMovesByType = new ();
 
     // -- End --
-    
-    [MenuItem("Tools/Attacking/Moveset Creator")]
-    static void ShowWindow()
-    {
-        var window = GetWindow<MovesetCreator>();
-        window.titleContent = new ("Moveset Creator");
-        window.minSize      = new (winSize.x, winSize.y);
-        window.maxSize      = window.minSize;
-        window.Show();
-    }
-
-    void OnEnable()
-    {
-        createdSuccessfully = false;
-        
-        activeMenu = DefaultMenu;
-    }
-
-    void OnDisable() => activeMenu = null;
-
-    void OnGUI()
-    {
-        activeMenu();
-    }
-    
-    void DefaultMenu()
-    {
-        DrawHeaderGUI();
-        
-        Space(10);
-        
-        DrawCreationTextGUI();
-        
-        DrawInstructionsGUI();
-    }
-
-    #region Utility
-    void DrawBackButton()
-    {
-        using (new HorizontalScope())
-        {
-            FlexibleSpace();
-
-            if (Button("Back"))
-            {
-                createdSuccessfully = false;
-                activeMenu = DefaultMenu; 
-            }
-        }
-    }
-
-    void DrawHeaderGUI()
-    {
-        using (new HorizontalScope("box"))
-        {
-            Label("Create Moves / Movesets", EditorStyles.boldLabel);
-
-            if (Button("Create Moveset")) activeMenu = CreatingMovesetMenu;
-            if (Button("Create Move")) activeMenu    = CreatingMoveMenu;
-        }
-    }
 
     void CreatingMovesetMenu()
     {
-        Label("Creating Moveset", EditorStyles.boldLabel); 
-    }
-
-    void CreatingMoveMenu()
-    {
         DrawBackButton();
 
-        Label("Creating Move", EditorStyles.boldLabel);
+        Label("Creating Moveset", EditorStyles.boldLabel);
 
-        DrawTypesGUI();
+        // Load
+        EditorGUILayout.BeginHorizontal();
+        currentMoveset = (Moveset) EditorGUILayout.ObjectField(currentMoveset, typeof(Moveset), false);
 
-        Space(10);
-
-        DrawResourcesGUI();
-
-        Space(10);
-
-        DrawAttributesGUI();
-
-        Space(10);
-
-        DrawPropertiesGUI();
-
-        // Button to create the move
-        CreateMove();
-    }
-
-    void DrawCreationTextGUI()
-    {
-        using (new HorizontalScope("box"))
+        if (Button("New Moveset"))
         {
-            FlexibleSpace();
+            currentMoveset = CreateInstance<Moveset>();
 
-            if (createdSuccessfully) { Label(createdSuccessfullyContent, EditorStyles.boldLabel); }
+            // Save the scriptable object.
+            var path = AssetDatabase.GetAssetPath(Selection.activeObject);
 
-            FlexibleSpace();
+            if (string.IsNullOrEmpty(path)) { path = "Assets"; }
+
+            var assetPathAndName = AssetDatabase.GenerateUniqueAssetPath($"{path}/New Moveset.asset");
+            AssetDatabase.CreateAsset(currentMoveset, assetPathAndName);
+            AssetDatabase.SaveAssets();
+
+            Selection.activeObject = currentMoveset;
         }
-    }
 
-    static void DrawInstructionsGUI()
-    {
-        using (new VerticalScope("box"))
+        EditorGUILayout.EndHorizontal();
+
+        if (currentMoveset == null)
         {
-            Label("Instructions", EditorStyles.boldLabel);
-
-            Label("1. Click \"Create Moveset\" or \"Create Move\".");
-            Label("2. Fill in the fields.");
-            Label("3. Click \"Create Moveset\" or \"Create Move\" again.");
-            Label("4. Done! The ScriptableObject will be created.");
+            EditorGUILayout.HelpBox("Please select a Moveset to edit, or create a new Moveset.", MessageType.Info);
+            return;
         }
+
+        // Edit
+        EditorGUI.BeginChangeCheck();
+        Editor.CreateEditor(currentMoveset).OnInspectorGUI();
+
+        if (EditorGUI.EndChangeCheck())
+        {
+            EditorUtility.SetDirty(currentMoveset);
+            AssetDatabase.SaveAssets();
+        }
+
+        // Known Moves 
+        EditorGUILayout.LabelField("Known Moves:", EditorStyles.boldLabel);
+
+        foreach (var move in existingMoves)
+        {
+            if (Button($"Add {move}"))
+            {
+                // add move to the corresponding category list in the moveset
+                switch (move.type)
+                {
+                    case MoveData.Type.Punch:
+                        currentMoveset.punchMoves.Add(move);
+                        break;
+
+                    case MoveData.Type.Kick:
+                        currentMoveset.kickMoves.Add(move);
+                        break;
+
+                    case MoveData.Type.Slash:
+                        currentMoveset.slashMoves.Add(move);
+                        break;
+
+                    case MoveData.Type.Unique:
+                        currentMoveset.uniqueMoves.Add(move);
+                        break;
+                }
+
+                EditorUtility.SetDirty(currentMoveset);
+                AssetDatabase.SaveAssets();
+            }
+        }
+
+        // Button to create the moveset
+        //CreateMoveset();
     }
     
-    void DrawTypesGUI()
+    /*void CreateMoveset()
     {
-        using (new HorizontalScope("box"))
-        {
-            Label(typeContent, EditorStyles.boldLabel);
-
-            // Dropdown (enum)
-            type = (MoveData.Type) EditorGUILayout.EnumPopup(type);
-
-            Label(directionContent, EditorStyles.boldLabel);
-
-            // Dropdown (enum)
-            direction = (MoveData.Direction) EditorGUILayout.EnumPopup(direction);
-
-            Label(guardContent, EditorStyles.boldLabel);
-
-            // Dropdown (enum)
-            guard = (MoveData.Guard) EditorGUILayout.EnumPopup(guard);
-        }
-    }
-    void DrawResourcesGUI()
-    {
-        using (new VerticalScope("box"))
-        {
-            string label = showResources ? "Resources (click to hide)" : "Resources (click to show)";
-
-            showResources = EditorGUILayout.Foldout(showResources, label, true, EditorStyles.boldLabel);
-
-            if (showResources)
-            {
-                // Object field
-                animation = (AnimationClip) EditorGUILayout.ObjectField("Animation", animation, typeof(AnimationClip), false);
-
-                // Object field
-                audioClip = (AudioClip) EditorGUILayout.ObjectField("Audio Clip", audioClip, typeof(AudioClip), false);
-
-                using (new HorizontalScope())
-                {
-                    // Object field
-                    sprite = (Sprite) EditorGUILayout.ObjectField("Sprite", sprite, typeof(Sprite), false);
-
-                    FlexibleSpace();
-                    FlexibleSpace();
-                }
-            }
-        }
-    }
-    void DrawAttributesGUI()
-    {
-        using (new VerticalScope("box"))
-        {
-            string label = showAttributes ? "Attributes (click to hide)" : "Attributes (click to show)";
-
-            showAttributes = EditorGUILayout.Foldout(showAttributes, label, true, EditorStyles.boldLabel);
-
-            if (showAttributes)
-            {
-                name      = EditorGUILayout.TextField(nameContent, name);
-                damage    = EditorGUILayout.FloatField(damageContent, damage);
-                startup   = EditorGUILayout.FloatField(startupContent, startup);
-                active    = EditorGUILayout.FloatField(activeContent, active);
-                recovery  = EditorGUILayout.FloatField(recoveryContent, recovery);
-                blockstun = EditorGUILayout.FloatField(blockstunContent, blockstun);
-            }
-        }
-    }
-    void DrawPropertiesGUI()
-    {
-        using (new VerticalScope("box"))
-        {
-            string label = showProperties ? "Properties (click to hide)" : "Properties (click to show)";
-
-            showProperties = EditorGUILayout.Foldout(showProperties, label, true, EditorStyles.boldLabel);
-
-            if (showProperties)
-            {
-                isAirborne   = EditorGUILayout.Toggle(isAirborneContent, isAirborne);
-                isSweep      = EditorGUILayout.Toggle(isSweepContent, isSweep);
-                isOverhead   = EditorGUILayout.Toggle(isOverheadContent, isOverhead);
-                isArmor      = EditorGUILayout.Toggle(isArmorContent, isArmor);
-                isInvincible = EditorGUILayout.Toggle(isInvincibleContent, isInvincible);
-                isGuardBreak = EditorGUILayout.Toggle(isGuardBreakContent, isGuardBreak);
-            }
-        }
-    }
-
-    void CreateMove()
-    {
-        if (Button(new GUIContent("Create Move", "Creates the move. \nThe name of the move will be the name of the ScriptableObject.")))
+        if (Button(new GUIContent("Create Moveset", "Creates the moveset.")))
         {
             FlexibleSpace();
 
-            var move = ScriptableObject.CreateInstance<MoveData>();
+            var moveset = ScriptableObject.CreateInstance<Moveset>();
 
-            const string path        = "Assets/_Project/Runtime/Scripts/Player/Attacking/Scriptable Objects/Moves";
-            const string defaultName = "New Unnamed Move";
-            string       assetName   = string.IsNullOrEmpty(name) ? defaultName : name;
+            const string path        = "Assets/Movesets";
+            const string defaultName = "New Unnamed Moveset";
+            string       assetName   = string.IsNullOrEmpty(movesetName) ? defaultName : movesetName;
 
-            AssetDatabase.CreateAsset(move, $"{path}/{assetName}.asset");
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
+            AssetDatabase.CreateAsset(moveset, $"{path}/{assetName}.asset");
 
-            // Assign the move's values
-            move.type      = type;
-            move.direction = direction;
-            move.guard     = guard;
+            foreach (MoveData move in currentMoveset)
+            {
+                switch (move.type)
+                {
+                    case MoveData.Type.Punch:
+                        moveset.punchMoves.Add(move);
+                        break;
 
-            move.name      = name;
-            move.damage    = damage;
-            move.startup   = startup;
-            move.active    = active;
-            move.recovery  = recovery;
-            move.blockstun = blockstun;
+                    case MoveData.Type.Kick:
+                        moveset.kickMoves.Add(move);
+                        break;
 
-            move.animation = animation;
-            move.audioClip = audioClip;
-            move.sprite    = sprite;
+                    case MoveData.Type.Slash:
+                        moveset.slashMoves.Add(move);
+                        break;
 
-            move.isAirborne   = isAirborne;
-            move.isSweep      = isSweep;
-            move.isOverhead   = isOverhead;
-            move.isArmor      = isArmor;
-            move.isInvincible = isInvincible;
-            move.isGuardBreak = isGuardBreak;
+                    case MoveData.Type.Unique:
+                        moveset.uniqueMoves.Add(move);
+                        break;
+                }
+
+                AssetDatabase.AddObjectToAsset(move, moveset);
+            }
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
             activeMenu = DefaultMenu;
 
-            Debug.Log($"Created move {move.name}.");
-            Selection.activeObject = move;
-            EditorGUIUtility.PingObject(move);
+            Debug.Log($"Created moveset {moveset.name}.");
+            Selection.activeObject = moveset;
+            EditorGUIUtility.PingObject(moveset);
 
             createdSuccessfully = true;
         }
-    }
-    #endregion
+    }*/
 }
