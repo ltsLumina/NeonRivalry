@@ -91,6 +91,21 @@ public class EventSystemSelector : MonoBehaviour
                 }
 
                 break;
+
+            case "Dev_Game":
+                switch (localPlayerID)
+                {
+                    case 1:
+                        //button = GameObject.Find("Debug Button");
+                        button = GameObject.Find("Rematch Button (Player 1)");
+                        break;
+
+                    case 2:
+                        Debug.LogWarning("Player 2 is not supported for the Debug Button.");
+                        break;
+                }
+
+                break;
         }
 
         if (button == null) Debug.LogWarning($"No button was found in the {sceneName} scene. \nChecking by scene index...");
@@ -128,6 +143,21 @@ public class EventSystemSelector : MonoBehaviour
 
                     case 2:
                         button = GameObject.Find("Reaper (Player 2)");
+                        break;
+                }
+
+                break;
+
+            case 2:
+                switch (localPlayerID)
+                {
+                    case 1:
+                        button = GameObject.Find("Debug Button");
+                        //button = GameObject.Find("Rematch Button (Player 1)");
+                        break;
+
+                    case 2:
+                        Debug.LogWarning("Player 2 is not supported for the Debug Button.");
                         break;
                 }
 
