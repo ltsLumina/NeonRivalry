@@ -1,193 +1,113 @@
-﻿using System;
+﻿#region
 using UnityEditor;
 using UnityEngine;
 using static EditorGUIUtils;
 using static UnityEngine.GUILayout;
+#endregion
 
-//TODO: Make a partial class for actual Moveset creator window.
-public partial class MoveCreator : EditorWindow
+public static class MoveCreator
 {
-    // -- Menus --
+    // -- Fields --
+    
+    static MoveData currentMove;
+    public static string moveName;
 
-    readonly static Vector2 winSize = new (475, 615);
-    
-    Action activeMenu;
-    MoveData currentMove;
-    string moveName;
-    
-    bool showAttributes;
-    bool showResources;
-    bool showProperties;
-    bool createdSuccessfully;
+    public static bool showAttributes;
+    public static bool showResources;
+    public static bool showProperties;
 
     // -- Attributes --
-    
-    MoveData.Type type;
-    MoveData.Direction direction;
-    MoveData.Guard guard;
-    
-    new string name;
-    float damage;
-    float startup;
-    float active;
-    float recovery;
-    float blockstun;
-    
+
+    static MoveData.Type type;
+    static MoveData.Direction direction;
+    static MoveData.Guard guard;
+
+    static string name;
+    static float damage;
+    static float startup;
+    static float active;
+    static float recovery;
+    static float blockstun;
+
     // -- Resources --
-    
-    AnimationClip animation;
-    AudioClip audioClip;
-    Sprite sprite;
-    
+
+    static AnimationClip animation;
+    static AudioClip audioClip;
+    static Sprite sprite;
+
     // -- Move Properties --
-    bool isAirborne;
-    bool isSweep;
-    bool isOverhead;
-    bool isArmor;
-    bool isInvincible;
-    bool isGuardBreak;
+    static bool isAirborne;
+    static bool isSweep;
+    static bool isOverhead;
+    static bool isArmor;
+    static bool isInvincible;
+    static bool isGuardBreak;
 
     // -- End --
-    
-    [MenuItem("Tools/Attacking/Moveset Creator")]
-    static void ShowWindow()
+
+    public static void CreatingMoveMenu()
     {
-        var window = GetWindow<MoveCreator>();
-        window.titleContent = new ("Moveset Creator");
-        window.minSize      = new (winSize.x, winSize.y);
-        window.maxSize      = window.minSize;
-        window.Show();
-    }
-
-    void OnEnable()
-    {
-        createdSuccessfully = false;
-
-        // Initialize the dictionary with types
-        InitializeExistingMoves();
-
-        LoadExistingMoves();
-        
-        activeMenu = DefaultMenu;
-    }
-
-    void OnDisable() => activeMenu = null;
-
-    void OnGUI()
-    {
-        activeMenu();
-    }
-    
-    void DefaultMenu()
-    {
-        DrawHeaderGUI();
-        
-        Space(10);
-        
-        DrawCreationTextGUI();
-        
-        DrawInstructionsGUI();
-    }
-
-    #region GUI
-    
-    void DrawHeaderGUI()
-    {
-        using (new HorizontalScope("box"))
-        {
-            Label("Create Moves / Movesets", EditorStyles.boldLabel);
-
-            if (Button("Manage Movesets"))
-            {
-                createdSuccessfully = false;
-                activeMenu = CreatingMovesetMenu;
-            }
-
-            if (Button("Manage Moves"))
-            {
-                createdSuccessfully = false;
-                
-                showAttributes = true;
-                showResources  = true;
-                showProperties = true;
-                
-                activeMenu = CreatingMoveMenu;
-            }
-        }
-    }
-
-    void CreatingMoveMenu()
-    {
-        DrawBackButton();
-
-        EditorGUILayout.LabelField("Creating Move", EditorStyles.boldLabel);
-
-        currentMove = (MoveData) EditorGUILayout.ObjectField("Move to Edit", currentMove, typeof(MoveData), false);
+        DrawMenuHeader();
+        currentMove = GetMoveToEdit();
 
         if (currentMove == null)
         {
-            EditorGUILayout.HelpBox("Select a move or create a new one.", MessageType.Warning);
-
-            // Set the moveset name
-            moveName = EditorGUILayout.TextField("Move Name", moveName);
-
-            // If the asset name is empty, a new move called "New Move" will be created.
-            const string defaultName = "New Move";
-            string       assetName   = string.IsNullOrEmpty(moveName) ? defaultName : moveName;
-
-            if (Button($"Create {assetName}"))
-            {
-                // If the asset name is empty, a new move called "New Move" will be created.
-                if (string.IsNullOrEmpty(assetName) || assetName == "New Move")
-                {
-                    // If there already exists a move called "New Move", then the old one will be overwritten.
-                    const string warning = "Warning";
-                    string       message = WarningMessage(assetName, false);
-
-                    if (EditorUtility.DisplayDialog(warning, message, "Proceed", "Cancel")) { activeMenu = DrawCreatingMoveMenu; }
-                }
-                else { activeMenu = DrawCreatingMoveMenu; }
-            }
-
+            PromptCreateNewMove();
             return;
         }
-        
+
+        DisplayMoveEditor();
+    }
+    
+    #region GUI
+    static void DrawMenuHeader()
+    {
+        CharacterMovesetCreator.DrawBackButton();
+        EditorGUILayout.LabelField("Creating Move", EditorStyles.boldLabel);
+    }
+
+    static MoveData GetMoveToEdit() => (MoveData) EditorGUILayout.ObjectField("Move to Edit", currentMove, typeof(MoveData), false);
+
+    static void PromptCreateNewMove()
+    {
+        EditorGUILayout.HelpBox("Select a move or create a new one.", MessageType.Warning);
+        string moveName  = GetMoveName();
+        string assetName = GenerateAssetName(moveName);
+
+        if (Button($"Create {assetName}")) SwitchToMoveCreatorMenu(assetName);
+    }
+
+    static string GetMoveName() => EditorGUILayout.TextField("Move Name", moveName);
+
+    static string GenerateAssetName(string moveName)
+    {
+        const string defaultName = "New Move";
+        return string.IsNullOrEmpty(moveName) ? defaultName : moveName;
+    }
+
+    static void SwitchToMoveCreatorMenu(string assetName)
+    {
+        if (string.IsNullOrEmpty(assetName) || assetName == "New Move")
+        {
+            const string warning = "Warning";
+            string       message = CharacterMovesetCreator.WarningMessage(assetName, false);
+
+            if (EditorUtility.DisplayDialog(warning, message, "Proceed", "Cancel")) CharacterMovesetCreator.activeMenu = DrawCreatingMoveMenu;
+        }
+        else { CharacterMovesetCreator.activeMenu = DrawCreatingMoveMenu; }
+    }
+
+    static void DisplayMoveEditor()
+    {
         Space(10);
-        
-        // Show the inspector for the moveset
-        Editor inspector = Editor.CreateEditor(currentMove);
+        var inspector = Editor.CreateEditor(currentMove);
         inspector.OnInspectorGUI();
     }
 
-    void DrawCreationTextGUI()
+    static void DrawCreatingMoveMenu()
     {
-        using (new HorizontalScope("box"))
-        {
-            FlexibleSpace();
+        CharacterMovesetCreator.DrawBackButton();
 
-            if (createdSuccessfully) { Label(createdSuccessfullyContent, EditorStyles.boldLabel); }
-
-            FlexibleSpace();
-        }
-    }
-
-    static void DrawInstructionsGUI()
-    {
-        using (new VerticalScope("box"))
-        {
-            Label("Instructions", EditorStyles.boldLabel);
-
-            Label("1. Click \"Create Moveset\" or \"Create Move\".");
-            Label("2. Fill in the fields.");
-            Label("3. Click \"Create Moveset\" or \"Create Move\" again.");
-            Label("4. Done! The ScriptableObject will be created.");
-        }
-    }
-
-    void DrawCreatingMoveMenu()
-    {
-        DrawBackButton();
-        
         Label("Creating Move", EditorStyles.boldLabel);
 
         DrawTypesGUI();
@@ -207,8 +127,8 @@ public partial class MoveCreator : EditorWindow
         // Button to create the move
         CreateMove();
     }
-    
-    void DrawTypesGUI()
+
+    static void DrawTypesGUI()
     {
         using (new HorizontalScope("box"))
         {
@@ -228,7 +148,7 @@ public partial class MoveCreator : EditorWindow
             guard = (MoveData.Guard) EditorGUILayout.EnumPopup(guard);
         }
     }
-    void DrawResourcesGUI()
+    static void DrawResourcesGUI()
     {
         using (new VerticalScope("box"))
         {
@@ -239,15 +159,15 @@ public partial class MoveCreator : EditorWindow
             if (showResources)
             {
                 // Object field
-                animation = (AnimationClip) EditorGUILayout.ObjectField("Animation", animation, typeof(AnimationClip), false);
+                animation = (AnimationClip) EditorGUILayout.ObjectField(animationContent, animation, typeof(AnimationClip), false);
 
                 // Object field
-                audioClip = (AudioClip) EditorGUILayout.ObjectField("Audio Clip", audioClip, typeof(AudioClip), false);
+                audioClip = (AudioClip) EditorGUILayout.ObjectField(audioClipContent, audioClip, typeof(AudioClip), false);
 
                 using (new HorizontalScope())
                 {
                     // Object field
-                    sprite = (Sprite) EditorGUILayout.ObjectField("Sprite", sprite, typeof(Sprite), false);
+                    sprite = (Sprite) EditorGUILayout.ObjectField(spriteContent, sprite, typeof(Sprite), false);
 
                     FlexibleSpace();
                     FlexibleSpace();
@@ -255,7 +175,7 @@ public partial class MoveCreator : EditorWindow
             }
         }
     }
-    void DrawAttributesGUI()
+    static void DrawAttributesGUI()
     {
         using (new VerticalScope("box"))
         {
@@ -268,7 +188,7 @@ public partial class MoveCreator : EditorWindow
                 // Initialize the name of the move with the name of the ScriptableObject
                 name = moveName;
                 if (string.IsNullOrEmpty(moveName)) name = "New Move";
-                
+
                 name      = EditorGUILayout.TextField(nameContent, name);
                 damage    = EditorGUILayout.FloatField(damageContent, damage);
                 startup   = EditorGUILayout.FloatField(startupContent, startup);
@@ -278,7 +198,7 @@ public partial class MoveCreator : EditorWindow
             }
         }
     }
-    void DrawPropertiesGUI()
+    static void DrawPropertiesGUI()
     {
         using (new VerticalScope("box"))
         {
@@ -297,43 +217,14 @@ public partial class MoveCreator : EditorWindow
             }
         }
     }
-    
     #endregion
 
     #region Utility
-    void InitializeExistingMoves()
+    public static void ResetMoveCreator()
     {
-        existingMoves["Punch"]  = new ();
-        existingMoves["Kick"]   = new ();
-        existingMoves["Slash"]  = new ();
-        existingMoves["Unique"] = new ();
-    }
-    
-    void DrawBackButton()
-    {
-        using (new HorizontalScope())
-        {
-            FlexibleSpace();
-
-            if (Button("Back"))
-            {
-                // -- Move Creator --
-                ResetMoveCreator();
-
-                // -- Moveset Creator --
-                ResetMovesetCreator();
-
-                // -- End --
-                activeMenu = DefaultMenu; 
-            }
-        }
-    }
-    
-    void ResetMoveCreator()
-    { 
         currentMove = null;
         moveName    = string.Empty;
-        
+
         // Reset all fields
         type      = MoveData.Type.Punch;
         direction = MoveData.Direction.Neutral;
@@ -358,7 +249,7 @@ public partial class MoveCreator : EditorWindow
         isGuardBreak = false;
     }
 
-    void CreateMove()
+    public static void CreateMove()
     {
         if (Button(new GUIContent("Create Move", "Creates the move. \nThe name of the move will be the name of the ScriptableObject.")))
         {
@@ -378,7 +269,7 @@ public partial class MoveCreator : EditorWindow
             currentMove.type      = type;
             currentMove.direction = direction;
             currentMove.guard     = guard;
-            
+
             currentMove.name      = name;
             currentMove.damage    = damage;
             currentMove.startup   = startup;
@@ -400,13 +291,14 @@ public partial class MoveCreator : EditorWindow
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
-            activeMenu = DefaultMenu;
+            CharacterMovesetCreator.activeMenu = CharacterMovesetCreator.DefaultMenu;
 
             Debug.Log($"Created currentMove \"{currentMove.name}\".");
             Selection.activeObject = currentMove;
             EditorGUIUtility.PingObject(currentMove);
 
-            createdSuccessfully = true;
+            currentMove = null;
+            CharacterMovesetCreator.createdSuccessfully = true;
         }
     }
     #endregion
