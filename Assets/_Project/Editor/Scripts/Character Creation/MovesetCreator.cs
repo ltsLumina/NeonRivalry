@@ -239,7 +239,7 @@ public static class MovesetCreator
         // We'll use this to only consider .asset files in the Assets/MoveData directory
         string[] guids = AssetDatabase.FindAssets
         ("t:MoveData", new[]
-         { "Assets/_Project/Runtime/Scripts/Player/Attacking/Scriptable Objects/Moves" });
+         { "Assets/_Project/Runtime/Scripts/Player/Combat/Scriptable Objects/Moves" });
 
         foreach (string guid in guids)
         {

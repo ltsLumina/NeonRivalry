@@ -253,7 +253,7 @@ public static class MoveCreator
         isGuardBreak = false;
     }
 
-    public static void CreateMove()
+    static void CreateMove()
     {
         if (Button(new GUIContent("Create Move", "Creates the move. \nThe name of the move will be the name of the ScriptableObject.")))
         {
@@ -261,7 +261,7 @@ public static class MoveCreator
 
             currentMove = ScriptableObject.CreateInstance<MoveData>();
 
-            const string path        = "Assets/_Project/Runtime/Scripts/Player/Attacking/Scriptable Objects/Moves";
+            const string path        = "Assets/_Project/Runtime/Scripts/Player/Combat/Scriptable Objects/Moves";
             const string defaultName = "New Move";
             string       assetName   = string.IsNullOrEmpty(name) ? defaultName : name;
 
