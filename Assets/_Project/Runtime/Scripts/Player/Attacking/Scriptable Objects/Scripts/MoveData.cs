@@ -1,6 +1,4 @@
-﻿using UnityEditor;
-using UnityEngine;
-
+﻿using UnityEngine;
 
 /// <summary>
 /// This is a ScriptableObject that represents a move (e.g. punch, kick, etc.) that can be used by the player.
@@ -61,6 +59,9 @@ public class MoveData : ScriptableObject
     [Tooltip("Name of the move.")]
     new public string name;
 
+    [Tooltip("Description of the move.")]
+    public string description;
+    
     [Tooltip("Damage caused by the move.")]
     public float damage;
 

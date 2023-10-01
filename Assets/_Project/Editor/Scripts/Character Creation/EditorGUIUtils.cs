@@ -13,6 +13,7 @@ public class EditorGUIUtils : Editor
 
     public readonly static GUIContent nameContent = new ("Name", "The name of the move. This will be the name of the ScriptableObject as well.");
     public readonly static GUIContent damageContent = new ("Damage", "The damage value of the move.");
+    public readonly static GUIContent descriptionContent = new ("Description", "The description of the move.");
     public readonly static GUIContent startupContent = new ("Startup", "The startup frames of the move.");
     public readonly static GUIContent activeContent = new ("Active", "The active frames of the move.");
     public readonly static GUIContent recoveryContent = new ("Recovery", "The recovery frames of the move.");

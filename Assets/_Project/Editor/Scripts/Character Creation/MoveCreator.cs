@@ -23,6 +23,7 @@ public static class MoveCreator
     static MoveData.Guard guard;
 
     static string name;
+    static string description;
     static float damage;
     static float startup;
     static float active;
@@ -189,12 +190,13 @@ public static class MoveCreator
                 name = moveName;
                 if (string.IsNullOrEmpty(moveName)) name = "New Move";
 
-                name      = EditorGUILayout.TextField(nameContent, name);
-                damage    = EditorGUILayout.FloatField(damageContent, damage);
-                startup   = EditorGUILayout.FloatField(startupContent, startup);
-                active    = EditorGUILayout.FloatField(activeContent, active);
-                recovery  = EditorGUILayout.FloatField(recoveryContent, recovery);
-                blockstun = EditorGUILayout.FloatField(blockstunContent, blockstun);
+                name        = EditorGUILayout.TextField(nameContent, name);
+                description = EditorGUILayout.TextField(descriptionContent, description);
+                damage      = EditorGUILayout.FloatField(damageContent, damage);
+                startup     = EditorGUILayout.FloatField(startupContent, startup);
+                active      = EditorGUILayout.FloatField(activeContent, active);
+                recovery    = EditorGUILayout.FloatField(recoveryContent, recovery);
+                blockstun   = EditorGUILayout.FloatField(blockstunContent, blockstun);
             }
         }
     }
@@ -230,12 +232,13 @@ public static class MoveCreator
         direction = MoveData.Direction.Neutral;
         guard     = MoveData.Guard.High;
 
-        name      = string.Empty;
-        damage    = 0;
-        startup   = 0;
-        active    = 0;
-        recovery  = 0;
-        blockstun = 0;
+        name        = string.Empty;
+        description = string.Empty;
+        damage      = 0;
+        startup     = 0;
+        active      = 0;
+        recovery    = 0;
+        blockstun   = 0;
 
         animation = null;
         audioClip = null;
@@ -270,12 +273,13 @@ public static class MoveCreator
             currentMove.direction = direction;
             currentMove.guard     = guard;
 
-            currentMove.name      = name;
-            currentMove.damage    = damage;
-            currentMove.startup   = startup;
-            currentMove.active    = active;
-            currentMove.recovery  = recovery;
-            currentMove.blockstun = blockstun;
+            currentMove.name        = name;
+            currentMove.description = description;
+            currentMove.damage      = damage;
+            currentMove.startup     = startup;
+            currentMove.active      = active;
+            currentMove.recovery    = recovery;
+            currentMove.blockstun   = blockstun;
 
             currentMove.animation = animation;
             currentMove.audioClip = audioClip;
