@@ -70,7 +70,7 @@ public class AttackSystem : MonoBehaviour
         MoveData selectedPunch;
         string   logMessage;
         int      animationIndex;
-
+        
         if (player.IsAirborne())
         {
             selectedPunch  = punchMoves.FirstOrDefault(punch => punch.direction == MoveData.Direction.Up);
