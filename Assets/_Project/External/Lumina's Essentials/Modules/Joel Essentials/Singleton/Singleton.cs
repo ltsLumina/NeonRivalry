@@ -63,7 +63,7 @@ public class SingletonPersistent<T> : MonoBehaviour
         if (instance == null)
         {
             instance = this as T;
-            DontDestroyOnLoad(gameObject.transform.parent);
+            DontDestroyOnLoad(transform.parent == null ? gameObject : transform.parent.gameObject);
         }
         else { Destroy(gameObject); }
     }

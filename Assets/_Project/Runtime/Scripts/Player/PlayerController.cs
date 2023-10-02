@@ -45,6 +45,7 @@ public partial class PlayerController : MonoBehaviour
     public Rigidbody Rigidbody { get; private set; }
     public InputManager InputManager { get; private set; }
     public StateMachine StateMachine { get; private set; }
+    public PlayerInput PlayerInput { get; set; }
     
     public Healthbar Healthbar
     {
@@ -55,10 +56,10 @@ public partial class PlayerController : MonoBehaviour
     void Awake()
     {
         // Get the player's rigidbody, input manager, and state machine.
-        Rigidbody        = GetComponent<Rigidbody>();
-        InputManager     = GetComponentInChildren<InputManager>();
-        StateMachine     = GetComponent<StateMachine>();
-        playerManager    = PlayerManager.Instance;
+        Rigidbody          = GetComponent<Rigidbody>();
+        InputManager       = GetComponentInChildren<InputManager>();
+        StateMachine       = GetComponent<StateMachine>();
+        playerManager      = PlayerManager.Instance;
         
         Initialize();
     }
@@ -96,12 +97,14 @@ public partial class PlayerController : MonoBehaviour
                 PlayerManager.ChangePlayerColor(this, playerManager.PlayerColors.playerOneColor);
                 PlayerManager.SetPlayerSpawnPoint(this, playerManager.PlayerSpawns.playerOneSpawnPoint);
                 PlayerManager.SetPlayerHealthbar(this, PlayerID);
+                PlayerManager.SetPlayerInput(this, PlayerManager.PlayerInputs[PlayerID - 1]);
                 break;
 
             case 2:
                 PlayerManager.ChangePlayerColor(this, playerManager.PlayerColors.playerTwoColor);
                 PlayerManager.SetPlayerSpawnPoint(this, playerManager.PlayerSpawns.playerTwoSpawnPoint);
                 PlayerManager.SetPlayerHealthbar(this, PlayerID);
+                PlayerManager.SetPlayerInput(this, PlayerManager.PlayerInputs[PlayerID - 2]);
                 break;
         }
     }
@@ -121,6 +124,11 @@ public partial class PlayerController : MonoBehaviour
 
             Debug.LogWarning(warningMessage);
         }
+    }
+
+    void OnDestroy()
+    {
+        //inputDeviceManager.OnPlayerLeft(PlayerID);
     }
 
     void Update()

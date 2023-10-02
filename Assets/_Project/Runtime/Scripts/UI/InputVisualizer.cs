@@ -2,10 +2,10 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Lumina.Debugging;
 using Lumina.Essentials.Attributes;
 using UnityEngine;
 using UnityEngine.UI;
-using Lumina.Debugging;
 #endregion
 
 public class InputVisualizer : MonoBehaviour
@@ -97,7 +97,7 @@ public class InputVisualizer : MonoBehaviour
         Vector2 targetPosition = CalculateTargetPosition(moveDirection);
 
         // Move the cursor towards the target position (plus the backgroundPos) using lerp
-        cursor.position = Vector2.Lerp(cursor.position, backgroundPosition + targetPosition * 1.75f, cursorSpeed * Time.fixedDeltaTime);
+        cursor.position = Vector2.Lerp(cursor.position, backgroundPosition + targetPosition * 0.65f, cursorSpeed * Time.fixedDeltaTime);
     }
 
     Vector2 CalculateTargetPosition(Vector2 moveDirection)

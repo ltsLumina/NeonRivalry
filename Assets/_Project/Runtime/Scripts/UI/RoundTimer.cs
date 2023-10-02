@@ -43,7 +43,7 @@ public class RoundTimer : MonoBehaviour
     public float CurrentTime
     {
         get => currentTime;
-        private set => currentTime = value;
+        set => currentTime = value;
     }
 
     void Awake()
@@ -98,7 +98,7 @@ public class RoundTimer : MonoBehaviour
     void UpdateTimerText()
     {
         TimerFormat currentTimerFormat = customFormat ? GetTimerFormat() : TimerFormat.Whole;
-        timerText.text  = CurrentTime.ToString(timeFormats[currentTimerFormat], CultureInfo.CurrentCulture);
+        timerText.text  = CurrentTime.ToString(timeFormats[currentTimerFormat], CultureInfo.InvariantCulture);
         
         timerText.color = CurrentTime <= colorSwitchValue ? Color.red : new (0.86f, 0.86f, 0.86f);
     }
