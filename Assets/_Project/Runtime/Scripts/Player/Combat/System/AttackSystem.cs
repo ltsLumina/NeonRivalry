@@ -57,6 +57,7 @@ public class AttackSystem : MonoBehaviour
         // }
     }
 
+    //TODO: Add comments.
     MoveData GetPunch(InputAction.CallbackContext context)
     {
         List<MoveData> punchMoves = activeMoveset.punchMoves;
