@@ -19,6 +19,7 @@ public class InputDeviceManager : MonoBehaviour
    void Awake()
     {
         inputManager = FindObjectOfType<PlayerInputManager>(); 
+        if (inputManager == null) Debug.LogError("No PlayerInputManager found in the scene!");
     }
 
     void Update()

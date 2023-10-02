@@ -6,7 +6,6 @@ using UnityEngine;
 /// It is used by the Moveset ScriptableObject where each move is stored in an array.
 /// This ScriptableObject is created by the MovesetCreator.cs EditorWindow.
 /// </summary>
-[CreateAssetMenu(fileName = "Move", menuName = "(Debug) Create Move", order = 0)]
 public class MoveData : ScriptableObject
 {
     public enum Type
@@ -50,7 +49,7 @@ public class MoveData : ScriptableObject
 
     [Space(10)]
     [Header("Resources")]
-    public AnimationClip animation;
+    public AnimationClip animation; // TODO: Replace this with Animator controller instead. Potentially add a list of animations as well.
     public AudioClip audioClip;
     public Sprite sprite;
     
@@ -100,7 +99,7 @@ public class MoveData : ScriptableObject
     public bool isGuardBreak;
     
     [Space(15)]
-    [Header("Move Effects")]
+    [Header("Move Effects"), Tooltip("Effects that are applied to a player when the move is performed. For instance, a move could apply a stun effect to the enemy.")]
     public List<MoveEffect> moveEffects;
 
 }

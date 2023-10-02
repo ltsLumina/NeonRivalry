@@ -218,7 +218,7 @@ public static class MovesetCreator
         }
         catch (UnityException e)
         {
-            Debug.LogError($"{FGDebugger.errorMessagePrefix} Failed to create asset. The path is probably invalid.\n{e}");
+            Debug.LogError($"{FGDebugger.errorMessagePrefix} Failed to create asset. The path in the script is probably invalid.\n{e}");
             throw;
         }
         finally

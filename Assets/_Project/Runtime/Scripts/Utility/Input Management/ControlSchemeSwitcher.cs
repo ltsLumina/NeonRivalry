@@ -27,7 +27,7 @@ public class ControlSchemeSwitcher : MonoBehaviour
         switch (currentScheme)
         {
             case "Keyboard":
-                StartCoroutine(inputDeviceSwitcher.AssignGamepadToPlayerInput(playerInput));
+                StartCoroutine(InputDeviceSwitcher.AssignGamepadToPlayerInput(playerInput));
                 Debug.LogWarning("Player " + playerToAssign + " switching to Gamepad");
                 break;
 

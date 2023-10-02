@@ -10,23 +10,25 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4c19459cfa9a40a0827e607c77b07abf, type: 3}
-  m_Name: Punch
+  m_Name: 6P
   m_EditorClassIdentifier: 
   type: 0
-  direction: 0
+  direction: 1
   guard: 2
-  animation: {fileID: 0}
+  animation: {fileID: 7400000, guid: 23c58b8c7d326eb4784ea5f18e67679e, type: 2}
   audioClip: {fileID: 0}
   sprite: {fileID: 0}
-  name: Light Punch
-  damage: 5
-  startup: 5
-  active: 2
-  recovery: 4
-  blockstun: -2
+  name: A forward facing punch.
+  description: 
+  damage: 0
+  startup: 0
+  active: 0
+  recovery: 0
+  blockstun: 0
   isAirborne: 0
   isSweep: 0
   isOverhead: 0
   isArmor: 0
   isInvincible: 0
   isGuardBreak: 0
+  moveEffects: []

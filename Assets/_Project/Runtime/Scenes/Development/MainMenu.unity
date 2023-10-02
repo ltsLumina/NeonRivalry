@@ -2352,38 +2352,6 @@ MonoBehaviour:
   m_Spacing: {x: 125, y: 125}
   m_Constraint: 2
   m_ConstraintCount: 3
---- !u!1 &974277913
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 974277914}
-  m_Layer: 0
-  m_Name: Example Player
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &974277914
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 974277913}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1552149045}
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &985257069
 GameObject:
   m_ObjectHideFlags: 0
@@ -3024,37 +2992,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 253045065}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1552149044
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1552149045}
-  m_Layer: 0
-  m_Name: AttackSystem
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1552149045
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1552149044}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 974277914}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1553915915
 GameObject:
   m_ObjectHideFlags: 0
@@ -3195,6 +3132,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player Input Manager
       objectReference: {fileID: 0}
+    - target: {fileID: 4906473736347066176, guid: 425e75e14d2476143a60228863b89d52,
+        type: 3}
+      propertyPath: m_JoinBehavior
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4906473736347066176, guid: 425e75e14d2476143a60228863b89d52,
+        type: 3}
+      propertyPath: m_PlayerPrefab
+      value: 
+      objectReference: {fileID: 785687840274375511, guid: 9c5d081e749d53848ba0933c5fa868a7,
+        type: 3}
     - target: {fileID: 4906473736347066176, guid: 425e75e14d2476143a60228863b89d52,
         type: 3}
       propertyPath: m_PlayerLeftEvent.m_PersistentCalls.m_Calls.Array.size
@@ -5554,4 +5502,3 @@ SceneRoots:
   - {fileID: 637651027}
   - {fileID: 1881130154}
   - {fileID: 12733307}
-  - {fileID: 974277914}

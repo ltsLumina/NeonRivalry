@@ -10,13 +10,12 @@ GameObject:
   m_Component:
   - component: {fileID: 7711285624575338378}
   - component: {fileID: 7972469277145718601}
-  - component: {fileID: 8292522732433229498}
   - component: {fileID: -7907636821074277119}
   - component: {fileID: 4062431423150835742}
   - component: {fileID: 703169452674830338}
   - component: {fileID: 825156129046926009}
   m_Layer: 0
-  m_Name: PlayerConfiguration
+  m_Name: UI Navigation
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -64,63 +63,15 @@ MonoBehaviour:
       m_Calls: []
   m_ActionEvents:
   - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 8292522732433229498}
-        m_TargetAssemblyTypeName: InputManager, _Project
-        m_MethodName: OnMove
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
     m_ActionId: f07bfb5e-7fa5-4ac9-8947-ce25350a348a
     m_ActionName: Player/Move[/Keyboard/w,/Keyboard/a,/Keyboard/s,/Keyboard/d,/XInputControllerWindows/dpad/up,/XInputControllerWindows/dpad/left,/XInputControllerWindows/dpad/down,/XInputControllerWindows/dpad/right,/XInputControllerWindows/leftStick/up,/XInputControllerWindows/leftStick/left,/XInputControllerWindows/leftStick/down,/XInputControllerWindows/leftStick/right,/Keyboard/upArrow,/Keyboard/leftArrow,/Keyboard/downArrow,/Keyboard/rightArrow]
   - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 8292522732433229498}
-        m_TargetAssemblyTypeName: InputManager, _Project
-        m_MethodName: OnAttack
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: AttackSystem, _Project
-        m_MethodName: OnPunch
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
     m_ActionId: d06ea25b-14b2-4b33-aa32-2aa844a8f0d8
     m_ActionName: Player/Attack[/Keyboard/rightCtrl,/Keyboard/f,/XInputControllerWindows/buttonWest]
   - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 8292522732433229498}
-        m_TargetAssemblyTypeName: InputManager, _Project
-        m_MethodName: OnJump
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
     m_ActionId: 570cd2f6-7c47-41b1-9c21-44e43b6693f0
     m_ActionName: Player/Jump[/Keyboard/upArrow,/Keyboard/w,/Keyboard/space,/XInputControllerWindows/leftStick/up,/XInputControllerWindows/dpad/up]
   - m_PersistentCalls:
@@ -192,28 +143,6 @@ MonoBehaviour:
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
---- !u!114 &8292522732433229498
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 785687840274375511}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0521fac985f046d3af0221671d71dfa1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveInput: {x: 0, y: 0}
-  runKeyModifier:
-    m_Name: Run Key Modifier
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 8e40fe1d-2fac-4bf9-a73c-2d7759b80583
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
 --- !u!114 &-7907636821074277119
 MonoBehaviour:
   m_ObjectHideFlags: 0

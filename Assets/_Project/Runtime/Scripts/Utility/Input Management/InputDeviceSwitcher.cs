@@ -5,14 +5,20 @@ using UnityEngine.InputSystem;
 
 public class InputDeviceSwitcher : MonoBehaviour
 {
-    PlayerInput playerInput;
+    // -- Fields --
+    
+    [SerializeField] PlayerInput playerInput;
+    
+     // -- Cached References --
+    
     string lastUsedControlScheme;
     
     void Awake()
     {
-        playerInput = GetComponent<PlayerInput>();
+        // In-case the serialized field is null, we can get the PlayerInput component from the parent.
+        playerInput = transform.parent.GetComponentInChildren<PlayerInput>();
         
-        // sets the initial control scheme to the currently used one
+        // Sets the initial control scheme to the currently used one
         lastUsedControlScheme = playerInput.currentControlScheme;
 
         playerInput.onControlsChanged += OnControlsChanged;
@@ -37,7 +43,7 @@ public class InputDeviceSwitcher : MonoBehaviour
         if (device != null) { playerInput.SwitchCurrentControlScheme(scheme, device); }
     }
 
-    public IEnumerator AssignGamepadToPlayerInput(PlayerInput input)
+    public static IEnumerator AssignGamepadToPlayerInput(PlayerInput input)
     {
         Gamepad device = null;
 
