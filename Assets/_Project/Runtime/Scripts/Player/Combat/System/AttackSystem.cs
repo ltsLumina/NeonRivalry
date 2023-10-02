@@ -97,13 +97,23 @@ public class AttackSystem : MonoBehaviour
                 animationIndex = 3;
             }
         }
-
+        
         if (selectedPunch != null)
         {
             PlayAnimation(selectedPunch, animationIndex);
+
+            if (selectedPunch.moveEffects == null) return selectedPunch;
+            
+            // Iterate through the move effects and apply them to the player
+            foreach (var effect in selectedPunch.moveEffects)
+            {
+                //effect.ApplyEffect(abilities);
+                Debug.Log("Applied effect: " + effect.name);
+            }
+            
             Debug.Log(logMessage);
         }
-
+        
         return selectedPunch;
     }
 
