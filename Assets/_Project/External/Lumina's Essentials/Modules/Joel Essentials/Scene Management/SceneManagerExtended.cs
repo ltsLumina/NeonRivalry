@@ -79,7 +79,7 @@ public static class SceneManagerExtended
     {
         if (buildIndex < 0 || buildIndex >= SceneManager.sceneCountInBuildSettings)
         {
-            Debug.LogWarning("BuildIndex invalid/unavailable. Loading scene with an index of 0...");
+            Debug.LogWarning("BuildIndex invalid/unavailable. Loading scene with an index of 0...\nYou are probably missing a scene in the build settings.");
             buildIndex = 0;
         }
 

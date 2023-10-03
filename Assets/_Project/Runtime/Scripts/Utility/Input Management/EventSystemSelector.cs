@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Lumina.Essentials.Attributes;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -31,7 +32,7 @@ public class EventSystemSelector : MonoBehaviour
         
         localPlayerID = playerInput.playerIndex + 1;
 
-        if (localPlayerID == 2 && (sceneName == "MainMenu" || sceneIndex == 0))
+        if (localPlayerID == 2 && IsNotSuppoertedForPlayer2(sceneName, sceneIndex))
         {
             Debug.LogWarning("Player 2 is not supported in this scene.");
             return;
@@ -42,31 +43,35 @@ public class EventSystemSelector : MonoBehaviour
         ProcessButton(button);
     }
 
+    static bool IsNotSuppoertedForPlayer2(string sceneName, int sceneIndex)
+    {
+        List<string> nonSupportedScenes = new() { "Intro", "MainMenu" };
+
+        return nonSupportedScenes.Contains(sceneName) || sceneIndex == 0 || sceneIndex == 1;
+    }
+
     GameObject FindButtonBySceneName(string sceneName) => sceneName switch
-    { "MainMenu"        => // MainMenu
-          localPlayerID == 1 ? GameObject.Find("Play") : null,
-      
+    { "Intro" => // Intro
+          localPlayerID == 0 ? GameObject.Find("Press any button!") : null,
+      "MainMenu" => // MainMenu
+          localPlayerID == 0 ? GameObject.Find("Play") : null,
       "CharacterSelect" => // Character Select
-          GameObject.Find($"Reaper (Player {localPlayerID})"),
-      
-      "Game"            => // Game 
-          localPlayerID == 1 ? GameObject.Find("Rematch Button (Player 1)") : null,
-      
-      _                 => null }; 
+          GameObject.Find($"Reaper (Player {localPlayerID ++})"),
+      "Game" => // Game 
+          localPlayerID == 0 ? GameObject.Find("Rematch Button (Player 1)") : null,
+      _ => null };
 
     GameObject FindButtonBySceneIndex(int sceneIndex) => sceneIndex switch
-    { 0 => // MainMenu
-          localPlayerID == 1 ? GameObject.Find("Play") : null,
-      
-      1 => // Character Select
-          GameObject.Find($"Reaper (Player {localPlayerID})"),
-      
-      2 => // Game 
-          localPlayerID == 1 ? GameObject.Find("Debug Button") : null,
-      
-      _ => null 
-    };
-    
+    { 0 => // Intro
+          localPlayerID == 0 ? GameObject.Find("Press any button!") : null,
+      1 => // MainMenu
+          localPlayerID == 0 ? GameObject.Find("Play") : null,
+      2 => // Character Select
+          GameObject.Find($"Reaper (Player {localPlayerID ++})"),
+      3 => // Game 
+          localPlayerID == 0 ? GameObject.Find("Debug Button") : null,
+      _ => null };
+
     void ProcessButton(GameObject button)
     {
         if (button == null)
@@ -82,6 +87,7 @@ public class EventSystemSelector : MonoBehaviour
             eventSystem.firstSelectedGameObject = firstSelected.gameObject;
     }
     
+    // Debug button.
     public void OnPressButton()
     {
         Debug.Log($"Player {localPlayerID} pressed a button using \"{playerInput.currentControlScheme}\" control scheme!");
