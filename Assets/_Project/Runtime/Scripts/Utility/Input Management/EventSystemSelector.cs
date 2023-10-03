@@ -18,8 +18,9 @@ public class EventSystemSelector : MonoBehaviour
     MultiplayerEventSystem eventSystem;
     Button firstSelected;
 
-    // In-case the serialized field is null, we can get the PlayerInput component from the parent.
-    void Awake() => playerInput = transform.parent.GetComponentInChildren<PlayerInput>();
+    // In the case of the Menu Navigator game object, the PlayerInput is tied to this game object.
+    // The Player's UI Navigator, however, is childed to the Player's game object.
+    void Awake() => playerInput = GetComponent<PlayerInput>();
 
     void OnEnable()
     {

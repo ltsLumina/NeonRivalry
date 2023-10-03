@@ -14,12 +14,12 @@ public class InputDeviceManager : MonoBehaviour
     public Dictionary<InputDevice, int> PlayerDevices => playerDevices;
     
     // -- Cached References --
-    PlayerInputManager inputManager;
+    PlayerInputManager playerInputManager;
 
    void Awake()
     {
-        inputManager = FindObjectOfType<PlayerInputManager>(); 
-        if (inputManager == null) Debug.LogError("No PlayerInputManager found in the scene!");
+        playerInputManager = FindObjectOfType<PlayerInputManager>(); 
+        if (playerInputManager == null) Debug.LogError("No PlayerInputManager found in the scene!");
     }
 
     void Update()
@@ -43,17 +43,17 @@ public class InputDeviceManager : MonoBehaviour
         if (device == null || playerDevices.ContainsKey(device)) return;
 
         // Ignore the join request if there are already 2 players
-        if (inputManager.playerCount >= 2) return;
+        if (playerInputManager.playerCount >= 2) return;
 
         // At this point, the device is not associated with any player and there are less than 2 players
         // Therefore, associate the device with the current player count and join the player
-        playerDevices[device] = inputManager.playerCount;
+        playerDevices[device] = playerInputManager.playerCount;
 
         // Determine control scheme based on type of device
         string controlScheme = device is Keyboard ? "Keyboard" : "Gamepad";
 
         // Set Control Scheme
-        inputManager.JoinPlayer(playerDevices[device], -1, controlScheme);
+        playerInputManager.JoinPlayer(playerDevices[device], -1, controlScheme);
 
         Debug.Log($"Player {playerDevices[device] + 1} joined using {controlScheme} control scheme!");
     }
@@ -62,23 +62,23 @@ public class InputDeviceManager : MonoBehaviour
     public void JoinPlayerCharacter(GameObject playerPrefab)
     {
         // Get the currently active device
-        InputDevice device = playerDevices.FirstOrDefault(p => p.Value == inputManager.playerCount).Key;
+        InputDevice device = playerDevices.FirstOrDefault(p => p.Value == playerInputManager.playerCount).Key;
 
         // If no active device or if the device is already associated with a player, ignore the join request
         if (device == null || playerDevices.ContainsKey(device)) return;
 
         // Ignore the join request if there are already 2 players
-        if (inputManager.playerCount >= 2) return;
+        if (playerInputManager.playerCount >= 2) return;
 
         // At this point, the device is not associated with any player and there are less than 2 players
         // Therefore, associate the device with the current player count and join the player
-        playerDevices[device] = inputManager.playerCount;
+        playerDevices[device] = playerInputManager.playerCount;
 
         // Determine control scheme based on type of device
         string controlScheme = device is Keyboard ? "Keyboard" : "Gamepad";
 
         // Set Control Scheme
-        //inputManager.JoinPlayer(playerDevices[device], -1, controlScheme, device);
+        //playerInputManager.JoinPlayer(playerDevices[device], -1, controlScheme, device);
         PlayerInput.Instantiate(playerPrefab, playerDevices[device], controlScheme, -1, device);
 
         Debug.Log($"Player {playerDevices[device] + 1} joined using {controlScheme} control scheme!");

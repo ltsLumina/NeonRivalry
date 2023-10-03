@@ -17,7 +17,6 @@ public class InputManager : MonoBehaviour
     // Cached References
     PlayerController player;
     StateMachine stateMachine;
-    PlayerInput playerInput;
 
     // Serialized InputAction. Must be public as it can't be serialized through [SerializeField].
     public InputAction runKeyModifier;
@@ -39,6 +38,8 @@ public class InputManager : MonoBehaviour
     {
         player       = GetComponentInParent<PlayerController>();
         stateMachine = player.GetComponent<StateMachine>();
+        
+        // Disable the PlayerInput on the UI Navigation 
     }
 
     void Update()
