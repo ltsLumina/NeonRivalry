@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Lumina.Essentials.Attributes;
@@ -33,31 +34,28 @@ public class AttackSystem : MonoBehaviour
         animator = transform.parent.GetComponentInChildren<Animator>();
     }
 
-    // This method will be called by an animation event in the player's animation controller.
-    // When the player attacks (presses an attack input), they enter the attack state and then depending on if OnPunch, OnKick etc. was called, the corresponding move will be performed
-    // by calling this method.
-    // For instance, OnPunch will call PerformMove(currentMove.punchMoves[GetPunch()], abilities) where GetPunch() returns an index depending on if the player is pressing Up, Down, Forward or Neutral.
-    // among a few other things such as if the player is airborne or not.
+    /// <summary>
+    /// Called by the <see cref="PlayerInput"/> component when the player presses a punch button.
+    /// </summary>
+    /// <param name="context"> The context of the input action. </param>
     public void OnPunch(InputAction.CallbackContext context)
     {
-        //if (move == null) return;
-
         // Check which move was performed.
         // For instance, if the player pressed 6P, then the move that will be performed is the second move in the punchMoves list.
         CurrentMove = GetPunch(context);
-
-        // Apply effect(s)
-        // if (abilities == null) return;
-        //
-        // foreach (var effect in CurrentMove.moveEffects)
-        // {
-        //     // Apply the effect to the player.
-        //     // The effect could be something like "Teleport" or "Stun" or "Heal".
-        //     effect.ApplyEffect(abilities);
-        // }
     }
 
-    //TODO: Add comments.
+    /// <summary>
+    ///     Returns the move that corresponds to the direction that the player is pressing.
+    ///     <para></para>
+    ///     If the player is not airborne,
+    ///     the move that will be performed is the move that corresponds to the direction that the player is pressing.
+    /// </summary>
+    /// <param name="context"> The context of the input action.
+    ///     <para>Used to execute the action that corresponds to the direction that the player is pressing.</para>
+    /// </param>
+    /// <returns> The move that corresponds to the direction that the player is pressing. </returns>
+    /// <example> If the player is pressing Up, then the move that will be performed is the "Up" move. </example>
     MoveData GetPunch(InputAction.CallbackContext context)
     {
         List<MoveData> punchMoves = activeMoveset.punchMoves;
@@ -66,58 +64,82 @@ public class AttackSystem : MonoBehaviour
 
         if (!context.started) return null;
 
-        Vector2  input = player.InputManager.MoveInput;
-        MoveData selectedPunch;
-        string   logMessage;
-        int      animationIndex;
-        
-        if (player.IsAirborne())
-        {
-            selectedPunch  = punchMoves.FirstOrDefault(punch => punch.direction == MoveData.Direction.Up);
-            logMessage     = "Up move performed.";
-            animationIndex = 2;
-        }
-        else
-        {
-            if (input == Vector2.zero)
-            {
-                selectedPunch  = punchMoves.FirstOrDefault(punch => punch.direction == MoveData.Direction.Neutral);
-                logMessage     = "Neutral move performed.";
-                animationIndex = 0;
-            }
-            else if (input.x != 0)
-            {
-                selectedPunch  = punchMoves.FirstOrDefault(punch => punch.direction == MoveData.Direction.Forward);
-                logMessage     = "Forward move performed.";
-                animationIndex = 1;
-            }
-            else
-            {
-                selectedPunch  = punchMoves.FirstOrDefault(punch => punch.direction == MoveData.Direction.Down);
-                logMessage     = "Down move performed.";
-                animationIndex = 3;
-            }
-        }
-        
-        if (selectedPunch != null)
-        {
-            PlayAnimation(selectedPunch, animationIndex);
+        // Define mapping from direction to action.
+        // This mapping defines what action should be performed when a certain direction is pressed.
+        Dictionary<MoveData.Direction, (Action<MoveData> action, string logMessage, int animationIndex)> directionToActionMap = new()
+        { { MoveData.Direction.Neutral, (null, "Neutral move performed.", 0) },
+          { MoveData.Direction.Forward, (null, "Forward move performed.", 1) },
+          { MoveData.Direction.Down, (null, "Down move performed.", 3) },
+          { MoveData.Direction.Up, (null, "Up move performed.", 2) } };
 
-            if (selectedPunch.moveEffects == null) return selectedPunch;
-            
-            // Iterate through the move effects and apply them to the player
+        // Reference to the player's input.
+        Vector2 input = player.InputManager.MoveInput;
+        
+        // If the player is airborne, the move that will be performed is the "Up" move.
+        MoveData.Direction directionToPerform = player.IsAirborne() 
+            ? MoveData.Direction.Up 
+            : GetDirectionFromInput(input);
+
+        // Get the move that corresponds to the direction that the player is pressing.
+        MoveData selectedPunch = punchMoves.FirstOrDefault(punch => punch.direction == directionToPerform);
+
+        PerformPunch(selectedPunch, directionToActionMap, directionToPerform);
+
+        return selectedPunch;
+    }
+
+    /// <summary>
+    ///     Performs the selected punch action based on the given direction.
+    ///     Also handles the animation and applying move effects.
+    /// </summary>
+    /// <param name="selectedPunch">The MoveData instance representing the punch to perform.</param>
+    /// <param name="directionToActionMap">
+    ///     A dictionary that maps a direction key to a tuple containing an action to perform, a
+    ///     log message, and an animation index.
+    /// </param>
+    /// <param name="directionToPerform">The direction in which to perform the punch.</param>
+    void PerformPunch(MoveData selectedPunch, IReadOnlyDictionary<MoveData.Direction, (Action<MoveData> action, string logMessage, int animationIndex)> directionToActionMap, MoveData.Direction directionToPerform)
+    {
+        // Execute the action that corresponds to the direction that the player is pressing.
+        if (selectedPunch == null) return;
+
+        // Play the animation which handles all logic for the move, such as hitboxes, hurtboxes, etc.
+        PlayAnimation(selectedPunch, directionToActionMap[directionToPerform].animationIndex);
+
+        // Apply the move effects, if any.
+        if (selectedPunch.moveEffects != null)
+        {
+            // Iterate through the move effects and apply them to the player, if any.
             foreach (var effect in selectedPunch.moveEffects)
             {
                 //effect.ApplyEffect(abilities);
                 Debug.Log("Applied effect: " + effect.name);
             }
-            
-            Debug.Log(logMessage);
         }
-        
-        return selectedPunch;
+
+        // Log the action that was performed.
+        Debug.Log(directionToActionMap[directionToPerform].logMessage);
     }
 
+    /// <summary>
+    ///     Returns the direction that the player is pressing.
+    ///     Does not include the "Up" direction as that is handled separately.
+    ///     <see cref="GetPunch" /> for more information.
+    /// </summary>
+    /// <param name="input"> The player's input. </param>
+    /// <returns> The direction that the player is pressing. </returns>
+    static MoveData.Direction GetDirectionFromInput(Vector2 input)
+    {
+        // If the player is not inputting a direction, the move that will be performed is the "Neutral" move.
+        if (input == Vector2.zero) return MoveData.Direction.Neutral;
+
+        // If the player is inputting a direction, execute the action that corresponds to the direction that the player is pressing.
+        return input.x != 0
+            ? MoveData.Direction.Forward 
+            : MoveData.Direction.Down;
+    }
+
+    // If the player is inputting down, the move that will be performed is the "Down" move.
     void PlayAnimation(MoveData move, int index)
     {
         // Play animation
