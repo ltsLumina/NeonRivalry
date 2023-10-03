@@ -58,6 +58,7 @@ public class InputDeviceManager : MonoBehaviour
         Debug.Log($"Player {playerDevices[device] + 1} joined using {controlScheme} control scheme!");
     }
 
+    //TODO: Doesn't seem like this is actually needed.
     public void JoinPlayerCharacter(GameObject playerPrefab)
     {
         // Get the currently active device
