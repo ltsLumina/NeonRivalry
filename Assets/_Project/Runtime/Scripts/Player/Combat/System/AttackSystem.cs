@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Lumina.Essentials.Attributes;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[Obsolete("This class is deprecated. Please use the AttackState class instead.")]
+//TODO: This class will be repurposed to handle the attacking logic. (Non-mono behaviour) Essentially a wrapper for the AttackState class.
 public class AttackSystem : MonoBehaviour
 {
     // -- Fields --
