@@ -22,11 +22,14 @@ public class AttackState : State
     float airborneAttackTimer;
     float airborneAttackDuration;
 
+    Animator animator;
+    
     // -- Constructor --
     public AttackState(PlayerController player, AttackStateData stateData) : base(player)
     {
         groundedAttackDuration = stateData.AttackDuration;
         airborneAttackDuration = stateData.AttackDuration; //TODO Swap out variables
+        animator               = player.GetComponentInChildren<Animator>();
     }
 
     public override bool CanBeInterrupted()
@@ -52,7 +55,7 @@ public class AttackState : State
         if (!IsAirborne)
         {
             // If the attack duration has not been reached, continue attacking.
-            if (groundedAttackTimer < groundedAttackDuration)
+            if (groundedAttackTimer < animator.GetCurrentAnimatorStateInfo(0).length)
             {
                 groundedAttackTimer += Time.fixedDeltaTime;
 
@@ -65,7 +68,7 @@ public class AttackState : State
         }
         else // Player is airborne, perform airborne attack.
         {
-            if (airborneAttackTimer < airborneAttackDuration)
+            if (airborneAttackTimer < animator.GetCurrentAnimatorStateInfo(0).length)
             {
                 airborneAttackTimer += Time.fixedDeltaTime;
 
