@@ -10,10 +10,16 @@ public class AttackSystem : MonoBehaviour
     // -- Fields --
     
     [SerializeField] Moveset activeMoveset;
-    [SerializeField, ReadOnly] MoveData currentMove;
 
     PlayerController player;
     Animator animator;
+
+    readonly static Dictionary<MoveData.Direction, (Action<MoveData> action, string logMessage, int animationIndex)> directionToActionMap = new ()
+    { { MoveData.Direction.Neutral, (null, "Neutral move performed.", 0) },
+      { MoveData.Direction.Forward, (null, "Forward move performed.", 1) },
+      { MoveData.Direction.Up, (null, "Up move performed.", 2) },
+      { MoveData.Direction.Down, (null, "Down move performed.", 3) } 
+    };
     
     // -- Properties --
     
@@ -21,11 +27,6 @@ public class AttackSystem : MonoBehaviour
     {
         get => activeMoveset;
         set => activeMoveset = value;
-    }
-    public MoveData CurrentMove
-    {
-        get => currentMove;
-        set => currentMove = value;
     }
 
     void Awake()
@@ -41,8 +42,8 @@ public class AttackSystem : MonoBehaviour
     public void OnPunch(InputAction.CallbackContext context)
     {
         // Check which move was performed.
-        // For instance, if the player pressed 6P, then the move that will be performed is the second move in the punchMoves list.
-        CurrentMove = GetPunch(context);
+        // For instance, if the player pressed the "Punch" button (e.g. "X" on a controller), then the "Punch" move will be performed.
+        GetPunch(context);
     }
 
     /// <summary>
@@ -56,21 +57,13 @@ public class AttackSystem : MonoBehaviour
     /// </param>
     /// <returns> The move that corresponds to the direction that the player is pressing. </returns>
     /// <example> If the player is pressing Up, then the move that will be performed is the "Up" move. </example>
-    MoveData GetPunch(InputAction.CallbackContext context)
+    void GetPunch(InputAction.CallbackContext context)
     {
+        if (!context.started) return;
+        
         List<MoveData> punchMoves = activeMoveset.punchMoves;
 
         if (punchMoves.Exists(punch => punch.type != MoveData.Type.Punch)) Debug.LogWarning("One or more punch moves are not of type \"Punch\".");
-
-        if (!context.started) return null;
-
-        // Define mapping from direction to action.
-        // This mapping defines what action should be performed when a certain direction is pressed.
-        Dictionary<MoveData.Direction, (Action<MoveData> action, string logMessage, int animationIndex)> directionToActionMap = new()
-        { { MoveData.Direction.Neutral, (null, "Neutral move performed.", 0) },
-          { MoveData.Direction.Forward, (null, "Forward move performed.", 1) },
-          { MoveData.Direction.Down, (null, "Down move performed.", 3) },
-          { MoveData.Direction.Up, (null, "Up move performed.", 2) } };
 
         // Reference to the player's input.
         Vector2 input = player.InputManager.MoveInput;
@@ -83,9 +76,7 @@ public class AttackSystem : MonoBehaviour
         // Get the move that corresponds to the direction that the player is pressing.
         MoveData selectedPunch = punchMoves.FirstOrDefault(punch => punch.direction == directionToPerform);
 
-        PerformPunch(selectedPunch, directionToActionMap, directionToPerform);
-
-        return selectedPunch;
+        PerformPunch(selectedPunch, directionToPerform);
     }
 
     /// <summary>
@@ -98,7 +89,7 @@ public class AttackSystem : MonoBehaviour
     ///     log message, and an animation index.
     /// </param>
     /// <param name="directionToPerform">The direction in which to perform the punch.</param>
-    void PerformPunch(MoveData selectedPunch, IReadOnlyDictionary<MoveData.Direction, (Action<MoveData> action, string logMessage, int animationIndex)> directionToActionMap, MoveData.Direction directionToPerform)
+    void PerformPunch(MoveData selectedPunch, MoveData.Direction directionToPerform)
     {
         // Execute the action that corresponds to the direction that the player is pressing.
         if (selectedPunch == null) return;
