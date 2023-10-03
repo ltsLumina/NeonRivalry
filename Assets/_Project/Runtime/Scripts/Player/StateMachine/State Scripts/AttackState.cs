@@ -68,10 +68,20 @@ public class AttackState : State
             {
                 groundedAttackTimer += Time.fixedDeltaTime;
 
-                if (player.IsGrounded()) FGDebugger.Debug("Attacking on the ground!", LogType.Log, StateType.Attack);
-
-                // Play ground attack animation and logic.
-                else IsAirborne = true;
+                if (player.IsGrounded())
+                {
+                    FGDebugger.Debug("Attacking on the ground!", LogType.Log, StateType.Attack);
+                    
+                }
+                // Player has become airborne after starting the attack, cancel the attack. (e.g. player gets knocked into the air) 
+                else
+                {
+                    IsAirborne = true;
+                    FGDebugger.Debug("Player has been knocked into the air! \nCancelling the attack...", LogType.Log, StateType.Attack);
+                    
+                    // Cancel the attack.
+                    OnExit();
+                }
             }
             else { OnExit(); }
         }
@@ -188,7 +198,9 @@ public class AttackState : State
 
     public override void OnExit() 
     {
-        //TransitionTo(player.InputManager.MoveInput.x != 0 ? StateType.Walk : StateType.Idle);
+        // Cancel the animation if it is still playing.
+        animator.Play("Idle");
+        
         player.StateMachine.TransitionToState(player.InputManager.MoveInput.x != 0 ? StateType.Walk : StateType.Idle);
         IsAttacking = false;
     }

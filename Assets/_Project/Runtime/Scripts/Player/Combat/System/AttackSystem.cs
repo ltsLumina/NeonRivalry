@@ -18,8 +18,8 @@ public class AttackSystem : MonoBehaviour
     readonly static Dictionary<MoveData.Direction, (Action<MoveData> action, string logMessage, int animationIndex)> directionToActionMap = new ()
     { { MoveData.Direction.Neutral, (null, "Neutral move performed.", 0) },
       { MoveData.Direction.Forward, (null, "Forward move performed.", 1) },
-      { MoveData.Direction.Up, (null, "Up move performed.", 2) },
-      { MoveData.Direction.Down, (null, "Down move performed.", 3) } 
+      { MoveData.Direction.Up,      (null, "Up move performed.", 2) },
+      { MoveData.Direction.Down,    (null, "Down move performed.", 3) } 
     };
     
     // -- Properties --
