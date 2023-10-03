@@ -19,7 +19,7 @@ public class EventSystemSelector : MonoBehaviour
     Button firstSelected;
 
     // In-case the serialized field is null, we can get the PlayerInput component from the parent.
-    void Awake() => playerInput = GetComponent<PlayerInput>();
+    void Awake() => playerInput = transform.parent.GetComponentInChildren<PlayerInput>();
 
     void OnEnable()
     {

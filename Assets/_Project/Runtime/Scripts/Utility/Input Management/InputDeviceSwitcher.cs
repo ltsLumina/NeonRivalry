@@ -16,7 +16,7 @@ public class InputDeviceSwitcher : MonoBehaviour
     void Awake()
     {
         // In-case the serialized field is null, we can get the PlayerInput component from the parent.
-        playerInput = GetComponent<PlayerInput>();
+        playerInput = transform.parent.GetComponentInChildren<PlayerInput>();
         
         // Sets the initial control scheme to the currently used one
         lastUsedControlScheme = playerInput.currentControlScheme;
