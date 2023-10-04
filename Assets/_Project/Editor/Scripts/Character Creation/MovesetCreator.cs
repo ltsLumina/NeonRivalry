@@ -10,7 +10,7 @@ public static class MovesetCreator
     // -- Fields --
 
     static Moveset currentMoveset;
-    public static string movesetName;
+    static string movesetName;
 
     // Dictionary of known moves by type
     readonly static Dictionary<string, List<MoveData>> existingMoves = new ();
