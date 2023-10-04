@@ -32,11 +32,14 @@ public class InputDeviceManager : MonoBehaviour
     void Update()
     {
         // if scene is character select or main menu
-        if (SceneManager.GetActiveScene().buildIndex == 0 || SceneManager.GetActiveScene().buildIndex == 1 || SceneManager.GetActiveScene().buildIndex == 2) //TODO: temporary
+        if (SceneManager.GetActiveScene().buildIndex != 3) //TODO: temporary
         {
             if (!DeviceSwitchPrompt.IsWaitingForInput)
             {
-                if (Keyboard.current.spaceKey.wasPressedThisFrame || Gamepad.current != null && Gamepad.current.startButton.wasPressedThisFrame) { JoinPlayerConfig(); }
+                if (Keyboard.current.spaceKey.wasPressedThisFrame || (Gamepad.current != null && Gamepad.current.startButton.wasPressedThisFrame))
+                {
+                    JoinPlayerConfig(); 
+                }
             }
         } 
     }

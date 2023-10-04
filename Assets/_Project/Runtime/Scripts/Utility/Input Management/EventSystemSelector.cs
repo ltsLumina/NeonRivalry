@@ -23,53 +23,53 @@ public class EventSystemSelector : MonoBehaviour
     // The Player's UI Navigator, however, is childed to the Player's game object.
     void Awake() => playerInput = GetComponent<PlayerInput>();
 
-    void OnEnable()
+    void Update()
     {
         string sceneName  = SceneManager.GetActiveScene().name;
         int sceneIndex = SceneManager.GetActiveScene().buildIndex;
 
-        if (sceneName == "Game" || sceneIndex == 2) return;
+        if (sceneName == "Game" || sceneIndex == 3) return;
         
         localPlayerID = playerInput.playerIndex + 1;
 
-        if (localPlayerID == 2 && IsNotSuppoertedForPlayer2(sceneName, sceneIndex))
+        if (localPlayerID == 2 && IsNotSupportedForPlayer2(sceneName, sceneIndex))
         {
             Debug.LogWarning("Player 2 is not supported in this scene.");
             return;
         }
-        
-        GameObject button = FindButtonBySceneName(sceneName) ?? FindButtonBySceneIndex(sceneIndex);
+
+        GameObject button = FindButtonBySceneIndex(sceneIndex) ?? FindButtonBySceneName(sceneName);
         
         ProcessButton(button);
     }
 
-    static bool IsNotSuppoertedForPlayer2(string sceneName, int sceneIndex)
+    static bool IsNotSupportedForPlayer2(string sceneName, int sceneIndex)
     {
         List<string> nonSupportedScenes = new() { "Intro", "MainMenu" };
 
         return nonSupportedScenes.Contains(sceneName) || sceneIndex == 0 || sceneIndex == 1;
     }
 
-    GameObject FindButtonBySceneName(string sceneName) => sceneName switch
-    { "Intro" => // Intro
-          localPlayerID == 0 ? GameObject.Find("Press any button!") : null,
-      "MainMenu" => // MainMenu
-          localPlayerID == 0 ? GameObject.Find("Play") : null,
-      "CharacterSelect" => // Character Select
-          GameObject.Find($"Reaper (Player {localPlayerID ++})"),
-      "Game" => // Game 
-          localPlayerID == 0 ? GameObject.Find("Rematch Button (Player 1)") : null,
-      _ => null };
-
     GameObject FindButtonBySceneIndex(int sceneIndex) => sceneIndex switch
     { 0 => // Intro
-          localPlayerID == 0 ? GameObject.Find("Press any button!") : null,
+          localPlayerID == 1 ? GameObject.Find("Press any button!") : null,
       1 => // MainMenu
-          localPlayerID == 0 ? GameObject.Find("Play") : null,
+          localPlayerID == 1 ? GameObject.Find("Play") : null,
       2 => // Character Select
-          GameObject.Find($"Reaper (Player {localPlayerID ++})"),
+          GameObject.Find($"Reaper (Player {localPlayerID})"),
       3 => // Game 
-          localPlayerID == 0 ? GameObject.Find("Debug Button") : null,
+          localPlayerID == 1 ? GameObject.Find("Debug Button") : null,
+      _ => null };
+
+    GameObject FindButtonBySceneName(string sceneName) => sceneName switch
+    { "Intro" => // Intro
+          localPlayerID == 1 ? GameObject.Find("Press any button!") : null,
+      "MainMenu" => // MainMenu
+          localPlayerID == 1 ? GameObject.Find("Play") : null,
+      "CharacterSelect" => // Character Select
+          GameObject.Find($"Reaper (Player {localPlayerID})"),
+      "Game" => // Game 
+          localPlayerID == 1 ? GameObject.Find("Rematch Button (Player 1)") : null,
       _ => null };
 
     void ProcessButton(GameObject button)
