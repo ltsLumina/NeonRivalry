@@ -50,33 +50,55 @@ public class EventSystemSelector : MonoBehaviour
         return nonSupportedScenes.Contains(sceneName) || sceneIndex == 0 || sceneIndex == 1;
     }
 
-    GameObject FindButtonBySceneIndex(int sceneIndex) => sceneIndex switch
-    { 0 => // Intro
-          localPlayerID == 1 ? GameObject.Find("Press any button!") : null,
-      1 => // MainMenu
-          localPlayerID == 1 ? GameObject.Find("Play") : null,
-      2 => // Character Select
-          GameObject.Find($"Reaper (Player {localPlayerID})"),
-      3 => // Game 
-          localPlayerID == 1 ? GameObject.Find("Debug Button") : null,
-      _ => null };
+    GameObject FindButtonBySceneIndex(int sceneIndex)
+    {
+        switch (sceneIndex)
+        {
+            case 0: // Intro
+                Debug.LogWarning("There is no button to find in the 'Intro' scene. Returning null. (This is not an error)");
+                return null;
 
-    GameObject FindButtonBySceneName(string sceneName) => sceneName switch
-    { "Intro" => // Intro
-          localPlayerID == 1 ? GameObject.Find("Press any button!") : null,
-      "MainMenu" => // MainMenu
-          localPlayerID == 1 ? GameObject.Find("Play") : null,
-      "CharacterSelect" => // Character Select
-          GameObject.Find($"Reaper (Player {localPlayerID})"),
-      "Game" => // Game 
-          localPlayerID == 1 ? GameObject.Find("Rematch Button (Player 1)") : null,
-      _ => null };
+            case 1: // MainMenu
+                return localPlayerID == 1 ? GameObject.Find("Play") : null;
+
+            case 2: // Character Select
+                return GameObject.Find($"Reaper (Player {localPlayerID})");
+
+            case 3: // Game 
+                return localPlayerID == 1 ? GameObject.Find("Debug Button") : null;
+
+            default:
+                return null;
+        }
+    }
+
+    GameObject FindButtonBySceneName(string sceneName)
+    {
+        switch (sceneName)
+        {
+            case "Intro": // Intro
+                Debug.LogWarning("There is no button to find in the 'Intro' scene. Returning null. (This is not an error)");
+                return null;
+
+            case "MainMenu": // MainMenu
+                return localPlayerID == 1 ? GameObject.Find("Play") : null;
+
+            case "CharacterSelect": // Character Select
+                return GameObject.Find($"Reaper (Player {localPlayerID})");
+
+            case "Game": // Game 
+                return localPlayerID == 1 ? GameObject.Find("Rematch Button (Player 1)") : null;
+
+            default:
+                return null;
+        }
+    }
 
     void ProcessButton(GameObject button)
     {
         if (button == null)
         {
-            Debug.LogError("No button was found in this scene. (Scene name and index failed to return a button).");
+            Debug.LogWarning("No button was found in this scene. (Scene name and index failed to return a button).");
             return;
         }
 

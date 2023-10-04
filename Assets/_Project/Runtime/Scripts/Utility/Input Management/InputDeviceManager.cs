@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Lumina.Essentials.Sequencer;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -31,15 +32,11 @@ public class InputDeviceManager : MonoBehaviour
    
     void Update()
     {
-        // if scene is character select or main menu
-        if (SceneManager.GetActiveScene().buildIndex != 3) //TODO: temporary
+        if (SceneManager.GetActiveScene().buildIndex == 0) //TODO: temporary
         {
-            if (!DeviceSwitchPrompt.IsWaitingForInput)
+            if (Keyboard.current.anyKey.wasPressedThisFrame || (Gamepad.current != null && Gamepad.current.startButton.wasPressedThisFrame))
             {
-                if (Keyboard.current.spaceKey.wasPressedThisFrame || (Gamepad.current != null && Gamepad.current.startButton.wasPressedThisFrame))
-                {
-                    JoinPlayerConfig(); 
-                }
+                JoinPlayerConfig();
             }
         } 
     }
@@ -48,6 +45,8 @@ public class InputDeviceManager : MonoBehaviour
     {
         InputDevice device = GetActiveDevice();
         if (device == null || playerDevices.ContainsKey(device) || playerInputManager.playerCount >= 2) return;
+
+        RumbleSequence();
         
         playerDevices[device] = playerInputManager.playerCount;
         // Also update the device to be persistent in next scenes
@@ -58,12 +57,24 @@ public class InputDeviceManager : MonoBehaviour
 
         Debug.Log($"Player {playerDevices[device] + 1} joined using {controlScheme} control scheme!");
     }
-   
+
     static InputDevice GetActiveDevice()
     {
         if (Keyboard.current != null && Keyboard.current.wasUpdatedThisFrame) return Keyboard.current;
         if (Gamepad.current != null && Gamepad.current.wasUpdatedThisFrame) return Gamepad.current;
         return null;
+    }
+    
+    void RumbleSequence()
+    {
+        const float rumbleDuration = 0.5f;
+        var rumbleFrequency = Mathf.Lerp(0.2f, 0.5f, rumbleDuration);
+        
+        // Rumble the controller that joined for 'duration' time.
+        var rumbleSequence = new Sequence(this);
+        rumbleSequence
+           .Execute(() => Gamepad.current?.SetMotorSpeeds(rumbleFrequency, 0))
+           .WaitThenExecute(rumbleDuration, () => Gamepad.current?.SetMotorSpeeds(0, 0));
     }
 
     public void OnPlayerLeft(int playerIndex)

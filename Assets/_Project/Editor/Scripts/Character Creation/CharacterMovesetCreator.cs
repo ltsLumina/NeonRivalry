@@ -94,12 +94,50 @@ public class CharacterMovesetCreator : EditorWindow
     {
         using (new VerticalScope("box"))
         {
-            Label("Instructions", EditorStyles.boldLabel);
+            Space(15);
+            
+            using (new HorizontalScope())
+            {
+                FlexibleSpace();
+                Label("Instructions", EditorStyles.whiteLargeLabel);
+                
+                FlexibleSpace();
+            }
 
-            Label("1. Click \"Create Moveset\" or \"Create Move\".");
-            Label("2. Fill in the fields.");
-            Label("3. Click \"Create Moveset\" or \"Create Move\" again.");
-            Label("4. Done! The ScriptableObject will be created.");
+            using (new HorizontalScope())
+            {
+                FlexibleSpace();
+                Label("1. Click \"Create Moveset\" or \"Create Move\".");
+                FlexibleSpace();
+            }
+
+            using (new HorizontalScope())
+            {
+                FlexibleSpace();
+                Label("2. Fill in the fields.");
+                FlexibleSpace();
+            }
+
+            using (new HorizontalScope())
+            {
+                FlexibleSpace();
+                Label("3. Click \"Create Moveset\" or \"Create Move\" again.");
+                FlexibleSpace();
+            }
+
+            using (new HorizontalScope())
+            {
+                FlexibleSpace();
+                Label("4. Done! The ScriptableObject will be created.");
+                FlexibleSpace();
+            }
+
+            Space(10);
+            
+            // Horizontal line (separator)
+            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+
+            FlexibleSpace();
         }
     }
     #endregion
