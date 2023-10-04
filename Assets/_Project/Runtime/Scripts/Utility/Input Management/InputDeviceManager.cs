@@ -1,83 +1,59 @@
 using System.Collections.Generic;
 using System.Linq;
+using Lumina.Essentials.Sequencer;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class InputDeviceManager : MonoBehaviour
 {
-    // The key is the device and the value is the player index
-    readonly Dictionary<InputDevice, int> playerDevices = new ();
+    public static Dictionary<InputDevice, int> persistPlayerDevices = new (); // TODO: There is a chance that this doesn't work in builds.
+    readonly Dictionary<InputDevice, int> playerDevices = new();
     
-    // -- Properties --
-    
-    // Returns the list of devices that are currently associated with a player
-    public Dictionary<InputDevice, int> PlayerDevices => playerDevices;
-    
-    // -- Cached References --
-    PlayerInputManager inputManager;
+    PlayerInputManager playerInputManager;
+   
+    void Awake() 
+    {     
+        // Get the PlayerInputManager
+        playerInputManager = GetComponent<PlayerInputManager>(); 
+        if (playerInputManager == null) Debug.LogError("No PlayerInputManager found in the scene!");
 
-   void Awake()
-    {
-        inputManager = FindObjectOfType<PlayerInputManager>(); 
+        //Load the devices from previous scene
+        foreach(KeyValuePair<InputDevice, int> kvp in persistPlayerDevices)
+        {
+            playerDevices[kvp.Key] = kvp.Value;
+            
+            string controlScheme = kvp.Key is Keyboard ? "Keyboard" : "Gamepad";
+            playerInputManager.JoinPlayer(kvp.Value, -1, controlScheme, kvp.Key);
+
+            Debug.Log($"Player {kvp.Value + 1} joined using {controlScheme} control scheme!");
+        }        
     }
-
+   
     void Update()
     {
-        // Check if a player is not currently in the prompt to switch control scheme.
-        if (!DeviceSwitchPrompt.IsWaitingForInput)
+        if (SceneManager.GetActiveScene().buildIndex != 3) //TODO: Make it so the player can only join in select scenes. Don't allow them to join at all, don't just debug "Player 2 is not supported in this scene."
         {
-            if (Keyboard.current.spaceKey.wasPressedThisFrame || Gamepad.current != null && Gamepad.current.startButton.wasPressedThisFrame)
+            if (Keyboard.current.enterKey.wasPressedThisFrame || (Gamepad.current != null && Gamepad.current.startButton.wasPressedThisFrame))
             {
                 JoinPlayerConfig();
             }
-        }
+        } 
     }
 
     void JoinPlayerConfig()
     {
-        // Get the currently active device
         InputDevice device = GetActiveDevice();
+        if (device == null || playerDevices.ContainsKey(device) || playerInputManager.playerCount >= 2) return;
 
-        // If no active device or if the device is already associated with a player, ignore the join request
-        if (device == null || playerDevices.ContainsKey(device)) return;
+        RumbleSequence();
+        
+        playerDevices[device] = playerInputManager.playerCount;
+        // Also update the device to be persistent in next scenes
+        persistPlayerDevices[device] = playerInputManager.playerCount;
 
-        // Ignore the join request if there are already 2 players
-        if (inputManager.playerCount >= 2) return;
-
-        // At this point, the device is not associated with any player and there are less than 2 players
-        // Therefore, associate the device with the current player count and join the player
-        playerDevices[device] = inputManager.playerCount;
-
-        // Determine control scheme based on type of device
         string controlScheme = device is Keyboard ? "Keyboard" : "Gamepad";
-
-        // Set Control Scheme
-        inputManager.JoinPlayer(playerDevices[device], -1, controlScheme);
-
-        Debug.Log($"Player {playerDevices[device] + 1} joined using {controlScheme} control scheme!");
-    }
-
-    public void JoinPlayerCharacter(GameObject playerPrefab)
-    {
-        // Get the currently active device
-        InputDevice device = playerDevices.FirstOrDefault(p => p.Value == inputManager.playerCount).Key;
-
-        // If no active device or if the device is already associated with a player, ignore the join request
-        if (device == null || playerDevices.ContainsKey(device)) return;
-
-        // Ignore the join request if there are already 2 players
-        if (inputManager.playerCount >= 2) return;
-
-        // At this point, the device is not associated with any player and there are less than 2 players
-        // Therefore, associate the device with the current player count and join the player
-        playerDevices[device] = inputManager.playerCount;
-
-        // Determine control scheme based on type of device
-        string controlScheme = device is Keyboard ? "Keyboard" : "Gamepad";
-
-        // Set Control Scheme
-        //inputManager.JoinPlayer(playerDevices[device], -1, controlScheme, device);
-        PlayerInput.Instantiate(playerPrefab, playerDevices[device], controlScheme, -1, device);
+        playerInputManager.JoinPlayer(playerDevices[device], -1, controlScheme, device);
 
         Debug.Log($"Player {playerDevices[device] + 1} joined using {controlScheme} control scheme!");
     }
@@ -85,23 +61,31 @@ public class InputDeviceManager : MonoBehaviour
     static InputDevice GetActiveDevice()
     {
         if (Keyboard.current != null && Keyboard.current.wasUpdatedThisFrame) return Keyboard.current;
-
         if (Gamepad.current != null && Gamepad.current.wasUpdatedThisFrame) return Gamepad.current;
-
         return null;
+    }
+    
+    void RumbleSequence()
+    {
+        const float rumbleDuration = 0.5f;
+        var rumbleFrequency = Mathf.Lerp(0.2f, 0.5f, rumbleDuration);
+        
+        // Rumble the controller that joined for 'duration' time.
+        var rumbleSequence = new Sequence(this);
+        rumbleSequence
+           .Execute(() => Gamepad.current?.SetMotorSpeeds(rumbleFrequency, 0))
+           .WaitThenExecute(rumbleDuration, () => Gamepad.current?.SetMotorSpeeds(0, 0));
     }
 
     public void OnPlayerLeft(int playerIndex)
     {
-        // Get the device that was associated with the player
         InputDevice device = playerDevices.FirstOrDefault(p => p.Value == playerIndex).Key;
-
-        // If no device was associated with the player, ignore the leave request
         if (device == null) return;
 
-        // At this point, the device is associated with the player, so remove it from the dictionary
         playerDevices.Remove(device);
+        // Also remove the device from the persistent list
+        persistPlayerDevices.Remove(device);
 
-        Debug.Log($"Player {playerIndex +1} left the game!");
+        Debug.Log($"Player {playerIndex + 1} left the game!");
     }
 }

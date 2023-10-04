@@ -54,7 +54,7 @@ public class DeviceSwitchPrompt : MonoBehaviour
         while (true)
         {
             // Check if the player pressed the space key or the start button on the gamepad
-            if (Keyboard.current.spaceKey.wasPressedThisFrame || Gamepad.current.startButton.wasPressedThisFrame)
+            if (Keyboard.current.spaceKey.wasPressedThisFrame || Gamepad.current != null && Gamepad.current.startButton.wasPressedThisFrame)
             {
                 // If so, break out of the while loop
                 break; 

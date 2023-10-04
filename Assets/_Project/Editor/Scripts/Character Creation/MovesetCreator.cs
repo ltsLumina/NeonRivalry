@@ -10,7 +10,7 @@ public static class MovesetCreator
     // -- Fields --
 
     static Moveset currentMoveset;
-    public static string movesetName;
+    static string movesetName;
 
     // Dictionary of known moves by type
     readonly static Dictionary<string, List<MoveData>> existingMoves = new ();
@@ -218,7 +218,7 @@ public static class MovesetCreator
         }
         catch (UnityException e)
         {
-            Debug.LogError($"{FGDebugger.errorMessagePrefix} Failed to create asset. The path is probably invalid.\n{e}");
+            Debug.LogError($"{FGDebugger.errorMessagePrefix} Failed to create asset. The path in the script is probably invalid.\n{e}");
             throw;
         }
         finally

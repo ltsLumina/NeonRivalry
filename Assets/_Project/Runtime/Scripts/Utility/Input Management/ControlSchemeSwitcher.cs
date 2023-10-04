@@ -1,24 +1,30 @@
-﻿using System.Linq;
+﻿#region
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
+#endregion
 
 public class ControlSchemeSwitcher : MonoBehaviour
 {
     PlayerInput playerInput;
-    InputDeviceSwitcher inputDeviceSwitcher;
 
+    // Called through Unity Event in the inspector on the button that is used to switch control schemes.
     public void ToggleControlScheme(int playerToAssign)
     {
+        if (Gamepad.current == null)
+        {
+            Debug.LogError("No Gamepad detected! \nCan't switch control schemes if there is no Gamepad connected.");
+            return;
+        }
+        
         switch (playerToAssign)
         {
             case 1:
                 playerInput = PlayerInput.all.FirstOrDefault(p => p.playerIndex == 0);
-                inputDeviceSwitcher = playerInput.gameObject.GetComponent<InputDeviceSwitcher>();
                 break;
-            
+
             case 2:
-                playerInput         = PlayerInput.all.FirstOrDefault(p => p.playerIndex == 1);
-                inputDeviceSwitcher = playerInput.gameObject.GetComponent<InputDeviceSwitcher>();
+                playerInput = PlayerInput.all.FirstOrDefault(p => p.playerIndex == 1);
                 break;
         }
 
@@ -27,7 +33,7 @@ public class ControlSchemeSwitcher : MonoBehaviour
         switch (currentScheme)
         {
             case "Keyboard":
-                StartCoroutine(inputDeviceSwitcher.AssignGamepadToPlayerInput(playerInput));
+                StartCoroutine(InputDeviceSwitcher.AssignGamepadToPlayerInput(playerInput));
                 Debug.LogWarning("Player " + playerToAssign + " switching to Gamepad");
                 break;
 

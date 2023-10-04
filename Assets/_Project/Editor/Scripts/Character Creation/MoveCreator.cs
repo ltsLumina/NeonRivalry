@@ -11,7 +11,7 @@ public static class MoveCreator
     // -- Fields --
     
     static MoveData currentMove;
-    public static string moveName;
+    static string moveName;
 
     public static bool showAttributes;
     public static bool showResources;
@@ -73,10 +73,12 @@ public static class MoveCreator
     static void PromptCreateNewMove()
     {
         EditorGUILayout.HelpBox("Select a move or create a new one.", MessageType.Warning);
-        string moveName  = GetMoveName();
+        Space(10);
+        
+        moveName = GetMoveName();
         string assetName = GenerateAssetName(moveName);
 
-        if (Button($"Create {assetName}")) SwitchToMoveCreatorMenu(assetName);
+        if (Button($"Create {moveName}")) SwitchToMoveCreatorMenu(assetName);
     }
 
     static string GetMoveName() => EditorGUILayout.TextField("Move Name", moveName);
@@ -177,6 +179,7 @@ public static class MoveCreator
             }
         }
     }
+    
     static void DrawAttributesGUI()
     {
         using (new VerticalScope("box"))
@@ -201,6 +204,7 @@ public static class MoveCreator
             }
         }
     }
+    
     static void DrawPropertiesGUI()
     {
         using (new VerticalScope("box"))
@@ -267,7 +271,7 @@ public static class MoveCreator
 
             try { AssetDatabase.CreateAsset(currentMove, $"{path}/{assetName}.asset"); } catch (UnityException e)
             {
-                Debug.LogError($"{FGDebugger.errorMessagePrefix} Failed to create asset. The path is probably invalid.\n{e.Message}");
+                Debug.LogError($"{FGDebugger.errorMessagePrefix} Failed to create asset. The path in the script is probably invalid.\n{e.Message}");
                 throw;
             }
             finally

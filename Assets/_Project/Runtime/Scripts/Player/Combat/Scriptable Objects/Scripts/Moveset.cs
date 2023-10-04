@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "Moveset", menuName = "Create Moveset", order = 0)]
 public class Moveset : ScriptableObject
 {
-    [Header("Moves")]
+    [Header("Moves"), Tooltip("Please limit the moves to a maximum of 4 per type.")]
     public List<MoveData> punchMoves = new ();
     public List<MoveData> kickMoves = new ();
     public List<MoveData> slashMoves = new ();
