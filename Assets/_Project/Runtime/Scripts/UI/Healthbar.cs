@@ -43,7 +43,6 @@ public class Healthbar : MonoBehaviour
     {
         if (Player != null)
         {
-            Debug.Log(Slider, Slider.gameObject);
             Value = (int)Slider.maxValue;
         }
         else
