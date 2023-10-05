@@ -91,6 +91,10 @@ public class RoundTimer : MonoBehaviour
         CurrentTime -= delta;
         if (CurrentTime < 0.0f) CurrentTime = 0.0f;
         if (hasTimeLimit && CurrentTime < timeLimit) CurrentTime = timeLimit;
+        if (currentTime <= 0f)
+        {
+            roundScript.timer0 = true;
+        }
     }
 
     public void SetTimer(float newTime) => CurrentTime = newTime;
@@ -104,11 +108,6 @@ public class RoundTimer : MonoBehaviour
         timerText.text  = CurrentTime.ToString(timeFormats[currentTimerFormat], CultureInfo.InvariantCulture);
         
         timerText.color = CurrentTime <= colorSwitchValue ? Color.red : new (0.86f, 0.86f, 0.86f);
-
-        if (currentTime <= 0)
-        {
-            roundScript.timer0 = true;
-        }
     }
 
     TimerFormat GetTimerFormat() => CurrentTime < hundredthsSwitchValue ? TimerFormat.HundredthsDecimal : CurrentTime < tenthSwitchValue ? TimerFormat.TenthDecimal : TimerFormat.Whole;

@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,47 +13,42 @@ public class RoundScript : SingletonPersistent<RoundScript>
     [Header("Rounds")]
     [SerializeField] int maxRounds;
     [SerializeField] int currentRounds;
-    [SerializeField] int wonRounds1;
-    [SerializeField] int wonRounds2;
+    [SerializeField] int player1WonRounds;
+    [SerializeField] int player2WonRounds;
 
     [Header("Bools")]
     public bool p1HasWon;
     public bool p2HasWon;
     public bool timer0;
 
-    locktothepath locktothepathS;
-    
-    protected override void Awake()
-    {
-        locktothepathS = FindObjectOfType<locktothepath>();
-    }
-
 
 private void Update()
 {
     CheckingBools();
-    PlayerHasWon();
 }
 
 private void CheckingBools()
 {
-    if (timer0 && currentRounds <= maxRounds) { currentRounds++; SceneManagerExtended.ReloadScene(); }
-    //else if (p2HasWon || p1HasWon)
-    //{
-    //    currentRounds++; SceneManagerExtended.ReloadScene();
-    //}
-    else if (currentRounds > maxRounds)
-    {
-        SceneManagerExtended.LoadNextScene();
+    if (currentRounds > maxRounds)
+        {
+            SceneManagerExtended.LoadNextScene();
             currentRounds = 0;
-    }
-}
+        }
 
-public void PlayerHasWon()
-{
-    if (Input.GetKeyDown(KeyCode.N))
+        if (timer0 
+            && PlayerManager.PlayerOne.Healthbar.Value > PlayerManager.PlayerTwo.Healthbar.Value
+            && currentRounds <= maxRounds)
+        {player1WonRounds++; currentRounds++; SceneManagerExtended.ReloadScene(); }
+        else if (timer0
+            && PlayerManager.PlayerTwo.Healthbar.Value > PlayerManager.PlayerOne.Healthbar.Value
+            && currentRounds <= maxRounds)
+        {player2WonRounds++; currentRounds++; SceneManagerExtended.ReloadScene(); }
+    }
+
+    private IEnumerator WinningCamera()
     {
         FindObjectOfType<locktothepath>().CameraCine(PlayerManager.PlayerOne.transform);
+        yield return new WaitForSeconds(1f);
+        SceneManagerExtended.ReloadScene();
     }
-}
 }
