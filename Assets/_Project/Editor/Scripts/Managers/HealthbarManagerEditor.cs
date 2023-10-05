@@ -33,8 +33,8 @@ public class HealthbarManagerEditor : Editor
 
         if (playerOne != null || playerTwo != null)
         {
-            SetSliderValues(playerOne, playerTwo, "Set to 100", 100);
-            SetSliderValues(playerOne, playerTwo, "Set to 0", 0);
+            SetSliderValues(playerOne, playerTwo, 100);
+            SetSliderValues(playerOne, playerTwo, 0);
         }
     }
 
@@ -42,12 +42,12 @@ public class HealthbarManagerEditor : Editor
     static Healthbar GetHealthbar(HealthbarManager manager, int index) =>
         manager.Healthbars.Count > index ? manager.Healthbars[index] : null;
 
-    static void SetSliderValues(Healthbar playerOne, Healthbar playerTwo, string label, float value)
+    static void SetSliderValues(Healthbar playerOne, Healthbar playerTwo, float value)
     {
         using (new EditorGUILayout.HorizontalScope())
         {
-            if (playerOne != null && GUILayout.Button($"Set Left {label}")) playerOne.Slider.value  = value;
-            if (playerTwo != null && GUILayout.Button($"Set Right {label}")) playerTwo.Slider.value = value;
+            if (playerOne != null && GUILayout.Button($"Set Left 100")) playerOne.Slider.value  = value;
+            if (playerTwo != null && GUILayout.Button($"Set Right 100")) playerTwo.Slider.value = value;
         }
     }
     #endregion

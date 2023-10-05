@@ -59,7 +59,7 @@ public partial class PlayerController : MonoBehaviour
         Rigidbody          = GetComponent<Rigidbody>();
         InputManager       = GetComponentInChildren<InputManager>();
         StateMachine       = GetComponent<StateMachine>();
-        playerManager      = PlayerManager.Instance;
+        playerManager      = FindObjectOfType<PlayerManager>();
         
         Initialize();
     }

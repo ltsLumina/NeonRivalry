@@ -2,8 +2,8 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Lumina.Debugging;
 using Lumina.Essentials.Attributes;
+using Lumina.Debugging;
 using UnityEngine;
 using UnityEngine.UI;
 #endregion
