@@ -6,7 +6,7 @@ public class MainMenuController : MonoBehaviour
     public void LoadNextScene()
     {
         var sequence = new Sequence(this);
-        sequence.WaitThenExecute(0.5f, SceneManagerExtended.LoadNextScene);
+        sequence.WaitThenExecute(0.25f, SceneManagerExtended.LoadNextScene);
     }
     
     public void QuitGame()
