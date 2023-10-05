@@ -17,7 +17,7 @@ namespace Lumina.Debugging
 public class FGDebugger : Editor
 {
     // Displays a cyan colored prefix on every debug logs
-    static string errorMessagePrefix;
+    public static string errorMessagePrefix = "<color=cyan>[FGDebugger] ►</color>";
         
     // Default error message if no particular message is provided
     const string defaultMessage = "An Error Has Occurred:";

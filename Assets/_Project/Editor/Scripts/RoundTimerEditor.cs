@@ -19,7 +19,11 @@ public class RoundTimerEditor : Editor
         using (new GUILayout.HorizontalScope())
         {
             newTime = EditorGUILayout.FloatField("Set Time", newTime, GUILayout.Height(20)); // put this line where you want the input field to be
-            if (GUILayout.Button("Set Time", GUILayout.Height(20))) timer.SetTimer(newTime);
+
+            if (GUILayout.Button("Set Time", GUILayout.Height(20)))
+            {
+                timer.SetTimer(newTime);
+            }
         }
 
         if (GUILayout.Button("Reset Timer", GUILayout.Height(20))) timer.ResetTimer();
