@@ -38,7 +38,9 @@ public class RoundTimer : MonoBehaviour
 
     // Cached Values
     readonly Dictionary<TimerFormat, string> timeFormats = new ();
-    
+
+    RoundScript roundScript;
+
     // -- Properties --
     public float CurrentTime
     {
@@ -50,6 +52,7 @@ public class RoundTimer : MonoBehaviour
     {
         InitializeTimeFormats();
         FindTimerTextComponent();
+        roundScript = FindObjectOfType<RoundScript>();
 
         return;
         void FindTimerTextComponent()
@@ -88,6 +91,10 @@ public class RoundTimer : MonoBehaviour
         CurrentTime -= delta;
         if (CurrentTime < 0.0f) CurrentTime = 0.0f;
         if (hasTimeLimit && CurrentTime < timeLimit) CurrentTime = timeLimit;
+        if (currentTime <= 0f)
+        {
+            roundScript.timer0 = true;
+        }
     }
 
     public void SetTimer(float newTime) => CurrentTime = newTime;
