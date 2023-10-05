@@ -27,3 +27,8 @@ profile:
 
 #Specify Qodana linter for analysis (Applied in CI/CD pipeline)
 linter: jetbrains/qodana-dotnet:latest
+
+# Specify directories for Qodana to analyze
+configuration:
+  directories:
+    - FightingGame/Assets/_Project/Runtime
