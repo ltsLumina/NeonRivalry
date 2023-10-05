@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Lumina.Essentials.Attributes;
 using UnityEngine;
 
-public class HealthbarManager : SingletonPersistent<HealthbarManager>
+public class HealthbarManager : MonoBehaviour
 {
     [Header("Serialized References")]
     [SerializeField, ReadOnly] List<Healthbar> healthbars = new ();

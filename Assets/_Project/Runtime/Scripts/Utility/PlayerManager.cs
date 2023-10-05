@@ -8,7 +8,7 @@ using UnityEngine.InputSystem.Utilities;
 /// The PlayerManager class is used to manage ALL players in the game including their settings, properties, and actions.
 /// <seealso cref="PlayerController"/>
 /// </summary>
-public partial class PlayerManager : SingletonPersistent<PlayerManager>
+public partial class PlayerManager : MonoBehaviour
 {
     // -- Player Settings --
     
@@ -35,10 +35,8 @@ public partial class PlayerManager : SingletonPersistent<PlayerManager>
     /// <summary> <see cref="PlayerOne"/>/Two properties are used in a context where the <see cref="PlayerController"/> component is needed. </summary>
     public static PlayerController PlayerTwo => Players.Count >= 2 ? Players[1] : null; // This is the same as PlayerID == 2 ? Player : null;
     
-    protected override void Awake()
-    { 
-        base.Awake();
-        
+    void Awake()
+    {
         Players.Clear();
     }
 
