@@ -27,7 +27,7 @@ public class InputDeviceManager : MonoBehaviour
             playerInputManager.JoinPlayer(kvp.Value, -1, controlScheme, kvp.Key);
 
             Debug.Log($"Player {kvp.Value + 1} joined using {controlScheme} control scheme!");
-        }        
+        }
     }
    
     void Update()

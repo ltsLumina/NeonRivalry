@@ -34,6 +34,8 @@ public class IntroPlayerInitializer : MonoBehaviour
         {
             Debug.Log("Player joined intro scene!");
 
+            StartCoroutine(LoadingScreenRoutine());
+            
             //TODO: Make a UI_Utility class that handles things like this. (or a manager)
             IEnumerator LoadingScreenRoutine()
             {
@@ -67,8 +69,6 @@ public class IntroPlayerInitializer : MonoBehaviour
                 // When the loading bar is full, load the next scene.
                 SceneManagerExtended.LoadNextScene();
             }
-
-            StartCoroutine(LoadingScreenRoutine());
         }
     }
 }
