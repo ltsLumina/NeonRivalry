@@ -16,18 +16,13 @@ public class ControlSchemeSwitcher : MonoBehaviour
             Debug.LogError("No Gamepad detected! \nCan't switch control schemes if there is no Gamepad connected.");
             return;
         }
-        
-        switch (playerToAssign)
-        {
-            case 1:
-                playerInput = PlayerInput.all.FirstOrDefault(p => p.playerIndex == 0);
-                break;
 
-            case 2:
-                playerInput = PlayerInput.all.FirstOrDefault(p => p.playerIndex == 1);
-                break;
-        }
+        playerInput = playerToAssign switch
+        { 1 => PlayerInput.all.FirstOrDefault(p => p.playerIndex == 0),
+          2 => PlayerInput.all.FirstOrDefault(p => p.playerIndex == 1),
+          _ => playerInput };
 
+        if (playerInput == null) return; // This should never happen, but just in case.
         string currentScheme = playerInput.currentControlScheme;
 
         switch (currentScheme)

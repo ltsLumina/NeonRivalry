@@ -1,9 +1,5 @@
-﻿#if UNITY_EDITOR
-
-#region
-using UnityEditor;
+﻿#region
 using UnityEngine;
-using static Lumina.Debugging.FGDebuggerWindow;
 #endregion
 
 // Lumina.Debugging namespace contains classes and methods related to debugging.
@@ -14,8 +10,23 @@ namespace Lumina.Debugging
 /// This class is specifically designed to be used within the Unity engine hence derives from MonoBehaviour.
 /// <remarks> FG stands for FightingGame. </remarks>
 /// </summary>
-public class FGDebugger : Editor
+public static class FGDebugger
 {
+    // Level enum is used to specify the log level
+    public enum Level
+    {
+        TRACE,
+        DEBUG,
+        INFO,
+        NONE, // No log reporting
+    }
+    
+    // The debugger will only log states that match the ActiveStateType
+    public static State.StateType ActiveStateType { get; set; } = State.StateType.None;
+
+    // LogLevel Property used to get or set current log level
+    public static Level LogLevel { get; set; } = Level.NONE;
+    
     // Displays a cyan colored prefix on every debug logs
     public static string errorMessagePrefix = "<color=cyan>[FGDebugger] ►</color>";
         
@@ -92,4 +103,3 @@ public class FGDebugger : Editor
     }
 }
 }
-#endif

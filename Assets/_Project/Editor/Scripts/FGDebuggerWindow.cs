@@ -1,11 +1,11 @@
-#if UNITY_EDITOR
 #region
 using UnityEditor;
 using UnityEngine;
+using static Lumina.Debugging.FGDebugger;
 using static State;
 #endregion
 
-// Lumina.Debugging namespace contains classes for debugging Lumina game engine
+// Lumina.Debugging namespace contains classes for debugging
 namespace Lumina.Debugging
 {
 /// <summary>
@@ -13,21 +13,8 @@ namespace Lumina.Debugging
 /// </summary>
 public class FGDebuggerWindow : EditorWindow
 {
-    // Level enum is used to specify the log level
-    public enum Level
-    {
-        TRACE,
-        DEBUG,
-        INFO,
-        NONE, // No log reporting
-    }
-
-    // LogLevel Property used to get or set current log level
-    public static Level LogLevel { get; private set; } = Level.NONE;
-
-    // The debugger will only log states that match the ActiveStateType
-    public static StateType ActiveStateType { get; private set; } = StateType.None;
-
+    
+    
     // MenuItem attribute that adds a new menu item under "Tools/State Debugger" in the Editor's menu bar.
     [MenuItem("Tools/Debugger")]
     static void Open()
@@ -69,5 +56,3 @@ public class FGDebuggerWindow : EditorWindow
     }
 }
 }
-
-#endif
