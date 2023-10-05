@@ -39,7 +39,7 @@ public class Healthbar : MonoBehaviour
         Initialize();
     }
 
-    public void Initialize()
+    void Initialize()
     {
         if (Player != null)
         {

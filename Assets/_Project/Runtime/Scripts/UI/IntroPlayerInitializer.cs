@@ -54,7 +54,7 @@ public class IntroPlayerInitializer : MonoBehaviour
                 while (loadingBar.value < 1f)
                 {
                     bool  shiftKeyDown    = Input.GetKey(KeyCode.LeftShift); // Check if Shift key is pressed
-                    float additionalSpeed = shiftKeyDown ? 0.4f : 0.0f;      // Increase speed when Shift is pressed
+                    float additionalSpeed = shiftKeyDown ? 0.5f : 0.0f;      // Increase speed when Shift is pressed
 
                     loadingBar.value += loadingBar.value <= cutoff
                         ? Random.Range(0.01f, 0.05f) + additionalSpeed  // Increases the value by a smaller rate until specified cutoff point
