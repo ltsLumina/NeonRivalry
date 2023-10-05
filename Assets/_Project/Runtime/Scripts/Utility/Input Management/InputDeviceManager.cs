@@ -34,7 +34,7 @@ public class InputDeviceManager : MonoBehaviour
     {
         if (SceneManager.GetActiveScene().buildIndex != 3) //TODO: Make it so the player can only join in select scenes. Don't allow them to join at all, don't just debug "Player 2 is not supported in this scene."
         {
-            if (Keyboard.current.enterKey.wasPressedThisFrame || (Gamepad.current != null && Gamepad.current.startButton.wasPressedThisFrame))
+            if (Keyboard.current.anyKey.wasPressedThisFrame || (Gamepad.current != null && Gamepad.current.AnyButton()))
             {
                 JoinPlayerConfig();
             }
