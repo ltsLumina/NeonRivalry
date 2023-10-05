@@ -109,9 +109,6 @@ public partial class PlayerManager : MonoBehaviour
 
         // Assign the player to the healthbar.
         healthbar.Player = player;
-
-        // Initialize the healthbar.
-        healthbar.Initialize();
     }
     
     public static void SetPlayerInput(PlayerController player, PlayerInput playerInput) => player.PlayerInput = playerInput;
