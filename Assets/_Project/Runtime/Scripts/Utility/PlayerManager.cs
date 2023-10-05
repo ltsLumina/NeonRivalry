@@ -71,27 +71,19 @@ public partial class PlayerManager : MonoBehaviour
     public static void SetPlayerHealthbar(PlayerController player, int playerID)
     {
         var healthbarManager = FindObjectOfType<HealthbarManager>();
+        
+        // Dictionary that maps the player's ID to the healthbar's tag and name.
+        Dictionary<int, (string tag, string name)> idMapping = new()
+        { { 1, ("[Healthbar] Left", "Healthbar (Player 1) (Left)") },
+          { 2, ("[Healthbar] Right", "Healthbar (Player 2) (Right)") } };
+
+        // If the player's ID is not in the dictionary, return.
+        if (!idMapping.ContainsKey(playerID)) return;
+
+        // Get the tag and name of the healthbar.
+        (string tag, string name) = idMapping[playerID];
 
         // Set the player's healthbar depending on the player's ID. Player 1 is on the left, Player 2 is on the right.
-        string tag;
-        string name;
-
-        switch (playerID)
-        {
-            case 1:
-                tag  = "[Healthbar] Left";
-                name = "Healthbar (Player 1) (Left)";
-                break;
-
-            case 2:
-                tag  = "[Healthbar] Right";
-                name = "Healthbar (Player 2) (Right)";
-                break; 
-
-            default:
-                return;
-        }
-
         var healthbar = GameObject.FindGameObjectWithTag(tag).GetComponent<Healthbar>();
         AssignHealthbar(player, healthbar, healthbarManager, name);
     }
