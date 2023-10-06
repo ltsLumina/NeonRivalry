@@ -9,7 +9,7 @@ using static Lumina.Essentials.Editor.UI.Management.EditorGUIUtils;
 
 namespace Lumina.Essentials.Editor.UI
 {
-internal sealed partial class UtilityPanel
+public sealed partial class UtilityPanel
 {
     #region Settings variables
     // The variables to be shown under the settings tab.

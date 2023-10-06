@@ -34,6 +34,8 @@ public class IntroPlayerInitializer : MonoBehaviour
         {
             Debug.Log("Player joined intro scene!");
 
+            StartCoroutine(LoadingScreenRoutine());
+            
             //TODO: Make a UI_Utility class that handles things like this. (or a manager)
             IEnumerator LoadingScreenRoutine()
             {
@@ -52,7 +54,7 @@ public class IntroPlayerInitializer : MonoBehaviour
                 while (loadingBar.value < 1f)
                 {
                     bool  shiftKeyDown    = Input.GetKey(KeyCode.LeftShift); // Check if Shift key is pressed
-                    float additionalSpeed = shiftKeyDown ? 0.4f : 0.0f;      // Increase speed when Shift is pressed
+                    float additionalSpeed = shiftKeyDown ? 0.5f : 0.0f;      // Increase speed when Shift is pressed
 
                     loadingBar.value += loadingBar.value <= cutoff
                         ? Random.Range(0.01f, 0.05f) + additionalSpeed  // Increases the value by a smaller rate until specified cutoff point
@@ -67,8 +69,6 @@ public class IntroPlayerInitializer : MonoBehaviour
                 // When the loading bar is full, load the next scene.
                 SceneManagerExtended.LoadNextScene();
             }
-
-            StartCoroutine(LoadingScreenRoutine());
         }
     }
 }

@@ -126,11 +126,6 @@ public partial class PlayerController : MonoBehaviour
         }
     }
 
-    void OnDestroy()
-    {
-        //inputDeviceManager.OnPlayerLeft(PlayerID);
-    }
-
     void Update()
     {
         CheckIdle();
