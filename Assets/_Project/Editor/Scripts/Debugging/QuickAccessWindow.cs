@@ -102,28 +102,37 @@ public class QuickAccessWindow : EditorWindow
 
     static void DrawSceneButtons()
     {
+        DrawBasicSceneButtons();
+        DrawCustomSceneButtons();
+    }
+
+    static void DrawBasicSceneButtons()
+    {
         bool isPlaying = Application.isPlaying;
-        
+
         Label(isPlaying ? "Runtime" : "Editor", EditorStyles.boldLabel);
+
         using (new VerticalScope("box"))
         {
             if (isPlaying) DrawSceneLoadButtons(LoadScene);
             else DrawSceneLoadButtons(OpenScene);
         }
-        
+
         Space(10);
-        
+    }
+
+    static void DrawCustomSceneButtons()
+    {
         using (new VerticalScope("box"))
         {
             Label("Custom Scenes", EditorStyles.boldLabel);
-            
+
             // Button to add a custom scene
             if (Button("Add Scene", Height(25)))
             {
                 // Open Windows Explorer to select a scene
                 string path = EditorUtility.OpenFilePanel("Select a scene", Application.dataPath, "unity");
 
-                // If the path is not empty, add a new button to the menu
                 if (!string.IsNullOrEmpty(path))
                 {
                     // Add the button
@@ -131,27 +140,30 @@ public class QuickAccessWindow : EditorWindow
                     addedScenesFoldout = true;
                 }
             }
+            
+            DrawAddedScenesFoldout();
+        }
+    }
+    
+    static void DrawAddedScenesFoldout()
+    {
+        addedScenesFoldout = EditorGUILayout.Foldout(addedScenesFoldout, "Added Scenes", true, EditorStyles.foldoutHeader);
+        
+        if (addedScenesFoldout && addedScenes.Count == 0)
+        {
+            // Warning that there are no added scenes.
+            EditorGUILayout.HelpBox("No scenes have been added.", MessageType.Warning, true);
+        }
 
-            addedScenesFoldout = EditorGUILayout.Foldout(addedScenesFoldout, "Added Scenes", true, EditorStyles.foldoutHeader);
+        // Add a button for each added scene
+        foreach (string scenePath in addedScenes)
+        {
+            // derive sceneName from path
+            string sceneName = scenePath[(scenePath.LastIndexOf('/') + 1)..];
+            sceneName = sceneName[..^6];
 
-            if (addedScenesFoldout && addedScenes.Count == 0)
-            {
-                // Warning that there are no added scenes.
-                EditorGUILayout.HelpBox("No scenes have been added.", MessageType.Warning, true);
-            }
-
-            // Add a button for each added scene
-            foreach (string scenePath in addedScenes)
-            {
-                // derive sceneName from path similarly to how you do it above
-                string sceneName = scenePath[(scenePath.LastIndexOf('/') + 1)..];
-                sceneName = sceneName[..^6];
-
-                if (addedScenesFoldout)
-                {
-                    if (Button(sceneName, Height(30))) EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single);
-                }
-            }
+            if (!addedScenesFoldout) continue;
+            if (Button(sceneName, Height(30))) EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single);
         }
     }
 
