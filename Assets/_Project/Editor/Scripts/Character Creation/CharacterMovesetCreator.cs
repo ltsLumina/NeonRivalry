@@ -16,7 +16,7 @@ public class CharacterMovesetCreator : EditorWindow
     public static bool createdSuccessfully;
 
     [MenuItem("Tools/Character Creation/Moveset Creator")]
-    static void ShowWindow()
+    public static void Open()
     {
         var window = GetWindow<CharacterMovesetCreator>();
         window.titleContent = new ("Moveset Creator");

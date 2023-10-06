@@ -1,9 +1,10 @@
 ﻿#region
 using System;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEditor.SceneManagement;
 using Lumina.Essentials.Editor.UI;
+using UnityEngine.SceneManagement;
 using static UnityEngine.GUILayout;
 #endregion
 
@@ -71,10 +72,10 @@ public class QuickAccessWindow : EditorWindow
 
                 if (Application.isPlaying)
                 {
-                    if (Button("Intro", Height(30))) SceneManagerExtended.LoadScene(0);
-                    if (Button("Main Menu", Height(30))) SceneManagerExtended.LoadScene(1);
-                    if (Button("Character Selection", Height(30))) SceneManagerExtended.LoadScene(2);
-                    if (Button("Game", Height(30))) SceneManagerExtended.LoadScene(3);
+                    if (Button("Intro", Height(30))) LoadScene(0);
+                    if (Button("Main Menu", Height(30))) LoadScene(1);
+                    if (Button("Character Select", Height(30))) LoadScene(2);
+                    if (Button("Game", Height(30))) LoadScene(3);
                 }
                 else
                 {
@@ -88,18 +89,13 @@ public class QuickAccessWindow : EditorWindow
             using (new VerticalScope("box"))
             {
                 Label("Editor", EditorStyles.boldLabel);
-
-                const string introScenePath = "Assets/_Project/Runtime/Scenes/Development/Intro.unity";
-                const string mainMenuPath   = "Assets/_Project/Runtime/Scenes/Development/MainMenu.unity";
-                const string charSelectPath = "Assets/_Project/Runtime/Scenes/Development/CharacterSelect.unity";
-                const string gameScenePath  = "Assets/_Project/Runtime/Scenes/Development/Game.unity";
                 
                 if (!Application.isPlaying)
                 {
-                    if (Button("Intro", Height(30))) OpenScene(introScenePath);
-                    if (Button("Main Menu", Height(30))) OpenScene(mainMenuPath);
-                    if (Button("Character Selection", Height(30))) OpenScene(charSelectPath);
-                    if (Button("Game", Height(30))) OpenScene(gameScenePath);
+                    if (Button("Intro", Height(30))) OpenScene(0);
+                    if (Button("Main Menu", Height(30))) OpenScene(1);
+                    if (Button("Character Selection", Height(30))) OpenScene(2);
+                    if (Button("Game", Height(30))) OpenScene(3);
                 }
                 else { Label("Cannot open scenes in play mode.", EditorStyles.centeredGreyMiniLabel); }
             }
@@ -111,11 +107,12 @@ public class QuickAccessWindow : EditorWindow
         using (new VerticalScope("box"))
         {
             // -- Open Other Debugging Windows --
-            windowsFoldout = EditorGUILayout.Foldout(windowsFoldout, "Debugging Windows", true, EditorStyles.foldoutHeader);
+            windowsFoldout = EditorGUILayout.Foldout(windowsFoldout, "Editor Windows", true, EditorStyles.foldoutHeader);
 
             if (windowsFoldout)
             {
                 if (Button("State Debugger")) FGDebuggerWindow.Open();
+                if (Button("Moveset Creator")) CharacterMovesetCreator.Open();
                 if (Button("Lumina's Essentials")) UtilityPanel.OpenUtilityPanel();
             }
         }
@@ -153,9 +150,18 @@ public class QuickAccessWindow : EditorWindow
         }
     }
 
-    static void OpenScene(string scenePath)
+    static void LoadScene(int sceneIndex)
     {
-        EditorSceneManager.OpenScene(scenePath);
+        SceneManager.LoadScene(sceneIndex);
+        Debug.LogWarning("Loaded a scene using the debug menu! \nThe scene might not behave as expected.");
+    }
+    
+    static void OpenScene(int sceneIndex)
+    {
+        // Get the scene path by the build index.
+        string path = SceneUtility.GetScenePathByBuildIndex(sceneIndex);
+        
+        EditorSceneManager.OpenScene(path, OpenSceneMode.Single);
         Debug.LogWarning("Loaded a scene using the debug menu! \nThe scene might not behave as expected.");
     }
     #endregion
