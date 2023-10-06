@@ -12,7 +12,7 @@ namespace Lumina.Essentials.Editor.UI
 {
 // One of the three tabs in the Utility Window.
 // Includes all the functions for the Utilities tab.
-internal sealed partial class UtilityPanel
+public sealed partial class UtilityPanel
 {
     #region Utilities variables
 

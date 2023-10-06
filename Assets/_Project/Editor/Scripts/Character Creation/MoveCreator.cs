@@ -265,7 +265,7 @@ public static class MoveCreator
 
             currentMove = ScriptableObject.CreateInstance<MoveData>();
 
-            const string path        = "Assets/_Project/Runtime/Scripts/Player/Combat/Scriptable Objects/Moves";
+            const string path        = "Assets/_Project/Runtime/_Scripts/Player/Combat/Scriptable Objects/Moves";
             const string defaultName = "New Move";
             string       assetName   = string.IsNullOrEmpty(name) ? defaultName : name;
 

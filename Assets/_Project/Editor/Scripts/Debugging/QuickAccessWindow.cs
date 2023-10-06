@@ -3,6 +3,7 @@ using System;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using Lumina.Essentials.Editor.UI;
 using static UnityEngine.GUILayout;
 #endregion
 
@@ -11,7 +12,8 @@ namespace Lumina.Debugging
 public class QuickAccessWindow : EditorWindow
 {
     static Action activeMenu;
-    static bool foldout = true;
+    static bool windowsFoldout = true;
+    static bool optionsFoldout = true; 
     
     [MenuItem("Tools/Debugging/Quick Access")]
     static void ShowWindow()
@@ -38,12 +40,11 @@ public class QuickAccessWindow : EditorWindow
 
     void OnDisable()
     {
-
-        return;
-        void Terminate()
-        {
-            throw new NotImplementedException();
-        }
+        // return;
+        // void Terminate()
+        // {
+        //     
+        // }
     }
 
     #region GUI
@@ -54,7 +55,7 @@ public class QuickAccessWindow : EditorWindow
             FlexibleSpace();
             FlexibleSpace();
             
-            Label("Load Scene", EditorStyles.largeLabel);
+            Label("Open/Load Scene", EditorStyles.largeLabel);
         
             DrawBackButton();
         }
@@ -66,7 +67,7 @@ public class QuickAccessWindow : EditorWindow
 
             using (new VerticalScope("box"))
             {
-                Label("Runtime Scene Load", EditorStyles.boldLabel);
+                Label("Runtime", EditorStyles.boldLabel);
 
                 if (Application.isPlaying)
                 {
@@ -86,7 +87,7 @@ public class QuickAccessWindow : EditorWindow
             // -- Open/Load Scenes
             using (new VerticalScope("box"))
             {
-                Label("Editor Scene Load", EditorStyles.boldLabel);
+                Label("Editor", EditorStyles.boldLabel);
 
                 const string introScenePath = "Assets/_Project/Runtime/Scenes/Development/Intro.unity";
                 const string mainMenuPath   = "Assets/_Project/Runtime/Scenes/Development/MainMenu.unity";
@@ -95,11 +96,10 @@ public class QuickAccessWindow : EditorWindow
                 
                 if (!Application.isPlaying)
                 {
-                    //These are all false positives
-                    if (Button("Intro", Height(30))) EditorSceneManager.OpenScene(introScenePath);
-                    if (Button("Main Menu", Height(30))) EditorSceneManager.OpenScene(mainMenuPath);
-                    if (Button("Character Selection", Height(30))) EditorSceneManager.OpenScene(charSelectPath);
-                    if (Button("Game", Height(30))) EditorSceneManager.OpenScene(gameScenePath);
+                    if (Button("Intro", Height(30))) OpenScene(introScenePath);
+                    if (Button("Main Menu", Height(30))) OpenScene(mainMenuPath);
+                    if (Button("Character Selection", Height(30))) OpenScene(charSelectPath);
+                    if (Button("Game", Height(30))) OpenScene(gameScenePath);
                 }
                 else { Label("Cannot open scenes in play mode.", EditorStyles.centeredGreyMiniLabel); }
             }
@@ -107,15 +107,29 @@ public class QuickAccessWindow : EditorWindow
         }
 
         Space(10);
-
+        
         using (new VerticalScope("box"))
         {
             // -- Open Other Debugging Windows --
-            foldout = EditorGUILayout.Foldout(foldout, "Debugging Windows", true, EditorStyles.foldoutHeader);
+            windowsFoldout = EditorGUILayout.Foldout(windowsFoldout, "Debugging Windows", true, EditorStyles.foldoutHeader);
 
-            if (foldout)
+            if (windowsFoldout)
             {
                 if (Button("State Debugger")) FGDebuggerWindow.Open();
+                if (Button("Lumina's Essentials")) UtilityPanel.OpenUtilityPanel();
+            }
+        }
+        
+        Space(10);
+
+        using (new VerticalScope("box"))
+        {
+            // Foldout the options.
+            optionsFoldout = EditorGUILayout.Foldout(optionsFoldout, "Debug Options", true, EditorStyles.foldoutHeader);
+
+            if (optionsFoldout)
+            {
+                EditorSettings.enterPlayModeOptionsEnabled = EditorGUILayout.Toggle("Enter Playmode Options", EditorSettings.enterPlayModeOptionsEnabled);
             }
         }
     }
@@ -137,6 +151,12 @@ public class QuickAccessWindow : EditorWindow
                 activeMenu = DefaultMenu;
             }
         }
+    }
+
+    static void OpenScene(string scenePath)
+    {
+        EditorSceneManager.OpenScene(scenePath);
+        Debug.LogWarning("Loaded a scene using the debug menu! \nThe scene might not behave as expected.");
     }
     #endregion
 }

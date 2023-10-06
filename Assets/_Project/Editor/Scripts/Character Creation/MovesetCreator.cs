@@ -208,7 +208,7 @@ public static class MovesetCreator
     static void CreateMoveset()
     {
         currentMoveset = ScriptableObject.CreateInstance<Moveset>();
-        const string path        = "Assets/_Project/Runtime/Scripts/Player/Combat/Scriptable Objects/Movesets";
+        const string path        = "Assets/_Project/Runtime/_Scripts/Player/Combat/Scriptable Objects/Movesets";
         const string defaultName = "New Moveset";
         string       assetName   = string.IsNullOrEmpty(movesetName) ? defaultName : movesetName;
         
@@ -239,7 +239,7 @@ public static class MovesetCreator
         // We'll use this to only consider .asset files in the Assets/MoveData directory
         string[] guids = AssetDatabase.FindAssets
         ("t:MoveData", new[]
-         { "Assets/_Project/Runtime/Scripts/Player/Combat/Scriptable Objects/Moves" });
+         { "Assets/_Project/Runtime/_Scripts/Player/Combat/Scriptable Objects/Moves" });
 
         foreach (string guid in guids)
         {

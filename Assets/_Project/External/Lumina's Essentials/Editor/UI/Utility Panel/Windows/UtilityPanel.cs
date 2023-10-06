@@ -15,7 +15,7 @@ namespace Lumina.Essentials.Editor.UI
 ///     Includes the Setup Window, Settings Window, and Utilities Window.
 ///     This class is split into three partials, one for each panel.
 /// </summary>
-internal sealed partial class UtilityPanel : EditorWindow
+public sealed partial class UtilityPanel : EditorWindow
 {
     readonly static Vector2 winSize = new (370, 630);
     readonly static float buttonSize = winSize.x * 0.5f - 6;
@@ -68,7 +68,7 @@ internal sealed partial class UtilityPanel : EditorWindow
     #endregion
 
     [MenuItem("Tools/Lumina/Open Utility Panel")]
-    internal static void OpenUtilityPanel()
+    public static void OpenUtilityPanel()
     {
         // Get existing open window or if none, make a new one:
         var window = (UtilityPanel) GetWindow(typeof(UtilityPanel), true, "Lumina's Essentials Utility Panel");
