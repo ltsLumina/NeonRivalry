@@ -13,11 +13,9 @@ namespace Lumina.Debugging
 /// </summary>
 public class FGDebuggerWindow : EditorWindow
 {
-    
-    
     // MenuItem attribute that adds a new menu item under "Tools/State Debugger" in the Editor's menu bar.
-    [MenuItem("Tools/Debugger")]
-    static void Open()
+    [MenuItem("Tools/Debugging/State Debugger")]
+    public static void Open()
     {
         // Creates a new FGDebuggerWindow or focus an existing one
         var window = (FGDebuggerWindow) GetWindow(typeof(FGDebuggerWindow));
