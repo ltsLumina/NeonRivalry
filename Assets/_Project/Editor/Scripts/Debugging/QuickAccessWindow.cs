@@ -163,7 +163,16 @@ public class QuickAccessWindow : EditorWindow
             sceneName = sceneName[..^6];
 
             if (!addedScenesFoldout) continue;
-            if (Button(sceneName, Height(30))) EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single);
+
+            if (Button(sceneName, Height(30)))
+            {
+                if (!Application.isPlaying)
+                {
+                    EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single);
+                    Debug.LogWarning("Loaded a scene using the debug menu!\nThe scene might not behave as expected.");
+                }
+                else { Debug.LogWarning("Can't load a scene that isn't in the build settings."); }
+            }
         }
     }
 
