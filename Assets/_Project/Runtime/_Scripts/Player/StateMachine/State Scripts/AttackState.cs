@@ -114,9 +114,7 @@ public class AttackState : State
     ///     If the player is not airborne,
     ///     the move that will be performed is the move that corresponds to the direction that the player is pressing.
     /// </summary>
-    /// <param name="context"> The context of the input action.
-    ///     <para>Used to execute the action that corresponds to the direction that the player is pressing.</para>
-    /// </param>
+    /// <para>Used to execute the action that corresponds to the direction that the player is pressing.</para>
     /// <returns> The move that corresponds to the direction that the player is pressing. </returns>
     /// <example> If the player is pressing Up, then the move that will be performed is the "Up" move. </example>
     void SelectPunch()

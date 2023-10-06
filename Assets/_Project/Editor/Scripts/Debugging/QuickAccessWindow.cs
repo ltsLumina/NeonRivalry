@@ -1,6 +1,7 @@
 ﻿#region
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Lumina.Essentials.Editor.UI;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -18,7 +19,8 @@ public class QuickAccessWindow : EditorWindow
     static bool optionsFoldout = true;
     static bool addedScenesFoldout;
     static bool manageScenesFoldout = true;
-    
+    static string searchQuery = string.Empty;
+
     readonly static List<string> addedScenes = new ();
 
     [MenuItem("Tools/Debugging/Quick Access")]
@@ -31,10 +33,7 @@ public class QuickAccessWindow : EditorWindow
         window.Show();
     }
 
-    void OnGUI()
-    {
-        activeMenu();
-    }
+    void OnGUI() => activeMenu();
 
     void OnEnable()
     {
@@ -42,6 +41,7 @@ public class QuickAccessWindow : EditorWindow
         EditorApplication.playModeStateChanged += PlayModeState;
 
         return;
+
         void Initialize() => activeMenu = DefaultMenu;
     }
 
@@ -50,11 +50,15 @@ public class QuickAccessWindow : EditorWindow
         Terminate();
 
         return;
+
         void Terminate()
         {
             // Clear the added scenes list.
             addedScenes.Clear();
-            
+
+            // Clear the search query.
+            searchQuery = string.Empty;
+
             // Remove the play mode state changed event.
             EditorApplication.playModeStateChanged -= PlayModeState;
         }
@@ -62,28 +66,29 @@ public class QuickAccessWindow : EditorWindow
 
     void PlayModeState(PlayModeStateChange state)
     {
-        if (state == PlayModeStateChange.EnteredPlayMode)
-        {
-            Repaint(); // Refresh the window
-        }
+        if (state == PlayModeStateChange.EnteredPlayMode) Repaint(); // Refresh the window
     }
 
     #region GUI
     static void DefaultMenu()
     {
         DrawTopBanner();
+        DrawMasterFoldout();
+        DrawEditorWindowsMenu();
+        DrawDebugOptionsMenu();
+        DrawSearchAndPingAssetMenu();
+    }
+
+    static void DrawMasterFoldout()
+    { // Foldout that covers the majority of the QuickAccess window.
 
         using (new VerticalScope("box"))
         {
             manageScenesFoldout = EditorGUILayout.Foldout(manageScenesFoldout, "Manage Scenes", true, EditorStyles.foldoutHeader);
-            if (manageScenesFoldout)
-            {
-                DrawSceneButtons();
-            }
+            if (manageScenesFoldout) DrawSceneButtons();
         }
-        
-        DrawDebuggingWindowMenu();
-        DrawDebugOptionsMenu();
+
+        Space(10);
     }
 
     static void DrawTopBanner()
@@ -94,7 +99,7 @@ public class QuickAccessWindow : EditorWindow
             FlexibleSpace();
 
             bool isPlaying = Application.isPlaying;
-            
+
             Label(isPlaying ? "Load Scene" : "Open Scene", EditorStyles.largeLabel);
             DrawBackButton();
         }
@@ -140,20 +145,19 @@ public class QuickAccessWindow : EditorWindow
                     addedScenesFoldout = true;
                 }
             }
-            
+
             DrawAddedScenesFoldout();
         }
     }
-    
+
     static void DrawAddedScenesFoldout()
     {
         addedScenesFoldout = EditorGUILayout.Foldout(addedScenesFoldout, "Added Scenes", true, EditorStyles.foldoutHeader);
         
         if (addedScenesFoldout && addedScenes.Count == 0)
-        {
+
             // Warning that there are no added scenes.
             EditorGUILayout.HelpBox("No scenes have been added.", MessageType.Warning, true);
-        }
 
         // Add a button for each added scene
         foreach (string scenePath in addedScenes)
@@ -162,9 +166,7 @@ public class QuickAccessWindow : EditorWindow
             string sceneName = scenePath[(scenePath.LastIndexOf('/') + 1)..];
             sceneName = sceneName[..^6];
 
-            if (!addedScenesFoldout) continue;
-
-            if (Button(sceneName, Height(30)))
+            if (Button(sceneName, Height(30)) && addedScenesFoldout)
             {
                 if (!Application.isPlaying)
                 {
@@ -184,7 +186,44 @@ public class QuickAccessWindow : EditorWindow
         if (Button("Game", Height(30))) sceneAction(3);
     }
 
-    static void DrawDebuggingWindowMenu()
+    static void DrawSearchAndPingAssetMenu()
+    {
+        Space(10);
+        
+        // Search bar
+        using var scope = new HorizontalScope("box");
+
+        Label("Search", Width(50));
+        searchQuery = TextField(searchQuery, Height(25));
+
+        if (Button("Search"))
+        {
+            string[] guids = QueryGUIDs;
+
+            switch (guids.Length)
+            {
+                case 0:
+                    Debug.LogWarning("No assets found. \nPlease check your search query.");
+                    break;
+
+                case > 1:
+                    // Show a warning popup if more than one asset is found and ask the user if they want to ping all assets or only the exact match (if found).
+                    bool pingExact = EditorUtility.DisplayDialog
+                        ("Multiple Assets Found", "More than one asset found. Would you like to ping all found assets or only the exact match (if found)?", "Exact Match", "All Assets");
+
+                    if (pingExact) FindAndPingExactAsset(guids);
+                    else FindAndLogAllAssets(guids);
+
+                    break;
+
+                default: // Pings the asset if only one asset is found.
+                    EditorGUIUtility.PingObject(AssetDatabase.LoadMainAssetAtPath(AssetDatabase.GUIDToAssetPath(guids[0])));
+                    break;
+            }
+        }
+    }
+
+    static void DrawEditorWindowsMenu()
     {
         Space(10);
 
@@ -224,7 +263,7 @@ public class QuickAccessWindow : EditorWindow
             if (Button("Back"))
             {
                 Debug.LogWarning("Back button is not yet implemented.");
-                
+
                 // -- End --
                 activeMenu = DefaultMenu;
             }
@@ -249,6 +288,58 @@ public class QuickAccessWindow : EditorWindow
 
         EditorSceneManager.OpenScene(path, OpenSceneMode.Single);
         Debug.LogWarning("Loaded a scene using the debug menu! \nThe scene might not behave as expected.");
+    }
+
+    // -- Asset Database --
+
+    static string[] QueryGUIDs
+    {
+        get
+        {
+            string searchFilter;
+
+            // Check if searchQuery has quotes for an exact match, else perform a loose match.
+            if (searchQuery.StartsWith("\"") && searchQuery.EndsWith("\"")) searchFilter = "t:Object "   + searchQuery;
+            else searchFilter                                                            = "t:Object \"" + searchQuery + "\"";
+
+            string[] guids = AssetDatabase.FindAssets(searchFilter);
+            return guids;
+        }
+    }
+
+    static void FindAndPingExactAsset(IEnumerable<string> strings)
+    {
+        //Find the exact match if any
+        foreach (string guid in strings)
+        {
+            string path     = AssetDatabase.GUIDToAssetPath(guid);
+            string fileName = Path.GetFileNameWithoutExtension(path);
+
+            if (fileName.Equals(searchQuery))
+            {
+                EditorGUIUtility.PingObject(AssetDatabase.LoadMainAssetAtPath(path));
+                return;
+            }
+        }
+
+        //If we are here it means exact match was not found
+        Debug.LogWarning($"No exact match found for '{searchQuery}'.");
+    }
+
+    static void FindAndLogAllAssets(IReadOnlyCollection<string> guids1)
+    {
+        foreach (string assetGUID in guids1)
+        {
+            if (guids1.Count > 10)
+            {
+                Debug.LogWarning("Too many assets found. \nPlease narrow your search query. \nThis is done to prevent the editor from crashing.");
+                break;
+            }
+
+            string assetPath = AssetDatabase.GUIDToAssetPath(assetGUID);
+            string assetName = Path.GetFileNameWithoutExtension(assetPath);
+            Debug.Log($"Pinging asset: {assetName}", AssetDatabase.LoadMainAssetAtPath(assetPath));
+        }
     }
     #endregion
 }

@@ -85,10 +85,6 @@ public class AttackSystem : MonoBehaviour
     ///     Also handles the animation and applying move effects.
     /// </summary>
     /// <param name="selectedPunch">The MoveData instance representing the punch to perform.</param>
-    /// <param name="directionToActionMap">
-    ///     A dictionary that maps a direction key to a tuple containing an action to perform, a
-    ///     log message, and an animation index.
-    /// </param>
     /// <param name="directionToPerform">The direction in which to perform the punch.</param>
     void PerformPunch(MoveData selectedPunch, MoveData.Direction directionToPerform)
     {
