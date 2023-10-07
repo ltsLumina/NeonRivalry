@@ -53,7 +53,7 @@ public class IntroPlayerInitializer : MonoBehaviour
 
                 while (loadingBar.value < 1f)
                 {
-                    bool  shiftKeyDown    = Input.GetKey(KeyCode.LeftShift); // Check if Shift key is pressed
+                    bool  shiftKeyDown    = Input.GetKey(KeyCode.LeftShift) || Gamepad.current.rightShoulder.isPressed; // Check if Shift key is pressed
                     float additionalSpeed = shiftKeyDown ? 0.5f : 0.0f;      // Increase speed when Shift is pressed
 
                     loadingBar.value += loadingBar.value <= cutoff

@@ -42,7 +42,6 @@ public class QuickAccessWindow : EditorWindow
         EditorApplication.playModeStateChanged += PlayModeState;
 
         return;
-
         void Initialize() => activeMenu = DefaultMenu;
     }
 
@@ -51,7 +50,6 @@ public class QuickAccessWindow : EditorWindow
         Terminate();
 
         return;
-
         void Terminate()
         {
             // Clear the added scenes list.
@@ -278,6 +276,7 @@ public class QuickAccessWindow : EditorWindow
     #endregion
     
     #region Utility
+    
     static void DrawBackButton()
     {
         const int pixels = 52; // The width of the button. "52" is the exact width to center the "Other Tools" label.
@@ -312,6 +311,9 @@ public class QuickAccessWindow : EditorWindow
         // Get the scene path by the build index.
         string path = SceneUtility.GetScenePathByBuildIndex(sceneIndex);
 
+        // Prompt to save the scene before opening a new one.
+        EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo();
+        
         EditorSceneManager.OpenScene(path, OpenSceneMode.Single);
         Debug.LogWarning("Loaded a scene using the debug menu! \nThe scene might not behave as expected.");
     }
