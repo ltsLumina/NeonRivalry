@@ -19,6 +19,7 @@ public class QuickAccessWindow : EditorWindow
     static bool optionsFoldout = true;
     static bool addedScenesFoldout;
     static bool manageScenesFoldout = true;
+    static bool otherToolsFoldout = true;
     static string searchQuery = string.Empty;
 
     readonly static List<string> addedScenes = new ();
@@ -72,39 +73,45 @@ public class QuickAccessWindow : EditorWindow
     #region GUI
     static void DefaultMenu()
     {
-        DrawTopBanner();
-        DrawMasterFoldout();
-        DrawEditorWindowsMenu();
-        DrawDebugOptionsMenu();
-        DrawSearchAndPingAssetMenu();
-    }
-
-    static void DrawMasterFoldout()
-    { // Foldout that covers the majority of the QuickAccess window.
-
-        using (new VerticalScope("box"))
-        {
-            manageScenesFoldout = EditorGUILayout.Foldout(manageScenesFoldout, "Manage Scenes", true, EditorStyles.foldoutHeader);
-            if (manageScenesFoldout) DrawSceneButtons();
-        }
-
-        Space(10);
+        DrawTopBanner(); // Handles the "Load / Open Scenes" buttons as well as the "Back" button.
+        DrawManageScenesFoldout();
+        
+        DrawMidBanner(); // Handles the "Other Tools" such as opening the other Editor Windows, Debug Options, as well as the Search and Ping Asset menu.
+        DrawOtherToolsFoldout();
     }
 
     static void DrawTopBanner()
     {
+        Space(10);
+        
         using (new HorizontalScope())
         {
+            // The amount of FlexibleSpace() calls are annoying and ugly, but they are necessary to center the "Load / Open Scenes" label.
+            FlexibleSpace();
             FlexibleSpace();
             FlexibleSpace();
 
             bool isPlaying = Application.isPlaying;
 
             Label(isPlaying ? "Load Scene" : "Open Scene", EditorStyles.largeLabel);
+            FlexibleSpace();
+            
             DrawBackButton();
         }
     }
+    
+    static void DrawManageScenesFoldout()
+    {
+        Space(10);
 
+        // Foldout that covers the majority of the QuickAccess window.
+        using (new VerticalScope("box"))
+        {
+            manageScenesFoldout = EditorGUILayout.Foldout(manageScenesFoldout, "Manage Scenes", true, EditorStyles.foldoutHeader);
+            if (manageScenesFoldout) DrawSceneButtons();
+        }
+    }
+    
     static void DrawSceneButtons()
     {
         DrawBasicSceneButtons();
@@ -160,22 +167,7 @@ public class QuickAccessWindow : EditorWindow
             EditorGUILayout.HelpBox("No scenes have been added.", MessageType.Warning, true);
 
         // Add a button for each added scene
-        foreach (string scenePath in addedScenes)
-        {
-            // derive sceneName from path
-            string sceneName = scenePath[(scenePath.LastIndexOf('/') + 1)..];
-            sceneName = sceneName[..^6];
-
-            if (Button(sceneName, Height(30)) && addedScenesFoldout)
-            {
-                if (!Application.isPlaying)
-                {
-                    EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single);
-                    Debug.LogWarning("Loaded a scene using the debug menu!\nThe scene might not behave as expected.");
-                }
-                else { Debug.LogWarning("Can't load a scene that isn't in the build settings."); }
-            }
-        }
+        AddCustomScenes();
     }
 
     static void DrawSceneLoadButtons(Action<int> sceneAction)
@@ -184,6 +176,67 @@ public class QuickAccessWindow : EditorWindow
         if (Button("Main Menu", Height(30))) sceneAction(1);
         if (Button("Character Select", Height(30))) sceneAction(2);
         if (Button("Game", Height(30))) sceneAction(3);
+    }
+    
+    static void DrawMidBanner()
+    {
+        Space(10);
+        
+        using (new HorizontalScope())
+        {
+            FlexibleSpace();
+
+            Label("Other Tools", EditorStyles.largeLabel);
+            
+            FlexibleSpace();
+        }
+    }
+    
+    static void DrawOtherToolsFoldout()
+    {
+        Space(10);
+
+        using (new VerticalScope("box"))
+        {
+            otherToolsFoldout = EditorGUILayout.Foldout(otherToolsFoldout, "Other Tools", true, EditorStyles.foldoutHeader);
+            if (otherToolsFoldout) DrawOtherTools();
+        }
+    }
+    
+    static void DrawOtherTools()
+    {
+        DrawEditorWindowsMenu();
+        DrawDebugOptionsMenu();
+        DrawSearchAndPingAssetMenu();
+    }
+
+    static void DrawEditorWindowsMenu()
+    {
+        Space(10);
+
+        using (new VerticalScope("box"))
+        {
+            windowsFoldout = EditorGUILayout.Foldout(windowsFoldout, "Editor Windows", true, EditorStyles.foldoutHeader);
+
+            if (windowsFoldout)
+            {
+                CreateButtonWithAction("Moveset Creator", CharacterMovesetCreator.Open);
+                CreateButtonWithAction("State Debugger", FGDebuggerWindow.Open);
+                CreateButtonWithAction("Lumina's Essentials", UtilityPanel.OpenUtilityPanel);
+            }
+        }
+    }
+
+    static void DrawDebugOptionsMenu()
+    {
+        Space(10);
+
+        using (new VerticalScope("box"))
+        {
+            optionsFoldout = EditorGUILayout.Foldout(optionsFoldout, "Debug Options", true, EditorStyles.foldoutHeader);
+
+            if (optionsFoldout) EditorSettings.enterPlayModeOptionsEnabled = EditorGUILayout.Toggle("Enter Playmode Options", EditorSettings.enterPlayModeOptionsEnabled);
+        }
     }
 
     static void DrawSearchAndPingAssetMenu()
@@ -222,45 +275,18 @@ public class QuickAccessWindow : EditorWindow
             }
         }
     }
-
-    static void DrawEditorWindowsMenu()
-    {
-        Space(10);
-
-        using (new VerticalScope("box"))
-        {
-            windowsFoldout = EditorGUILayout.Foldout(windowsFoldout, "Editor Windows", true, EditorStyles.foldoutHeader);
-
-            if (windowsFoldout)
-            {
-                CreateButtonWithAction("State Debugger", FGDebuggerWindow.Open);
-                CreateButtonWithAction("Moveset Creator", CharacterMovesetCreator.Open);
-                CreateButtonWithAction("Lumina's Essentials", UtilityPanel.OpenUtilityPanel);
-            }
-        }
-
-        Space(10);
-    }
-
-    static void DrawDebugOptionsMenu()
-    {
-        using (new VerticalScope("box"))
-        {
-            optionsFoldout = EditorGUILayout.Foldout(optionsFoldout, "Debug Options", true, EditorStyles.foldoutHeader);
-
-            if (optionsFoldout) EditorSettings.enterPlayModeOptionsEnabled = EditorGUILayout.Toggle("Enter Playmode Options", EditorSettings.enterPlayModeOptionsEnabled);
-        }
-    }
     #endregion
-
+    
     #region Utility
     static void DrawBackButton()
     {
+        const int pixels = 52; // The width of the button. "52" is the exact width to center the "Other Tools" label.
+        
         using (new HorizontalScope())
         {
             FlexibleSpace();
 
-            if (Button("Back"))
+            if (Button("Back", Width(pixels)))
             {
                 Debug.LogWarning("Back button is not yet implemented.");
 
@@ -288,6 +314,26 @@ public class QuickAccessWindow : EditorWindow
 
         EditorSceneManager.OpenScene(path, OpenSceneMode.Single);
         Debug.LogWarning("Loaded a scene using the debug menu! \nThe scene might not behave as expected.");
+    }
+
+    static void AddCustomScenes()
+    {
+        foreach (string scenePath in addedScenes)
+        {
+            // derive sceneName from path
+            string sceneName = scenePath[(scenePath.LastIndexOf('/') + 1)..];
+            sceneName = sceneName[..^6];
+
+            if (Button(sceneName, Height(30)) && addedScenesFoldout)
+            {
+                if (!Application.isPlaying)
+                {
+                    EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single);
+                    Debug.LogWarning("Loaded a scene using the debug menu!\nThe scene might not behave as expected.");
+                }
+                else { Debug.LogWarning("Can't load a scene that isn't in the build settings."); }
+            }
+        }
     }
 
     // -- Asset Database --
@@ -323,7 +369,7 @@ public class QuickAccessWindow : EditorWindow
         }
 
         //If we are here it means exact match was not found
-        Debug.LogWarning($"No exact match found for '{searchQuery}'.");
+        Debug.LogWarning($"No exact match found for '{searchQuery}'. \nPlease check your search query.");
     }
 
     static void FindAndLogAllAssets(IReadOnlyCollection<string> guids1)
