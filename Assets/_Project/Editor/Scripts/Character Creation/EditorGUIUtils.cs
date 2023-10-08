@@ -31,4 +31,6 @@ public class EditorGUIUtils : Editor
     public readonly static GUIContent isGuardBreakContent = new ("Guard Break", "If checked, this move breaks the opponent's guard.");
     
     public readonly static GUIContent existingMovesContent = new ("Existing Moves", "Due to a limitation in Unity, you must manually add moves to the moveset through the use of these buttons.");
+
+    public readonly static GUIContent debugModeContent = new ("Debug Mode", "Enables some debug features such as skipping the splash screen and allowing the player to join in the game scene.");
 }

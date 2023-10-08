@@ -12,6 +12,8 @@ namespace Lumina.Debugging
 /// </summary>
 public static class FGDebugger
 {
+    public static bool debugMode = true;
+    
     // Level enum is used to specify the log level
     public enum Level
     {

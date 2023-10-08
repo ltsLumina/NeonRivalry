@@ -9,7 +9,7 @@ using UnityEngine.InputSystem.Controls;
 
 public static class GamepadExtensions
 {
-    public static bool AnyButton(this Gamepad gamepad)
+    public static bool AnyButtonDown(this Gamepad gamepad)
     {
         // Create a list of all buttons on the gamepad
         List<ButtonControl> buttons = new()

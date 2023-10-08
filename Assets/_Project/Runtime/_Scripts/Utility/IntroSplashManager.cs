@@ -1,4 +1,5 @@
 using System.Collections;
+using Lumina.Debugging;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,6 +14,13 @@ public class IntroSplashManager : MonoBehaviour
 
     void Start()
     {
+        // If debug mode is enabled, skip the splash screen.
+        if (FGDebugger.debugMode)
+        {
+            Destroy(splashScreen.gameObject);
+            return;
+        } 
+
         splashScreen.gameObject.SetActive(true);
         
         // Disable input until the splash screen is done fading.

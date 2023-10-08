@@ -233,7 +233,11 @@ public class QuickAccessWindow : EditorWindow
         {
             optionsFoldout = EditorGUILayout.Foldout(optionsFoldout, "Debug Options", true, EditorStyles.foldoutHeader);
 
-            if (optionsFoldout) EditorSettings.enterPlayModeOptionsEnabled = EditorGUILayout.Toggle("Enter Playmode Options", EditorSettings.enterPlayModeOptionsEnabled);
+            if (optionsFoldout)
+            {
+                EditorSettings.enterPlayModeOptionsEnabled = EditorGUILayout.Toggle("Enter Playmode Options", EditorSettings.enterPlayModeOptionsEnabled);
+                FGDebugger.debugMode = EditorGUILayout.Toggle(EditorGUIUtils.debugModeContent, FGDebugger.debugMode);
+            }
         }
     }
 
