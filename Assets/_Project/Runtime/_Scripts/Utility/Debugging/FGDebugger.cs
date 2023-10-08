@@ -13,6 +13,14 @@ namespace Lumina.Debugging
 public static class FGDebugger
 {
     public static bool debugMode = true;
+
+    static FGDebugger()
+    {
+        // Disable the debug mode if we are not in the editor.
+#if !UNITY_EDITOR
+        debugMode = false;
+#endif
+    }
     
     // Level enum is used to specify the log level
     public enum Level

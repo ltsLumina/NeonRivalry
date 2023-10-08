@@ -15,20 +15,13 @@ public class IntroPlayerInitializer : MonoBehaviour
     [SerializeField] GameObject loadingScreen;
     [SerializeField] TMP_Text pressAnyButtonText;
 
-    void Awake()
-    {
-        InputDeviceManager.persistentPlayerDevices.Clear();
-
-        // Reset rumble in case something happened and it is still rumbling. (mostly for debugging purposes)
-        foreach (var gamepad in Gamepad.all) { gamepad.SetMotorSpeeds(0f, 0f); }
-    }
-
     IEnumerator Start()
     {
+        // ReSharper disable once NotAccessedVariable
         MultiplayerEventSystem player = null;
         
-        // This might seem like a non-performant way of doing this, but it's the only way I could think of.
-        // But due to the lack of objects in the 'Intro' scene, it's not a big deal.
+        // Wait until a player joins.
+        // This might seem redundant, but it is necessary to prevent the game from loading the next scene before a player joins.
         yield return new WaitUntil(() => (player = FindObjectOfType<MultiplayerEventSystem>()) != null);
 
         // Check if debug mode is enabled, and if so, skip the loading screen.

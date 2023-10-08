@@ -3,7 +3,6 @@ using System.Linq;
 using Lumina.Debugging;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
 
 public class InputDeviceManager : MonoBehaviour
 {
@@ -19,19 +18,27 @@ public class InputDeviceManager : MonoBehaviour
     const int CharacterSelect = 2;
     const int Game = 3;
 
+    void Awake() => playerInputManager = GetComponent<PlayerInputManager>();
+
     void Start()
     {
-        // Instantiate the players into the game scene if there are persistent devices from previous scenes.
-        InstantiatePlayersInGameScene(); 
-    }
-    
-    void InstantiatePlayersInGameScene()
-    {
-        // Get the PlayerInputManager
-        playerInputManager = GetComponent<PlayerInputManager>(); 
-        if (playerInputManager == null) Debug.LogError("No PlayerInputManager found in the scene!");
+        // Clear the persistent devices if the scene is the Intro scene.
+        // This is done to circumvent a bug where the persistent devices are not cleared when the game is restarted. (Due to Enter Playmode Options)
+        if (SceneManagerExtended.ActiveScene is Intro) persistentPlayerDevices.Clear();
 
-        //Load the devices from previous scene
+        // Instantiate the players into the game scene if there are persistent devices from previous scenes.
+            LoadPersistentPlayers();
+    }
+
+    /// <summary>
+    /// Loads in the players that were registered on previous scenes.
+    /// This method is used in most situations to load in the players.
+    /// <para></para>
+    /// <seealso cref="OnPlayerJoin"/>
+    /// </summary>
+    void LoadPersistentPlayers()
+    {
+        //Load the devices that were registered on previous scenes.
         foreach(KeyValuePair<InputDevice, int> kvp in persistentPlayerDevices)
         {
             playerDevices[kvp.Key] = kvp.Value;
@@ -51,32 +58,49 @@ public class InputDeviceManager : MonoBehaviour
         OnPlayerJoin();
     }
     
+    /// <summary>
+    ///    Handles players joining the game, if they are allowed to.
+    /// For instance, players are not allowed to join in the Game scene.
+    /// <para></para>
+    /// LoadPersistentPlayers loads in players if they have already joined in previous scenes.
+    /// For instance the Intro and Character Select scenes.
+    /// <seealso cref="LoadPersistentPlayers"/> 
+    /// </summary>
     void OnPlayerJoin()
     {
-        List<int> allowedScenes = GetAllowedScenes(Intro, MainMenu, CharacterSelect, Game);
+        InputDevice activeDevice = GetActiveDevice();
 
-        // Only allow players to join the 'allowedScenes' list.
-        if (!allowedScenes.Contains(SceneManager.GetActiveScene().buildIndex)) return;
-        
-        // If no key was pressed this frame, return.
+        // Get the 'allowedScenes' list and check if the current scene allows player to join.
+        List<int> allowedScenes = GetAllowedScenes(Intro, MainMenu, CharacterSelect, Game);
+        if (!allowedScenes.Contains(SceneManagerExtended.ActiveScene)) return;
+
+        // Check if any control button was pressed this frame, if not then return.
         if (!Keyboard.current.anyKey.wasPressedThisFrame && (Gamepad.current == null || !Gamepad.current.AnyButtonDown())) return;
 
-        // If a player tries to join but there is already a player in the Intro or MainMenu, return.
-        // We do this as only one player is allowed to join in these scenes.
-        bool isIntroOrMainMenu = allowedScenes.IndexOf(SceneManager.GetActiveScene().buildIndex) < CharacterSelect; // checking if it is 'Intro' or 'MainMenu'
+        // Scene-specific logic to control player join rules.
+        bool isIntroOrMainMenu = allowedScenes.IndexOf(SceneManagerExtended.ActiveScene) < CharacterSelect;
+        bool isCharSelect      = allowedScenes.IndexOf(SceneManagerExtended.ActiveScene) == CharacterSelect;
 
-        if (isIntroOrMainMenu && playerDevices.Count >= 1)
+        // 'Character Select' scene where max of two players can exist.
+        if (isCharSelect && playerInputManager.playerCount >= 2)
         {
-            // If player 1 is already in the game, don't allow any more players to join.
+            Debug.LogWarning("There can be a maximum of two players!");
+            return;
+        }
+
+        // 'Intro' or 'MainMenu' scenes where only one player can exist.
+        if (isIntroOrMainMenu && playerInputManager.playerCount >= 1 && !playerDevices.ContainsKey(activeDevice))
+        {
             Debug.LogWarning("Only one player can join in the Intro and Main Menu scenes.");
             return;
         }
 
+        // If all checks pass, instantiate the player.
         InstantiatePlayer();
     }
 
     /// <summary>
-    ///    Instantiates a UI Navigator or Player into the game scene.
+    ///    Instantiates a Menu Navigator or Player into the game scene.
     /// </summary>
     
     // BUG:

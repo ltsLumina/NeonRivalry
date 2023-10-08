@@ -3,7 +3,6 @@ using Lumina.Essentials.Attributes;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(MultiplayerEventSystem))]
@@ -32,8 +31,8 @@ public class EventSystemSelector : MonoBehaviour
 
     void Start()
     {
-        string sceneName  = SceneManager.GetActiveScene().name;
-        int sceneIndex = SceneManager.GetActiveScene().buildIndex;
+        string sceneName  = SceneManagerExtended.ActiveSceneName;
+        int sceneIndex = SceneManagerExtended.ActiveScene;
 
         // If the scene is the Intro or Game scene, return, as we don't want to select a button in these scenes.
         if (sceneIndex is Intro or Game) return;
