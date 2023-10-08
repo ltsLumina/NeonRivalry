@@ -32,12 +32,14 @@ public class AttackState : State
     
     Animator animator;
     Moveset moveset;
+    PlayerAbilities abilities;
     
     // -- Constructor --
     public AttackState(PlayerController player, AttackStateData stateData) : base(player)
     {
         animator = player.GetComponentInChildren<Animator>();
         moveset  = stateData.Moveset;
+        abilities = stateData.PlayerAbilities;
 
         Debug.Assert(moveset != null, "Moveset is null in the AttackStateData. Please assign it in the inspector.");
     }
@@ -155,9 +157,9 @@ public class AttackState : State
         if (selectedPunch.moveEffects != null)
         {
             // Iterate through the move effects and apply them to the player, if any.
-            foreach (var effect in selectedPunch.moveEffects)
+            foreach (MoveEffect effect in selectedPunch.moveEffects)
             {
-                //effect.ApplyEffect(abilities);
+                //effect.ApplyEffect(abilities, null);
                 FGDebugger.Debug("Applied effect: " + effect.name, LogType.Log, StateType.Attack);
             }
         }
