@@ -93,15 +93,16 @@ public partial class PlayerManager : MonoBehaviour
         // Assign the healthbar to the healthbar manager
         healthbarManager.Healthbars.Add(healthbar);
 
-        // Assign the healthbar to player.
+        // Assign the healthbar to the player.
         player.Healthbar = healthbar;
-
-        // Set the healthbar's name.
-        healthbar.name = name;
 
         // Assign the player to the healthbar.
         healthbar.Player = player;
+
+        // Set the healthbar's name.
+        healthbar.name = name;
         
+        // Initialize the healthbar.
         player.Healthbar.Initialize();
     }
     
