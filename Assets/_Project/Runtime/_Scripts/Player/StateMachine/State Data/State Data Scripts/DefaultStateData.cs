@@ -1,15 +1,9 @@
-﻿using Lumina.Essentials.Attributes;
-using UnityEngine;
+﻿using UnityEngine;
 
 /// <summary>
-/// This scriptable object is intended to be used a template for creating new state data.
+/// This scriptable object is intended to be used a base for creating new state data.
 /// </summary>
-[CreateAssetMenu(fileName = "DefaultStateData", menuName = "State Data/DefaultState Data", order = 0)]
-public class DefaultStateData : ScriptableObject
+public abstract class DefaultStateData : ScriptableObject
 {
-    [SerializeField, ReadOnly] float exampleVariable1;
-    [SerializeField] float exampleVariable2;
-
-    public float ExampleVariable1 => exampleVariable1;
-    public float ExampleVariable2 => exampleVariable2;
+    // Doesn't include anything in particular as it's intended to be used as a base.
 }

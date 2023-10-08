@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System;
+using UnityEditor;
 using UnityEngine;
 
 [CustomEditor(typeof(HealthbarManager))]
@@ -46,8 +47,21 @@ public class HealthbarManagerEditor : Editor
     {
         using (new EditorGUILayout.HorizontalScope())
         {
-            if (playerOne != null && GUILayout.Button($"Set Left 100")) playerOne.Slider.value  = value;
-            if (playerTwo != null && GUILayout.Button($"Set Right 100")) playerTwo.Slider.value = value;
+            if (GUILayout.Button($"Set Left to {value}"))
+                try { playerOne.Slider.value = value; } 
+                catch (NullReferenceException e)
+                {
+                    Debug.LogError($"Player One Healthbar is null. \n {e}");
+                    throw;
+                }
+
+            if (GUILayout.Button($"Set Right to {value}"))
+                try { playerTwo.Slider.value = value; } 
+                catch (NullReferenceException e)
+                {
+                    Debug.LogError($"Player One Healthbar is null. \n {e}");
+                    throw;
+                }
         }
     }
     #endregion

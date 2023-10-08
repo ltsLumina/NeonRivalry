@@ -22,27 +22,31 @@ public class AttackState : State
     // -- State Specific Variables --
     float groundedAttackTimer;
     float airborneAttackTimer;
+    
+    // -- Constants --
+    const int NeutralPunchIndex = 0;
+    const int ForwardPunchIndex = 1;
+    const int UpPunchIndex      = 2;
+    const int DownPunchIndex    = 3;
 
     //A dictionary that maps a direction key to a tuple containing an action to perform, a log message, and an animation index.
     readonly static Dictionary<MoveData.Direction, (Action<MoveData> action, string logMessage, int animationIndex)> directionToActionMap = new ()
-    { { MoveData.Direction.Neutral, (null, "Neutral move performed.", 0) },
-      { MoveData.Direction.Forward, (null, "Forward move performed.", 1) },
-      { MoveData.Direction.Up, (null, "Up move performed.", 2) },
-      { MoveData.Direction.Down, (null, "Down move performed.", 3) } };
+    { { MoveData.Direction.Neutral, (null, "Neutral move performed.", NeutralPunchIndex) },
+      { MoveData.Direction.Forward, (null, "Forward move performed.", ForwardPunchIndex) },
+      { MoveData.Direction.Up, (null, "Up move performed.", UpPunchIndex) },
+      { MoveData.Direction.Down, (null, "Down move performed.", DownPunchIndex) } };
     
-    Animator animator;
-    Moveset moveset;
-    PlayerAbilities abilities;
-    
-    // -- Constructor --
-    public AttackState(PlayerController player, AttackStateData stateData) : base(player)
-    {
-        animator = player.GetComponentInChildren<Animator>();
-        moveset  = stateData.Moveset;
-        abilities = stateData.PlayerAbilities;
+      Animator animator;
+      Moveset moveset;
 
-        Debug.Assert(moveset != null, "Moveset is null in the AttackStateData. Please assign it in the inspector.");
-    }
+      // -- Constructor --
+      public AttackState(PlayerController player, AttackStateData stateData) : base(player)
+      {
+          animator = player.GetComponentInChildren<Animator>();
+          moveset  = stateData.Moveset;
+
+          Debug.Assert(moveset != null, "Moveset is null in the AttackStateData. Please assign it in the inspector.");
+      }
 
     public override bool CanBeInterrupted() => interruptibilityRules[Type];
 
@@ -50,7 +54,7 @@ public class AttackState : State
     {
         // Play the attack animation.
         IsAttacking = true;
-        IsAirborne  = !player.IsGrounded(); // Check whether the player was in air when attack started.
+        IsAirborne  = player.IsAirborne(); // Check whether the player was in air when attack started.
 
         player.GetComponentInChildren<SpriteRenderer>().color = IsAirborne ? new (1f, 0.21f, 0.38f, 0.75f) : Color.red;
 
@@ -154,15 +158,16 @@ public class AttackState : State
         PlayAnimation(selectedPunch, directionToActionMap[directionToPerform].animationIndex);
 
         // Apply the move effects, if any.
-        if (selectedPunch.moveEffects != null)
-        {
-            // Iterate through the move effects and apply them to the player, if any.
-            foreach (MoveEffect effect in selectedPunch.moveEffects)
-            {
-                //effect.ApplyEffect(abilities, null);
-                FGDebugger.Debug("Applied effect: " + effect.name, LogType.Log, StateType.Attack);
-            }
-        }
+        //TODO: this block will be moved into the animation event. 
+        // if (selectedPunch.moveEffects != null)
+        // {
+        //     // Iterate through the move effects and apply them to the player, if any.
+        //     foreach (MoveEffect effect in selectedPunch.moveEffects)
+        //     {
+        //         //effect.ApplyEffect(abilities, null);
+        //         FGDebugger.Debug("Applied effect: " + effect.name, LogType.Log, StateType.Attack);
+        //     }
+        // }
 
         // Log the action that was performed.
         FGDebugger.Debug(directionToActionMap[directionToPerform].logMessage, LogType.Log, StateType.Attack);

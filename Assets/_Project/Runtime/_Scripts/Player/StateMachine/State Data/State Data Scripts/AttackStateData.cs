@@ -3,12 +3,11 @@ using UnityEngine;
 #endregion
 
 [CreateAssetMenu(fileName = "AttackStateData", menuName = "State Data/AttackState Data", order = 4)]
-public class AttackStateData : ScriptableObject
+public class AttackStateData : DefaultStateData
 {
     [SerializeField] Moveset moveset;
-    [SerializeField] PlayerAbilities playerAbilities;
-
+    
+    // -- Properties --
     
     public Moveset Moveset => moveset;
-    public PlayerAbilities PlayerAbilities => playerAbilities;
 }
