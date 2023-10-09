@@ -6,4 +6,10 @@
 public abstract class DefaultStateData : ScriptableObject
 {
     // Doesn't include anything in particular as it's intended to be used as a base.
+
+    // Ensure there is only ever one instance of each type of state data.
+    void OnEnable()
+    {
+        
+    }
 }

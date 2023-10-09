@@ -37,24 +37,22 @@ public class MoveState : State
 
         player.GetComponentInChildren<SpriteRenderer>().color = Color.blue;
     }
-
-    //MOVEMENT ISN'T MY PROBLEM HAHAHAHAHA HAVE FUN WITH THIS HEHEHE
+    
     public override void UpdateState()
     {
-        Debug.Log("Update move state was called");
         // Handle move logic
         Vector3 moveInput = player.InputManager.MoveInput;
         int moveDirection = (int)moveInput.x;
 
         float targetSpeed = moveDirection * moveSpeed;
 
-        float speedDifference = targetSpeed - player.PlayerRB.velocity.x;
+        float speedDifference = targetSpeed - player.Rigidbody.velocity.x;
 
-        float accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? acceleration : deceleration;
+        float accelRate = Mathf.Abs(targetSpeed) > 0.01f ? acceleration : deceleration;
 
         float movement = Mathf.Pow(Mathf.Abs(speedDifference) * accelRate, velocityPower) * Mathf.Sign(speedDifference);
 
-        player.PlayerRB.AddForce(movement * Vector3.right);
+        player.Rigidbody.AddForce(movement * Vector3.right);
 
         OnExit();
     }
@@ -62,19 +60,13 @@ public class MoveState : State
     public override void OnExit()
     {
         // Perform any necessary cleanup or exit actions
-        //Debug.Log("Exited Move State");
-
-        // Slow down the player
-        // Vector3 velocity = player.PlayerRB.velocity;
-        // velocity = new (velocity.x * 0.9f, velocity.y, velocity.z);
-        // player.PlayerRB.velocity = velocity;
-
-        // Pass control to the idle state
         
-        // TODO: If we enter the Idle state whenever we stop moving, we'll gain a lot of speed when we start moving again as OnEnter is called.
-        //player.StateMachine.TransitionToState(StateType.Idle);
-        
-        // Reset the IsMoving flag
+        //TODO: I don't think I like this. If you move from side to side quickly, you will be switch to idle for a frame and then back to walk, which just feels off.
+        // if (player.InputManager.MoveInput.x == 0)
+        // {
+        //     player.StateMachine.TransitionToState(StateType.Idle);
+        // }
+
         IsMoving = false;
     }
 }

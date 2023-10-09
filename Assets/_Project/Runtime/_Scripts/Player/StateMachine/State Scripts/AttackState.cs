@@ -205,8 +205,10 @@ public class AttackState : State
     {
         // Cancel the animation if it is still playing.
         animator.Play("Idle");
-        
-        player.StateMachine.TransitionToState(player.InputManager.MoveInput.x != 0 ? StateType.Walk : StateType.Idle);
+
+        if (player.InputManager.MoveInput.x != 0 && player.IsGrounded()) player.StateMachine.TransitionToState(StateType.Walk);
+        else player.StateMachine.TransitionToState(StateType.Idle);
+
         IsAttacking = false;
     }
 }

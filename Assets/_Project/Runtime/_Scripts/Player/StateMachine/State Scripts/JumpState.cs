@@ -12,13 +12,15 @@ public class JumpState : State
 
     public bool IsJumping { get; private set; }
 
-    float jumpForce;
-
     float jumpTimer;
+    float jumpForce;
     float jumpDuration;
 
     public JumpState(PlayerController player, JumpStateData stateData) : base(player)
     {
+        float playerMass = stateData.PlayerMass;
+        player.Rigidbody.mass = playerMass;
+        
         jumpForce = stateData.JumpForce;
         jumpDuration = stateData.JumpDuration;
     }
@@ -42,23 +44,21 @@ public class JumpState : State
     public override void UpdateState()
     {
         // Handle jump logic, such as applying jump force
-
+        
         if (jumpTimer < jumpDuration)
         {
-            // Apply the jump force
-            player.Rigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            // Apply jump force
+            player.Rigidbody.AddForce(Vector3.up * (jumpForce / jumpDuration), ForceMode.Force);
         }
-        else if (jumpTimer >= jumpDuration /* && player.Rigidbody.velocity.y < 0 */)
+        // Player has reached the apex of their jump
+        else
         {
-            // Jump duration exceeded, transition to another state
+            // Exit current state and transition to fall state
             OnExit();
-
-            // Transition to fall state
-            //TransitionTo(StateType.Fall);
             player.StateMachine.TransitionToState(StateType.Fall);
         }
 
-        jumpTimer += Time.deltaTime;
+        jumpTimer += Time.fixedDeltaTime;
     }
 
     public override void OnExit()
