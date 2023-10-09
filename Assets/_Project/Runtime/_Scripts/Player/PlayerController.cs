@@ -98,17 +98,21 @@ public partial class PlayerController : MonoBehaviour
         {
             case 1:
                 PlayerManager.ChangePlayerColor(this, playerManager.PlayerColors.playerOneColor);
-                PlayerManager.SetPlayerSpawnPoint(this, new (-5, 3));
+                PlayerManager.SetPlayerSpawnPoint(this, new (-5, 3)); // debug values; use PlayerManager.PlayerSpawnPoints[PlayerID - 1] instead
                 PlayerManager.SetPlayerHealthbar(this, PlayerID);
                 PlayerManager.SetPlayerInput(this, PlayerManager.PlayerInputs[PlayerID - 1]);
                 break;
 
             case 2:
                 PlayerManager.ChangePlayerColor(this, playerManager.PlayerColors.playerTwoColor);
-                PlayerManager.SetPlayerSpawnPoint(this, new (5, 3));
+                PlayerManager.SetPlayerSpawnPoint(this, new (5, 3)); // debug values; use PlayerManager.PlayerSpawnPoints[PlayerID - 1] instead
                 PlayerManager.SetPlayerHealthbar(this, PlayerID);
                 PlayerManager.SetPlayerInput(this, PlayerManager.PlayerInputs[PlayerID - 2]);
                 break;
+
+            default:
+                Debug.LogError($"Invalid PlayerID: {PlayerID}. Expected either 1 or 2.");
+                return;
         }
     }
     
@@ -124,7 +128,7 @@ public partial class PlayerController : MonoBehaviour
 
             const string warningMessage = "The player has been disabled! " + "Please refrain from disabling the player and opt to destroy it instead. \n" +
                                           "If the object was destroyed correctly, please ignore this message.";
-
+            
             Debug.LogWarning(warningMessage);
         }
     }
