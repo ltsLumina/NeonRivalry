@@ -76,18 +76,13 @@ public partial class PlayerController // StateChecks.cs
     /// <returns> True if the player is idle, false otherwise.</returns>
     public bool IsIdle()
     {
-        bool isIdle = 
-                IsGrounded() 
-            && !IsMoving() 
-            && !IsJumping() 
-            && !IsFalling() 
-            && !IsAttacking();
+        bool isIdle = IsGrounded() && !(IsMoving() || IsAirborne() || IsAttacking());
 
         FGDebugger.Debug($"IsIdle() is {isIdle}", LogType.Log, State.StateType.Idle);
 
         return isIdle;
     }
-
+    
     public bool CanMove() => IsIdle();
 
     public bool CanJump() => !IsAirborne() && !IsAttacking();

@@ -16,16 +16,19 @@ public partial class PlayerController : MonoBehaviour
 {
     [Header("Player Stats"), ReadOnly]
     [SerializeField] Healthbar healthbar;
-    
+
     [Header("Read-Only Fields")]
     [SerializeField] float idleTimeThreshold;
     [SerializeField, ReadOnly] public float idleTime;
 
-    [Header("Ground Check"), Tooltip("The minimum distance the raycast must be from the ground.")] 
+    [Header("Ground Check"), Tooltip("The minimum distance the raycast must be from the ground.")]
     [SerializeField, ReadOnly] float raycastDistance = 1.022f; //With the capsule collider, this is the minimum distance between player and ground.
     [SerializeField] LayerMask groundLayer;
 
-    [Header("Player ID"), Tooltip("The player's ID. \"1\"refers to player 1, \"2\" refers to player 2.")]
+    [Header("Animation References")]
+    [SerializeField] Transform characterModel;
+
+[Header("Player ID"), Tooltip("The player's ID. \"1\"refers to player 1, \"2\" refers to player 2.")]
     [SerializeField, ReadOnly] int playerID;
 
     // Cached References
@@ -129,6 +132,41 @@ public partial class PlayerController : MonoBehaviour
     void Update()
     {
         CheckIdle();
+
+        RotateToFaceEnemy();
+    }
+    
+    void RotateToFaceEnemy()
+    {
+        if (PlayerManager.PlayerTwo != null)
+        {
+            var players= PlayerManager.Players;
+            var oppositePlayer = players[PlayerID == 1 ? 1 : 0];
+            var speed = 6.5f;
+
+            if (IsGrounded())
+            {
+                // Obtain the vector pointing from our object to the target object.
+                Vector3 direction = oppositePlayer.characterModel.position - characterModel.position;
+
+                // Zero out the y-component of the vector so the player will only rotate around the y-axis and will not tilt upwards.
+                direction.y = 0;
+
+                // Create a rotation that looks in the opposite direction of where our object is to the target (hence the negative direction).
+                Quaternion rotation = Quaternion.LookRotation(-direction);
+                Transform parent = oppositePlayer.transform.GetComponentInParent<PlayerController>().transform;
+                
+                // Gradually rotate from our current rotation to the aforementioned rotation. This smooths out the rotation so it does not snap into place.
+                parent.rotation = Quaternion.Slerp
+                    (parent.rotation, rotation, speed * Time.deltaTime);
+
+                // Repeat for our character model, creating a rotation that looks in the direction of where our object is to the target.
+                rotation = Quaternion.LookRotation(direction);
+
+                // As before, gradually rotate from our current rotation to the new rotation.
+                characterModel.rotation = Quaternion.Slerp(characterModel.rotation, rotation, speed * Time.deltaTime);
+            }
+        }
     }
 
     // -- State Checks --

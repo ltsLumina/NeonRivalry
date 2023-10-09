@@ -13,16 +13,6 @@ public class GameManager : MonoBehaviour
     void Awake()
     {
         Application.targetFrameRate = TARGET_FPS;
-        
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible   = false;
-        
-        // Press escape (while in the editor) to unlock the cursor.
-        if (Input.GetKeyDown(KeyCode.Escape) && Application.isEditor)
-        {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible   = true;
-        }
     }
     
     void Update()
