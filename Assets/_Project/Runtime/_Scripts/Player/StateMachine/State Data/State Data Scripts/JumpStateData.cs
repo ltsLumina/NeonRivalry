@@ -13,6 +13,8 @@ public class JumpStateData : DefaultStateData
     
     [Tooltip("The mass of the player while falling. \nDefault Value: 1.5")]
     [SerializeField] float playerMass;
+
+    // -- Properties --
     
     public float JumpForce => jumpForce;
     public float JumpDuration => jumpDuration;

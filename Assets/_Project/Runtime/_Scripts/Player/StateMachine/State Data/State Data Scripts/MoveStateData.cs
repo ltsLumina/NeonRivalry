@@ -16,6 +16,9 @@ public class MoveStateData : DefaultStateData
 
     [Tooltip("The power of the velocity. \nDefault Value: 1.3")]
     [SerializeField] float velocityPower;
+    
+    // -- Properties --
+    
     public float MoveSpeed => moveSpeed;
     public float Acceleration => acceleration;
     public float Deceleration => deceleration;

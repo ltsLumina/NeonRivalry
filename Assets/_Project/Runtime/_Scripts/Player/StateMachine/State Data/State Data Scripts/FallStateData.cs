@@ -10,6 +10,8 @@ public class FallStateData : DefaultStateData
     
     [Tooltip("The force applied to the player while falling to halt upward momentum. \nDefault Value: 6")]
     [SerializeField] float jumpHaltForce;
+
+    // -- Properties --
     
     public float FallGravityMultiplier => fallGravityMultiplier;
     public float JumpHaltForce => jumpHaltForce;
