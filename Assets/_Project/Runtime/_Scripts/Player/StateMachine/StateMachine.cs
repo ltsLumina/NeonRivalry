@@ -86,7 +86,7 @@ public class StateMachine : MonoBehaviour
                 CheckStateDataThenExecute(stateData.jumpStateData, data => SetState(new JumpState(Player, data)));
                 break;
 
-            case Fall when Player.IsFalling():
+            case Fall when Player.CanFall():
                 CheckStateDataThenExecute(stateData.fallStateData, data => SetState(new FallState(Player, data)));
                 break;
 

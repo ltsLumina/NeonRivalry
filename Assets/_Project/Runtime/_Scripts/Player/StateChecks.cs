@@ -86,6 +86,8 @@ public partial class PlayerController // StateChecks.cs
     public bool CanMove() => IsIdle();
 
     public bool CanJump() => !IsAirborne() && !IsAttacking();
+    
+    public bool CanFall() => IsAirborne() && !IsAttacking();
 
     public bool CanAttack() => !IsAttacking();
 

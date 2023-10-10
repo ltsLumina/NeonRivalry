@@ -1,68 +1,49 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Lumina.Debugging;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
-[Obsolete("This class is deprecated. Please use the AttackState class instead.")]
-//TODO: This class will be repurposed to handle the attacking logic. (Non-mono behaviour) Essentially a wrapper for the AttackState class.
-public class AttackSystem : MonoBehaviour
+public class AttackHandler
 {
     // -- Fields --
-    
-    [SerializeField] Moveset activeMoveset;
 
-    PlayerController player;
+    Moveset moveset;
     Animator animator;
+    PlayerController player;
 
+    // -- Constants --
+    const int NeutralPunchIndex = 0;
+    const int ForwardPunchIndex = 1;
+    const int UpPunchIndex = 2;
+    const int DownPunchIndex = 3;
+
+    //A dictionary that maps a direction key to a tuple containing an action to perform, a log message, and an animation index.
     readonly static Dictionary<MoveData.Direction, (Action<MoveData> action, string logMessage, int animationIndex)> directionToActionMap = new ()
-    { { MoveData.Direction.Neutral, (null, "Neutral move performed.", 0) },
-      { MoveData.Direction.Forward, (null, "Forward move performed.", 1) },
-      { MoveData.Direction.Up,      (null, "Up move performed.", 2) },
-      { MoveData.Direction.Down,    (null, "Down move performed.", 3) } 
-    };
+    { { MoveData.Direction.Neutral, (null, "Neutral move performed.", NeutralPunchIndex) },
+      { MoveData.Direction.Forward, (null, "Forward move performed.", ForwardPunchIndex) },
+      { MoveData.Direction.Up, (null, "Up move performed.", UpPunchIndex) },
+      { MoveData.Direction.Down, (null, "Down move performed.", DownPunchIndex) } };
     
-    // -- Properties --
+    public AttackHandler(Moveset moveset, Animator animator, PlayerController player)
+    {
+        this.moveset  = moveset;
+        this.animator = animator;
+        this.player   = player;
+    }
     
-    public Moveset ActiveMoveset
-    {
-        get => activeMoveset;
-        set => activeMoveset = value;
-    }
-
-    void Awake()
-    {
-        player = GetComponentInParent<PlayerController>();
-        animator = transform.parent.GetComponentInChildren<Animator>();
-    }
-
-    /// <summary>
-    /// Called by the <see cref="PlayerInput"/> component when the player presses a punch button.
-    /// </summary>
-    /// <param name="context"> The context of the input action. </param>
-    public void OnPunch(InputAction.CallbackContext context)
-    {
-        // Check which move was performed.
-        // For instance, if the player pressed the "Punch" button (e.g. "X" on a controller), then the "Punch" move will be performed.
-        GetPunch(context);
-    }
-
     /// <summary>
     ///     Returns the move that corresponds to the direction that the player is pressing.
     ///     <para></para>
     ///     If the player is not airborne,
     ///     the move that will be performed is the move that corresponds to the direction that the player is pressing.
     /// </summary>
-    /// <param name="context"> The context of the input action.
-    ///     <para>Used to execute the action that corresponds to the direction that the player is pressing.</para>
-    /// </param>
+    /// <para>Used to execute the action that corresponds to the direction that the player is pressing.</para>
     /// <returns> The move that corresponds to the direction that the player is pressing. </returns>
     /// <example> If the player is pressing Up, then the move that will be performed is the "Up" move. </example>
-    void GetPunch(InputAction.CallbackContext context)
+    public void SelectPunch() //TODO: CHECK AI PREVIOUS CHATS FOR REFACTOR
     {
-        if (!context.started) return;
-        
-        List<MoveData> punchMoves = activeMoveset.punchMoves;
+        List<MoveData> punchMoves = moveset.punchMoves;
 
         if (punchMoves.Exists(punch => punch.type != MoveData.Type.Punch)) Debug.LogWarning("One or more punch moves are not of type \"Punch\".");
 
@@ -95,24 +76,39 @@ public class AttackSystem : MonoBehaviour
         PlayAnimation(selectedPunch, directionToActionMap[directionToPerform].animationIndex);
 
         // Apply the move effects, if any.
-        if (selectedPunch.moveEffects != null)
-        {
-            // Iterate through the move effects and apply them to the player, if any.
-            foreach (var effect in selectedPunch.moveEffects)
-            {
-                //effect.ApplyEffect(abilities);
-                Debug.Log("Applied effect: " + effect.name);
-            }
-        }
+        //TODO: this block will be moved into the animation event. 
+        // if (selectedPunch.moveEffects != null)
+        // {
+        //     // Iterate through the move effects and apply them to the player, if any.
+        //     foreach (MoveEffect effect in selectedPunch.moveEffects)
+        //     {
+        //         //effect.ApplyEffect(abilities, null);
+        //         FGDebugger.Debug("Applied effect: " + effect.name, LogType.Log, StateType.Attack);
+        //     }
+        // }
 
         // Log the action that was performed.
-        Debug.Log(directionToActionMap[directionToPerform].logMessage);
+        FGDebugger.Debug(directionToActionMap[directionToPerform].logMessage, LogType.Log, State.StateType.Attack);
     }
 
+    #region Kick Logic
+    // Placeholders for Kick methods
+    void SelectKick()
+    {
+        // TODO: Implement this method based on how kicks are intended to work in your game.
+    }
+
+    void PerformKick(MoveData selectedKick, MoveData.Direction directionToPerform)
+    {
+        // TODO: Implement this method based on how kicks are intended to work in your game.
+    }
+    #endregion
+
+    #region Utility
     /// <summary>
     ///     Returns the direction that the player is pressing.
     ///     Does not include the "Up" direction as that is handled separately.
-    ///     <see cref="GetPunch" /> for more information.
+    ///     <see cref="SelectPunch" /> for more information.
     /// </summary>
     /// <param name="input"> The player's input. </param>
     /// <returns> The direction that the player is pressing. </returns>
@@ -122,10 +118,9 @@ public class AttackSystem : MonoBehaviour
         if (input == Vector2.zero) return MoveData.Direction.Neutral;
 
         // If the player is inputting a direction, execute the action that corresponds to the direction that the player is pressing.
-        return input.x != 0
-            ? MoveData.Direction.Forward 
-            : MoveData.Direction.Down;
+        return input.x != 0 ? MoveData.Direction.Forward : MoveData.Direction.Down;
     }
+    #endregion
 
     // If the player is inputting down, the move that will be performed is the "Down" move.
     void PlayAnimation(MoveData move, int index)

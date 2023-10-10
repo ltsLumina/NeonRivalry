@@ -65,11 +65,8 @@ public class MoveState : State
     {
         // Perform any necessary cleanup or exit actions
         
-        //TODO: I don't think I like this. If you move from side to side quickly, you will be switch to idle for a frame and then back to walk, which just feels off.
-        // if (player.InputManager.MoveInput.x == 0)
-        // {
-        //     player.StateMachine.TransitionToState(StateType.Idle);
-        // }
+        if (player.InputManager.MoveInput.x != 0 && player.IsGrounded()) player.StateMachine.TransitionToState(StateType.Walk);
+        else player.StateMachine.TransitionToState(StateType.Idle);
 
         IsMoving = false;
     }
