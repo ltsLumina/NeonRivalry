@@ -1,7 +1,4 @@
 ﻿#region
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Lumina.Debugging;
 using UnityEngine;
 #endregion
@@ -51,7 +48,17 @@ public class AttackState : State
         groundedAttackTimer = 0;
         airborneAttackTimer = 0;
 
-        attackHandler.SelectPunch();
+        var attackType = player.InputManager.LastAttackPressed;
+
+        if (attackType != InputManager.AttackType.None)
+        {
+            attackHandler.SelectAttack(attackType);
+            player.InputManager.LastAttackPressed = InputManager.AttackType.None; // Reset after usage
+        }
+        else
+        {
+            Debug.LogWarning("No attack type was selected. Something went wrong.");
+        }
     }
 
     public override void UpdateState()

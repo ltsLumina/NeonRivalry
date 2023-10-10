@@ -309,7 +309,7 @@ public static class MoveCreator
 
             CharacterMovesetCreator.activeMenu = CharacterMovesetCreator.DefaultMenu;
 
-            Debug.Log($"Created currentMove \"{currentMove.name}\".");
+            Debug.Log($"Created new move: \"{currentMove.name}\".");
             Selection.activeObject = currentMove;
             EditorGUIUtility.PingObject(currentMove);
 

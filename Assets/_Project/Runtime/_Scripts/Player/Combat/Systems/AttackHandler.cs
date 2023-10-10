@@ -8,9 +8,9 @@ public class AttackHandler
 {
     // -- Fields --
 
-    Moveset moveset;
-    Animator animator;
-    PlayerController player;
+    [SerializeField] Moveset moveset;
+    [SerializeField] Animator animator;
+    [SerializeField] PlayerController player;
 
     // -- Constants --
     const int NeutralPunchIndex = 0;
@@ -31,84 +31,66 @@ public class AttackHandler
         this.animator = animator;
         this.player   = player;
     }
-    
-    /// <summary>
-    ///     Returns the move that corresponds to the direction that the player is pressing.
-    ///     <para></para>
-    ///     If the player is not airborne,
-    ///     the move that will be performed is the move that corresponds to the direction that the player is pressing.
-    /// </summary>
-    /// <para>Used to execute the action that corresponds to the direction that the player is pressing.</para>
-    /// <returns> The move that corresponds to the direction that the player is pressing. </returns>
-    /// <example> If the player is pressing Up, then the move that will be performed is the "Up" move. </example>
-    public void SelectPunch() //TODO: CHECK AI PREVIOUS CHATS FOR REFACTOR
+
+    public void SelectAttack(InputManager.AttackType attackType)
     {
-        List<MoveData> punchMoves = moveset.punchMoves;
+        // Get the appropriate moveset for the attack type
+        List<MoveData> attackMoves;
 
-        if (punchMoves.Exists(punch => punch.type != MoveData.Type.Punch)) Debug.LogWarning("One or more punch moves are not of type \"Punch\".");
+        switch (attackType)
+        {
+            case InputManager.AttackType.Punch:
+                attackMoves = moveset.punchMoves;
+                break;
 
-        // Reference to the player's input.
+            case InputManager.AttackType.Kick:
+                attackMoves = moveset.kickMoves;
+                break;
+
+            case InputManager.AttackType.Slash:
+                attackMoves = moveset.slashMoves;
+                break;
+
+            case InputManager.AttackType.Unique:
+                attackMoves = moveset.uniqueMoves;
+                break;
+
+            default:
+                Debug.LogWarning("Attack type is not valid. \nIf you got this error then I am honestly impressed.");
+                return;
+        }
+
         Vector2 input = player.InputManager.MoveInput;
-        
-        // If the player is airborne, the move that will be performed is the "Up" move.
-        MoveData.Direction directionToPerform = player.IsAirborne() 
-            ? MoveData.Direction.Up 
-            : GetDirectionFromInput(input);
 
-        // Get the move that corresponds to the direction that the player is pressing.
-        MoveData selectedPunch = punchMoves.FirstOrDefault(punch => punch.direction == directionToPerform);
+        MoveData.Direction directionToPerform = player.IsAirborne() ? MoveData.Direction.Up : GetDirectionFromInput(input);
 
-        PerformPunch(selectedPunch, directionToPerform);
+        MoveData selectedAttack = attackMoves.FirstOrDefault(move => move.direction == directionToPerform);
+        PerformAttack(selectedAttack, directionToPerform, attackType);
     }
 
-    /// <summary>
-    ///     Performs the selected punch action based on the given direction.
-    ///     Also handles the animation and applying move effects.
-    /// </summary>
-    /// <param name="selectedPunch">The MoveData instance representing the punch to perform.</param>
-    /// <param name="directionToPerform">The direction in which to perform the punch.</param>
-    void PerformPunch(MoveData selectedPunch, MoveData.Direction directionToPerform)
+    void PerformAttack(MoveData selectedAttack, MoveData.Direction directionToPerform, InputManager.AttackType type)
     {
-        // Execute the action that corresponds to the direction that the player is pressing.
-        if (selectedPunch == null) return;
+        if (selectedAttack == null)
+        {
+            Debug.LogWarning("There is no move that corresponds to the direction that the player is pressing. \nPlease assign a move in the moveset.");
+            return;
+        }
 
-        // Play the animation which handles all logic for the move, such as hitboxes, hurtboxes, etc.
-        PlayAnimation(selectedPunch, directionToActionMap[directionToPerform].animationIndex);
+        PlayAnimation(selectedAttack, directionToActionMap[directionToPerform].animationIndex, type);
 
-        // Apply the move effects, if any.
-        //TODO: this block will be moved into the animation event. 
-        // if (selectedPunch.moveEffects != null)
-        // {
-        //     // Iterate through the move effects and apply them to the player, if any.
-        //     foreach (MoveEffect effect in selectedPunch.moveEffects)
-        //     {
-        //         //effect.ApplyEffect(abilities, null);
-        //         FGDebugger.Debug("Applied effect: " + effect.name, LogType.Log, StateType.Attack);
-        //     }
-        // }
-
-        // Log the action that was performed.
         FGDebugger.Debug(directionToActionMap[directionToPerform].logMessage, LogType.Log, State.StateType.Attack);
     }
 
-    #region Kick Logic
-    // Placeholders for Kick methods
-    void SelectKick()
+    void PlayAnimation(MoveData move, int index, InputManager.AttackType type)
     {
-        // TODO: Implement this method based on how kicks are intended to work in your game.
+        animator.SetInteger("Selected" + Enum.GetName(typeof(InputManager.AttackType), type), index);
+        animator.SetTrigger(Enum.GetName(typeof(InputManager.AttackType), type));
     }
-
-    void PerformKick(MoveData selectedKick, MoveData.Direction directionToPerform)
-    {
-        // TODO: Implement this method based on how kicks are intended to work in your game.
-    }
-    #endregion
 
     #region Utility
     /// <summary>
     ///     Returns the direction that the player is pressing.
     ///     Does not include the "Up" direction as that is handled separately.
-    ///     <see cref="SelectPunch" /> for more information.
     /// </summary>
     /// <param name="input"> The player's input. </param>
     /// <returns> The direction that the player is pressing. </returns>
@@ -121,14 +103,4 @@ public class AttackHandler
         return input.x != 0 ? MoveData.Direction.Forward : MoveData.Direction.Down;
     }
     #endregion
-
-    // If the player is inputting down, the move that will be performed is the "Down" move.
-    void PlayAnimation(MoveData move, int index)
-    {
-        // Play animation
-        animator.SetInteger("SelectedPunch", index);
-        animator.SetTrigger("Punch");
-
-        // Play sound
-    }
 }

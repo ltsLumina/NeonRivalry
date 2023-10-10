@@ -133,6 +133,9 @@ public partial class PlayerController : MonoBehaviour
         }
     }
 
+    // Rotate the player to the right when spawning in to face in a direction that is more natural.
+    void Start() => characterModel.Rotate(0, 75,0);
+
     void Update()
     {
         CheckIdle();
@@ -144,9 +147,9 @@ public partial class PlayerController : MonoBehaviour
     {
         if (PlayerManager.PlayerTwo != null)
         {
-            var players= PlayerManager.Players;
+            var players        = PlayerManager.Players;
             var oppositePlayer = players[PlayerID == 1 ? 1 : 0];
-            var speed = 6.5f;
+            var speed          = 20f;
 
             if (IsGrounded())
             {

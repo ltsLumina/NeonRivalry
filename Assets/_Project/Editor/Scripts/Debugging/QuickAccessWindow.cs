@@ -380,7 +380,7 @@ public class QuickAccessWindow : EditorWindow
         }
 
         //If we are here it means exact match was not found
-        Debug.LogWarning($"No exact match found for '{searchQuery}'. \nPlease check your search query.");
+        Debug.LogWarning($"No single asset with the exact name found for '{searchQuery}'. \nPlease check your search query.");
     }
 
     static void FindAndLogAllAssets(IReadOnlyCollection<string> guids1)
