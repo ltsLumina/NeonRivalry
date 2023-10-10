@@ -23,6 +23,8 @@ public class QuickAccessWindow : EditorWindow
     static string searchQuery = string.Empty;
 
     readonly static List<string> addedScenes = new ();
+    
+    static Vector2 scrollPosition;
 
     [MenuItem("Tools/Debugging/Quick Access")]
     static void ShowWindow()
@@ -63,17 +65,15 @@ public class QuickAccessWindow : EditorWindow
         }
     }
 
-    void PlayModeState(PlayModeStateChange state)
-    {
-        if (state == PlayModeStateChange.EnteredPlayMode) Repaint(); // Refresh the window
-    }
-
     #region GUI
     static void DefaultMenu()
     {
+        // Default Menu is scrollable.
+        using var scope = new ScrollViewScope(scrollPosition);
+        scrollPosition = scope.scrollPosition;
+
         DrawTopBanner(); // Handles the "Load / Open Scenes" buttons as well as the "Back" button.
         DrawManageScenesFoldout();
-        
         DrawMidBanner(); // Handles the "Other Tools" such as opening the other Editor Windows, Debug Options, as well as the Search and Ping Asset menu.
         DrawOtherToolsFoldout();
     }
@@ -280,6 +280,11 @@ public class QuickAccessWindow : EditorWindow
     #endregion
     
     #region Utility
+
+    void PlayModeState(PlayModeStateChange state)
+    { // Repaint the window when entering play mode.
+        if (state == PlayModeStateChange.EnteredPlayMode) Repaint();
+    }
     
     static void DrawBackButton()
     {
@@ -351,7 +356,7 @@ public class QuickAccessWindow : EditorWindow
             string searchFilter;
 
             // Check if searchQuery has quotes for an exact match, else perform a loose match.
-            if (searchQuery.StartsWith("\"") && searchQuery.EndsWith("\"")) searchFilter = "t:Object "   + searchQuery;
+            if (searchQuery.StartsWith('"') && searchQuery.EndsWith('"')) searchFilter = "t:Object "   + searchQuery;
             else searchFilter                                                            = "t:Object \"" + searchQuery + "\"";
 
             string[] guids = AssetDatabase.FindAssets(searchFilter);
