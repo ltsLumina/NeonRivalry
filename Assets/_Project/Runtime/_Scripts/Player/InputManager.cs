@@ -17,6 +17,7 @@ public class InputManager : MonoBehaviour
     // Cached References
     PlayerController player;
     StateMachine stateMachine;
+    AttackHandler attackHandler;
 
     // Serialized InputAction. Must be public as it can't be serialized through [SerializeField].
     public InputAction runKeyModifier;
@@ -36,9 +37,10 @@ public class InputManager : MonoBehaviour
 
     void Awake()
     {
-        player       = GetComponentInParent<PlayerController>();
-        stateMachine = player.GetComponent<StateMachine>();
-        
+        player        = GetComponentInParent<PlayerController>();
+        stateMachine  = player.GetComponent<StateMachine>();
+        attackHandler = FindObjectOfType<AttackHandler>(); //TODO: CHANGE THIS
+
         // Disable the PlayerInput on the UI Navigation 
     }
 
@@ -78,4 +80,44 @@ public class InputManager : MonoBehaviour
             stateMachine.TransitionToState(State.StateType.Attack);
         }
     }
+
+    #region Attack Input Handling
+    
+    public void OnPunch(InputAction.CallbackContext context)
+    {
+        if (context.performed && player.CanAttack())
+        {
+            attackHandler.SelectPunch();
+            stateMachine.TransitionToState(State.StateType.Attack);
+        }
+    }
+    
+    public void OnKick(InputAction.CallbackContext context)
+    {
+        if (context.performed && player.CanAttack())
+        {
+            attackHandler.SelectKick();
+            stateMachine.TransitionToState(State.StateType.Attack);
+        }
+    }
+    
+    public void OnSlash(InputAction.CallbackContext context)
+    {
+        if (context.performed && player.CanAttack())
+        {
+            attackHandler.SelectSlash();
+            stateMachine.TransitionToState(State.StateType.Attack);
+        }
+    }
+    
+    public void OnUnique(InputAction.CallbackContext context)
+    {
+        if (context.performed && player.CanAttack())
+        {
+            attackHandler.SelectUnique();
+            stateMachine.TransitionToState(State.StateType.Attack);
+        }
+    }
+    
+    #endregion
 }

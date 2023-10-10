@@ -4,10 +4,17 @@ using System.Linq;
 using Lumina.Debugging;
 using UnityEngine;
 
-public class AttackHandler
+public class AttackHandler : MonoBehaviour
 {
+    public enum AttackType
+    {
+        Punch,
+        Kick,
+        Slash,
+        Unique
+    }
+    
     // -- Fields --
-
     Moveset moveset;
     Animator animator;
     PlayerController player;
@@ -24,14 +31,7 @@ public class AttackHandler
       { MoveData.Direction.Forward, (null, "Forward move performed.", ForwardPunchIndex) },
       { MoveData.Direction.Up, (null, "Up move performed.", UpPunchIndex) },
       { MoveData.Direction.Down, (null, "Down move performed.", DownPunchIndex) } };
-    
-    public AttackHandler(Moveset moveset, Animator animator, PlayerController player)
-    {
-        this.moveset  = moveset;
-        this.animator = animator;
-        this.player   = player;
-    }
-    
+
     /// <summary>
     ///     Returns the move that corresponds to the direction that the player is pressing.
     ///     <para></para>
@@ -41,68 +41,68 @@ public class AttackHandler
     /// <para>Used to execute the action that corresponds to the direction that the player is pressing.</para>
     /// <returns> The move that corresponds to the direction that the player is pressing. </returns>
     /// <example> If the player is pressing Up, then the move that will be performed is the "Up" move. </example>
-    public void SelectPunch() //TODO: CHECK AI PREVIOUS CHATS FOR REFACTOR
+    public void SelectAttack(AttackType attackType)
     {
-        List<MoveData> punchMoves = moveset.punchMoves;
+        List<MoveData> moves = attackType switch
+        { AttackType.Punch  => moveset.punchMoves,
+          AttackType.Kick   => moveset.kickMoves,
+          AttackType.Slash  => moveset.slashMoves,
+          AttackType.Unique => moveset.uniqueMoves,
+          _                 => throw new ArgumentException(nameof(attackType)) };
 
-        if (punchMoves.Exists(punch => punch.type != MoveData.Type.Punch)) Debug.LogWarning("One or more punch moves are not of type \"Punch\".");
+        // Handle non-matching types in the list of moves.
+        if (moves.Exists(move => move.type != (MoveData.Type) attackType)) 
+            Debug.LogWarning($"One or more {attackType} moves are not of type \"{attackType}\".");
 
         // Reference to the player's input.
-        Vector2 input = player.InputManager.MoveInput;
-        
+        var input = player.InputManager.MoveInput;
+
         // If the player is airborne, the move that will be performed is the "Up" move.
-        MoveData.Direction directionToPerform = player.IsAirborne() 
-            ? MoveData.Direction.Up 
-            : GetDirectionFromInput(input);
+        var directionToPerform = player.IsAirborne() ? MoveData.Direction.Up : GetDirectionFromInput(input);
 
         // Get the move that corresponds to the direction that the player is pressing.
-        MoveData selectedPunch = punchMoves.FirstOrDefault(punch => punch.direction == directionToPerform);
+        var selectedMove = moves.FirstOrDefault(move => move.direction == directionToPerform);
 
-        PerformPunch(selectedPunch, directionToPerform);
+        // Perform the move.
+        PerformMove(selectedMove, directionToPerform, attackType);
     }
 
     /// <summary>
     ///     Performs the selected punch action based on the given direction.
     ///     Also handles the animation and applying move effects.
     /// </summary>
-    /// <param name="selectedPunch">The MoveData instance representing the punch to perform.</param>
+    /// <param name="selectedMove">The MoveData instance representing the punch to perform.</param>
     /// <param name="directionToPerform">The direction in which to perform the punch.</param>
-    void PerformPunch(MoveData selectedPunch, MoveData.Direction directionToPerform)
+    void PerformMove(MoveData selectedMove, MoveData.Direction directionToPerform, AttackType attackType)
     {
-        // Execute the action that corresponds to the direction that the player is pressing.
-        if (selectedPunch == null) return;
+        {
+            // Execute the action that corresponds to the direction that the player is pressing.
+            if (selectedMove == null) return;
 
-        // Play the animation which handles all logic for the move, such as hitboxes, hurtboxes, etc.
-        PlayAnimation(selectedPunch, directionToActionMap[directionToPerform].animationIndex);
+            // Play the animation which handles all logic for the move, such as hitboxes, hurtboxes, etc.
+            PlayAnimation(selectedMove, directionToActionMap[directionToPerform].animationIndex, attackType);
 
-        // Apply the move effects, if any.
-        //TODO: this block will be moved into the animation event. 
-        // if (selectedPunch.moveEffects != null)
-        // {
-        //     // Iterate through the move effects and apply them to the player, if any.
-        //     foreach (MoveEffect effect in selectedPunch.moveEffects)
-        //     {
-        //         //effect.ApplyEffect(abilities, null);
-        //         FGDebugger.Debug("Applied effect: " + effect.name, LogType.Log, StateType.Attack);
-        //     }
-        // }
+            // Apply the move effects, if any.
+            //TODO: this block will be moved into the animation event. 
+            // if (selectedPunch.moveEffects != null)
+            // {
+            //     // Iterate through the move effects and apply them to the player, if any.
+            //     foreach (MoveEffect effect in selectedPunch.moveEffects)
+            //     {
+            //         //effect.ApplyEffect(abilities, null);
+            //         FGDebugger.Debug("Applied effect: " + effect.name, LogType.Log, StateType.Attack);
+            //     }
+            // }
 
-        // Log the action that was performed.
-        FGDebugger.Debug(directionToActionMap[directionToPerform].logMessage, LogType.Log, State.StateType.Attack);
+            // Log the action that was performed.
+            FGDebugger.Debug(directionToActionMap[directionToPerform].logMessage, LogType.Log, State.StateType.Attack);
+        }
     }
 
-    #region Kick Logic
-    // Placeholders for Kick methods
-    void SelectKick()
-    {
-        // TODO: Implement this method based on how kicks are intended to work in your game.
-    }
-
-    void PerformKick(MoveData selectedKick, MoveData.Direction directionToPerform)
-    {
-        // TODO: Implement this method based on how kicks are intended to work in your game.
-    }
-    #endregion
+    public void SelectPunch() => SelectAttack(AttackType.Punch);
+    public void SelectKick() => SelectAttack(AttackType.Kick);
+    public void SelectSlash() => SelectAttack(AttackType.Slash);
+    public void SelectUnique() => SelectAttack(AttackType.Unique);
 
     #region Utility
     /// <summary>
@@ -123,11 +123,33 @@ public class AttackHandler
     #endregion
 
     // If the player is inputting down, the move that will be performed is the "Down" move.
-    void PlayAnimation(MoveData move, int index)
+    void PlayAnimation(MoveData selectedMove, int index, AttackType attackType)
     {
-        // Play animation
-        animator.SetInteger("SelectedPunch", index);
-        animator.SetTrigger("Punch");
+        switch (attackType)
+        {
+            case AttackType.Punch:
+                animator.SetInteger("SelectedPunch", index);
+                animator.SetTrigger("Punch");
+                break;
+
+            case AttackType.Kick:
+                animator.SetInteger("SelectedKick", index);
+                animator.SetTrigger("Kick");
+                break;
+
+            case AttackType.Slash:
+                animator.SetInteger("SelectedSlash", index);
+                animator.SetTrigger("Slash");
+                break;
+
+            case AttackType.Unique:
+                animator.SetInteger("SelectedUnique", index);
+                animator.SetTrigger("Unique");
+                break;
+            
+            default:
+                throw new ArgumentException(nameof(attackType));
+        }
 
         // Play sound
     }

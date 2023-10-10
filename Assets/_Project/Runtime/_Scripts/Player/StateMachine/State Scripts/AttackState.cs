@@ -34,8 +34,6 @@ public class AttackState : State
           moveset  = stateData.Moveset;
 
           Debug.Assert(moveset != null, "Moveset is null in the AttackStateData. Please assign it in the inspector.");
-
-          attackHandler = new (moveset, animator, player);
       }
 
     public override bool CanBeInterrupted() => interruptibilityRules[Type];
@@ -50,8 +48,6 @@ public class AttackState : State
 
         groundedAttackTimer = 0;
         airborneAttackTimer = 0;
-
-        attackHandler.SelectPunch();
     }
 
     public override void UpdateState()
