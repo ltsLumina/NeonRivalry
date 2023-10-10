@@ -1,14 +1,18 @@
 ﻿#region
-using Lumina.Essentials.Attributes;
 using UnityEngine;
 #endregion
 
 [CreateAssetMenu(fileName = "FallStateData", menuName = "State Data/FallState Data", order = 3)]
 public class FallStateData : DefaultStateData
 {
-    [SerializeField, ReadOnly] float fallTimer;
-    [SerializeField] float fallDuration;
+    [Tooltip("The multiplier applied to gravity while falling. \nDefault Value: 7")]
+    [SerializeField] float fallGravityMultiplier;
+    
+    [Tooltip("The force applied to the player while falling to halt upward momentum. \nDefault Value: 6")]
+    [SerializeField] float jumpHaltForce;
 
-    public float FallTimer => fallTimer;
-    public float FallDuration => fallDuration;
+    // -- Properties --
+    
+    public float FallGravityMultiplier => fallGravityMultiplier;
+    public float JumpHaltForce => jumpHaltForce;
 }

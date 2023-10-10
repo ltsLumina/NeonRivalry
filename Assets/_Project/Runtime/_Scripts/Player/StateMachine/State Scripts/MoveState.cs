@@ -2,12 +2,12 @@
 using UnityEngine;
 #endregion
 
-/*----------------------------------------------------------------------------
- * IMPORTANT NOTE: Use Time.fixedDeltaTime instead of Time.deltaTime
- *----------------------------------------------------------------------------*/
 public class MoveState : State
 {
     float moveSpeed;
+    float acceleration;
+    float deceleration;
+    float velocityPower;
 
     public override StateType Type => StateType.Walk;
     public override int Priority => statePriorities[Type];
@@ -16,55 +16,61 @@ public class MoveState : State
 
     public MoveState(PlayerController player, MoveStateData stateData) : base(player)
     {
-        moveSpeed = stateData.MoveSpeed; 
+        moveSpeed = stateData.MoveSpeed;
+        acceleration = stateData.Acceleration;
+        deceleration = stateData.Deceleration;
+        velocityPower = stateData.AccelerationRate;
     }
 
-    public override bool CanBeInterrupted()
-    {
+    public override bool CanBeInterrupted() =>
         // return true if the player is doing anything other than moving
-        return player.IsAttacking() || player.IsAirborne();
-    }
+        player.IsAttacking() || player.IsAirborne();
 
     public override void OnEnter()
     {
         // Play the move animation.
-        // Log("Entered Walk State");
         IsMoving = true;
 
         player.GetComponentInChildren<SpriteRenderer>().color = Color.blue;
     }
 
-    //MOVEMENT ISN'T MY PROBLEM HAHAHAHAHA HAVE FUN WITH THIS HEHEHE
     public override void UpdateState()
     {
-        // Handle move logic
+        // Getting the move input from the player's input manager.
         Vector3 moveInput = player.InputManager.MoveInput;
 
-        if (moveInput.sqrMagnitude > 0.01)
-        {
-            // Apply horizontal and vertical movement
-            Vector3 movement = moveInput * (moveSpeed * Time.fixedDeltaTime);
-            player.Rigidbody.velocity = new (movement.x, player.Rigidbody.velocity.y, movement.z);
-        }
-        else { OnExit(); }
+        // Determining the direction of the movement (left or right).
+        int moveDirection = (int) moveInput.x;
+
+        // Calculating the target speed based on direction and move speed.
+        float targetSpeed = moveDirection * moveSpeed;
+
+        // Calculate difference between target speed and current velocity.
+        float speedDifference = targetSpeed - player.Rigidbody.velocity.x;
+
+        // Determine the acceleration rate based on whether the target speed is greater than 0.01 or not.
+        float accelRate = Mathf.Abs(targetSpeed) > 0.01f ? acceleration : deceleration;
+
+        // Calculate the final movement force to be applied on the player's rigidbody.
+        float movement = Mathf.Pow(Mathf.Abs(speedDifference) * accelRate, velocityPower) * Mathf.Sign(speedDifference);
+
+        // Apply the force to the player's rigidbody.
+        player.Rigidbody.AddForce(movement * Vector3.right);
+
+        // Call the OnExit function after the force has been applied.
+        OnExit();
     }
 
     public override void OnExit()
     {
         // Perform any necessary cleanup or exit actions
-        //Debug.Log("Exited Move State");
-
-        // Slow down the player
-        Vector3 velocity = player.Rigidbody.velocity;
-        velocity                  = new (velocity.x * 0.9f, velocity.y, velocity.z);
-        player.Rigidbody.velocity = velocity;
-
-        // Pass control to the idle state
         
-        // TODO: If we enter the Idle state whenever we stop moving, we'll gain a lot of speed when we start moving again as OnEnter is called.
-        //player.StateMachine.TransitionToState(StateType.Idle);
-        
-        // Reset the IsMoving flag
+        //TODO: I don't think I like this. If you move from side to side quickly, you will be switch to idle for a frame and then back to walk, which just feels off.
+        // if (player.InputManager.MoveInput.x == 0)
+        // {
+        //     player.StateMachine.TransitionToState(StateType.Idle);
+        // }
+
         IsMoving = false;
     }
 }
