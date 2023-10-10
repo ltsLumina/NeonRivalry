@@ -97,9 +97,11 @@ public class RoundTimer : MonoBehaviour
 
     void UpdateTimerText()
     {
+        // Get the current timer format
         TimerFormat currentTimerFormat = customFormat ? GetTimerFormat() : TimerFormat.Whole;
+
+        // Set the timer text and color
         timerText.text  = CurrentTime.ToString(timeFormats[currentTimerFormat], CultureInfo.InvariantCulture);
-        
         timerText.color = CurrentTime <= colorSwitchValue ? Color.red : new (0.86f, 0.86f, 0.86f);
     }
 
