@@ -1,9 +1,8 @@
-using System.Collections.Generic;
+using System.Linq;
 using Lumina.Essentials.Attributes;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(MultiplayerEventSystem))]
@@ -19,75 +18,70 @@ public class EventSystemSelector : MonoBehaviour
     MultiplayerEventSystem eventSystem;
     Button firstSelected;
 
+    // -- Scenes --
+    
+    const int Intro = 0;
+    const int MainMenu = 1;
+    const int CharacterSelect = 2;
+    const int Game = 3;
+
     // In the case of the Menu Navigator game object, the PlayerInput is tied to this game object.
     // The Player's UI Navigator, however, is childed to the Player's game object.
     void Awake() => playerInput = GetComponent<PlayerInput>();
 
-    void Update()
+    void Start()
     {
-        string sceneName  = SceneManager.GetActiveScene().name;
-        int sceneIndex = SceneManager.GetActiveScene().buildIndex;
+        string sceneName  = SceneManagerExtended.ActiveSceneName;
+        int sceneIndex = SceneManagerExtended.ActiveScene;
 
-        if (sceneName == "Game" || sceneIndex == 3) return;
-        
+        // If the scene is the Intro or Game scene, return, as we don't want to select a button in these scenes.
+        if (sceneIndex is Intro or Game) return;
+
+        // Assign the localPlayerID based on the playerInput's playerIndex.
+        // Usually we would use player.PlayerID, but there is no "player" instance until the game scene.
         localPlayerID = playerInput.playerIndex + 1;
 
-        if (localPlayerID == 2 && IsNotSupportedForPlayer2(sceneName, sceneIndex))
+        if (localPlayerID == 2 && IsNotSupportedForPlayer2(sceneIndex))
         {
-            Debug.LogWarning("Player 2 is not supported in this scene.");
+            Debug.LogWarning($"Player 2 is not supported in the {sceneName} scene.");
             return;
         }
 
-        GameObject button = FindButtonBySceneIndex(sceneIndex) ?? FindButtonBySceneName(sceneName);
-        
+        GameObject button = FindButtonBySceneIndex(sceneIndex);
+
+        if (button == null)
+        {
+            Debug.LogWarning("No button was found in this scene. (Scene index failed to return a button).");
+            return;
+        }
+
         ProcessButton(button);
     }
 
-    static bool IsNotSupportedForPlayer2(string sceneName, int sceneIndex)
+    static bool IsNotSupportedForPlayer2(int sceneIndex)
     {
-        List<string> nonSupportedScenes = new() { "Intro", "MainMenu" };
+        int[] nonSupportedSceneIndex =
+        { Intro, MainMenu }; 
 
-        return nonSupportedScenes.Contains(sceneName) || sceneIndex == 0 || sceneIndex == 1;
+        return nonSupportedSceneIndex.Contains(sceneIndex);
     }
 
     GameObject FindButtonBySceneIndex(int sceneIndex)
     {
         switch (sceneIndex)
         {
-            case 0: // Intro
-                Debug.LogWarning("There is no button to find in the 'Intro' scene. Returning null. (This is not an error)");
+            case Intro:
+                Debug.LogWarning("There is no button to find in the 'Intro' scene. \n Returning null. (This is not an error)");
                 return null;
 
-            case 1: // MainMenu
+            case MainMenu: 
                 return localPlayerID == 1 ? GameObject.Find("Play") : null;
 
-            case 2: // Character Select
+            case CharacterSelect: 
                 return GameObject.Find($"Reaper (Player {localPlayerID})");
 
-            case 3: // Game 
+            case Game: 
                 return localPlayerID == 1 ? GameObject.Find("Debug Button") : null;
-
-            default:
-                return null;
-        }
-    }
-
-    GameObject FindButtonBySceneName(string sceneName)
-    {
-        switch (sceneName)
-        {
-            case "Intro": // Intro
-                Debug.LogWarning("There is no button to find in the 'Intro' scene. Returning null. (This is not an error)");
-                return null;
-
-            case "MainMenu": // MainMenu
-                return localPlayerID == 1 ? GameObject.Find("Play") : null;
-
-            case "CharacterSelect": // Character Select
-                return GameObject.Find($"Reaper (Player {localPlayerID})");
-
-            case "Game": // Game 
-                return localPlayerID == 1 ? GameObject.Find("Rematch Button (Player 1)") : null;
 
             default:
                 return null;
@@ -96,12 +90,6 @@ public class EventSystemSelector : MonoBehaviour
 
     void ProcessButton(GameObject button)
     {
-        if (button == null)
-        {
-            Debug.LogWarning("No button was found in this scene. (Scene name and index failed to return a button).");
-            return;
-        }
-
         firstSelected = button.GetComponent<Button>();
         eventSystem = GetComponent<MultiplayerEventSystem>();
         

@@ -1,15 +1,23 @@
-﻿using Lumina.Essentials.Attributes;
-using UnityEngine;
+﻿using UnityEngine;
 
 /// <summary>
-/// This scriptable object is intended to be used a template for creating new state data.
+/// This scriptable object is intended to be used a base for creating new state data.
 /// </summary>
-[CreateAssetMenu(fileName = "DefaultStateData", menuName = "State Data/DefaultState Data", order = 0)]
-public class DefaultStateData : ScriptableObject
+public abstract class DefaultStateData : ScriptableObject
 {
-    [SerializeField, ReadOnly] float exampleVariable1;
-    [SerializeField] float exampleVariable2;
+    // Doesn't include anything in particular as it's intended to be used as a base.
 
-    public float ExampleVariable1 => exampleVariable1;
-    public float ExampleVariable2 => exampleVariable2;
+    protected virtual void OnEnable()
+    {
+        // Check if there are more than once instance of this type of state data.
+        // If there is, log an error.
+
+#if UNITY_EDITOR
+        var stateDataInstances = Resources.FindObjectsOfTypeAll(GetType());
+        if (stateDataInstances.Length <= 1) return;
+
+        Debug.Assert(stateDataInstances.Length == 1,
+            $"There are {stateDataInstances.Length} instances of {GetType()} in the project. \nPlease delete the duplicates.");
+#endif
+    }
 }

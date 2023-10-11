@@ -8,31 +8,8 @@ public class Teleport : MoveEffect
 
     //TODO: PlayerController class will be swapped with the attack system class which will include
     //      the "PerformMove()" method. It runs the animation, plays the sound, and applies the effect.
-    public override void ApplyEffect(PlayerAbilities abilities)
+    public override void ApplyEffect(PlayerAbilities abilities, PlayerController target)
     {
-        abilities.Teleport(-distance, PlayerManager.PlayerOne); // assuming negative value will move character backward
+        abilities.Teleport(-distance, null);
     }
-}
-
-//TODO: Psuedo-code for a class that holds all the possible player abilities.
-//      This class will be used by the PlayerController class.
-public class PlayerAbilities : MonoBehaviour
-{
-    public void Teleport(float distance, PlayerController target)
-    {
-        Vector3 newPos = target.transform.position + new Vector3(distance, 0, 0);
-        target.transform.position = newPos;
-    }
-
-    public void Stun(float duration)
-    {
-        // Apply a stun to this player, lasting for the specified duration.
-    }
-
-    public void Heal(int amount)
-    {
-        // Heal this player.
-    }
-
-    // any other ability methods here
 }

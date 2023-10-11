@@ -9,6 +9,9 @@ public static class SceneManagerExtended
 {
     static int previousScene;
 
+    public static string ActiveSceneName => SceneManager.GetActiveScene().name;
+    public static int ActiveScene => SceneManager.GetActiveScene().buildIndex;
+
     /// <summary>
     ///     Loads the scene with the specified build index.
     /// </summary>

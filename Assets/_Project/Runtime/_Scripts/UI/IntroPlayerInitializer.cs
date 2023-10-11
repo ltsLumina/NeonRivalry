@@ -1,4 +1,5 @@
 using System.Collections;
+using Lumina.Debugging;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -14,61 +15,67 @@ public class IntroPlayerInitializer : MonoBehaviour
     [SerializeField] GameObject loadingScreen;
     [SerializeField] TMP_Text pressAnyButtonText;
 
-    void Awake()
-    {
-        InputDeviceManager.persistPlayerDevices.Clear();
-
-        // Reset rumble
-        foreach (var gamepad in Gamepad.all) { gamepad.SetMotorSpeeds(0f, 0f); }
-    }
-
     IEnumerator Start()
     {
+        // ReSharper disable once NotAccessedVariable
         MultiplayerEventSystem player = null;
         
-        // This might seem like a non-performant way of doing this, but it's the only way I could think of.
-        // But due to the lack of objects in the 'Intro' scene, it's not a big deal.
+        // Wait until a player joins.
+        // This might seem redundant, but it is necessary to prevent the game from loading the next scene before a player joins.
         yield return new WaitUntil(() => (player = FindObjectOfType<MultiplayerEventSystem>()) != null);
 
-        if (player != null)
+        // Check if debug mode is enabled, and if so, skip the loading screen.
+        // Else, start the loading screen.
+        StartCoroutine(!FGDebugger.debugMode ? LoadingScreenRoutine() : DebugSkipLoadingScreen());
+
+        yield break;
+        IEnumerator LoadingScreenRoutine() //TODO: Make a UI_Utility class that handles things like loading screens etc.
         {
-            Debug.Log("Player joined intro scene!");
+            // Enable the loading screen and disable the text.
+            pressAnyButtonText.enabled = false;
+            loadingScreen.SetActive(true);
+            Debug.Log("Loading... (Hold Shift to speed up the process.)");
 
-            StartCoroutine(LoadingScreenRoutine());
-            
-            //TODO: Make a UI_Utility class that handles things like this. (or a manager)
-            IEnumerator LoadingScreenRoutine()
+            // Fake loading bar
+            var loadingBar = loadingScreen.GetComponentInChildren<Slider>();
+            loadingBar.value = 0f;
+
+            // The point at which the loading bar will increase at a faster rate.
+            const float cutoff = 0.5f;
+
+            while (loadingBar.value < 1f)
             {
-                // Enable the loading screen and disable the text.
-                pressAnyButtonText.enabled = false;
-                loadingScreen.SetActive(true);
-                Debug.Log("Loading... (Hold Shift to speed up the process.)");
+                bool  speedUp         = Input.GetKey(KeyCode.LeftShift) || Gamepad.current.rightShoulder.isPressed; // Check if Shift or RB is pressed
+                float additionalSpeed = speedUp ? 0.5f : 0.0f;                                                      // Increase speed when Shift is pressed
 
-                // Fake loading bar
-                var loadingBar = loadingScreen.GetComponentInChildren<Slider>();
-                loadingBar.value = 0f;
+                loadingBar.value += loadingBar.value <= cutoff
+                    ? Random.Range(0.01f, 0.05f) + additionalSpeed  // Increases the value by a smaller rate until specified cutoff point
+                    : Random.Range(0.05f, 0.2f)  + additionalSpeed; // Increase value by larger rate after cutoff point
 
-                // The point at which the loading bar will increase at a faster rate.
-                const float cutoff = 0.5f;
-
-                while (loadingBar.value < 1f)
-                {
-                    bool  shiftKeyDown    = Input.GetKey(KeyCode.LeftShift); // Check if Shift key is pressed
-                    float additionalSpeed = shiftKeyDown ? 0.5f : 0.0f;      // Increase speed when Shift is pressed
-
-                    loadingBar.value += loadingBar.value <= cutoff
-                        ? Random.Range(0.01f, 0.05f) + additionalSpeed  // Increases the value by a smaller rate until specified cutoff point
-                        : Random.Range(0.05f, 0.2f)  + additionalSpeed; // Increase value by larger rate after cutoff point
-
-                    yield return new WaitForSeconds(Random.Range(0.05f, 1.2f));
-                }
-
-                // Stop all rumble before loading next scene.
-                foreach (var gamepad in Gamepad.all) { gamepad.SetMotorSpeeds(0f, 0f); }
-
-                // When the loading bar is full, load the next scene.
-                SceneManagerExtended.LoadNextScene();
+                yield return new WaitForSeconds(Random.Range(0.05f, 1.2f));
             }
+
+            // Stop all rumble before loading next scene.
+            foreach (var gamepad in Gamepad.all) { gamepad.SetMotorSpeeds(0f, 0f); }
+
+            // When the loading bar is full, load the next scene.
+            SceneManagerExtended.LoadNextScene();
         }
     }
+
+    #region Utility
+    IEnumerator DebugSkipLoadingScreen()
+    {
+        const string debugWarning = "Debug Mode is enabled, skipping the loading screen!";
+
+        // Warn the player through the console and on screen.
+        Debug.LogWarning(debugWarning);
+        pressAnyButtonText.text = "Skipping Loading Screen...";
+
+        // Wait a few seconds before loading the next scene.
+        yield return new WaitForSeconds(1f);
+
+        SceneManagerExtended.LoadNextScene();
+    }
+    #endregion
 }

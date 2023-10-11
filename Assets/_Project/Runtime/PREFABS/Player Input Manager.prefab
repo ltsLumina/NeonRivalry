@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 621567455fd1c4ceb811cc8a00b6a1a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_NotificationBehavior: 2
+  m_NotificationBehavior: 3
   m_MaxPlayerCount: 2
   m_AllowJoining: 1
   m_JoinBehavior: 2
@@ -54,19 +54,7 @@ MonoBehaviour:
       m_Calls: []
   m_PlayerLeftEvent:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 4919252213964940885}
-        m_TargetAssemblyTypeName: InputDeviceManager, _Project
-        m_MethodName: OnPlayerLeft
-        m_Mode: 3
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 1
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
   m_JoinAction:
     m_UseReference: 0
     m_Action:
@@ -103,7 +91,7 @@ MonoBehaviour:
         m_Flags: 0
       m_Flags: 0
     m_Reference: {fileID: 0}
-  m_PlayerPrefab: {fileID: 785687840274375511, guid: 39fa652e27934db4abc50e96d42f5762,
+  m_PlayerPrefab: {fileID: 785687840274375511, guid: 9c5d081e749d53848ba0933c5fa868a7,
     type: 3}
   m_SplitScreen: 0
   m_MaintainAspectRatioInSplitScreen: 0

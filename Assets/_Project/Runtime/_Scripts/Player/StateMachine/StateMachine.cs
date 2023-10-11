@@ -16,7 +16,7 @@ using static UnityEditor.EditorGUILayout;
 /// </summary>
 public class StateMachine : MonoBehaviour
 {
-    [SerializeField] public StateData stateData;
+    [SerializeField] StateMachineData stateData;
     [SerializeField] PlayerController player;
 
     // Cached References
@@ -78,23 +78,19 @@ public class StateMachine : MonoBehaviour
                 SetState(new IdleState(Player)); //TODO: Add state data, potentially. (Such as idleTimeThreshold. Currently handled in the player controller.)
                 break;
             
-            case Walk when Player.IsGrounded(): //TODO: CanMove is broken, that's why I'm using IsGrounded.
+            case Walk when Player.IsGrounded(): 
                 CheckStateDataThenExecute(stateData.moveStateData, data => SetState(new MoveState(Player, data)));
-                break;
-
-            case Walk when !Player.IsGrounded():
-                // Fallback state for whenever the player tries to move after jumping or attacking so they can keep moving after landing or finishing an attack.
                 break;
             
             case Jump when Player.CanJump():
                 CheckStateDataThenExecute(stateData.jumpStateData, data => SetState(new JumpState(Player, data)));
                 break;
 
-            case Fall when Player.IsFalling():
+            case Fall when Player.CanFall():
                 CheckStateDataThenExecute(stateData.fallStateData, data => SetState(new FallState(Player, data)));
                 break;
 
-            case Attack:
+            case Attack when Player.CanAttack():
                 CheckStateDataThenExecute(stateData.attackStateData, data => SetState(new AttackState(Player, data)));
                 break;
 
@@ -125,7 +121,11 @@ public class StateMachine : MonoBehaviour
             // If you wish to add more states, make sure to run the CheckStateDataThenExecute method like all the other states.
 
             default:
-                throw new ArgumentOutOfRangeException(nameof(state), state, "The state type is not valid.");
+                SetState(new NoneState(Player));
+                throw new ArgumentOutOfRangeException
+                    (nameof(state), state, "Fatal Error! "                                              +
+                                           "The state you are trying to transition to does not exist! " +
+                                           "\nLikely, the player got stuck and tried to transition to a state but was unable to.");
         }
     }
 
@@ -146,8 +146,8 @@ public class StateMachine : MonoBehaviour
 /// A struct that holds all the state data for the state machine.
 /// State data is used to pass data from the state machine to the state.
 /// </summary>
-[Serializable]
-public struct StateData
+[Serializable] 
+internal struct StateMachineData
 {
     public MoveStateData moveStateData;
     public JumpStateData jumpStateData;

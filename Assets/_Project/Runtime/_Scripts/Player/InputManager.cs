@@ -1,4 +1,5 @@
 ﻿#region
+using System;
 using Lumina.Essentials.Attributes;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -11,6 +12,17 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(PlayerInput))]
 public class InputManager : MonoBehaviour
 {
+    public enum AttackType
+    {
+        None,
+        Punch,
+        Kick,
+        Slash,
+        Unique
+    }
+
+    public AttackType LastAttackPressed { get; set; } = AttackType.None;
+    
     [Header("Read-Only Fields")]
     [SerializeField, ReadOnly] Vector2 moveInput;
 
@@ -71,6 +83,7 @@ public class InputManager : MonoBehaviour
         }
     }
 
+    [Obsolete("Use OnPunch, OnKick, OnSlash, or OnUnique instead.")]
     public void OnAttack(InputAction.CallbackContext context)
     {
         if (context.performed && player.CanAttack())
@@ -78,4 +91,44 @@ public class InputManager : MonoBehaviour
             stateMachine.TransitionToState(State.StateType.Attack);
         }
     }
+
+    #region Attack Input Handling
+
+    public void OnPunch(InputAction.CallbackContext context)
+    {
+        if (context.performed && player.CanAttack())
+        {
+            LastAttackPressed = AttackType.Punch;
+            stateMachine.TransitionToState(State.StateType.Attack);
+        }
+    }
+    
+    public void OnKick(InputAction.CallbackContext context)
+    {
+        if (context.performed && player.CanAttack())
+        {
+            LastAttackPressed = AttackType.Kick;
+            stateMachine.TransitionToState(State.StateType.Attack);
+        }
+    }
+    
+    public void OnSlash(InputAction.CallbackContext context)
+    {
+        if (context.performed && player.CanAttack())
+        {
+            LastAttackPressed = AttackType.Slash;
+            stateMachine.TransitionToState(State.StateType.Attack);
+        }
+    }
+    
+    public void OnUnique(InputAction.CallbackContext context)
+    {
+        if (context.performed && player.CanAttack())
+        {
+            LastAttackPressed = AttackType.Unique;
+            stateMachine.TransitionToState(State.StateType.Attack);
+        }
+    }
+    
+    #endregion
 }
