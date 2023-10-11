@@ -17,12 +17,12 @@ public class AttackState : State
     public bool IsAirborne { get; private set; }
 
     // -- State Specific Variables --
-    AttackHandler attackHandler;
     float groundedAttackTimer;
     float airborneAttackTimer;
-    
-      Animator animator;
-      Moveset moveset;
+
+    AttackHandler attackHandler;
+    Animator animator;
+    Moveset moveset;
 
       // -- Constructor --
       public AttackState(PlayerController player, AttackStateData stateData) : base(player)

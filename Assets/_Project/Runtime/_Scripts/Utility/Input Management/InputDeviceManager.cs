@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 
 public class InputDeviceManager : MonoBehaviour
 {
-    public readonly static Dictionary<InputDevice, int> persistentPlayerDevices = new (); // TODO: There is a chance that this doesn't work in builds.
+    readonly static Dictionary<InputDevice, int> persistentPlayerDevices = new (); // TODO: There is a chance that this doesn't work in builds.
     readonly Dictionary<InputDevice, int> playerDevices = new();
     
     PlayerInputManager playerInputManager;
@@ -27,7 +27,7 @@ public class InputDeviceManager : MonoBehaviour
         if (SceneManagerExtended.ActiveScene is Intro) persistentPlayerDevices.Clear();
 
         // Instantiate the players into the game scene if there are persistent devices from previous scenes.
-            LoadPersistentPlayers();
+        LoadPersistentPlayers();
     }
 
     /// <summary>

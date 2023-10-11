@@ -19,36 +19,39 @@ public partial class PlayerController : MonoBehaviour
 
     [Header("Read-Only Fields")]
     [SerializeField] float idleTimeThreshold;
-    [SerializeField, ReadOnly] public float idleTime;
+    [SerializeField, ReadOnly] public float idleTime; //TODO: make this private and encapsulate it.
 
     [Header("Ground Check"), Tooltip("The minimum distance the raycast must be from the ground.")]
-    [SerializeField, ReadOnly] float raycastDistance = 1.022f; //With the capsule collider, this is the minimum distance between player and ground.
+    [SerializeField] float raycastDistance = 1.022f;
     [SerializeField] LayerMask groundLayer;
 
     [Header("Animation References")]
     [SerializeField] Transform characterModel;
 
-[Header("Player ID"), Tooltip("The player's ID. \"1\"refers to player 1, \"2\" refers to player 2.")]
-    [SerializeField, ReadOnly] int playerID;
+    [Header("Player ID"), Tooltip("The player's ID. \"1\"refers to player 1, \"2\" refers to player 2.")]
+    [SerializeField] [ReadOnly] int playerID;
 
     // Cached References
     Animator anim;
     PlayerManager playerManager;
 
     // -- Properties --
-    public int PlayerID
-    {
-        get => playerID;
-        private set
-        {
-            // Clamp the playerID between 1 and 2.
-            playerID = Mathf.Clamp(value, 1, 2);
-        }
-    }
+    
     public Rigidbody Rigidbody { get; private set; }
     public InputManager InputManager { get; private set; }
     public StateMachine StateMachine { get; private set; }
     public PlayerInput PlayerInput { get; set; }
+    
+    // -- Serialized Properties --
+
+    public int PlayerID
+    {
+        get => playerID;
+        private set =>
+
+            // Clamp the playerID between 1 and 2.
+            playerID = Mathf.Clamp(value, 1, 2);
+    }
     
     public Healthbar Healthbar
     {
