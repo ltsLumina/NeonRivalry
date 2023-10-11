@@ -16,7 +16,7 @@ using static UnityEditor.EditorGUILayout;
 /// </summary>
 public class StateMachine : MonoBehaviour
 {
-    [SerializeField] StateMachineData stateData;
+    [SerializeField] public StateData stateData;
     [SerializeField] PlayerController player;
 
     // Cached References
@@ -146,8 +146,8 @@ public class StateMachine : MonoBehaviour
 /// A struct that holds all the state data for the state machine.
 /// State data is used to pass data from the state machine to the state.
 /// </summary>
-[Serializable] 
-internal struct StateMachineData
+[Serializable]
+public struct StateData
 {
     public MoveStateData moveStateData;
     public JumpStateData jumpStateData;

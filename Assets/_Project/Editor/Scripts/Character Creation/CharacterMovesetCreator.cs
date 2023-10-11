@@ -6,21 +6,20 @@ using static EditorGUIUtils;
 using static UnityEngine.GUILayout;
 #endregion
 
-public class BaseUtilityWindow : EditorWindow
+public class CharacterMovesetCreator : EditorWindow
 {
     // -- Menus --
 
-    internal static BaseUtilityWindow window;
     readonly static Vector2 winSize = new (475, 615);
 
     public static Action activeMenu;
     public static bool createdSuccessfully;
 
-    [MenuItem("Tools/Character Creation/Utility Window")]
+    [MenuItem("Tools/Character Creation/Moveset Creator")]
     public static void Open()
     {
-        window              = GetWindow<BaseUtilityWindow>();
-        window.titleContent = new ("Utility Window");
+        var window = GetWindow<CharacterMovesetCreator>();
+        window.titleContent = new ("Moveset Creator");
         window.minSize      = new (winSize.x, winSize.y);
         window.maxSize      = window.minSize;
         window.Show();
@@ -28,8 +27,6 @@ public class BaseUtilityWindow : EditorWindow
 
     void OnEnable()
     {
-        window = GetWindow<BaseUtilityWindow>();
-        
         createdSuccessfully = false;
 
         // Initialize the dictionary with types
@@ -60,35 +57,23 @@ public class BaseUtilityWindow : EditorWindow
     {
         using (new HorizontalScope("box"))
         {
-            Label("Manage Moves, Movesets, or State Data", EditorStyles.boldLabel);
-        }
+            Label("Create Moves / Movesets", EditorStyles.boldLabel);
 
-        using (new HorizontalScope("box"))
-        {
-            if (Button("Manage Moves", ExpandWidth(true)))
+            if (Button("Manage Movesets"))
             {
+                createdSuccessfully = false;
+                activeMenu          = MovesetCreator.CreatingMovesetMenu;
+            }
+
+            if (Button("Manage Moves"))
+            {
+                createdSuccessfully = false;
+
                 MoveCreator.showAttributes = true;
                 MoveCreator.showResources  = true;
                 MoveCreator.showProperties = true;
-                
-                createdSuccessfully = false;
-                window.titleContent = new ("Managing Moves...");
-                activeMenu          = MoveCreator.ManageMoveMenu;
 
-            }
-            
-            if (Button("Manage Movesets", ExpandWidth(true)))
-            {
-                createdSuccessfully = false;
-                activeMenu          = MovesetCreator.ManageMovesetMenu;
-                window.titleContent = new ("Managing Movesets...");
-            }
-            
-            if (Button("Manage State Data", ExpandWidth(true)))
-            {
-                createdSuccessfully = false;
-                activeMenu          = StateDataManager.ManageStateDataMenu;
-                window.titleContent = new ("Managing State Data...");
+                activeMenu = MoveCreator.CreatingMoveMenu;
             }
         }
     }
@@ -122,35 +107,28 @@ public class BaseUtilityWindow : EditorWindow
             using (new HorizontalScope())
             {
                 FlexibleSpace();
-                Label("1. Click \"Manage Movesets\" or \"Mange Moves\".");
+                Label("1. Click \"Create Moveset\" or \"Create Move\".");
                 FlexibleSpace();
             }
 
             using (new HorizontalScope())
             {
                 FlexibleSpace();
-                Label("2. Either select an existing Move or Moveset to edit, or create a new one.");
+                Label("2. Fill in the fields.");
                 FlexibleSpace();
             }
 
             using (new HorizontalScope())
             {
                 FlexibleSpace();
-                Label("3. To create a new move or moveset, click \"Create Moveset\" or \"Create Move\"");
+                Label("3. Click \"Create Moveset\" or \"Create Move\" again.");
                 FlexibleSpace();
             }
 
             using (new HorizontalScope())
             {
                 FlexibleSpace();
-                Label("4. Fill in the fields.");
-                FlexibleSpace();
-            }
-                
-            using (new HorizontalScope())
-            {
-                FlexibleSpace();
-                Label("5. Done! The ScriptableObject will be created.");
+                Label("4. Done! The ScriptableObject will be created.");
                 FlexibleSpace();
             }
 

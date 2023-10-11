@@ -47,7 +47,7 @@ public static class MoveCreator
 
     // -- End --
 
-    public static void ManageMoveMenu()
+    public static void CreatingMoveMenu()
     {
         DrawMenuHeader();
         currentMove = GetMoveToEdit();
@@ -64,7 +64,7 @@ public static class MoveCreator
     #region GUI
     static void DrawMenuHeader()
     {
-        BaseUtilityWindow.DrawBackButton();
+        CharacterMovesetCreator.DrawBackButton();
         EditorGUILayout.LabelField("Creating Move", EditorStyles.boldLabel);
     }
 
@@ -78,11 +78,7 @@ public static class MoveCreator
         moveName = GetMoveName();
         string assetName = GenerateAssetName(moveName);
 
-        if (Button($"Create {moveName}"))
-        {
-            BaseUtilityWindow.window.titleContent = new ("Creating New Move...");
-            SwitchToMoveCreatorMenu(assetName);
-        }
+        if (Button($"Create {moveName}")) SwitchToMoveCreatorMenu(assetName);
     }
 
     static string GetMoveName() => EditorGUILayout.TextField("Move Name", moveName);
@@ -98,11 +94,11 @@ public static class MoveCreator
         if (string.IsNullOrEmpty(assetName) || assetName == "New Move")
         {
             const string warning = "Warning";
-            string       message = BaseUtilityWindow.WarningMessage(assetName, false);
+            string       message = CharacterMovesetCreator.WarningMessage(assetName, false);
 
-            if (EditorUtility.DisplayDialog(warning, message, "Proceed", "Cancel")) BaseUtilityWindow.activeMenu = DrawCreatingMoveMenu;
+            if (EditorUtility.DisplayDialog(warning, message, "Proceed", "Cancel")) CharacterMovesetCreator.activeMenu = DrawCreatingMoveMenu;
         }
-        else { BaseUtilityWindow.activeMenu = DrawCreatingMoveMenu; }
+        else { CharacterMovesetCreator.activeMenu = DrawCreatingMoveMenu; }
     }
 
     static void DisplayMoveEditor()
@@ -114,7 +110,7 @@ public static class MoveCreator
 
     static void DrawCreatingMoveMenu()
     {
-        BaseUtilityWindow.DrawBackButton();
+        CharacterMovesetCreator.DrawBackButton();
 
         Label("Creating Move", EditorStyles.boldLabel);
 
@@ -156,7 +152,6 @@ public static class MoveCreator
             guard = (MoveData.Guard) EditorGUILayout.EnumPopup(guard);
         }
     }
-    
     static void DrawResourcesGUI()
     {
         using (new VerticalScope("box"))
@@ -312,14 +307,14 @@ public static class MoveCreator
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
-            BaseUtilityWindow.activeMenu = BaseUtilityWindow.DefaultMenu;
+            CharacterMovesetCreator.activeMenu = CharacterMovesetCreator.DefaultMenu;
 
             Debug.Log($"Created new move: \"{currentMove.name}\".");
             Selection.activeObject = currentMove;
             EditorGUIUtility.PingObject(currentMove);
 
             currentMove = null;
-            BaseUtilityWindow.createdSuccessfully = true;
+            CharacterMovesetCreator.createdSuccessfully = true;
         }
     }
     #endregion
