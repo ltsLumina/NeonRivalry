@@ -218,7 +218,7 @@ public class QuickAccessWindow : EditorWindow
 
             if (windowsFoldout)
             {
-                CreateButtonWithAction("Utility Window", BaseUtilityWindow.Open);
+                CreateButtonWithAction("Moveset Creator", CharacterMovesetCreator.Open);
                 CreateButtonWithAction("State Debugger", FGDebuggerWindow.Open);
                 CreateButtonWithAction("Lumina's Essentials", UtilityPanel.OpenUtilityPanel);
             }
