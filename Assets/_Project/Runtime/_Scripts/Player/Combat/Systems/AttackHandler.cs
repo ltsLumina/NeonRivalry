@@ -8,22 +8,25 @@ public class AttackHandler
 {
     // -- Fields --
 
-    [SerializeField] Moveset moveset;
-    [SerializeField] Animator animator;
-    [SerializeField] PlayerController player;
+    readonly Moveset moveset;
+    readonly Animator animator;
+    readonly PlayerController player;
 
     // -- Constants --
-    const int NeutralPunchIndex = 0;
-    const int ForwardPunchIndex = 1;
+    const int NeutralAttackIndex = 0;
+    const int ForwardAttackIndex = 1;
     const int UpPunchIndex = 2;
     const int DownPunchIndex = 3;
 
-    //A dictionary that maps a direction key to a tuple containing an action to perform, a log message, and an animation index.
-    readonly static Dictionary<MoveData.Direction, (Action<MoveData> action, string logMessage, int animationIndex)> directionToActionMap = new ()
-    { { MoveData.Direction.Neutral, (null, "Neutral move performed.", NeutralPunchIndex) },
-      { MoveData.Direction.Forward, (null, "Forward move performed.", ForwardPunchIndex) },
-      { MoveData.Direction.Up, (null, "Up move performed.", UpPunchIndex) },
-      { MoveData.Direction.Down, (null, "Down move performed.", DownPunchIndex) } };
+    /// <summary>
+    ///     A dictionary that defines the associations between different move directions and their corresponding actions, log
+    ///     messages, and animation indexes.
+    /// </summary>
+    readonly static Dictionary<MoveData.Direction, (string logMessage, int animationIndex)> directionToActionMap = new ()
+    { { MoveData.Direction.Neutral, ("Neutral move performed.", NeutralAttackIndex) },
+      { MoveData.Direction.Forward, ("Forward move performed.", ForwardAttackIndex) },
+      { MoveData.Direction.Up, ("Up move performed.", UpPunchIndex) },
+      { MoveData.Direction.Down, ("Down move performed.", DownPunchIndex) } };
     
     public AttackHandler(Moveset moveset, Animator animator, PlayerController player)
     {
@@ -55,8 +58,11 @@ public class AttackHandler
                 attackMoves = moveset.uniqueMoves;
                 break;
 
+            // If the attack type is none, then the default case is executed.
+            case InputManager.AttackType.None:
+                
             default:
-                Debug.LogWarning("Attack type is not valid. \nIf you got this error then I am honestly impressed.");
+                Debug.LogWarning($"The current attack type \"{attackType}\" is not valid. \nIf you got this error then I am honestly impressed.");
                 return;
         }
 

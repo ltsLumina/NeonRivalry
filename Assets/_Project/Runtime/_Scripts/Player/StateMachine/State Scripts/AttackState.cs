@@ -20,9 +20,9 @@ public class AttackState : State
     float groundedAttackTimer;
     float airborneAttackTimer;
 
-    AttackHandler attackHandler;
-    Animator animator;
-    Moveset moveset;
+    readonly AttackHandler attackHandler;
+    readonly Animator animator;
+    readonly Moveset moveset;
 
       // -- Constructor --
       public AttackState(PlayerController player, AttackStateData stateData) : base(player)
