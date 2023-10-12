@@ -64,6 +64,16 @@ public partial class PlayerController // StateChecks.cs
         return isAttacking;
     }
 
+    public bool IsAirborneAttacking()
+    {
+        bool isAirborneAttacking = StateMachine.CurrentState is AirborneAttackState
+        { IsAirborneAttacking: true };
+        
+        FGDebugger.Debug($"IsAirborneAttacking() is {isAirborneAttacking}", LogType.Log, State.StateType.AirborneAttack);
+        
+        return isAirborneAttacking;
+    }
+
     /// <summary>
     /// This method checks if the player is airborne, which is defined as not being grounded, jumping, or falling.
     /// </summary>
@@ -90,6 +100,8 @@ public partial class PlayerController // StateChecks.cs
     public bool CanFall() => IsAirborne() && !IsAttacking();
 
     public bool CanAttack() => !IsAttacking();
+    
+    public bool CanAirborneAttack() => IsAirborne();
 
     // -- Gizmos --
 

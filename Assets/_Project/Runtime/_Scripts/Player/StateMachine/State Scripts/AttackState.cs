@@ -14,11 +14,9 @@ public class AttackState : State
     public override int Priority => statePriorities[Type];
     
     public bool IsAttacking { get; private set; }
-    public bool IsAirborne { get; private set; }
 
     // -- State Specific Variables --
     float groundedAttackTimer;
-    float airborneAttackTimer;
 
     readonly AttackHandler attackHandler;
     readonly Animator animator;
@@ -41,12 +39,10 @@ public class AttackState : State
     {
         // Play the attack animation.
         IsAttacking = true;
-        IsAirborne  = player.IsAirborne(); // Check whether the player was in air when attack started.
 
-        player.GetComponentInChildren<SpriteRenderer>().color = IsAirborne ? new (1f, 0.21f, 0.38f, 0.75f) : Color.red;
+        player.GetComponentInChildren<SpriteRenderer>().color = Color.red;
 
         groundedAttackTimer = 0;
-        airborneAttackTimer = 0;
 
         var attackType = player.InputManager.LastAttackPressed;
 
@@ -64,51 +60,28 @@ public class AttackState : State
     public override void UpdateState()
     {
         // Player is grounded, perform grounded attack.
-        if (!IsAirborne)
+
+        // If the attack duration has not been reached, continue attacking.
+        if (groundedAttackTimer < animator.GetCurrentAnimatorStateInfo(0).length)
         {
-            // If the attack duration has not been reached, continue attacking.
-            if (groundedAttackTimer < animator.GetCurrentAnimatorStateInfo(0).length)
+            groundedAttackTimer += Time.fixedDeltaTime;
+
+            if (player.IsGrounded())
             {
-                groundedAttackTimer += Time.fixedDeltaTime;
-
-                if (player.IsGrounded())
-                {
-                    FGDebugger.Debug("Attacking on the ground!", LogType.Log, StateType.Attack);
-                    
-                }
-                // Player has become airborne after starting the attack, cancel the attack. (e.g. player gets knocked into the air) 
-                else
-                {
-                    IsAirborne = true;
-                    FGDebugger.Debug("Player has been knocked into the air! \nCancelling the attack...", LogType.Log, StateType.Attack);
-                    
-                    // Cancel the attack.
-                    OnExit();
-                }
+                FGDebugger.Debug("Attacking on the ground!", LogType.Log, StateType.Attack); 
+                
             }
-            else { OnExit(); }
-        }
-        else // Player is airborne, perform airborne attack.
-        {
-            if (airborneAttackTimer < animator.GetCurrentAnimatorStateInfo(0).length)
+
+            // Player has become airborne after starting the attack, cancel the attack. (e.g. player gets knocked into the air) 
+            else
             {
-                airborneAttackTimer += Time.fixedDeltaTime;
+                FGDebugger.Debug("Player has been knocked into the air! \nCancelling the attack...", LogType.Log, StateType.Attack);
 
-                // If the player lands, cancel the attack.
-                if (player.IsGrounded())
-                {
-                    FGDebugger.Debug("Airborne Attack cancelled!", LogType.Log, StateType.Attack);
-                    OnExit();
-                }
-                else
-                {
-                    FGDebugger.Debug("Attacking in the air!", LogType.Log, StateType.Attack);
-
-                    // Play airborne attack animation and run logic.
-                }
+                // Cancel the attack.
+                OnExit();
             }
-            else { OnExit(); }
         }
+        else { OnExit(); }
     }
 
     public override void OnExit()

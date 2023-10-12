@@ -15,8 +15,8 @@ public class AttackHandler
     // -- Constants --
     const int NeutralAttackIndex = 0;
     const int ForwardAttackIndex = 1;
-    const int UpPunchIndex = 2;
-    const int DownPunchIndex = 3;
+    const int UpAttackIndex = 2;
+    const int DownAttackIndex = 3;
 
     /// <summary>
     ///     A dictionary that defines the associations between different move directions and their corresponding actions, log
@@ -25,8 +25,8 @@ public class AttackHandler
     readonly static Dictionary<MoveData.Direction, (string logMessage, int animationIndex)> directionToActionMap = new ()
     { { MoveData.Direction.Neutral, ("Neutral move performed.", NeutralAttackIndex) },
       { MoveData.Direction.Forward, ("Forward move performed.", ForwardAttackIndex) },
-      { MoveData.Direction.Up, ("Up move performed.", UpPunchIndex) },
-      { MoveData.Direction.Down, ("Down move performed.", DownPunchIndex) } };
+      { MoveData.Direction.Up, ("Up move performed.", UpAttackIndex) },
+      { MoveData.Direction.Down, ("Down move performed.", DownAttackIndex) } };
     
     public AttackHandler(Moveset moveset, Animator animator, PlayerController player)
     {
@@ -52,6 +52,10 @@ public class AttackHandler
 
             case InputManager.AttackType.Slash:
                 attackMoves = moveset.slashMoves;
+                break;
+
+            case InputManager.AttackType.Airborne:
+                attackMoves = moveset.airborneMoves;
                 break;
 
             case InputManager.AttackType.Unique:
