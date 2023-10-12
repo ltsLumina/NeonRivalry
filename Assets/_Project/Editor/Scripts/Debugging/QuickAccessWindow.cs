@@ -12,6 +12,7 @@ using static UnityEngine.GUILayout;
 
 namespace Lumina.Debugging
 {
+//TODO: Add an option to "favourite" folders, assets, etc. then add an option to Lumina Essentials to open the quick access window.
 public class QuickAccessWindow : EditorWindow
 {
     static Action activeMenu;

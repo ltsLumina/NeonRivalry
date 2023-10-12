@@ -45,12 +45,15 @@ public class IntroPlayerInitializer : MonoBehaviour
 
             while (loadingBar.value < 1f)
             {
-                bool  speedUp         = Input.GetKey(KeyCode.LeftShift) || Gamepad.current.rightShoulder.isPressed; // Check if Shift or RB is pressed
-                float additionalSpeed = speedUp ? 0.5f : 0.0f;                                                      // Increase speed when Shift is pressed
+                // Speed modifier based on input commands
+                float speedModifer = Input.GetKey(KeyCode.LeftShift) || (Gamepad.current != null && Gamepad.current.rightShoulder.isPressed) ? 0.5f : 0.0f;
 
-                loadingBar.value += loadingBar.value <= cutoff
-                    ? Random.Range(0.01f, 0.05f) + additionalSpeed  // Increases the value by a smaller rate until specified cutoff point
-                    : Random.Range(0.05f, 0.2f)  + additionalSpeed; // Increase value by larger rate after cutoff point
+                // Rate of increase in loading bar value
+                float minimumRate    = loadingBar.value <= cutoff ? 0.01f : 0.05f;
+                float maximumRate    = loadingBar.value <= cutoff ? 0.05f : 0.2f;
+                float rateOfIncrease = Random.Range(minimumRate, maximumRate) + speedModifer;
+
+                loadingBar.value += rateOfIncrease;
 
                 yield return new WaitForSeconds(Random.Range(0.05f, 1.2f));
             }

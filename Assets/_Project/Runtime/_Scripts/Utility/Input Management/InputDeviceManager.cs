@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 
 public class InputDeviceManager : MonoBehaviour
 {
-    public readonly static Dictionary<InputDevice, int> persistentPlayerDevices = new (); // TODO: There is a chance that this doesn't work in builds.
+    readonly static Dictionary<InputDevice, int> persistentPlayerDevices = new (); // TODO: There is a chance that this doesn't work in builds.
     readonly Dictionary<InputDevice, int> playerDevices = new();
     
     PlayerInputManager playerInputManager;
@@ -27,7 +27,7 @@ public class InputDeviceManager : MonoBehaviour
         if (SceneManagerExtended.ActiveScene is Intro) persistentPlayerDevices.Clear();
 
         // Instantiate the players into the game scene if there are persistent devices from previous scenes.
-            LoadPersistentPlayers();
+        LoadPersistentPlayers();
     }
 
     /// <summary>
@@ -46,7 +46,7 @@ public class InputDeviceManager : MonoBehaviour
             string controlScheme = kvp.Key is Keyboard ? "Keyboard" : "Gamepad";
             playerInputManager.JoinPlayer(kvp.Value, -1, controlScheme, kvp.Key);
 
-            Debug.Log($"Player {kvp.Value + 1} joined using {controlScheme} control scheme!");
+            Debug.Log($"Player {kvp.Value + 1} joined using {controlScheme} control scheme! \nThis player was loaded in from a previous scene.");
         }
     }
 
@@ -108,7 +108,7 @@ public class InputDeviceManager : MonoBehaviour
     // but in the Game scene we instantiate the player prefab.
     // The object to instantiate is selected in the PlayerInputManager component on the game object, but you must switch from "Join Manually" to "Join On Button Press" to be able to select it.
     // Once you have switched the option, you must select the player prefab and then switch back to "Join Manually".
-    // Odd bug, but this is the only way I could think of to fix it.
+    // Odd bug but this is the only way I could think of to fix it.
     void InstantiatePlayer()
     {
         InputDevice device = GetActiveDevice();
@@ -122,7 +122,7 @@ public class InputDeviceManager : MonoBehaviour
         playerInputManager.JoinPlayer(playerDevices[device], -1, controlScheme, device);
 
         // Uses the default (recommended) rumble amount and duration.
-        if (device is Gamepad gamepad) gamepad.Rumble(this); // bug: The rumble might be too weak on some gamepads.
+        if (device is Gamepad gamepad) gamepad.Rumble(this); // bug: The rumble might be too weak on some gamepads, making it nearly unnoticeable.
 
         Debug.Log($"Player {playerDevices[device] + 1} joined using {controlScheme} control scheme!");
     }
