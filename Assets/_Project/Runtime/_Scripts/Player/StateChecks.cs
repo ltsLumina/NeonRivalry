@@ -15,7 +15,7 @@ public partial class PlayerController // StateChecks.cs
     {
         bool raycastHit = Physics.Raycast(transform.position, Vector3.down,raycastDistance,groundLayer);
         
-        FGDebugger.Debug($"IsGrounded() is {raycastHit}", LogType.Log, State.StateType.Idle);
+        FGDebugger.Trace($"IsGrounded() is {raycastHit}", State.StateType.Idle);
 
         return raycastHit;
     }
@@ -25,7 +25,7 @@ public partial class PlayerController // StateChecks.cs
         bool isMoving = IsGrounded() && Rigidbody.velocity.x != 0 && StateMachine.CurrentState is MoveState
         { IsMoving: true };
 
-        FGDebugger.Debug($"IsMoving() is {isMoving}", LogType.Log, State.StateType.Walk);
+        FGDebugger.Trace($"IsMoving() is {isMoving}", State.StateType.Walk);
 
         return isMoving;
     }
@@ -36,7 +36,7 @@ public partial class PlayerController // StateChecks.cs
         bool isJumping = IsGrounded() && Rigidbody.velocity.y > 0 && StateMachine.CurrentState is JumpState
         { IsJumping: true };
 
-        FGDebugger.Debug($"IsJumping() is {isJumping}", LogType.Log, State.StateType.Jump);
+        FGDebugger.Trace($"IsJumping() is {isJumping}", State.StateType.Jump);
 
         return isJumping;
     }
@@ -44,10 +44,10 @@ public partial class PlayerController // StateChecks.cs
     // ReSharper disable Unity.PerformanceAnalysis
     public bool IsFalling()
     {
-        bool isFalling = !IsGrounded() || Rigidbody.velocity.y < 0 && StateMachine.CurrentState is FallState
-        { IsFalling: true };
+        bool isFalling = !IsGrounded() || (Rigidbody.velocity.y < 0 && StateMachine.CurrentState is FallState
+        { IsFalling: true });
 
-        FGDebugger.Debug($"IsFalling() is {isFalling}", LogType.Log, State.StateType.Fall);
+        FGDebugger.Trace($"IsFalling() is {isFalling}", State.StateType.Fall);
 
         return isFalling;
     }
@@ -59,7 +59,7 @@ public partial class PlayerController // StateChecks.cs
         bool isAttacking = StateMachine.CurrentState is AttackState
         { IsAttacking: true };
 
-        FGDebugger.Debug($"IsAttacking() is {isAttacking}", LogType.Log, State.StateType.Attack);
+        FGDebugger.Trace($"IsAttacking() is {isAttacking}", State.StateType.Attack);
 
         return isAttacking;
     }
@@ -69,7 +69,7 @@ public partial class PlayerController // StateChecks.cs
         bool isAirborneAttacking = StateMachine.CurrentState is AirborneAttackState
         { IsAirborneAttacking: true };
         
-        FGDebugger.Debug($"IsAirborneAttacking() is {isAirborneAttacking}", LogType.Log, State.StateType.AirborneAttack);
+        FGDebugger.Trace($"IsAirborneAttacking() is {isAirborneAttacking}", State.StateType.AirborneAttack);
         
         return isAirborneAttacking;
     }
@@ -88,7 +88,7 @@ public partial class PlayerController // StateChecks.cs
     {
         bool isIdle = IsGrounded() && !(IsMoving() || IsAirborne() || IsAttacking());
 
-        FGDebugger.Debug($"IsIdle() is {isIdle}", LogType.Log, State.StateType.Idle);
+        FGDebugger.Trace($"IsIdle() is {isIdle}", State.StateType.Idle);
 
         return isIdle;
     }

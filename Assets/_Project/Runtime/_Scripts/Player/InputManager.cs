@@ -1,5 +1,6 @@
 ﻿#region
 using System;
+using Lumina.Debugging;
 using Lumina.Essentials.Attributes;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -95,20 +96,21 @@ public class InputManager : MonoBehaviour
 
     #region Attack Input Handling
 
+    // TODO: I should make it so that I'm not repeating the if-else for the attack type.
+    //       Currently I have to check if the player is grounded or airborne before selecting the attack type.
     public void OnPunch(InputAction.CallbackContext context)
     {
         if (context.performed && player.CanAttack())
         {
-            // If play is grounded, enter grounded Attack state, otherwise enter Airborne Attack state.
             if (player.IsGrounded())
             {
-                Debug.Log("Grounded Attacking!");
+                FGDebugger.Debug("Grounded Punching!", LogType.Log, State.StateType.Attack);
                 LastAttackPressed = AttackType.Punch;
                 stateMachine.TransitionToState(State.StateType.Attack);
             }
             else
             {
-                Debug.Log("Airborne Attacking!");
+                FGDebugger.Debug("Airborne Punching!", LogType.Log, State.StateType.AirborneAttack);
                 LastAttackPressed = AttackType.Airborne;
                 stateMachine.TransitionToState(State.StateType.AirborneAttack);
             }

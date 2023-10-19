@@ -33,13 +33,15 @@ public class AttackHandler
         this.moveset  = moveset;
         this.animator = animator;
         this.player   = player;
+
+        Debug.Assert(moveset != null, "Moveset is null in the AttackStateData. Please assign it in the inspector.");
     }
 
     public void SelectAttack(InputManager.AttackType attackType)
     {
         // Get the appropriate moveset for the attack type
         List<MoveData> attackMoves;
-
+        
         switch (attackType)
         {
             case InputManager.AttackType.Punch:
@@ -88,13 +90,24 @@ public class AttackHandler
 
         PlayAnimation(selectedAttack, directionToActionMap[directionToPerform].animationIndex, type);
 
-        FGDebugger.Debug(directionToActionMap[directionToPerform].logMessage, LogType.Log, State.StateType.Attack);
+        // Logs the attack type that is being performed.
+        var attackType = Enum.GetName(typeof(InputManager.AttackType), type);
+        FGDebugger.Debug($"Performing {attackType} attack in the {directionToPerform} direction.", LogType.Log, new[] { State.StateType.Attack, State.StateType.AirborneAttack });
     }
 
     void PlayAnimation(MoveData move, int index, InputManager.AttackType type)
     {
-        animator.SetInteger("Selected" + Enum.GetName(typeof(InputManager.AttackType), type), index);
-        animator.SetTrigger(Enum.GetName(typeof(InputManager.AttackType), type));
+        var attackType = Enum.GetName(typeof(InputManager.AttackType), type);
+        
+        // Important: The name of the parameter in the animator must be the same as the name of the attack type.
+        string selectedAttack = "Selected" + attackType;
+        
+        animator.SetInteger(selectedAttack, index);
+        animator.SetTrigger(attackType);
+
+        FGDebugger.Trace
+        ("Attack animation played. Animator parameters set to: " + $"\n{selectedAttack} = {index}" + $"\n{attackType} = true", new[]
+         { State.StateType.Attack, State.StateType.AirborneAttack });
     }
 
     #region Utility

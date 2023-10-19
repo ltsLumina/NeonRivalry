@@ -20,7 +20,7 @@ public class AttackState : State
 
     readonly AttackHandler attackHandler;
     readonly Animator animator;
-    readonly Moveset moveset;
+    readonly Moveset moveset; // Could be declared as a local variable, but it will (probably) be used in the future.
 
       // -- Constructor --
       public AttackState(PlayerController player, AttackStateData stateData) : base(player)
@@ -44,7 +44,7 @@ public class AttackState : State
 
         groundedAttackTimer = 0;
 
-        var attackType = player.InputManager.LastAttackPressed;
+        InputManager.AttackType attackType = player.InputManager.LastAttackPressed;
 
         if (attackType != InputManager.AttackType.None)
         {
