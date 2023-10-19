@@ -1,16 +1,16 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 
 public class ComboCounter : MonoBehaviour
 {
-    TextMeshProUGUI comboText;
+    private TextMeshProUGUI comboText;
+    private Animator comboAnimator;
 
-    [SerializeField] float comboTime;
-    [SerializeField] float comboTimeLimit;
-    [SerializeField] readonly float currentCombo;
-    [SerializeField] int comboCount;
-
-    Animator comboAnimator;
+    [SerializeField] private float comboTime;
+    [SerializeField] private float comboTimeReset;
+    [SerializeField] private float comboTimeChange;
+    [SerializeField] private int comboCount;
 
     private void Start()
     {
@@ -18,11 +18,14 @@ public class ComboCounter : MonoBehaviour
         comboAnimator = GetComponent<Animator>();
     }
 
-    void Update()
+    private void Update()
     {
         comboTime -= Time.deltaTime;
         ChangeComboText();
-        if (comboTime <= comboTimeLimit) { comboTime = 0; comboCount = 0; comboText.text = " "; comboAnimator.SetBool("Disappear", true);
+
+        if (comboTime <= 0f)
+        {
+            ResetCombo();
         }
     }
 
@@ -30,10 +33,33 @@ public class ComboCounter : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Z))
         {
-            comboAnimator.SetBool("Appear", true);
-            comboCount += 1;
-            comboText.text = "Combo " + comboCount;
-            comboTime = 1f;
+            comboCount++;
+            comboText.text = $"Combo\n{comboCount}";
+            comboTime = comboTimeChange;
+            comboAnimator.SetBool("Appear", comboCount > 1);
+            comboAnimator.SetBool("Disappear", false);
+            StartCoroutine(ComboPop());
         }
+    }
+
+    private void ResetCombo()
+    {
+        comboCount = 0;
+        comboText.text = string.Empty;
+        comboAnimator.SetBool("Appear", false);
+        comboAnimator.SetBool("Disappear", true);
+    }
+
+    public void ResetDisappearAnimation()
+    {
+        comboAnimator.SetBool("Disappear", false);
+    }
+
+    private IEnumerator ComboPop()
+    {
+        if (comboCount < 2) yield break;
+
+        comboAnimator.Play("ComboPop");
+        yield return new WaitForSeconds(1f);
     }
 }

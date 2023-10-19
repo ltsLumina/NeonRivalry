@@ -2422,6 +2422,7 @@ GameObject:
   - component: {fileID: 754518072}
   - component: {fileID: 754518071}
   - component: {fileID: 754518074}
+  - component: {fileID: 754518075}
   m_Layer: 5
   m_Name: Combo
   m_TagString: Untagged
@@ -2440,7 +2441,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 918090830}
   m_Father: {fileID: 364875797}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -2461,7 +2463,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   comboTime: 0
-  comboTimeLimit: 0
+  comboTimeReset: 0
+  comboTimeChange: 1
   comboCount: 0
 --- !u!114 &754518072
 MonoBehaviour:
@@ -2483,7 +2486,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: '
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2526,7 +2531,7 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_enableWordWrapping: 1
+  m_enableWordWrapping: 0
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
   m_linkedTextComponent: {fileID: 0}
@@ -2581,6 +2586,24 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &754518075
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754518069}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 605c09738265e1440a69dd4624412d4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  textComponentOnObject: {fileID: 754518072}
+  Drag: 0.7
+  Spring: 0.4
+  TargetScaleFactor: 1.5
+  StartScale: 0
+  TargetScale: 0
 --- !u!1 &901159214
 GameObject:
   m_ObjectHideFlags: 0
@@ -2638,11 +2661,11 @@ Transform:
   m_GameObject: {fileID: 918090829}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -960, y: -540, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1902932415}
+  m_Father: {fileID: 754518070}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1010729814
 PrefabInstance:
@@ -4754,7 +4777,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 364875797}
-  - {fileID: 918090830}
   - {fileID: 687835907}
   - {fileID: 578211589}
   m_Father: {fileID: 0}
