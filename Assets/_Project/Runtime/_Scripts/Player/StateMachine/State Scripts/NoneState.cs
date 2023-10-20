@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Lumina.Debugging;
+using UnityEngine;
 
 public class NoneState : State
 {
@@ -15,7 +16,7 @@ public class NoneState : State
 
     public override void OnEnter()
     {
-        Debug.Log("'None' state selected. This state is used when there is no state to transition to, or there is no player.");
+        FGDebugger.Info("'None' state selected. This state is used when there is no state to transition to, or there is no player.");
         player.GetComponentInChildren<SpriteRenderer>().color = Color.grey;
     }
 

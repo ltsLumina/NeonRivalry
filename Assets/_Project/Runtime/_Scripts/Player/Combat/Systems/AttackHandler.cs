@@ -15,8 +15,8 @@ public class AttackHandler
     // -- Constants --
     const int NeutralAttackIndex = 0;
     const int ForwardAttackIndex = 1;
-    const int UpPunchIndex = 2;
-    const int DownPunchIndex = 3;
+    const int UpAttackIndex = 2;
+    const int DownAttackIndex = 3;
 
     /// <summary>
     ///     A dictionary that defines the associations between different move directions and their corresponding actions, log
@@ -25,21 +25,23 @@ public class AttackHandler
     readonly static Dictionary<MoveData.Direction, (string logMessage, int animationIndex)> directionToActionMap = new ()
     { { MoveData.Direction.Neutral, ("Neutral move performed.", NeutralAttackIndex) },
       { MoveData.Direction.Forward, ("Forward move performed.", ForwardAttackIndex) },
-      { MoveData.Direction.Up, ("Up move performed.", UpPunchIndex) },
-      { MoveData.Direction.Down, ("Down move performed.", DownPunchIndex) } };
+      { MoveData.Direction.Up, ("Up move performed.", UpAttackIndex) },
+      { MoveData.Direction.Down, ("Down move performed.", DownAttackIndex) } };
     
     public AttackHandler(Moveset moveset, Animator animator, PlayerController player)
     {
         this.moveset  = moveset;
         this.animator = animator;
         this.player   = player;
+
+        Debug.Assert(moveset != null, "Moveset is null in the AttackStateData. Please assign it in the inspector.");
     }
 
     public void SelectAttack(InputManager.AttackType attackType)
     {
         // Get the appropriate moveset for the attack type
         List<MoveData> attackMoves;
-
+        
         switch (attackType)
         {
             case InputManager.AttackType.Punch:
@@ -52,6 +54,10 @@ public class AttackHandler
 
             case InputManager.AttackType.Slash:
                 attackMoves = moveset.slashMoves;
+                break;
+
+            case InputManager.AttackType.Airborne:
+                attackMoves = moveset.airborneMoves;
                 break;
 
             case InputManager.AttackType.Unique:
@@ -84,13 +90,24 @@ public class AttackHandler
 
         PlayAnimation(selectedAttack, directionToActionMap[directionToPerform].animationIndex, type);
 
-        FGDebugger.Debug(directionToActionMap[directionToPerform].logMessage, LogType.Log, State.StateType.Attack);
+        // Logs the attack type that is being performed.
+        var attackType = Enum.GetName(typeof(InputManager.AttackType), type);
+        FGDebugger.Debug($"Performing {attackType} attack in the {directionToPerform} direction.", LogType.Log, new[] { State.StateType.Attack, State.StateType.AirborneAttack });
     }
 
     void PlayAnimation(MoveData move, int index, InputManager.AttackType type)
     {
-        animator.SetInteger("Selected" + Enum.GetName(typeof(InputManager.AttackType), type), index);
-        animator.SetTrigger(Enum.GetName(typeof(InputManager.AttackType), type));
+        var attackType = Enum.GetName(typeof(InputManager.AttackType), type);
+        
+        // Important: The name of the parameter in the animator must be the same as the name of the attack type.
+        string selectedAttack = "Selected" + attackType;
+        
+        animator.SetInteger(selectedAttack, index);
+        animator.SetTrigger(attackType);
+
+        FGDebugger.Trace
+        ("Attack animation played. Animator parameters set to: " + $"\n{selectedAttack} = {index}" + $"\n{attackType} = true", new[]
+         { State.StateType.Attack, State.StateType.AirborneAttack });
     }
 
     #region Utility

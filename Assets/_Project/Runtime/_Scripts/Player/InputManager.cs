@@ -1,5 +1,6 @@
 ﻿#region
 using System;
+using Lumina.Debugging;
 using Lumina.Essentials.Attributes;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -18,6 +19,7 @@ public class InputManager : MonoBehaviour
         Punch,
         Kick,
         Slash,
+        Airborne,
         Unique
     }
 
@@ -94,12 +96,24 @@ public class InputManager : MonoBehaviour
 
     #region Attack Input Handling
 
+    // TODO: I should make it so that I'm not repeating the if-else for the attack type.
+    //       Currently I have to check if the player is grounded or airborne before selecting the attack type.
     public void OnPunch(InputAction.CallbackContext context)
     {
         if (context.performed && player.CanAttack())
         {
-            LastAttackPressed = AttackType.Punch;
-            stateMachine.TransitionToState(State.StateType.Attack);
+            if (player.IsGrounded())
+            {
+                FGDebugger.Debug("Grounded Punching!", LogType.Log, State.StateType.Attack);
+                LastAttackPressed = AttackType.Punch;
+                stateMachine.TransitionToState(State.StateType.Attack);
+            }
+            else
+            {
+                FGDebugger.Debug("Airborne Punching!", LogType.Log, State.StateType.AirborneAttack);
+                LastAttackPressed = AttackType.Airborne;
+                stateMachine.TransitionToState(State.StateType.AirborneAttack);
+            }
         }
     }
     
@@ -107,8 +121,17 @@ public class InputManager : MonoBehaviour
     {
         if (context.performed && player.CanAttack())
         {
-            LastAttackPressed = AttackType.Kick;
-            stateMachine.TransitionToState(State.StateType.Attack);
+            // If play is grounded, enter grounded Attack state, otherwise enter Airborne Attack state.
+            if (player.IsAirborne())
+            {
+                LastAttackPressed = AttackType.Punch;
+                stateMachine.TransitionToState(State.StateType.Attack);
+            }
+            else
+            {
+                LastAttackPressed = AttackType.Airborne;
+                stateMachine.TransitionToState(State.StateType.AirborneAttack);
+            }
         }
     }
     
@@ -116,8 +139,17 @@ public class InputManager : MonoBehaviour
     {
         if (context.performed && player.CanAttack())
         {
-            LastAttackPressed = AttackType.Slash;
-            stateMachine.TransitionToState(State.StateType.Attack);
+            // If play is grounded, enter grounded Attack state, otherwise enter Airborne Attack state.
+            if (player.IsAirborne())
+            {
+                LastAttackPressed = AttackType.Punch;
+                stateMachine.TransitionToState(State.StateType.Attack);
+            }
+            else
+            {
+                LastAttackPressed = AttackType.Airborne;
+                stateMachine.TransitionToState(State.StateType.AirborneAttack);
+            }
         }
     }
     
@@ -125,8 +157,17 @@ public class InputManager : MonoBehaviour
     {
         if (context.performed && player.CanAttack())
         {
-            LastAttackPressed = AttackType.Unique;
-            stateMachine.TransitionToState(State.StateType.Attack);
+            // If play is grounded, enter grounded Attack state, otherwise enter Airborne Attack state.
+            if (player.IsAirborne())
+            {
+                LastAttackPressed = AttackType.Punch;
+                stateMachine.TransitionToState(State.StateType.Attack);
+            }
+            else
+            {
+                LastAttackPressed = AttackType.Airborne;
+                stateMachine.TransitionToState(State.StateType.AirborneAttack);
+            }
         }
     }
     

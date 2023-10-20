@@ -276,7 +276,7 @@ public static class MoveCreator
 
             try { AssetDatabase.CreateAsset(currentMove, $"{path}/{assetName}.asset"); } catch (UnityException e)
             {
-                Debug.LogError($"{FGDebugger.errorMessagePrefix} Failed to create asset. The path in the script is probably invalid.\n{e.Message}");
+                Debug.LogError($"{FGDebugger.ErrorMessagePrefix} Failed to create asset. The path in the script is probably invalid.\n{e.Message}");
                 throw;
             }
             finally

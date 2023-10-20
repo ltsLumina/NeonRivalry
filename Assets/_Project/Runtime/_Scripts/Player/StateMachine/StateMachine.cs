@@ -93,6 +93,10 @@ public class StateMachine : MonoBehaviour
             case Attack when Player.CanAttack():
                 CheckStateDataThenExecute(stateData.attackStateData, data => SetState(new AttackState(Player, data)));
                 break;
+            
+            case AirborneAttack when Player.CanAirborneAttack():
+                CheckStateDataThenExecute(stateData.airborneAttackStateData, data => SetState(new AirborneAttackState(Player, data)));
+                break;
 
             // - Unused States -
             case Knockdown:
@@ -153,6 +157,7 @@ internal struct StateMachineData
     public JumpStateData jumpStateData;
     public FallStateData fallStateData;
     public AttackStateData attackStateData;
+    public AirborneAttackStateData airborneAttackStateData;
 }
 
 #if UNITY_EDITOR
@@ -186,6 +191,7 @@ public class StateMachineEditor : Editor
             Toggle("IsJumping", stateMachine.CurrentState is JumpState {IsJumping: true });
             Toggle("IsFalling", stateMachine.CurrentState is FallState {IsFalling: true });
             Toggle("IsAttacking", stateMachine.CurrentState is AttackState {IsAttacking: true });
+            Toggle("IsAirborneAttack", stateMachine.CurrentState is AirborneAttackState {IsAirborneAttacking: true });
         }
 
         if (Application.isPlaying)
