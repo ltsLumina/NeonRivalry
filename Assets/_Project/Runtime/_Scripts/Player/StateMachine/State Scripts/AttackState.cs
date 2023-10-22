@@ -7,6 +7,9 @@ using UnityEngine;
  * IMPORTANT NOTE: Use Time.fixedDeltaTime instead of Time.deltaTime
  *----------------------------------------------------------------------------*/
 
+/// <summary>
+/// <seealso cref="AttackStateData"/>
+/// </summary>
 public class AttackState : State
 {
     // -- Abstract Variables --

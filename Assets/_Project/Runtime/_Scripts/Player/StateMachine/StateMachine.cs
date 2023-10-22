@@ -14,6 +14,7 @@ using static UnityEditor.EditorGUILayout;
 /// The state machine that handles the player's state.
 /// Allows for easy state transitions and state management.
 /// </summary>
+[RequireComponent(typeof(PlayerController))]
 public class StateMachine : MonoBehaviour
 {
     [SerializeField] StateMachineData stateData;
@@ -45,6 +46,12 @@ public class StateMachine : MonoBehaviour
     /// <seealso cref="TransitionToState"/>
     void SetState(State newState)
     {
+        if (newState == null)
+        {
+            Debug.LogError("The new state is null. Please assign a valid state.");
+            return;
+        }
+        
         // Checks if the current state is null, or if the new state has a higher priority than the current state.
         // If the new state has a lower or equal priority, the current state is entered like normal.
         if (CurrentState != null && newState.Priority > CurrentState.Priority /*&& CurrentState.CanBeInterrupted()*/)
@@ -103,11 +110,6 @@ public class StateMachine : MonoBehaviour
                 break;
 
             case Dead:
-                break;
-
-            case Run:
-                Debug.Log("RUNNING");
-                // technically unused (only used for debugging)
                 break;
 
             case Block:
@@ -176,28 +178,35 @@ public class StateMachineEditor : Editor
 
         var stateMachine = (StateMachine) target;
         var player       =  stateMachine.Player;
+        
+        // Each bool represents a state. If the bool is true, then the state is active.
+        // Used to display the state values in the inspector.
+        Dictionary<string, bool> states = new()
+        {
+            {"IsGrounded", player.IsGrounded()},
+            {"IsMoving", player.IsMoving()},
+            {"IsJumping", player.IsJumping()},
+            {"IsFalling", player.IsFalling()},
+            {"IsAttacking", player.IsAttacking()},
+            {"IsAirborneAttack", player.IsAirborneAttacking()}
+        };
 
         LabelField("Current State", stateMachine.CurrentState?.GetType().Name);
         
-            Space();
+        Space();
         
-        // For debugging purposes, to see if the related bool is true or false, even if the state is not the current state.
         LabelField("State Booleans", EditorStyles.boldLabel);
 
         using (new EditorGUI.DisabledScope(true))
         {
-            Toggle("IsGrounded", player.IsGrounded());
-            Toggle("IsMoving", stateMachine.CurrentState is MoveState {IsMoving: true });
-            Toggle("IsJumping", stateMachine.CurrentState is JumpState {IsJumping: true });
-            Toggle("IsFalling", stateMachine.CurrentState is FallState {IsFalling: true });
-            Toggle("IsAttacking", stateMachine.CurrentState is AttackState {IsAttacking: true });
-            Toggle("IsAirborneAttack", stateMachine.CurrentState is AirborneAttackState {IsAirborneAttacking: true });
+            foreach (var state in states)
+            {
+                Toggle(state.Key, state.Value);
+            }
         }
 
-        if (Application.isPlaying)
-        {
-            EditorUtility.SetDirty(stateMachine);
-        }
+        // Update the inspector if the application is playing to view live results.
+        if (Application.isPlaying) EditorUtility.SetDirty(stateMachine);
     }
 }
 #endif

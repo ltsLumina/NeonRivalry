@@ -4,7 +4,7 @@
 [CreateAssetMenu(fileName = "Teleport", menuName = "Move Effects/Teleport", order = 0)]
 public class Teleport : MoveEffect
 {
-    public float distance;
+    float distance;
 
     //TODO: PlayerController class will be swapped with the attack system class which will include
     //      the "PerformMove()" method. It runs the animation, plays the sound, and applies the effect.
