@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2cc62f21703fb5e45a0f4713ed5376dc, type: 3}
+  m_Name: SFX_Pop
+  m_EditorClassIdentifier: 
+  Mixer: {fileID: 24300002, guid: 2f44d725cfbb5c54786da4a855d9b067, type: 2}
+  _sounds:
+  - Clip: {fileID: 8300000, guid: d6fc680ac87e30d47bc1019a73b17fdf, type: 3}
+    Volume: 1
+    Pitch: 1
+    Delay: 0
+  GlobalVolume: 1
+  RandomizeVolume: 0
+  VolumeRange:
+    RangeMin: 0
+    RangeMax: 0
+  RandomizePitch: 0
+  PitchRange:
+    RangeMin: 0
+    RangeMax: 0
+  Loop: 0
+  PanStereo: 0
+  RandomizeDelay: 0
+  DelayRange:
+    RangeMin: 0
+    RangeMax: 0.15

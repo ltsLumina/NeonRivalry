@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a7d2d61cf8441f39a1fe0931b8877ad, type: 3}
+  m_Name: AudioManagerSettings
+  m_EditorClassIdentifier: 
+  MasterMixer: {fileID: 24100000, guid: a2e48eb1495d330428dc1f8bd2bfe3c5, type: 2}
+  MusicMixer: {fileID: 24100000, guid: d15a2e668f1e9ee4bac345a6a724ee48, type: 2}
+  SfxMixer: {fileID: 24100000, guid: 2f44d725cfbb5c54786da4a855d9b067, type: 2}
+  AudioSourcePoolSize: 25
+  VolumeCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 9.562603
+      outSlope: 9.562603
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.1542639
+    - serializedVersion: 3
+      time: 0.08494805
+      value: 0.44664043
+      inSlope: 1.7933033
+      outSlope: 1.7933033
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.45150617
+      outWeight: 0.04172253
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0.061343092
+      outSlope: 0.061343092
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.18835562
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  MinVolume: -80
+  MaxVolume: 0
