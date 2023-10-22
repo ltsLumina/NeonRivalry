@@ -1,7 +1,4 @@
-﻿//NOTES FOR FUTURE ME:
-//  -   uh idk cant remember.
-
-#region
+﻿#region
 using System.Collections.Generic;
 using static State.StateType;
 #endregion

@@ -76,7 +76,7 @@ public class RoundTimer : MonoBehaviour
         timeFormats.Add(TimerFormat.HundredthsDecimal, "0.00");
     }
 
-    #region Count Up/Down Methods
+    #region Count Airborne/Crouch Methods
     void IncreaseTime(float delta)
     {
         CurrentTime += delta;

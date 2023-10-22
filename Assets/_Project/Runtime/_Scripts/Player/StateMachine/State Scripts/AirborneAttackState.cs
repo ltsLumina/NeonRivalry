@@ -15,7 +15,10 @@ public class AirborneAttackState : State
     {
         animator = player.GetComponentInChildren<Animator>();
         moveset = stateData.Moveset;
+        
+        Debug.Assert(moveset != null, "Moveset is null in the AttackStateData. Please assign it in the inspector.");
 
+        // Create a new instance of the attack handler.
         attackHandler = new (moveset, animator, player);
     }
 
