@@ -12,22 +12,27 @@ public class AttackHandler
     readonly Animator animator;
     readonly PlayerController player;
 
-    // -- Constants --
-    const int NeutralAttackIndex = 0;
-    const int ForwardAttackIndex = 1;
-    const int AirborneAttackIndex = 2;
-    const int DownAttackIndex = 3;
-
     /// <summary>
     ///     A dictionary that defines the associations between different move directions and their corresponding actions, log
     ///     messages, and animation indexes.
     /// </summary>
     readonly static Dictionary<MoveData.Direction, (string logMessage, int animationIndex)> directionToActionMap = new ()
-    { { MoveData.Direction.Neutral, ("Neutral move performed.", NeutralAttackIndex) },
-      { MoveData.Direction.Horizontal, ("Horizontal move performed.", ForwardAttackIndex) },
-      { MoveData.Direction.Airborne, ("Airborne move performed.", AirborneAttackIndex) },
-      { MoveData.Direction.Crouch, ("Crouch move performed.", DownAttackIndex) } };
-    
+    { { MoveData.Direction.Neutral, ("Neutral move performed.", (int) MoveData.Direction.Neutral) },
+      { MoveData.Direction.Horizontal, ("Horizontal move performed.", (int) MoveData.Direction.Horizontal) },
+      { MoveData.Direction.Airborne, ("Airborne move performed.", (int) MoveData.Direction.Airborne) },
+      { MoveData.Direction.Crouch, ("Crouch move performed.", (int) MoveData.Direction.Crouch) } };
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AttackHandler"/> class.
+    /// </summary>
+    /// <param name="moveset">The <see cref="Moveset"/> object which the player is going to use for attacks.</param>
+    /// <param name="animator">The <see cref="Animator"/> component attached to the player, used to control and play back animations.</param>
+    /// <param name="player">The <see cref="PlayerController"/> object which references the player controlled character.</param>
+    /// <exception cref="System.ArgumentNullException">Thrown when moveset is null.</exception>
+    /// <remarks>
+    /// This is used to handle the player's attacks according to the provided moveset with animations. 
+    /// You need to make sure that the moveset is not null when using this handler; otherwise, an assertion failure will be triggered in Debug mode. 
+    /// </remarks>
     public AttackHandler(Moveset moveset, Animator animator, PlayerController player)
     {
         this.moveset  = moveset;
