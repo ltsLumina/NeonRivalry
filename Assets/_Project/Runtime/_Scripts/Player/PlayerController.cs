@@ -19,9 +19,9 @@ public partial class PlayerController : MonoBehaviour
 
     [Header("Read-Only Fields")]
     [SerializeField] float idleTimeThreshold;
-    [SerializeField, ReadOnly] public float idleTime; //TODO: make this private and encapsulate it.
+    [SerializeField, ReadOnly] public float idleTime; //TODO: Make this private, but I should probably move it to a different script.
 
-    [Header("Ground Check"), Tooltip("The minimum distance the raycast must be from the ground.")]
+    [Header("Ground Check"), Tooltip("The minimum distance the ray-cast must be from the ground.")]
     [SerializeField] float raycastDistance = 1.022f;
     [SerializeField] LayerMask groundLayer;
 
@@ -48,7 +48,6 @@ public partial class PlayerController : MonoBehaviour
     {
         get => playerID;
         private set =>
-
             // Clamp the playerID between 1 and 2.
             playerID = Mathf.Clamp(value, 1, 2);
     }

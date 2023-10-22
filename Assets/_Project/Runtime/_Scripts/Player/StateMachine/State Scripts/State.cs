@@ -33,7 +33,6 @@ public abstract class State
         // They should all be unique, and the higher the value, the higher the priority.
         Idle,
         Walk,       // Walk indicates that the player is moving.
-        Run,        // Run indicates that the player is moving faster than walking.
         Jump,
         Fall,
         Attack,
@@ -50,7 +49,6 @@ public abstract class State
     protected readonly Dictionary<StateType, int> statePriorities = new ()
     { { Idle, 1 },
       { Walk, 2 },
-      { Run, 3 },
       { Jump, 4 },
       { Fall, 5 },
       { Attack, 6 },
@@ -78,7 +76,6 @@ public abstract class State
     protected readonly Dictionary<StateType, bool> interruptibilityRules = new ()
     { { Idle, false },
       { Walk, true },
-      { Run, true },
       { Jump, true },
       { Fall, true },
       { Attack, false },
