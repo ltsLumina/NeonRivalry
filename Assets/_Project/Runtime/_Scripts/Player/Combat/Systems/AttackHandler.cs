@@ -134,7 +134,7 @@ public class AttackHandler
         animator.SetTrigger(attackType);
 
         FGDebugger.Trace
-        ($"Attack animation played. Animator parameters set to: \n{attackType} = true", new[]
+        ($"Attack animation played. Animator parameters set to: \n{attackType} = true \nAnimation Index = {animationIndex}", new[]
          { State.StateType.Attack, State.StateType.AirborneAttack });
     }
 
