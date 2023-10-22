@@ -56,7 +56,7 @@ public partial class PlayerController // StateChecks.cs
     public bool IsAttacking()
     {
         //TODO: This is a temporary implementation. We need to check if the player is attacking some other way.
-        bool isAttacking = StateMachine.CurrentState is AttackState
+        bool isAttacking = IsGrounded() && StateMachine.CurrentState is AttackState
         { IsAttacking: true };
 
         FGDebugger.Trace($"IsAttacking() is {isAttacking}", State.StateType.Attack);
@@ -66,7 +66,7 @@ public partial class PlayerController // StateChecks.cs
 
     public bool IsAirborneAttacking()
     {
-        bool isAirborneAttacking = StateMachine.CurrentState is AirborneAttackState
+        bool isAirborneAttacking = IsAirborne() && StateMachine.CurrentState is AirborneAttackState
         { IsAirborneAttacking: true };
         
         FGDebugger.Trace($"IsAirborneAttacking() is {isAirborneAttacking}", State.StateType.AirborneAttack);
