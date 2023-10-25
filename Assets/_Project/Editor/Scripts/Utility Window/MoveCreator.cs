@@ -64,7 +64,7 @@ public static class MoveCreator
     #region GUI
     static void DrawMenuHeader()
     {
-        BaseUtilityWindow.DrawBackButton();
+        UtilityWindow.DrawBackButton();
         EditorGUILayout.LabelField("Creating Move", EditorStyles.boldLabel);
     }
 
@@ -80,7 +80,7 @@ public static class MoveCreator
 
         if (Button($"Create {moveName}"))
         {
-            BaseUtilityWindow.window.titleContent = new ("Creating New Move...");
+            UtilityWindow.window.titleContent = new ("Creating New Move...");
             SwitchToMoveCreatorMenu(assetName);
         }
     }
@@ -98,11 +98,11 @@ public static class MoveCreator
         if (string.IsNullOrEmpty(assetName) || assetName == "New Move")
         {
             const string warning = "Warning";
-            string       message = BaseUtilityWindow.WarningMessage(assetName, false);
+            string       message = UtilityWindow.WarningMessage(assetName, false);
 
-            if (EditorUtility.DisplayDialog(warning, message, "Proceed", "Cancel")) BaseUtilityWindow.activeMenu = DrawCreatingMoveMenu;
+            if (EditorUtility.DisplayDialog(warning, message, "Proceed", "Cancel")) UtilityWindow.activeMenu = DrawCreatingMoveMenu;
         }
-        else { BaseUtilityWindow.activeMenu = DrawCreatingMoveMenu; }
+        else { UtilityWindow.activeMenu = DrawCreatingMoveMenu; }
     }
 
     static void DisplayMoveEditor()
@@ -114,7 +114,7 @@ public static class MoveCreator
 
     static void DrawCreatingMoveMenu()
     {
-        BaseUtilityWindow.DrawBackButton();
+        UtilityWindow.DrawBackButton();
 
         Label("Creating Move", EditorStyles.boldLabel);
 
@@ -312,14 +312,14 @@ public static class MoveCreator
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
-            BaseUtilityWindow.activeMenu = BaseUtilityWindow.DefaultMenu;
+            UtilityWindow.activeMenu = UtilityWindow.DefaultMenu;
 
             Debug.Log($"Created new move: \"{currentMove.name}\".");
             Selection.activeObject = currentMove;
             EditorGUIUtility.PingObject(currentMove);
 
             currentMove = null;
-            BaseUtilityWindow.createdSuccessfully = true;
+            UtilityWindow.createdSuccessfully = true;
         }
     }
     #endregion

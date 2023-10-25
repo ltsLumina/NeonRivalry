@@ -5,7 +5,6 @@ using System.IO;
 using Lumina.Essentials.Editor.UI;
 using UnityEditor;
 using UnityEditor.SceneManagement;
-using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using static UnityEngine.GUILayout;
@@ -222,6 +221,8 @@ public class QuickAccessWindow : EditorWindow
 
             if (windowsFoldout)
             {
+                CreateButtonWithAction("Utility Window", UtilityWindow.Open);
+                CreateButtonWithAction("Debugger", FGDebuggerWindow.Open);
                 CreateButtonWithAction("Lumina's Essentials", UtilityPanel.OpenUtilityPanel);
             }
         }

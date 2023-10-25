@@ -6,20 +6,20 @@ using static EditorGUIUtils;
 using static UnityEngine.GUILayout;
 #endregion
 
-public class BaseUtilityWindow : EditorWindow
+public class UtilityWindow : EditorWindow
 {
     // -- Menus --
 
-    internal static BaseUtilityWindow window;
+    internal static UtilityWindow window;
     readonly static Vector2 winSize = new (475, 615);
 
     public static Action activeMenu;
     public static bool createdSuccessfully;
 
-    [MenuItem("Tools/Character Creation/Utility Window")]
+    [MenuItem("Tools/Character Management/Utility Window")]
     public static void Open()
     {
-        window              = GetWindow<BaseUtilityWindow>();
+        window              = GetWindow<UtilityWindow>();
         window.titleContent = new ("Utility Window");
         window.minSize      = new (winSize.x, winSize.y);
         window.maxSize      = window.minSize;
@@ -28,7 +28,7 @@ public class BaseUtilityWindow : EditorWindow
 
     void OnEnable()
     {
-        window = GetWindow<BaseUtilityWindow>();
+        window = GetWindow<UtilityWindow>();
         
         createdSuccessfully = false;
 

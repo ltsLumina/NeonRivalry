@@ -15,6 +15,10 @@ public class AirborneAttackState : State
     {
         animator = player.GetComponentInChildren<Animator>();
         moveset = stateData.Moveset;
+
+        // Falling variables
+        fallGravityMultiplier = stateData.FallGravityMultiplier;
+        jumpHaltForce         = stateData.JumpHaltForce;
         
         Debug.Assert(moveset != null, "Moveset is null in the AttackStateData. Please assign it in the inspector.");
 
@@ -30,6 +34,12 @@ public class AirborneAttackState : State
 
     public override bool CanBeInterrupted() => false;
 
+    // -- State Specific Variables --
+    readonly float fallGravityMultiplier;
+    readonly float jumpHaltForce;
+
+
+    #region State Methods
     public override void OnEnter()
     {
         IsAirborneAttacking = true;
@@ -48,7 +58,7 @@ public class AirborneAttackState : State
             attackHandler.SelectAttack(attackType);
             player.InputManager.LastAttackPressed = InputManager.AttackType.None; // Reset after usage
         }
-        else { Debug.LogError("No \"(None)\" attack type was selected. Something went wrong."); }
+        else { FGDebugger.Debug("No \"(None)\" attack type was selected. Something went wrong.", LogType.Error);}
     }
 
     public override void UpdateState()
@@ -59,22 +69,20 @@ public class AirborneAttackState : State
         if (airborneAttackTimer < animator.GetCurrentAnimatorStateInfo(0).length)
         {
             airborneAttackTimer += Time.fixedDeltaTime;
+            Debug.Log($"Airborne Attack Timer: {airborneAttackTimer}");
             
             // Perform the airborne attack logic.
             if (!player.IsGrounded())
             {
                 FGDebugger.Debug("Attacking in the air!", LogType.Log, StateType.AirborneAttack);
-
-                //TODO: Is that what you wanted Simon??
-                // if (player.IsGrounded()) OnExit();
-                //
-                // // Apply gravity
-                // if (player.Rigidbody.velocity.y < 0) player.Rigidbody.AddForce(fallGravityMultiplier * Vector3.down);
-                //
-                // // Apply jump halt force
-                // if (player.Rigidbody.velocity.y > 0) player.Rigidbody.AddForce(jumpHaltForce * Vector3.down);
-
-                // Play airborne attack animation and run logic.
+                
+                if (player.IsGrounded()) OnExit();
+                
+                // Applies gravity to the player to make them fall faster.
+                if (player.Rigidbody.velocity.y < 0) player.Rigidbody.AddForce(fallGravityMultiplier * Vector3.down);
+                
+                // Applies a halt force to the player's upward momentum to smooth out the jump.
+                if (player.Rigidbody.velocity.y > 0) player.Rigidbody.AddForce(jumpHaltForce * Vector3.down);
             }
             // If the player lands, cancel the attack.
             else
@@ -101,4 +109,5 @@ public class AirborneAttackState : State
 
         IsAirborneAttacking = false;
     }
+    #endregion
 }

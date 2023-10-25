@@ -201,7 +201,9 @@ public class StateMachineEditor : Editor
         {
             foreach (var state in states)
             {
-                Toggle(state.Key, state.Value);
+                var label = new GUIContent(state.Key, "Shows the StateChecks.cs value for the state, not the state machine CurrentState value.");
+                
+                Toggle(label, state.Value);
             }
         }
 
