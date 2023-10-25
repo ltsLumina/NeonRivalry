@@ -37,7 +37,7 @@ public static class MovesetCreator
     #region GUI
     static void DrawMenuHeader()
     {
-        BaseUtilityWindow.DrawBackButton();
+        UtilityWindow.DrawBackButton();
         EditorGUILayout.LabelField("Moveset Creator", EditorStyles.boldLabel);
     }
 
@@ -53,7 +53,7 @@ public static class MovesetCreator
 
         if (Button($"Create {assetName}"))
         {
-            BaseUtilityWindow.window.titleContent = new ("Creating New Moveset...");
+            UtilityWindow.window.titleContent = new ("Creating New Moveset...");
             CreateMovesetWithConfirmation(assetName);
         }
     }
@@ -235,7 +235,7 @@ public static class MovesetCreator
         Selection.activeObject = currentMoveset;
         EditorGUIUtility.PingObject(currentMoveset);
 
-        BaseUtilityWindow.createdSuccessfully = true;
+        UtilityWindow.createdSuccessfully = true;
     }
 
     public static void LoadExistingMoves()

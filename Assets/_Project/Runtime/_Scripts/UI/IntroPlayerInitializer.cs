@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 /// <summary>
 /// Waits for a player to join.
@@ -59,7 +60,8 @@ public class IntroPlayerInitializer : MonoBehaviour
             }
 
             // Stop all rumble before loading next scene.
-            foreach (var gamepad in Gamepad.all) { gamepad.SetMotorSpeeds(0f, 0f); }
+            if (Gamepad.all.Count > 0)
+                foreach (var gamepad in Gamepad.all) { gamepad.SetMotorSpeeds(0f, 0f); }
 
             // When the loading bar is full, load the next scene.
             SceneManagerExtended.LoadNextScene();

@@ -78,8 +78,16 @@ public partial class PlayerController // StateChecks.cs
     /// This method checks if the player is airborne, which is defined as not being grounded, jumping, or falling.
     /// </summary>
     /// <returns> True if the player is airborne, false otherwise. </returns>
-    public bool IsAirborne() => !IsGrounded() || IsJumping() || IsFalling();
-    
+    public bool IsAirborne()
+    {
+        bool isAirborne = !IsGrounded() || StateMachine.CurrentState is JumpState or FallState or AirborneAttackState
+        { IsAirborne: true };
+        
+        FGDebugger.Trace($"IsAirborne() is {isAirborne}", new [] { State.StateType.Jump , State.StateType.Fall, State.StateType.AirborneAttack });
+
+        return isAirborne;
+    }
+
     /// <summary>
     /// This method checks if the player is idle.
     /// </summary>

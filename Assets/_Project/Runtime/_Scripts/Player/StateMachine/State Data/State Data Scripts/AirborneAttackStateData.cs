@@ -11,7 +11,13 @@ public class AirborneAttackStateData : DefaultStateData
 {
     [SerializeField] Moveset moveset;
 
+    [SerializeField] float fallGravityMultiplier;
+    [SerializeField] float jumpHaltForce;
+    
     // -- Properties --
 
     public Moveset Moveset => moveset;
+    
+    public float FallGravityMultiplier => fallGravityMultiplier;
+    public float JumpHaltForce => jumpHaltForce;
 }

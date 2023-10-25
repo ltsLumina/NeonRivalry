@@ -181,14 +181,14 @@ public class StateMachineEditor : Editor
         
         // Each bool represents a state. If the bool is true, then the state is active.
         // Used to display the state values in the inspector.
-        Dictionary<string, bool> states = new()
+        Dictionary<string, bool> states = new ()
         {
             {"IsGrounded", player.IsGrounded()},
             {"IsMoving", player.IsMoving()},
             {"IsJumping", player.IsJumping()},
             {"IsFalling", player.IsFalling()},
             {"IsAttacking", player.IsAttacking()},
-            {"IsAirborneAttack", player.IsAirborneAttacking()}
+            // {"IsAirborneAttacking", player.IsAirborneAttacking()}
         };
 
         LabelField("Current State", stateMachine.CurrentState?.GetType().Name);
@@ -201,7 +201,9 @@ public class StateMachineEditor : Editor
         {
             foreach (var state in states)
             {
-                Toggle(state.Key, state.Value);
+                var label = new GUIContent(state.Key, "Shows the StateChecks.cs value for the state, not the state machine CurrentState value.");
+                
+                Toggle(label, state.Value);
             }
         }
 

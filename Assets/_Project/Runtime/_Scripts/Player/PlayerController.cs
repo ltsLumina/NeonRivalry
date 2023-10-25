@@ -41,7 +41,9 @@ public partial class PlayerController : MonoBehaviour
     public InputManager InputManager { get; private set; }
     public StateMachine StateMachine { get; private set; }
     public PlayerInput PlayerInput { get; set; }
-    
+    public HitBox HitBox { get; set; }
+    public HurtBox HurtBox { get; set; }
+
     // -- Serialized Properties --
 
     public int PlayerID
@@ -65,6 +67,9 @@ public partial class PlayerController : MonoBehaviour
         InputManager       = GetComponentInChildren<InputManager>();
         StateMachine       = GetComponent<StateMachine>();
         playerManager      = FindObjectOfType<PlayerManager>();
+
+        HitBox = GetComponentInChildren<HitBox>();
+        HurtBox = GetComponentInChildren<HurtBox>();
         
         Initialize();
     }
@@ -144,37 +149,34 @@ public partial class PlayerController : MonoBehaviour
 
         RotateToFaceEnemy();
     }
-    
+
     void RotateToFaceEnemy()
     {
-        if (PlayerManager.PlayerTwo != null)
+        if (PlayerManager.PlayerTwo == null) return;
+
+        var players         = PlayerManager.Players;
+        var oppositePlayer = players[PlayerID == 1 ? 1 : 0];
+
+        if (IsGrounded())
         {
-            var players        = PlayerManager.Players;
-            var oppositePlayer = players[PlayerID == 1 ? 1 : 0];
-            var speed          = 20f;
+            // Obtain the vector pointing from our object to the target object.
+            Vector3 direction = oppositePlayer.characterModel.position - characterModel.position;
 
-            if (IsGrounded())
-            {
-                // Obtain the vector pointing from our object to the target object.
-                Vector3 direction = oppositePlayer.characterModel.position - characterModel.position;
+            // Zero out the y-component of the vector so the player will only rotate around the y-axis and will not tilt upwards.
+            direction.y = 0;
 
-                // Zero out the y-component of the vector so the player will only rotate around the y-axis and will not tilt upwards.
-                direction.y = 0;
+            // Create a rotation that looks in the opposite direction of where our object is to the target (hence the negative direction).
+            Quaternion rotation = Quaternion.LookRotation(-direction);
+            Transform  parent   = oppositePlayer.transform.GetComponentInParent<PlayerController>().transform;
 
-                // Create a rotation that looks in the opposite direction of where our object is to the target (hence the negative direction).
-                Quaternion rotation = Quaternion.LookRotation(-direction);
-                Transform parent = oppositePlayer.transform.GetComponentInParent<PlayerController>().transform;
-                
-                // Gradually rotate from our current rotation to the aforementioned rotation. This smooths out the rotation so it does not snap into place.
-                parent.rotation = Quaternion.Slerp
-                    (parent.rotation, rotation, speed * Time.deltaTime);
+            // set the parent rotation directly toward the target
+            parent.rotation = rotation;
 
-                // Repeat for our character model, creating a rotation that looks in the direction of where our object is to the target.
-                rotation = Quaternion.LookRotation(direction);
+            // Repeat for our character model, creating a rotation that looks in the direction of where our object is to the target.
+            rotation = Quaternion.LookRotation(direction);
 
-                // As before, gradually rotate from our current rotation to the new rotation.
-                characterModel.rotation = Quaternion.Slerp(characterModel.rotation, rotation, speed * Time.deltaTime);
-            }
+            // set the character model rotation directly toward the target
+            characterModel.rotation = rotation;
         }
     }
 

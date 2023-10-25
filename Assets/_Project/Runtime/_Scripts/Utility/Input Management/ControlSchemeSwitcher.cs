@@ -6,6 +6,8 @@ using UnityEngine.InputSystem;
 
 public class ControlSchemeSwitcher : MonoBehaviour
 {
+    //TODO: DISABLE SETTINGS BUTTON IN UNITY BEFORE HANDING IN ASSIGNMENT.
+    
     PlayerInput playerInput;
 
     // Called through Unity Event in the inspector on the button that is used to switch control schemes.
