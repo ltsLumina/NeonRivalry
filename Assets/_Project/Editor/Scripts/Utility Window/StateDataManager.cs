@@ -21,6 +21,7 @@ public static class StateDataManager // NOTE: I haven't put as much effort into 
       new ("Jump State", typeof(JumpStateData)),
       new ("Fall State", typeof(FallStateData)),
       new ("Attack State", typeof(AttackStateData)),
+      new ("Airborne Attack State", typeof(AirborneAttackStateData)),
 
       // add more states here once they exist.
     };

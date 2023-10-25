@@ -64,7 +64,15 @@ public class AirborneAttackState : State
             if (!player.IsGrounded())
             {
                 FGDebugger.Debug("Attacking in the air!", LogType.Log, StateType.AirborneAttack);
-                
+
+                //TODO: Is that what you wanted Simon??
+                // if (player.IsGrounded()) OnExit();
+                //
+                // // Apply gravity
+                // if (player.Rigidbody.velocity.y < 0) player.Rigidbody.AddForce(fallGravityMultiplier * Vector3.down);
+                //
+                // // Apply jump halt force
+                // if (player.Rigidbody.velocity.y > 0) player.Rigidbody.AddForce(jumpHaltForce * Vector3.down);
 
                 // Play airborne attack animation and run logic.
             }
