@@ -327,7 +327,7 @@ public class QuickAccessWindow : EditorWindow
         EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo();
         
         EditorSceneManager.OpenScene(path, OpenSceneMode.Single);
-        Debug.LogWarning("Loaded a scene using the debug menu! \nThe scene might not behave as expected.");
+        Debug.LogWarning("Opened a scene using the debug menu! \nThe scene might not behave as expected.");
     }
 
     static void AddCustomScenes()

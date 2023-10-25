@@ -92,9 +92,9 @@ public class EventSystemSelector : MonoBehaviour
     {
         firstSelected = button.GetComponent<Button>();
         eventSystem = GetComponent<MultiplayerEventSystem>();
-        
+
         if (firstSelected != null && eventSystem != null) 
-            eventSystem.firstSelectedGameObject = firstSelected.gameObject;
+            eventSystem.SetSelectedGameObject(firstSelected.gameObject);
     }
     
     // Debug button.
