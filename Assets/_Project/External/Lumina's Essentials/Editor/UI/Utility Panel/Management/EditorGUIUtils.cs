@@ -32,6 +32,7 @@ namespace Lumina.Essentials.Editor.UI.Management
         internal static GUIContent safeModeWarningContent;
         internal static GUIContent createDefaultProjectContent;
         internal static GUIContent configureImagesContent;
+        internal static GUIContent quickAccessWindowContent;
         internal static GUIContent createSubfolderContent; // Deprecated. Kept for reference.
         internal static GUIContent enterPlaymodeOptionsContent;
         internal static GUIContent resetButtonContent;
@@ -165,6 +166,8 @@ namespace Lumina.Essentials.Editor.UI.Management
             "Configures the default settings for images. \n" + 
                 "This is useful for when you want to import images with the same settings every time."
             );
+
+            quickAccessWindowContent = new ("Quick Access Window", "Opens the Quick Access Window.");
             
             createSubfolderContent = new // Deprecated. Kept for reference.
                 (

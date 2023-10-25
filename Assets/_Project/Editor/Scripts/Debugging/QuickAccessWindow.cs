@@ -5,6 +5,7 @@ using System.IO;
 using Lumina.Essentials.Editor.UI;
 using UnityEditor;
 using UnityEditor.SceneManagement;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using static UnityEngine.GUILayout;
@@ -28,12 +29,14 @@ public class QuickAccessWindow : EditorWindow
     static Vector2 scrollPosition;
 
     [MenuItem("Tools/Debugging/Quick Access")]
-    static void ShowWindow()
+    public static void ShowWindow()
     {
-        var window = GetWindow<QuickAccessWindow>();
+        // Dock next to inspector. Find the inspector window using reflection
+        var window = GetWindow<QuickAccessWindow>("Quick Access", true, typeof(EditorWindow).Assembly.GetType("UnityEditor.InspectorWindow"));
         window.titleContent = new ("Quick Access");
         window.minSize      = new (350, 200);
         window.maxSize      = window.minSize;
+        
         window.Show();
     }
 
@@ -219,8 +222,6 @@ public class QuickAccessWindow : EditorWindow
 
             if (windowsFoldout)
             {
-                CreateButtonWithAction("Utility Window", BaseUtilityWindow.Open);
-                CreateButtonWithAction("State Debugger", FGDebuggerWindow.Open);
                 CreateButtonWithAction("Lumina's Essentials", UtilityPanel.OpenUtilityPanel);
             }
         }
@@ -237,7 +238,6 @@ public class QuickAccessWindow : EditorWindow
             if (optionsFoldout)
             {
                 EditorSettings.enterPlayModeOptionsEnabled = EditorGUILayout.Toggle("Enter Playmode Options", EditorSettings.enterPlayModeOptionsEnabled);
-                FGDebugger.debugMode = EditorGUILayout.Toggle(EditorGUIUtils.debugModeContent, FGDebugger.debugMode);
             }
         }
     }
