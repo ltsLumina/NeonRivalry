@@ -239,6 +239,7 @@ public class QuickAccessWindow : EditorWindow
             if (optionsFoldout)
             {
                 EditorSettings.enterPlayModeOptionsEnabled = EditorGUILayout.Toggle("Enter Playmode Options", EditorSettings.enterPlayModeOptionsEnabled);
+                FGDebugger.debugMode                       = EditorGUILayout.Toggle("Debug Mode", FGDebugger.debugMode);
             }
         }
     }

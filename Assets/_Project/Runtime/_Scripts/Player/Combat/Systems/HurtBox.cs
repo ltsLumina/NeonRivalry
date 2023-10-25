@@ -15,7 +15,7 @@ public class HurtBox : MonoBehaviour
 
     void Awake()
     {
-        player    = GetComponentInParent<PlayerController>();
+        player = GetComponentInParent<PlayerController>();
         RB = player.GetComponent<Rigidbody>();
     }
 
@@ -47,7 +47,9 @@ public class HurtBox : MonoBehaviour
 
     void Knockback()
     {
-        // Add a force that knocks back the player.
-        RB.AddForce(Vector3.right * 10, ForceMode.Impulse);
+        // Knockback the player based on the sign of the Y-rotation.
+        float knockbackForce     = 450f;
+        float knockbackDirection = -Mathf.Sign(transform.rotation.y);
+        RB.AddForce(knockbackDirection * knockbackForce * Vector3.right);
     }
 }

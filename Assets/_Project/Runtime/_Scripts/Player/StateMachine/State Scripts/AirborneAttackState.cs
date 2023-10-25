@@ -69,7 +69,6 @@ public class AirborneAttackState : State
         if (airborneAttackTimer < animator.GetCurrentAnimatorStateInfo(0).length)
         {
             airborneAttackTimer += Time.fixedDeltaTime;
-            Debug.Log($"Airborne Attack Timer: {airborneAttackTimer}");
             
             // Perform the airborne attack logic.
             if (!player.IsGrounded())

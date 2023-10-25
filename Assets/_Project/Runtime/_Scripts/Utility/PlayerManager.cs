@@ -27,13 +27,35 @@ public partial class PlayerManager : MonoBehaviour
     // Returns the list of PlayerInput components that are currently associated with a player
     public static ReadOnlyArray<PlayerInput> PlayerInputs => PlayerInput.all;
     
-    // -- Player --
+    // -- Players --
+    
+    /// <summary>
+    /// Maintains a list of all PlayerController instances.
+    /// </summary>
     public static List<PlayerController> Players { get; } = new ();
 
-    /// <summary> PlayerOne/<see cref="PlayerTwo"/> properties are used in a context where the <see cref="PlayerController"/> component is needed. </summary>
-    public static PlayerController PlayerOne => Players.Count >= 1 ? Players[0] : null; // This is the same as PlayerID == 1 ? Player : null;
-    /// <summary> <see cref="PlayerOne"/>/Two properties are used in a context where the <see cref="PlayerController"/> component is needed. </summary>
-    public static PlayerController PlayerTwo => Players.Count >= 2 ? Players[1] : null; // This is the same as PlayerID == 2 ? Player : null;
+    /// <summary>
+    /// Gets the first player in the Players list if it exists; otherwise returns null.
+    /// This property is often used when accessing the PlayerController component of the first player.
+    /// </summary>
+    public static PlayerController PlayerOne => Players.Count >= 1 ? Players[0] : null;
+
+    /// <summary>
+    /// Gets the second player in the Players list if it exists; otherwise returns null.
+    /// This property is often used when accessing the PlayerController component of the second player.
+    /// </summary>
+    public static PlayerController PlayerTwo => Players.Count >= 2 ? Players[1] : null;
+
+    /// <summary>
+    /// Gets the first player in the Players list if it exists; otherwise returns null.
+    /// This property provides a quick reference to verify if there are any players active. Useful in scenarios such as determining if any player is currently taking damage.
+    /// </summary>
+    public static PlayerController AnyPlayer => Players.Count > 0 ? Players[0] : null;
+
+    /// <summary> <returns> The <see cref="HurtBox"/> component of Player One. </returns> </summary>
+    public static HurtBox PlayerOneHurtBox => PlayerOne.HurtBox;
+    /// <summary> <returns> The <see cref="HurtBox"/> component of Player Two. </returns> </summary>
+    public static HurtBox PlayerTwoHurtBox => PlayerTwo.HurtBox;
     
     void Awake()
     {
