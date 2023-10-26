@@ -5,16 +5,8 @@ using UnityEngine;
 
 public class CounterScript : MonoBehaviour
 {
-    Animator counterAnimator;
-
-    private void Start()
+    public void ShowCounterText(Animator counterTextAnimator)
     {
-        counterAnimator = GetComponent<Animator>();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.X)) { counterAnimator.Play("CounterAnimation"); }
+         {  counterTextAnimator.Play("CounterAnimation"); }
     }
 }

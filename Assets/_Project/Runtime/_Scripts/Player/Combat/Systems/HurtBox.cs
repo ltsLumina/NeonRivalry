@@ -26,7 +26,20 @@ public class HurtBox : MonoBehaviour
         var hitBox = other.GetComponent<HitBox>();
         if (hitBox != null) OnHurtBoxHit?.Invoke(hitBox);
     }
-    
+
+    private void Update()
+    {
+        if (health <= 0 || Input.GetKeyDown(KeyCode.C))
+        {
+            //may god save us
+            RoundScript.player1WonRoundsText.text = $"Rounds won: \n{FindObjectOfType<RoundScript>().player1WonRounds}/2";
+            FindObjectOfType<RoundScript>().player1WonRounds++;
+            FindObjectOfType<RoundScript>().currentRounds++;
+            Debug.Log("Player is dead!");
+            SceneManagerExtended.ReloadScene();
+        }
+    }
+
     void OnTakeDamage(HitBox hitBox)
     {
         Debug.Log($"HurtBox hit by {hitBox.name} and took {hitBox.DamageAmount} damage!");
@@ -35,8 +48,12 @@ public class HurtBox : MonoBehaviour
         health -= hitBox.DamageAmount;
         Debug.Log($"Health: {health}");
 
-        if (health <= 0)
+        if (health <= 0 )
         {
+            //may god save us
+            RoundScript.player1WonRoundsText.text = $"Rounds won: \n{FindObjectOfType<RoundScript>().player1WonRounds}/2";
+            FindObjectOfType<RoundScript>().player1WonRounds++;
+            FindObjectOfType<RoundScript>().currentRounds++;
             Debug.Log("Player is dead!");
             SceneManagerExtended.ReloadScene();
         }
