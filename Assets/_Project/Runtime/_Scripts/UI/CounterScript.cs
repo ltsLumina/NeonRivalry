@@ -5,8 +5,15 @@ using UnityEngine;
 
 public class CounterScript : MonoBehaviour
 {
-    public void ShowCounterText(Animator counterTextAnimator)
+    Animator counterAnimator;
+
+    private void Start()
     {
-         {  counterTextAnimator.Play("CounterAnimation"); }
+        counterAnimator = GetComponent<Animator>();
+    }
+
+    public void ShowCounterText()
+    {
+         {counterAnimator.Play("CounterAnimation"); }
     }
 }
