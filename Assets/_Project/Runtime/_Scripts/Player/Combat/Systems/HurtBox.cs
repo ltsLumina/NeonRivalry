@@ -27,19 +27,6 @@ public class HurtBox : MonoBehaviour
         if (hitBox != null) OnHurtBoxHit?.Invoke(hitBox);
     }
 
-    private void Update()
-    {
-        if (health <= 0 || Input.GetKeyDown(KeyCode.C))
-        {
-            //may god save us
-            RoundScript.player1WonRoundsText.text = $"Rounds won: \n{FindObjectOfType<RoundScript>().player1WonRounds}/2";
-            FindObjectOfType<RoundScript>().player1WonRounds++;
-            FindObjectOfType<RoundScript>().currentRounds++;
-            Debug.Log("Player is dead!");
-            SceneManagerExtended.ReloadScene();
-        }
-    }
-
     void OnTakeDamage(HitBox hitBox)
     {
         Debug.Log($"HurtBox hit by {hitBox.name} and took {hitBox.DamageAmount} damage!");
