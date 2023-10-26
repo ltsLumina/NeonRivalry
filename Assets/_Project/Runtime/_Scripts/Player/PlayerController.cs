@@ -105,14 +105,14 @@ public partial class PlayerController : MonoBehaviour
         {
             case 1:
                 PlayerManager.ChangePlayerColor(this, playerManager.PlayerColors.playerOneColor);
-                PlayerManager.SetPlayerSpawnPoint(this, new (-5, 3)); // debug values; use PlayerManager.PlayerSpawnPoints[PlayerID - 1] instead
+                PlayerManager.SetPlayerSpawnPoint(this, new (-5, 3)); // debug values; use PlayerManager.PlayerSpawnPoint[PlayerID - 1] instead
                 PlayerManager.SetPlayerHealthbar(this, PlayerID);
                 PlayerManager.SetPlayerInput(this, PlayerManager.PlayerInputs[PlayerID - 1]);
                 break;
 
             case 2:
                 PlayerManager.ChangePlayerColor(this, playerManager.PlayerColors.playerTwoColor);
-                PlayerManager.SetPlayerSpawnPoint(this, new (5, 3)); // debug values; use PlayerManager.PlayerSpawnPoints[PlayerID - 1] instead
+                PlayerManager.SetPlayerSpawnPoint(this, new (5, 3)); // debug values; use PlayerManager.PlayerSpawnPoint[PlayerID - 1] instead
                 PlayerManager.SetPlayerHealthbar(this, PlayerID);
                 PlayerManager.SetPlayerInput(this, PlayerManager.PlayerInputs[PlayerID - 2]);
                 break;

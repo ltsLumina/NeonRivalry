@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -11,10 +9,9 @@ public class OnStartDoPop : MonoBehaviour
      public float TargetScaleFactor = 1.5f;
     [SerializeField] private float StartScale = 0.0f;
     [SerializeField] private float TargetScale = 0.0f;
-    private bool invert = false;
     // Start is called before the first frame update
 
-    private void Awake()
+    private void Awake() 
     {
         StartScale = textComponentOnObject.fontSize;
         TargetScale = textComponentOnObject.fontSize * TargetScaleFactor;
