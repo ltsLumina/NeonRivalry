@@ -1,5 +1,4 @@
-﻿using System;
-using Lumina.Debugging;
+﻿using Lumina.Debugging;
 using UnityEditor;
 using UnityEngine;
 
@@ -20,9 +19,9 @@ public class HealthbarManagerEditor : Editor
             return;
         } 
 
-        DisplaySectionTitle("Healthbar Values");
-
         if (HealthbarManager.Healthbars.Count == 0) return;
+
+        DisplaySectionTitle("Healthbar Values");
         
         AdjustSliders();
 
@@ -36,12 +35,14 @@ public class HealthbarManagerEditor : Editor
     static void DebugToggles()
     {
         GUILayout.Space(15);
-        
-        using (new GUILayout.VerticalScope("box"))
+
+        GUILayout.Label("Debugging Toggles", EditorStyles.boldLabel);
+
+        for (int index = 0; index < HealthbarManager.Healthbars.Count; index++)
         {
-            GUILayout.Label("Debugging Toggles", EditorStyles.boldLabel);
-            
-            manager.Invincible = EditorGUILayout.Toggle("Invincible", manager.Invincible);
+            Healthbar healthbar = HealthbarManager.Healthbars[index];
+            GUILayout.Label($"Player {index + 1}", EditorStyles.boldLabel);
+            healthbar.Invincible = EditorGUILayout.Toggle("Invincible: ", healthbar.Invincible);
         }
     }
 
@@ -56,52 +57,50 @@ public class HealthbarManagerEditor : Editor
 
     static void SetHealth()
     {
-        Healthbar playerOne = HealthbarManager.PlayerOne;
-        Healthbar playerTwo = HealthbarManager.PlayerTwo;
+        GUILayout.Label("Set Health", EditorStyles.boldLabel);
 
-        if (playerOne != null || playerTwo != null)
-        {
-            SetSliderValues(playerOne, playerTwo, 100);
-            SetSliderValues(playerOne, playerTwo, 0);
-        }
+        SetSliderValues(HealthbarManager.PlayerOne, HealthbarManager.PlayerTwo, 100);
+        SetSliderValues(HealthbarManager.PlayerOne, HealthbarManager.PlayerTwo, 50);
+        SetSliderValues(HealthbarManager.PlayerOne, HealthbarManager.PlayerTwo, 25);
+        SetSliderValues(HealthbarManager.PlayerOne, HealthbarManager.PlayerTwo, 0);
     }
 
     #region Utility
+    // ReSharper disable Unity.PerformanceAnalysis
     static void SetSliderValues(Healthbar playerOne, Healthbar playerTwo, float value)
     {
         using (new GUILayout.HorizontalScope())
         {
             if (GUILayout.Button($"Set Left to {value}"))
-                try { playerOne.Slider.value = value; } 
-                catch (NullReferenceException e)
-                {
-                    Debug.LogError($"Player One Healthbar is null. \n {e}");
-                    throw;
-                }
+            {
+                if (playerOne != null) playerOne.Slider.value = value;
+                else Debug.LogError($"Player One Healthbar is null.");
+            }
+
+            // Return early if there is only one healthbar.
+            if (HealthbarManager.Healthbars.Count < 2) return;
 
             if (GUILayout.Button($"Set Right to {value}"))
-                try { playerTwo.Slider.value = value; } 
-                catch (NullReferenceException e)
-                {
-                    Debug.LogError($"Player One Healthbar is null. \n {e}");
-                    throw;
-                }
+            {
+                if (playerTwo != null) playerTwo.Slider.value = value;
+                else Debug.LogError($"Player Two Healthbar is null.");
+            }
         }
     }
     #endregion
 
     static void AdjustSliders()
     {
-        if (HealthbarManager.Healthbars.Count >= 1) AdjustHealthbarSlider(HealthbarManager.Healthbars[0], "Left Healthbar");
-        if (HealthbarManager.Healthbars.Count >= 2) AdjustHealthbarSlider(HealthbarManager.Healthbars[1], "Right Healthbar");
+        if (HealthbarManager.Healthbars.Count >= 1) AdjustHealthbarSlider(HealthbarManager.PlayerOne, "Left Healthbar");
+        if (HealthbarManager.Healthbars.Count >= 2) AdjustHealthbarSlider(HealthbarManager.PlayerTwo, "Right Healthbar");
     }
 
-    static void AdjustHealthbarSlider(Healthbar player, string label)
+    static void AdjustHealthbarSlider(Healthbar healthbar, string label)
     {
-        if (player != null)
+        if (healthbar != null)
         {
             EditorGUILayout.LabelField(label, EditorStyles.boldLabel);
-            player.Slider.value = EditorGUILayout.IntSlider((int) player.Slider.value, 0, 100);
+            healthbar.Slider.value = EditorGUILayout.IntSlider((int) healthbar.Slider.value, 0, 100);
         }
     }
 }

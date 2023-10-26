@@ -13,16 +13,10 @@ public class HealthbarManager : MonoBehaviour
     /// <summary>
     /// Gets the Healthbar of the first player.
     /// </summary>
-    public static Healthbar PlayerOne => Healthbars[0];
+    public static Healthbar PlayerOne => Healthbars.Count > 0 ? Healthbars[0] : null;
 
     /// <summary>
     /// Gets the Healthbar of the second player.
     /// </summary>
-    public static Healthbar PlayerTwo => Healthbars[1];
-    
-    /// <summary>
-    /// Used to determine whether or not the player is invincible.
-    /// Only meant to be used for debugging purposes.
-    /// </summary>
-    public bool Invincible { get; set; }
+    public static Healthbar PlayerTwo => Healthbars.Count > 1 ? Healthbars[1] : null;
 }

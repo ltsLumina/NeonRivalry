@@ -7,6 +7,8 @@ public class Healthbar : MonoBehaviour
     [Header("Reference"), Space(5)]
     [SerializeField, ReadOnly] Slider slider;
     [SerializeField, ReadOnly] PlayerController player;
+    public Healthbar(bool invincible) { Invincible = invincible; }
+
     //[SerializeField, ReadOnly] PlayerStats playerStats;
 
     /// <summary>
@@ -40,11 +42,19 @@ public class Healthbar : MonoBehaviour
         {
             if (Value != value)
             {
+                if (Invincible) return;
+                
                 Slider.value = value;
                 OnHealthChanged?.Invoke(value);
             }
         }
     }
+
+    /// <summary>
+    /// Used to determine whether or not the player is invincible.
+    /// Only meant to be used for debugging purposes.
+    /// </summary>
+    public bool Invincible { get; set; }
 
     void Awake()
     {
@@ -55,13 +65,7 @@ public class Healthbar : MonoBehaviour
 
     public void Initialize()
     {
-        if (Player != null)
-        {
-            Value = (int)Slider.maxValue;
-        }
-        else
-        {
-            Value = 0;
-        }
+        if (Player != null) Value = (int)Slider.maxValue;
+        else Value = 0;
     }
 }

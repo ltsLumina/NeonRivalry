@@ -36,7 +36,7 @@ public class HurtBox : MonoBehaviour
         Debug.Log($"HurtBox hit by {hitBox.name} and took {hitBox.DamageAmount} damage!");
         
         // Take damage.
-        health -= hitBox.DamageAmount;
+        if (!player.Healthbar.Invincible) health -= hitBox.DamageAmount;
         player.Healthbar.Value = health;
 
         //TODO: Temporary for 25% Assignment
