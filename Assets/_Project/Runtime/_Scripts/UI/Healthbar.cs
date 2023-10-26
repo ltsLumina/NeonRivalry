@@ -9,6 +9,13 @@ public class Healthbar : MonoBehaviour
     [SerializeField, ReadOnly] PlayerController player;
     //[SerializeField, ReadOnly] PlayerStats playerStats;
 
+    /// <summary>
+    /// An event that is invoked when the player's health changes.
+    /// Can be subscribed to in order to perform actions whenever the player's health changes.
+    /// </summary>
+    public delegate void HealthChanged(int value);
+    public event HealthChanged OnHealthChanged;
+    
     // -- Properties --
     
     /// <summary> The slider associated with this <see cref="Healthbar"/>. </summary>
@@ -29,7 +36,14 @@ public class Healthbar : MonoBehaviour
     public int Value
     {
         get => (int) Slider.value;
-        set => Slider.value = value;
+        set
+        {
+            if (Value != value)
+            {
+                Slider.value = value;
+                OnHealthChanged?.Invoke(value);
+            }
+        }
     }
 
     void Awake()

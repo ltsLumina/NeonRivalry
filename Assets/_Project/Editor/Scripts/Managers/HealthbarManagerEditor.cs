@@ -1,36 +1,63 @@
 ﻿using System;
+using Lumina.Debugging;
 using UnityEditor;
 using UnityEngine;
 
 [CustomEditor(typeof(HealthbarManager))]
 public class HealthbarManagerEditor : Editor
 {
+    static HealthbarManager manager;
+
+    void OnEnable() => manager = (HealthbarManager) target;
+
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
-        
-        var manager = (HealthbarManager) target;
+
+        if (manager == null)
+        {
+            FGDebugger.Debug("HealthbarManager is null.", LogType.Exception);
+            return;
+        } 
 
         DisplaySectionTitle("Healthbar Values");
+
+        if (HealthbarManager.Healthbars.Count == 0) return;
         
-        if (manager != null) AdjustSliders(manager);
+        AdjustSliders();
 
         DisplaySectionTitle("Debugging Tools");
         
-        SetHealth(manager);
+        SetHealth();
+        
+        DebugToggles();
+    }
+
+    static void DebugToggles()
+    {
+        GUILayout.Space(15);
+        
+        using (new GUILayout.VerticalScope("box"))
+        {
+            GUILayout.Label("Debugging Toggles", EditorStyles.boldLabel);
+            
+            manager.Invincible = EditorGUILayout.Toggle("Invincible", manager.Invincible);
+        }
     }
 
     static void DisplaySectionTitle(string title) 
     {
+        if (HealthbarManager.Healthbars.Count == 0) title = "No Healthbars Found";
+
         EditorGUILayout.Space(15);
         EditorGUILayout.LabelField(title, EditorStyles.largeLabel, GUILayout.Height(20));
         EditorGUILayout.Space();
     }
 
-    static void SetHealth(HealthbarManager manager)
+    static void SetHealth()
     {
-        Healthbar playerOne = GetHealthbar(manager, 0);
-        Healthbar playerTwo = GetHealthbar(manager, 1);
+        Healthbar playerOne = HealthbarManager.PlayerOne;
+        Healthbar playerTwo = HealthbarManager.PlayerTwo;
 
         if (playerOne != null || playerTwo != null)
         {
@@ -40,12 +67,9 @@ public class HealthbarManagerEditor : Editor
     }
 
     #region Utility
-    static Healthbar GetHealthbar(HealthbarManager manager, int index) =>
-        manager.Healthbars.Count > index ? manager.Healthbars[index] : null;
-
     static void SetSliderValues(Healthbar playerOne, Healthbar playerTwo, float value)
     {
-        using (new EditorGUILayout.HorizontalScope())
+        using (new GUILayout.HorizontalScope())
         {
             if (GUILayout.Button($"Set Left to {value}"))
                 try { playerOne.Slider.value = value; } 
@@ -66,10 +90,10 @@ public class HealthbarManagerEditor : Editor
     }
     #endregion
 
-    static void AdjustSliders(HealthbarManager manager)
+    static void AdjustSliders()
     {
-        if (manager.Healthbars.Count >= 1) AdjustHealthbarSlider(manager.Healthbars[0], "Left Healthbar");
-        if (manager.Healthbars.Count >= 2) AdjustHealthbarSlider(manager.Healthbars[1], "Right Healthbar");
+        if (HealthbarManager.Healthbars.Count >= 1) AdjustHealthbarSlider(HealthbarManager.Healthbars[0], "Left Healthbar");
+        if (HealthbarManager.Healthbars.Count >= 2) AdjustHealthbarSlider(HealthbarManager.Healthbars[1], "Right Healthbar");
     }
 
     static void AdjustHealthbarSlider(Healthbar player, string label)

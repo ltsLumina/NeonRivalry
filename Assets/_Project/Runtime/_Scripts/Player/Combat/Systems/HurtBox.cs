@@ -11,16 +11,19 @@ public class HurtBox : MonoBehaviour
     PlayerController player;
     Rigidbody RB;
     
-    public delegate void HurtBoxHitAction(HitBox hitBox);
-    public event HurtBoxHitAction OnHurtBoxHit;
+    public delegate void HurtBoxHit(HitBox hitBox);
+    public event HurtBoxHit OnHurtBoxHit;
 
     void Awake()
     {
         player = GetComponentInParent<PlayerController>();
         RB = player.GetComponent<Rigidbody>();
-    }
+        
+        // -- Event Subscriptions --
 
-    void Start() => OnHurtBoxHit += OnTakeDamage;
+        OnHurtBoxHit                     += OnTakeDamage;
+        player.Healthbar.OnHealthChanged += healthbarValue => Debug.Log($"Healthbar value changed to {healthbarValue}!");
+    }
 
     void OnTriggerEnter(Collider other)
     {
@@ -52,8 +55,6 @@ public class HurtBox : MonoBehaviour
         PlayerController oppositePlayer = player.PlayerID == 1 ? PlayerManager.PlayerTwo : PlayerManager.PlayerOne;
         disableInput.Execute(() => oppositePlayer.PlayerInput.enabled = false).WaitThenExecute(0.5f, () => oppositePlayer.PlayerInput.enabled = true);
         #endregion
-        
-        Debug.Log($"Health: {health}");
 
         if (health <= 0)
         {
