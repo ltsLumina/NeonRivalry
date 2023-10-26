@@ -1,61 +1,57 @@
+#region
 using System.Collections;
 using TMPro;
 using UnityEngine;
+#endregion
 
 public class ComboCounter : MonoBehaviour
 {
-    private TextMeshProUGUI comboText;
-    private Animator comboAnimator;
+    TextMeshProUGUI comboText;
+    Animator comboAnimator;
 
-    [SerializeField] private float comboTime;
-    [SerializeField] private float comboTimeReset;
-    [SerializeField] private float comboTimeChange;
-    [SerializeField] private int comboCount;
+    [SerializeField] float comboTime;
+    [SerializeField] float comboTimeReset;
+    [SerializeField] float comboTimeChange;
+    [SerializeField] int comboCount;
 
-    private void Start()
+    void Start()
     {
-        comboText = GetComponent<TextMeshProUGUI>();
+        comboText     = GetComponent<TextMeshProUGUI>();
         comboAnimator = GetComponent<Animator>();
     }
 
-    private void Update()
+    void Update()
     {
         comboTime -= Time.deltaTime;
         ChangeComboText();
 
-        if (comboTime <= 0f)
-        {
-            ResetCombo();
-        }
+        if (comboTime <= 0f) ResetCombo();
     }
 
-    private void ChangeComboText()
+    public void ChangeComboText()
     {
         if (Input.GetKeyDown(KeyCode.Z))
         {
             comboCount++;
             comboText.text = $"Combo\n{comboCount}";
-            comboTime = comboTimeChange;
+            comboTime      = comboTimeChange;
             comboAnimator.SetBool("Appear", comboCount > 1);
             comboAnimator.SetBool("Disappear", false);
             StartCoroutine(ComboPop());
         }
     }
 
-    private void ResetCombo()
+    void ResetCombo()
     {
-        comboCount = 0;
+        comboCount     = 0;
         comboText.text = string.Empty;
         comboAnimator.SetBool("Appear", false);
         comboAnimator.SetBool("Disappear", true);
     }
 
-    public void ResetDisappearAnimation()
-    {
-        comboAnimator.SetBool("Disappear", false);
-    }
+    public void ResetDisappearAnimation() => comboAnimator.SetBool("Disappear", false);
 
-    private IEnumerator ComboPop()
+    IEnumerator ComboPop()
     {
         if (comboCount < 2) yield break;
 
