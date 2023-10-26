@@ -38,6 +38,7 @@ public class HurtBox : MonoBehaviour
 
         //TODO: Temporary for 25% Assignment
         #region Temporary for 25% Assignment
+        
         // Flash player red.
         var flash = new Sequence(this);
         

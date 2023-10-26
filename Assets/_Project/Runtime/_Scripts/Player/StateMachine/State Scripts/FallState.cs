@@ -55,8 +55,14 @@ public class FallState : State
     {
         // Perform any necessary cleanup or exit actions
 
-        if (player.InputManager.MoveInput.x != 0 && player.IsGrounded()) player.StateMachine.TransitionToState(StateType.Walk);
-        else player.StateMachine.TransitionToState(StateType.Idle);
+        if (player.InputManager.MoveInput.x != 0 && player.IsGrounded())
+        {
+            player.StateMachine.TransitionToState(StateType.Walk);
+        }
+        else
+        {
+            player.StateMachine.TransitionToState(StateType.Idle);
+        }
 
         // Play land animation.
         IsFalling = false;
