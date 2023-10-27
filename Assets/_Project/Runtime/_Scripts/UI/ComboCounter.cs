@@ -23,22 +23,18 @@ public class ComboCounter : MonoBehaviour
     void Update()
     {
         comboTime -= Time.deltaTime;
-        ChangeComboText();
 
         if (comboTime <= 0f) ResetCombo();
     }
 
     public void ChangeComboText()
     {
-        if (Input.GetKeyDown(KeyCode.Z))
-        {
             comboCount++;
             comboText.text = $"Combo\n{comboCount}";
             comboTime      = comboTimeChange;
             comboAnimator.SetBool("Appear", comboCount > 1);
             comboAnimator.SetBool("Disappear", false);
             StartCoroutine(ComboPop());
-        }
     }
 
     void ResetCombo()
@@ -49,9 +45,7 @@ public class ComboCounter : MonoBehaviour
         comboAnimator.SetBool("Disappear", true);
     }
 
-    public void ResetDisappearAnimation() => comboAnimator.SetBool("Disappear", false);
-
-    IEnumerator ComboPop()
+    private IEnumerator ComboPop()
     {
         if (comboCount < 2) yield break;
 

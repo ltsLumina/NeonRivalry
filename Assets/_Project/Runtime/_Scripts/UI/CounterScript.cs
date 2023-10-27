@@ -12,9 +12,8 @@ public class CounterScript : MonoBehaviour
         counterAnimator = GetComponent<Animator>();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void ShowCounterText()
     {
-        if (Input.GetKeyDown(KeyCode.X)) { counterAnimator.Play("CounterAnimation"); }
+         {counterAnimator.Play("CounterAnimation"); }
     }
 }
