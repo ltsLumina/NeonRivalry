@@ -24,6 +24,8 @@ public class AttackState : State
     readonly AttackHandler attackHandler;
     readonly Animator animator;
     readonly Moveset moveset; // Could be declared as a local variable, but it will (probably) be used in the future.
+    
+    float attackAnimationLength;
 
       // -- Constructor --
       public AttackState(PlayerController player, AttackStateData stateData) : base(player)
@@ -51,8 +53,8 @@ public class AttackState : State
 
         if (attackType != InputManager.AttackType.None)
         {
-            attackHandler.SelectAttack(attackType);
-            player.InputManager.LastAttackPressed = InputManager.AttackType.None; // Reset after usage
+            if (attackHandler.SelectAttack(attackType)) player.InputManager.LastAttackPressed = InputManager.AttackType.None; // Reset after usage
+            else OnExit();
         }
         else
         {
@@ -62,34 +64,39 @@ public class AttackState : State
 
     public override void UpdateState()
     {
-        // Player is grounded, perform grounded attack.
-
+        // Have to set the attack animation length here because the animator will return the length of the idle animation instead of the attack animation.
+        // So we have to set the attack animation length every frame to ensure that it is the correct value.
+        attackAnimationLength = animator.GetCurrentAnimatorStateInfo(0).length;
+        
+        // Bug: On occasion, the animator will return the length of the idle animation instead of the attack animation.
+        // If the attack animation length is 0.1, then the player GetCurrentAnimatorStateInfo(0) method has returned the value of the Idle animation.
+        // TODO: I think I found a solution. Set the Exit Time in the Animator to 1 on the attack animation.
+        
         // If the attack duration has not been reached, continue attacking.
-        if (groundedAttackTimer < animator.GetCurrentAnimatorStateInfo(0).length)
+        groundedAttackTimer += Time.deltaTime;
+
+        if (player.IsGrounded()) { FGDebugger.Debug("Attacking on the ground!", LogType.Log, StateType.Attack); }
+
+        // Player has become airborne after starting the attack, cancel the attack. (e.g. player gets knocked into the air) 
+        else
         {
-            groundedAttackTimer += Time.fixedDeltaTime;
+            FGDebugger.Debug("Player has been knocked into the air! \nCancelling the attack...", LogType.Log, StateType.Attack);
 
-            if (player.IsGrounded())
-            {
-                FGDebugger.Debug("Attacking on the ground!", LogType.Log, StateType.Attack); 
-                
-            }
-
-            // Player has become airborne after starting the attack, cancel the attack. (e.g. player gets knocked into the air) 
-            else
-            {
-                FGDebugger.Debug("Player has been knocked into the air! \nCancelling the attack...", LogType.Log, StateType.Attack);
-
-                // Cancel the attack.
-                OnExit();
-            }
+            // Cancel the attack.
+            OnExit();
         }
-        else { OnExit(); }
+
+        // i figured it out.
+        // attackAnimationLength is the length of the IDLE ANIMATION, not the attack animation. :'(
+        if (groundedAttackTimer >= attackAnimationLength)
+        {
+            OnExit();
+        }
     }
 
     public override void OnExit()
     {
-        // Cancel the attack animation by starting the idle animation.
+        // Cancel the attack animation by playing the idle animation.
         animator.Play("Idle");
 
         if (player.InputManager.MoveInput.x != 0 && player.IsGrounded())

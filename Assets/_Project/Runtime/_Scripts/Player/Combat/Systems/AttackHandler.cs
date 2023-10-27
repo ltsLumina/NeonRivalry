@@ -54,12 +54,13 @@ public class AttackHandler
     /// The attack to perform is determined by finding the first move in the attack moves list that matches the direction to perform (if any).
     /// The attack is then performed by calling <see cref="PerformAttack"/>.
     /// </remarks>
-    public void SelectAttack(InputManager.AttackType attackType)
+    /// <returns>True if the attack was selected successfully; otherwise, false.</returns>
+    public bool SelectAttack(InputManager.AttackType attackType)
     {
         List<MoveData> attackMoves = GetAttackMoves(attackType);
 
         // If there are no attack moves available, then return without performing a move
-        if (attackMoves == null) return;
+        if (attackMoves == null) return false;
 
         // Get the current movement input of the player
         Vector2 input = player.InputManager.MoveInput;
@@ -71,7 +72,7 @@ public class AttackHandler
         MoveData selectedAttack = attackMoves.FirstOrDefault(move => move.direction == directionToPerform);
 
         // Perform the selected attack move
-        PerformAttack(selectedAttack, directionToPerform, attackType);
+        return PerformAttack(selectedAttack, directionToPerform, attackType);
     }
 
     /// <summary>
@@ -85,12 +86,13 @@ public class AttackHandler
     /// After assigning direction to action map, an animation corresponding to the direction and type of attack is being played.
     /// A debug message is also logged specifying the attack type being performed in conjunction with the direction.
     /// </remarks>
-    void PerformAttack(MoveData selectedAttack, MoveData.Direction directionToPerform, InputManager.AttackType type)
+    /// <returns>True if the attack was performed successfully; otherwise, false.</returns>
+    bool PerformAttack(MoveData selectedAttack, MoveData.Direction directionToPerform, InputManager.AttackType type)
     {
         if (selectedAttack == null)
         {
             Debug.LogWarning("There is no move that corresponds to the direction that the player is pressing. \nPlease assign a move in the moveset.");
-            return;
+            return false;
         }
 
         // Get the animation index based on the direction to perform.
@@ -105,6 +107,8 @@ public class AttackHandler
         FGDebugger.Debug
         (logMessage, LogType.Log, new[]
          { State.StateType.Attack, State.StateType.AirborneAttack });
+
+        return true;
     }
 
     /// <summary>
