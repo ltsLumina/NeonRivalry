@@ -29,7 +29,7 @@ public abstract class State
         // The values of the enum are used to determine the priority of the state.
         // They should all be unique, and the higher the value, the higher the priority.
         Idle,
-        Walk,       // Walk indicates that the player is moving.
+        Walk,
         Jump,
         Fall,
         Attack,

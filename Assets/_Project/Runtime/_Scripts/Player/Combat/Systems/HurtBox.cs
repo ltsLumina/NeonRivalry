@@ -1,6 +1,7 @@
 ﻿#region
 using System;
 using System.Diagnostics.CodeAnalysis;
+using Lumina.Debugging;
 using Lumina.Essentials.Sequencer;
 using UnityEngine;
 #endregion
@@ -82,6 +83,9 @@ public class HurtBox : MonoBehaviour
 
     void Knockback()
     {
+        // Don't knockback players while debugging.
+        if (FGDebugger.DebugPlayers) return;
+        
         // Knockback the player based on the sign of the Y-rotation.
         float knockbackForce     = 450f;
         float knockbackDirection = -Mathf.Sign(transform.rotation.y);

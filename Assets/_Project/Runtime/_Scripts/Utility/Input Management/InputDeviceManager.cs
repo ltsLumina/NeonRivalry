@@ -34,7 +34,7 @@ public class InputDeviceManager : MonoBehaviour
     /// Loads in the players that were registered on previous scenes.
     /// This method is used in most situations to load in the players.
     /// <para></para>
-    /// <seealso cref="OnPlayerJoin"/>
+    /// <seealso cref="CheckIfPlayerCanJoin"/>
     /// </summary>
     void LoadPersistentPlayers()
     {
@@ -55,7 +55,7 @@ public class InputDeviceManager : MonoBehaviour
         if (playerInputManager.playerCount >= 2) return;
 
         // Handles players joining the game.
-        OnPlayerJoin();
+        CheckIfPlayerCanJoin();
     }
     
     /// <summary>
@@ -66,7 +66,7 @@ public class InputDeviceManager : MonoBehaviour
     /// For instance the Intro and Character Select scenes.
     /// <seealso cref="LoadPersistentPlayers"/> 
     /// </summary>
-    void OnPlayerJoin()
+    void CheckIfPlayerCanJoin()
     {
         InputDevice activeDevice = GetActiveDevice();
 
@@ -121,6 +121,9 @@ public class InputDeviceManager : MonoBehaviour
         string controlScheme = device is Keyboard ? "Keyboard" : "Gamepad";
         playerInputManager.JoinPlayer(playerDevices[device], -1, controlScheme, device);
 
+        // Instantiate a second player if the 'DebugPlayers' option is enabled.
+        if (FGDebugger.DebugPlayers) playerInputManager.JoinPlayer(1);
+
         // Uses the default (recommended) rumble amount and duration.
         if (device is Gamepad gamepad) gamepad.Rumble(this); // bug: The rumble might be too weak on some gamepads, making it nearly unnoticeable.
 
@@ -162,7 +165,7 @@ public class InputDeviceManager : MonoBehaviour
         { Intro, MainMenu, CharacterSelect };
 
         // If debug mode is active, allow the player to join in the game scene as well.
-        if (FGDebugger.debugMode) allowedScenes.Add(Game);
+        if (FGDebugger.DebugMode) allowedScenes.Add(Game);
         return allowedScenes;
     }
     #endregion

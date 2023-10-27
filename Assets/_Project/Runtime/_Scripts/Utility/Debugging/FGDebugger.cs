@@ -14,14 +14,16 @@ namespace Lumina.Debugging
 /// </summary>
 public static class FGDebugger
 {
-    public static bool debugMode = true;
+    public static bool DebugMode = true;
+    public static bool DebugPlayers = false;
 
     static FGDebugger()
     {
         // Disable the debug mode if we are not in the editor.
         // It might seem as though this is redundant, but it does in fact run during a build.
 #if !UNITY_EDITOR
-        debugMode = false;
+        DebugMode = false;
+        DebugPlayers = false;
 #endif
     }
     

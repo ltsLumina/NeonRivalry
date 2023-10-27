@@ -3,6 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using static Lumina.Debugging.FGDebugger;
 using static State;
+using static UnityEngine.GUILayout;
 #endregion
 
 // Lumina.Debugging namespace contains classes for debugging
@@ -44,13 +45,26 @@ public class FGDebuggerWindow : EditorWindow
     // OnGUI is called for rendering and handling GUI events.
     void OnGUI()
     {
-        // GUI layout for Log Level
-        GUILayout.Label("Log Level", EditorStyles.boldLabel);
-        LogLevel = (Level) EditorGUILayout.EnumPopup(LogLevel);
+        using (new HorizontalScope("box"))
+        {
+            Label("Log Level", EditorStyles.boldLabel);
+            LogLevel = (Level) EditorGUILayout.EnumPopup(LogLevel);
+            
+            Label("State to Debug", EditorStyles.boldLabel);
+            ActiveStateType = (StateType) EditorGUILayout.EnumPopup(ActiveStateType);
+        }
 
-        // GUI Layout for State to Debug
-        GUILayout.Label("State to Debug", EditorStyles.boldLabel);
-        ActiveStateType = (StateType) EditorGUILayout.EnumPopup(ActiveStateType);
+        Space(10);
+        
+        // Horizontal line (separator)
+        Label("", GUI.skin.horizontalSlider);
+        
+        Space(25);
+        
+        // GUI Layout for Debug Mode
+        Label("Debug Modes", EditorStyles.boldLabel);
+        DebugMode = EditorGUILayout.Toggle("Debug Mode", DebugMode);
+        DebugPlayers = EditorGUILayout.Toggle("Debug Players", DebugPlayers);
     }
 }
 }

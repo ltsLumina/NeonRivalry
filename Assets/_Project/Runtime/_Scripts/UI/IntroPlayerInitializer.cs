@@ -27,7 +27,7 @@ public class IntroPlayerInitializer : MonoBehaviour
 
         // Check if debug mode is enabled, and if so, skip the loading screen.
         // Else, start the loading screen.
-        StartCoroutine(!FGDebugger.debugMode ? LoadingScreenRoutine() : DebugSkipLoadingScreen());
+        StartCoroutine(!FGDebugger.DebugMode ? LoadingScreenRoutine() : DebugSkipLoadingScreen());
 
         yield break;
         IEnumerator LoadingScreenRoutine() //TODO: Make a UI_Utility class that handles things like loading screens etc.

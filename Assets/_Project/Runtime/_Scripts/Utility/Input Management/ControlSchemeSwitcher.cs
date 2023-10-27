@@ -21,22 +21,21 @@ public class ControlSchemeSwitcher : MonoBehaviour
         { 1 => PlayerManager.PlayerOneInput,
           2 => PlayerManager.PlayerTwoInput,
           _ => playerInput };
-
-        if (playerInput == null) return; // This should never happen, but just in case.
+        
         string currentScheme = playerInput.currentControlScheme;
 
         switch (currentScheme)
         {
-            case "Keyboard":
+            case "Keyboard": // Switch to Gamepad if the user is using Keyboard.
                 StartCoroutine(InputDeviceSwitcher.AssignGamepadToPlayerInput(playerInput));
-                Debug.LogWarning("Player " + playerToAssignByPlayerID + " switching to Gamepad");
+                
+                Debug.LogWarning("Player " + playerToAssignByPlayerID + " switched to Gamepad");
                 break;
 
-            case "Gamepad":
-                PlayerInput.all.FirstOrDefault()                                      // Get the first active PlayerInput
-                          ?.SwitchCurrentControlScheme("Keyboard", Keyboard.current); // Switch to Keyboard
+            case "Gamepad": // Switch to Keyboard if the user is using Gamepad.
+                PlayerManager.PlayerInputs.FirstOrDefault()?.SwitchCurrentControlScheme("Keyboard", Keyboard.current);
 
-                Debug.LogWarning("Player " + playerToAssignByPlayerID + " switching to Keyboard");
+                Debug.LogWarning("Player " + playerToAssignByPlayerID + " switched to Keyboard");
                 break;
         }
     }

@@ -15,7 +15,7 @@ public class IntroSplashManager : MonoBehaviour
     void Start()
     {
         // If debug mode is enabled, skip the splash screen.
-        if (FGDebugger.debugMode)
+        if (FGDebugger.DebugMode)
         {
             Destroy(splashScreen.gameObject);
             return;
