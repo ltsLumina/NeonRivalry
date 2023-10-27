@@ -20,6 +20,7 @@ public class RoundTimer : MonoBehaviour
     
     [Header("Timer Settings"), ReadOnly]
     [SerializeField] float currentTime;
+    [SerializeField] bool finished;
     [SerializeField] bool countdownMode;
     
     [Header("Limit Settings"), Tooltip("If true, the timer will have a time limit.")]
@@ -44,6 +45,12 @@ public class RoundTimer : MonoBehaviour
     {
         get => currentTime;
         set => currentTime = value;
+    }
+    
+    public bool Finished
+    {
+        get => finished;
+        set => finished = value;
     }
 
     void Awake()

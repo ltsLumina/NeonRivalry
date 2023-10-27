@@ -67,9 +67,9 @@ public class HurtBox : MonoBehaviour
         if (health <= 0)
         {
             //may god save us
-            RoundScript.player1WonRoundsText.text = $"Rounds won: \n{FindObjectOfType<RoundScript>().player1WonRounds}/2";
-            FindObjectOfType<RoundScript>().player1WonRounds++;
-            FindObjectOfType<RoundScript>().currentRounds++;
+            // RoundManager.player1WonRoundsText.text = $"Rounds won: \n{FindObjectOfType<RoundManager>().player1WonRounds}/2";
+            // FindObjectOfType<RoundManager>().player1WonRounds++;
+            // FindObjectOfType<RoundManager>().currentRounds++;
             Debug.Log("Player is dead!");
             
             var delayLoad = new Sequence(this);

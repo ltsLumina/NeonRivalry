@@ -5,18 +5,31 @@ using UnityEngine;
 
 public class LockToDollyPath : MonoBehaviour
 {
-    CinemachineVirtualCamera virtualCam;
-    public CinemachineDollyCart dollyCart;
-
+    // -- Inspector Variables --
+    
+    [SerializeField] CinemachineDollyCart dollyCart;
     [SerializeField] int dollyCartSpeed;
+    
+    // -- Cached References --
+    
+    CinemachineVirtualCamera virtualCam;
 
-    void Start() => virtualCam = GetComponent<CinemachineVirtualCamera>();
+    void Awake() => virtualCam = GetComponent<CinemachineVirtualCamera>();
 
-    public void CameraCine(Transform winPlayer)
+    void Update()
     {
-        virtualCam.LookAt = winPlayer;
+        // Note: This doesn't work whatsoever.
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            FollowPlayer(PlayerManager.PlayerOne.transform);
+        }
+    }
+
+    public void FollowPlayer(Transform winPlayer)
+    {
         dollyCart.m_Speed = dollyCartSpeed;
         dollyCart.m_Position = 0;
+        virtualCam.LookAt = winPlayer;
     }
 }
 
