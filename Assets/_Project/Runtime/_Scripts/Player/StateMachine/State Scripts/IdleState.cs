@@ -8,13 +8,6 @@ public class IdleState : State
     public IdleState(PlayerController player) : base(player)
     { /*Empty Constructor as the Idle state doesn't require anything. (Yet) */ }
 
-    public override bool CanBeInterrupted()
-    {
-        // return true if the player is not idle
-        //TODO: Might want to make everything interrupt Idle for a smoother gameplay experience. As it is now, the player has to wait for the idle animation to finish before they can move. (probably)
-        return false;
-    }
-
     public override void OnEnter()
     {
         // Play the idle animation.

@@ -1,9 +1,10 @@
 ﻿#region
 using System;
 using System.Diagnostics.CodeAnalysis;
-using Lumina.Debugging;
 using Lumina.Essentials.Sequencer;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using Logger = Lumina.Debugging.Logger;
 #endregion
 
 public class HurtBox : MonoBehaviour
@@ -18,12 +19,12 @@ public class HurtBox : MonoBehaviour
     {
         player    = GetComponentInParent<PlayerController>();
         rigidbody = player.GetComponent<Rigidbody>();
-        
-        // -- Event Subscriptions --
-
-        OnHurtBoxHit                     += OnTakeDamage;
-        player.Healthbar.OnHealthChanged += healthbarValue => Debug.Log($"Healthbar value changed to {healthbarValue}!");
     }
+
+    void OnEnable() => OnHurtBoxHit += OnTakeDamage;
+
+    //player.Healthbar.OnHealthChanged += healthbarValue => Debug.Log($"Healthbar value changed to {healthbarValue}!");
+    void OnDisable() => OnHurtBoxHit -= OnTakeDamage;
 
     void OnTriggerEnter(Collider other)
     {
@@ -37,6 +38,15 @@ public class HurtBox : MonoBehaviour
         int health = player.Healthbar.Value;
         
         Debug.Log($"HurtBox hit by {hitBox.name} and took {hitBox.DamageAmount} damage!");
+        
+        // psuedo code:
+        // if (player.StateMachine.CurrentState is BlockState)
+        // {
+        //     // perform block related stuff
+        //     // make blockstate subscribe to OnHurtBoxHit and do the following:
+        //     // - on hit, execute the animation
+        // }
+        
         
         // Take damage.
         if (!player.Healthbar.Invincible) health -= hitBox.DamageAmount;
@@ -67,14 +77,19 @@ public class HurtBox : MonoBehaviour
 
         if (health <= 0)
         {
+            Gamepad.current.Rumble(this);
+            
             //may god save us
             // RoundManager.player1WonRoundsText.text = $"Rounds won: \n{FindObjectOfType<RoundManager>().player1WonRounds}/2";
             // FindObjectOfType<RoundManager>().player1WonRounds++;
             // FindObjectOfType<RoundManager>().currentRounds++;
             Debug.Log("Player is dead!");
-            
-            var delayLoad = new Sequence(this);
-            delayLoad.WaitThenExecute(0.35f, () => SceneManagerExtended.LoadScene(SceneManagerExtended.ActiveScene));
+
+            if (!Logger.DebugPlayers)
+            {
+                var delayLoad = new Sequence(this);
+                delayLoad.WaitThenExecute(0.35f, () => SceneManagerExtended.LoadScene(SceneManagerExtended.ActiveScene));
+            }
         }
         
         // Knock player back
@@ -84,7 +99,7 @@ public class HurtBox : MonoBehaviour
     void Knockback()
     {
         // Don't knockback players while debugging.
-        if (FGDebugger.DebugPlayers) return;
+        if (Logger.DebugPlayers) return;
         
         // Knockback the player based on the sign of the Y-rotation.
         float knockbackForce     = 450f;

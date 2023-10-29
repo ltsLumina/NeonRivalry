@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using Lumina.Debugging;
 using UnityEditor;
 using UnityEngine;
 using static EditorGUIUtils;
 using static UnityEngine.GUILayout;
+using Logger = Lumina.Debugging.Logger;
 
 public static class MovesetCreator
 {
@@ -47,33 +47,28 @@ public static class MovesetCreator
     {
         EditorGUILayout.HelpBox("Select a Moveset or create a new one.", MessageType.Warning);
 
+        Space(10);
+
         movesetName = GetMovesetName();
+        var label = new GUIContent($"Create {movesetName}", "Creates the moveset. \nThe name of the moveset will be the name of the ScriptableObject.");
 
-        string assetName = GenerateAssetName(movesetName);
+        bool isMovesetNameEmpty            = string.IsNullOrEmpty(movesetName);
+        if (isMovesetNameEmpty) label.text = "Please choose a name.";
 
-        if (Button($"Create {assetName}"))
+        Space(5);
+        
+        using (new EditorGUI.DisabledScope(isMovesetNameEmpty))
         {
-            UtilityWindow.window.titleContent = new ("Creating New Moveset...");
-            CreateMovesetWithConfirmation(assetName);
+            if (Button(label, Height(35)))
+            {
+                UtilityWindow.window.titleContent = new ("Creating New Moveset...");
+                CreateMoveset();
+            }
         }
     }
 
     static string GetMovesetName() => EditorGUILayout.TextField("Moveset Name", movesetName);
-
-    static string GenerateAssetName(string assetName) => string.IsNullOrEmpty(assetName) ? "New Moveset" : assetName;
-
-    static void CreateMovesetWithConfirmation(string assetName)
-    {
-        if (string.IsNullOrEmpty(assetName) || assetName == "New Moveset") // Checking if new Moveset name should be confirmed
-        {
-            const string warning = "Warning";
-            string       message = WarningMessage(assetName);
-
-            if (EditorUtility.DisplayDialog(warning, message, "Proceed", "Cancel")) CreateMoveset();
-        }
-        else { CreateMoveset(); } // Create new Moveset without confirmation
-    }
-
+    
     static void DisplayExistingMovesetOptions()
     {
         scrollViewPos = EditorGUILayout.BeginScrollView(scrollViewPos); // Begin ScrollView
@@ -116,10 +111,10 @@ public static class MovesetCreator
     {
         using (new VerticalScope("box"))
         {
-            foreach (KeyValuePair<string, List<MoveData>> entry in existingMoves)
+            foreach (KeyValuePair<string, List<MoveData>> move in existingMoves)
             {
                 Space(5);
-                DisplayMoveCategory(entry);
+                DisplayMoveCategory(move);
             }
         }
     }
@@ -150,19 +145,19 @@ public static class MovesetCreator
         switch (moveData.type)
         {
             case MoveData.Type.Punch:
-                currentMoveset.punchMoves.Add(moveData);
+                currentMoveset.PunchMoves.Add(moveData);
                 break;
 
             case MoveData.Type.Kick:
-                currentMoveset.kickMoves.Add(moveData);
+                currentMoveset.KickMoves.Add(moveData);
                 break;
 
             case MoveData.Type.Slash:
-                currentMoveset.slashMoves.Add(moveData);
+                currentMoveset.SlashMoves.Add(moveData);
                 break;
 
             case MoveData.Type.Unique:
-                currentMoveset.uniqueMoves.Add(moveData);
+                currentMoveset.UniqueMoves.Add(moveData);
                 break;
         }
     }
@@ -211,10 +206,14 @@ public static class MovesetCreator
 
     static void CreateMoveset()
     {
+        var  label                = new GUIContent($"Create \"{movesetName}\"", "Creates the moveset. \nThe name of the moveset will be the name of the ScriptableObject.");
+        bool emptyName            = string.IsNullOrEmpty(movesetName);
+        if (emptyName) label.text = "Please choose a name.";
+        
         currentMoveset = ScriptableObject.CreateInstance<Moveset>();
-        const string path        = "Assets/_Project/Runtime/_Scripts/Player/Combat/Scriptable Objects/Movesets";
-        const string defaultName = "New Moveset";
-        string       assetName   = string.IsNullOrEmpty(movesetName) ? defaultName : movesetName;
+
+        string path      = UtilityWindow.GetFilePathByWindowsExplorer("Movesets");
+        string assetName = movesetName;
         
         try
         {
@@ -222,7 +221,7 @@ public static class MovesetCreator
         }
         catch (UnityException e)
         {
-            Debug.LogError($"{FGDebugger.ErrorMessagePrefix} Failed to create asset. The path in the script is probably invalid.\n{e}");
+            Debug.LogError($"{Logger.ErrorMessagePrefix} Failed to create asset. The path in the script is probably invalid.\n{e}");
             throw;
         }
         finally

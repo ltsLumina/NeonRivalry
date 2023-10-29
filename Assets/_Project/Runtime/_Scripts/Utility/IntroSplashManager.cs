@@ -1,8 +1,8 @@
 using System.Collections;
-using Lumina.Debugging;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Logger = Lumina.Debugging.Logger;
 
 public class IntroSplashManager : MonoBehaviour
 {
@@ -15,7 +15,7 @@ public class IntroSplashManager : MonoBehaviour
     void Start()
     {
         // If debug mode is enabled, skip the splash screen.
-        if (FGDebugger.DebugMode)
+        if (Logger.DebugMode)
         {
             Destroy(splashScreen.gameObject);
             return;

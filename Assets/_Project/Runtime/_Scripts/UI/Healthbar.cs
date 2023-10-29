@@ -18,6 +18,9 @@ public class Healthbar : MonoBehaviour
     public delegate void HealthChanged(int value);
     public event HealthChanged OnHealthChanged;
     
+    public delegate void PlayerDeath(PlayerController player);
+    public event PlayerDeath OnPlayerDeath;
+    
     // -- Properties --
     
     /// <summary> The slider associated with this <see cref="Healthbar"/>. </summary>
@@ -46,6 +49,8 @@ public class Healthbar : MonoBehaviour
                 
                 Slider.value = value;
                 OnHealthChanged?.Invoke(value);
+
+                if (value <= 0) OnPlayerDeath?.Invoke(Player);
             }
         }
     }

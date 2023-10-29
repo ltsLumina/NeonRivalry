@@ -1,6 +1,6 @@
-﻿using Lumina.Debugging;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
+using Logger = Lumina.Debugging.Logger;
 
 [CustomEditor(typeof(HealthbarManager))]
 public class HealthbarManagerEditor : Editor
@@ -15,7 +15,7 @@ public class HealthbarManagerEditor : Editor
 
         if (manager == null)
         {
-            FGDebugger.Debug("HealthbarManager is null.", LogType.Exception);
+            Logger.Debug("HealthbarManager is null.", LogType.Exception);
             return;
         } 
 

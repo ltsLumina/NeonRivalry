@@ -222,7 +222,7 @@ public class QuickAccessWindow : EditorWindow
             if (windowsFoldout)
             {
                 CreateButtonWithAction("Utility Window", UtilityWindow.Open);
-                CreateButtonWithAction("Debugger", FGDebuggerWindow.Open);
+                CreateButtonWithAction("Debugger", StateDebuggerWindow.Open);
                 CreateButtonWithAction("Lumina's Essentials", UtilityPanel.OpenUtilityPanel);
             }
         }
@@ -239,8 +239,8 @@ public class QuickAccessWindow : EditorWindow
             if (optionsFoldout)
             {
                 EditorSettings.enterPlayModeOptionsEnabled = EditorGUILayout.Toggle("Enter Playmode Options", EditorSettings.enterPlayModeOptionsEnabled);
-                FGDebugger.DebugMode                       = EditorGUILayout.Toggle("Debug Mode", FGDebugger.DebugMode);
-                FGDebugger.DebugPlayers                    = EditorGUILayout.Toggle("Debug Players", FGDebugger.DebugPlayers);
+                Logger.DebugMode                       = EditorGUILayout.Toggle("Debug Mode", Logger.DebugMode);
+                Logger.DebugPlayers                    = EditorGUILayout.Toggle("Debug Players", Logger.DebugPlayers);
             }
         }
     }

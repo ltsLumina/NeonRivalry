@@ -1,6 +1,6 @@
 #region
-using Lumina.Debugging;
 using UnityEngine;
+using Logger = Lumina.Debugging.Logger;
 #endregion
 
 public class AirborneAttackState : State
@@ -32,8 +32,6 @@ public class AirborneAttackState : State
     public override StateType Type => StateType.AirborneAttack;
     public override int Priority => statePriorities[Type];
 
-    public override bool CanBeInterrupted() => false;
-
     // -- State Specific Variables --
     readonly float fallGravityMultiplier;
     readonly float jumpHaltForce;
@@ -43,7 +41,7 @@ public class AirborneAttackState : State
     public override void OnEnter()
     {
         IsAirborneAttacking = true;
-        IsAirborne          = player.IsAirborne(); // Check whether the player was in air when attack started.
+        IsAirborne          = true; // Check whether the player was in air when attack started.
 
         player.GetComponentInChildren<SpriteRenderer>().color = new (1f, 0.21f, 0.38f, 0.75f);
 
@@ -58,12 +56,16 @@ public class AirborneAttackState : State
             attackHandler.SelectAttack(attackType);
             player.InputManager.LastAttackPressed = InputManager.AttackType.None; // Reset after usage
         }
-        else { FGDebugger.Debug("No \"(None)\" attack type was selected. Something went wrong.", LogType.Error);}
+        else { Logger.Debug("No \"(None)\" attack type was selected. Something went wrong.", LogType.Error);}
     }
 
     public override void UpdateState()
     {
-        if (!IsAirborne) return; // If the player is not airborne, cancel the attack.
+        if (!IsAirborne)
+        {
+            OnExit(); // If the player is not airborne, cancel the attack.
+            return;
+        }
 
         // If the attack animation is still playing, run logic.
         if (airborneAttackTimer < animator.GetCurrentAnimatorStateInfo(0).length)
@@ -73,7 +75,7 @@ public class AirborneAttackState : State
             // Perform the airborne attack logic.
             if (!player.IsGrounded())
             {
-                FGDebugger.Debug("Attacking in the air!", LogType.Log, StateType.AirborneAttack);
+                Logger.Debug("Attacking in the air!", LogType.Log, StateType.AirborneAttack);
                 
                 if (player.IsGrounded()) OnExit();
                 
@@ -86,7 +88,7 @@ public class AirborneAttackState : State
             // If the player lands, cancel the attack.
             else
             {
-                FGDebugger.Debug("Airborne Attack cancelled!", LogType.Log, StateType.AirborneAttack);
+                Logger.Debug("Airborne Attack cancelled!", LogType.Log, StateType.AirborneAttack);
                 OnExit();
             }
         }
@@ -98,11 +100,12 @@ public class AirborneAttackState : State
         // Cancel the attack animation by starting the idle animation.
         animator.Play("Idle");
 
-        if (player.InputManager.MoveInput.x != 0 && player.IsGrounded())
+        player.StateMachine.TransitionToState(player.IsGrounded() ? StateType.Idle : StateType.Fall);
 
+        if (player.InputManager.MoveInput.x != 0 && player.IsGrounded())
             // If the player is moving, transition to the walk state.
             player.StateMachine.TransitionToState(StateType.Walk);
-
+        
         else // If the player is not moving, transition to the idle state. 
             player.StateMachine.TransitionToState(StateType.Idle);
 

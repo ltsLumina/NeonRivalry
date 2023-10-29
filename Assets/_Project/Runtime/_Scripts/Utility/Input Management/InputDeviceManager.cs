@@ -1,16 +1,17 @@
 using System.Collections.Generic;
 using System.Linq;
-using Lumina.Debugging;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Logger = Lumina.Debugging.Logger;
 
 public class InputDeviceManager : MonoBehaviour
 {
     readonly static Dictionary<InputDevice, int> persistentPlayerDevices = new (); // TODO: There is a chance that this doesn't work in builds.
     readonly Dictionary<InputDevice, int> playerDevices = new();
-    
-    PlayerInputManager playerInputManager;
 
+    // -- Cached References --
+    PlayerInputManager manager;
+    
     // -- Scenes --
     
     const int Intro = 0;
@@ -18,23 +19,24 @@ public class InputDeviceManager : MonoBehaviour
     const int CharacterSelect = 2;
     const int Game = 3;
 
-    void Awake() => playerInputManager = GetComponent<PlayerInputManager>();
-
-    void Start()
+    void Awake()
     {
+        manager = PlayerInputManager.instance;
+        
         // Clear the persistent devices if the scene is the Intro scene.
         // This is done to circumvent a bug where the persistent devices are not cleared when the game is restarted. (Due to Enter Playmode Options)
-        if (SceneManagerExtended.ActiveScene is Intro) persistentPlayerDevices.Clear();
+        if (SceneManagerExtended.ActiveScene is Intro || Logger.DebugMode) persistentPlayerDevices.Clear();
+    }
 
+    void Start() =>
         // Instantiate the players into the game scene if there are persistent devices from previous scenes.
         LoadPersistentPlayers();
-    }
 
     /// <summary>
     /// Loads in the players that were registered on previous scenes.
     /// This method is used in most situations to load in the players.
     /// <para></para>
-    /// <seealso cref="CheckIfPlayerCanJoin"/>
+    /// <seealso cref="TryJoinPlayer"/>
     /// </summary>
     void LoadPersistentPlayers()
     {
@@ -43,60 +45,70 @@ public class InputDeviceManager : MonoBehaviour
         {
             playerDevices[kvp.Key] = kvp.Value;
             
-            string controlScheme = kvp.Key is Keyboard ? "Keyboard" : "Gamepad";
-            playerInputManager.JoinPlayer(kvp.Value, -1, controlScheme, kvp.Key);
+            string controlScheme      = kvp.Key is Keyboard ? "Keyboard" : "Gamepad";
+            manager.JoinPlayer(kvp.Value, -1, controlScheme, kvp.Key);
 
-            Debug.Log($"Player {kvp.Value + 1} joined using {controlScheme} control scheme! \nThis player was loaded in from a previous scene.");
+            Debug.Log($"Player {kvp.Value + 1} joined using {controlScheme} control scheme! \nThis player was loaded in from a previous scene or game restart.");
         }
     }
 
     void Update()
     {
-        if (playerInputManager.playerCount >= 2) return;
+        if (PlayerInputManager.instance.playerCount >= 2) return;
 
-        // Handles players joining the game.
-        CheckIfPlayerCanJoin();
+        // If the player is allowed to join, instantiate the player.
+        // Tries to join the player every frame. Returns if the player is not allowed to join.
+        TryJoinPlayer();
     }
-    
+
     /// <summary>
-    ///    Handles players joining the game, if they are allowed to.
-    /// For instance, players are not allowed to join in the Game scene.
-    /// <para></para>
-    /// LoadPersistentPlayers loads in players if they have already joined in previous scenes.
-    /// For instance the Intro and Character Select scenes.
-    /// <seealso cref="LoadPersistentPlayers"/> 
+    ///    Attempts to join a player to the game, after checking if they are allowed to.
+    ///    Players may not be allowed to join in certain scenes for instance, the Game scene.
+    ///    Persistent players are loaded in from previous scenes such as the Intro and Character Select scenes.
     /// </summary>
-    void CheckIfPlayerCanJoin()
+    void TryJoinPlayer()
+    {
+        if (!CheckCanJoin()) return;
+
+        // If all checks pass, instantiate the player.
+        InstantiatePlayer();
+    }
+
+    /// <summary>
+    ///     Checks if the player is allowed to join the game.
+    /// </summary>
+    bool CheckCanJoin()
     {
         InputDevice activeDevice = GetActiveDevice();
 
         // Get the 'allowedScenes' list and check if the current scene allows player to join.
         List<int> allowedScenes = GetAllowedScenes(Intro, MainMenu, CharacterSelect, Game);
-        if (!allowedScenes.Contains(SceneManagerExtended.ActiveScene)) return;
 
-        // Check if any control button was pressed this frame, if not then return.
-        if (!Keyboard.current.anyKey.wasPressedThisFrame && (Gamepad.current == null || !Gamepad.current.AnyButtonDown())) return;
+        if (!allowedScenes.Contains(SceneManagerExtended.ActiveScene)) return false;
+
+        // Check if any control button was pressed this frame, if not then return false.
+        if (!Keyboard.current.anyKey.wasPressedThisFrame && (Gamepad.current == null || !Gamepad.current.AnyButtonDown())) return false;
 
         // Scene-specific logic to control player join rules.
-        bool isIntroOrMainMenu = allowedScenes.IndexOf(SceneManagerExtended.ActiveScene) < CharacterSelect;
-        bool isCharSelect      = allowedScenes.IndexOf(SceneManagerExtended.ActiveScene) == CharacterSelect;
-
-        // 'Character Select' scene where max of two players can exist.
-        if (isCharSelect && playerInputManager.playerCount >= 2)
-        {
-            Debug.LogWarning("There can be a maximum of two players!");
-            return;
-        }
+        int  activeSceneIndex  = allowedScenes.IndexOf(SceneManagerExtended.ActiveScene);
+        bool isIntroOrMainMenu = activeSceneIndex < CharacterSelect;
+        bool isCharSelect      = activeSceneIndex == CharacterSelect;
 
         // 'Intro' or 'MainMenu' scenes where only one player can exist.
-        if (isIntroOrMainMenu && playerInputManager.playerCount >= 1 && !playerDevices.ContainsKey(activeDevice))
+        if (isIntroOrMainMenu && PlayerInputManager.instance.playerCount >= 1 && !playerDevices.ContainsKey(activeDevice))
         {
             Debug.LogWarning("Only one player can join in the Intro and Main Menu scenes.");
-            return;
+            return false;
+        }
+        
+        // 'Character Select' scene where max of two players can exist.
+        if (isCharSelect && PlayerInputManager.instance.playerCount >= 2)
+        {
+            Debug.LogWarning("There can be a maximum of two players!");
+            return false;
         }
 
-        // If all checks pass, instantiate the player.
-        InstantiatePlayer();
+        return true;
     }
 
     /// <summary>
@@ -108,26 +120,26 @@ public class InputDeviceManager : MonoBehaviour
     // but in the Game scene we instantiate the player prefab.
     // The object to instantiate is selected in the PlayerInputManager component on the game object, but you must switch from "Join Manually" to "Join On Button Press" to be able to select it.
     // Once you have switched the option, you must select the player prefab and then switch back to "Join Manually".
-    // Odd bug but this is the only way I could think of to fix it.
+    // Odd bug, but this is the only way I could think of to fix it.
     void InstantiatePlayer()
     {
         InputDevice device = GetActiveDevice();
-        if (device == null || playerDevices.ContainsKey(device) || playerInputManager.playerCount >= 2) return;
+        if (device == null || playerDevices.ContainsKey(device) || PlayerInputManager.instance.playerCount >= 2) return;
         
-        playerDevices[device] = playerInputManager.playerCount;
+        playerDevices[device] = PlayerInputManager.instance.playerCount;
         // Also update the device to be persistent in next scenes
-        persistentPlayerDevices[device] = playerInputManager.playerCount;
+        persistentPlayerDevices[device] = PlayerInputManager.instance.playerCount;
 
         string controlScheme = device is Keyboard ? "Keyboard" : "Gamepad";
-        playerInputManager.JoinPlayer(playerDevices[device], -1, controlScheme, device);
+        PlayerInputManager.instance.JoinPlayer(playerDevices[device], -1, controlScheme, device);
 
         // Instantiate a second player if the 'DebugPlayers' option is enabled.
-        if (FGDebugger.DebugPlayers) playerInputManager.JoinPlayer(1);
+        if (Logger.DebugPlayers) PlayerInputManager.instance.JoinPlayer(1);
 
         // Uses the default (recommended) rumble amount and duration.
         if (device is Gamepad gamepad) gamepad.Rumble(this); // bug: The rumble might be too weak on some gamepads, making it nearly unnoticeable.
 
-        Debug.Log($"Player {playerDevices[device] + 1} joined using {controlScheme} control scheme!");
+        Debug.Log($"Player {playerDevices[device] + 1} joined using {controlScheme} control scheme!" + "\n");
     }
 
     static InputDevice GetActiveDevice()
@@ -164,8 +176,8 @@ public class InputDeviceManager : MonoBehaviour
         List<int> allowedScenes = new ()
         { Intro, MainMenu, CharacterSelect };
 
-        // If debug mode is active, allow the player to join in the game scene as well.
-        if (FGDebugger.DebugMode) allowedScenes.Add(Game);
+        // If debug mode is active, allow the player to join directly into the game scene as well.
+        if (Logger.DebugMode) allowedScenes.Add(Game);
         return allowedScenes;
     }
     #endregion

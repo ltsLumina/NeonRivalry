@@ -25,13 +25,6 @@ public class JumpState : State
         jumpDuration = stateData.JumpDuration;
     }
 
-    public override bool CanBeInterrupted()
-    {
-        // return true if the player is attacking or is grounded
-        //Log("JumpState: CanBeInterrupted()");
-        return player.IsAttacking() || player.IsGrounded() || player.IsFalling();
-    }
-
     public override void OnEnter()
     {
         // Initiate jump animation

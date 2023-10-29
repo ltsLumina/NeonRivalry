@@ -15,6 +15,7 @@ public static class StateDataManager // NOTE: I haven't put as much effort into 
 {
     static bool stateDataReferencesFoldout;
     static Vector2 scrollPos;
+    static bool foldout;
 
     readonly static List<StateData> StateDataList = new ()
     { new ("Move State", typeof(MoveStateData)),
@@ -58,10 +59,60 @@ public static class StateDataManager // NOTE: I haven't put as much effort into 
             {
                 stateData.foldout = EditorGUILayout.Foldout(stateData.foldout, foldoutContent, true, EditorStyles.boldLabel);
 
-                if (stateData.foldout)
+                if (!stateData.foldout) continue;
+                
+                var inspector = Editor.CreateEditor(stateData.data);
+                if (inspector != null)
                 {
-                    var inspector = Editor.CreateEditor(stateData.data);
-                    if (inspector != null) inspector.OnInspectorGUI();
+                    inspector.OnInspectorGUI();
+
+                    switch (stateData.type)
+                    {
+                        // Customize the inspector of the attack state data to show the attack moves from the moveset.
+                        case not null when stateData.type == typeof(AttackStateData):
+                        {
+                            var attackStateData = (AttackStateData) stateData.data;
+
+                            Space(10);
+                            
+                            var label = new GUIContent("Moves", "Displays the moves from the moveset.");
+                            foldout = EditorGUILayout.Foldout(foldout, label, true);
+                            
+                            if (foldout)
+                            {
+                                using (new EditorGUI.DisabledScope(true))
+                                {
+                                    foreach (List<MoveData> attackMoves in attackStateData.Moveset.Moves)
+                                    {
+                                        foreach (MoveData move in attackMoves)
+                                        {
+                                            var moveName = new GUIContent(move.name, "You can change which move is selected from the \"Manage Movesets\" window.");
+                                            EditorGUILayout.ObjectField(moveName, move, typeof(MoveData), false);
+                                        }
+                                    }
+                                }
+                            }
+
+                            break;
+                        }
+                        
+                        // Customize the inspector of the airborne attack state data to show the airborne attack move from the moveset.
+                        case not null when stateData.type == typeof(AirborneAttackStateData):
+                        {
+                            var airborneAttackStateData = (AirborneAttackStateData) stateData.data;
+                            MoveData airborneMove       = airborneAttackStateData.Moveset.AirborneMoves[0];
+
+                            GUIContent label = new
+                            ("Selected Airborne Move",
+                             "This variable is shown through an editor script. It is not a part of the AirborneAttackStateData class. \nYou can change which move is selected from the \"Manage Movesets\" window.");
+
+                            using (new EditorGUI.DisabledScope(true))
+                            {
+                                EditorGUILayout.ObjectField(label, airborneMove, typeof(MoveData), false);
+                            }
+                            break;
+                        }
+                    }
                 }
             }
         }

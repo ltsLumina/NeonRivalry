@@ -1,6 +1,5 @@
 ﻿#region
 using System;
-using Lumina.Debugging;
 using Lumina.Essentials.Attributes;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -111,14 +110,14 @@ public class InputManager : MonoBehaviour
     /// </summary>
     void PerformAttack(InputAction.CallbackContext context, AttackType attackType)
     {
-        if (context.performed && player.CanAttack())
+        if (context.performed)
         {
-            if (player.IsGrounded())
+            if (player.IsGrounded() && player.CanAttack())
             {
                 LastAttackPressed = attackType;
                 stateMachine.TransitionToState(State.StateType.Attack);
             }
-            else
+            else if (player.CanAirborneAttack())
             {
                 LastAttackPressed = AttackType.Airborne;
                 stateMachine.TransitionToState(State.StateType.AirborneAttack);

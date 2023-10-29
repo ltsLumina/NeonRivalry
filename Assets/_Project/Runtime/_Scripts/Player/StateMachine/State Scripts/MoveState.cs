@@ -22,10 +22,6 @@ public class MoveState : State
         velocityPower = stateData.AccelerationRate;
     }
 
-    public override bool CanBeInterrupted() =>
-        // return true if the player is doing anything other than moving
-        player.IsAttacking() || player.IsAirborne();
-
     public override void OnEnter()
     {
         // Play the move animation.

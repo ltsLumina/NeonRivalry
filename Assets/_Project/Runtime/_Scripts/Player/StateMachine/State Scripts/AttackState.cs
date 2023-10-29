@@ -1,6 +1,6 @@
 ﻿#region
-using Lumina.Debugging;
 using UnityEngine;
+using Logger = Lumina.Debugging.Logger;
 #endregion
 
 /*----------------------------------------------------------------------------
@@ -38,8 +38,6 @@ public class AttackState : State
           attackHandler = new (moveset, animator, player);
       }
 
-    public override bool CanBeInterrupted() => interruptibilityRules[Type];
-
     public override void OnEnter()
     {
         // Play the attack animation.
@@ -69,18 +67,16 @@ public class AttackState : State
         attackAnimationLength = animator.GetCurrentAnimatorStateInfo(0).length;
         
         // Bug: On occasion, the animator will return the length of the idle animation instead of the attack animation.
-        // If the attack animation length is 0.1, then the player GetCurrentAnimatorStateInfo(0) method has returned the value of the Idle animation.
-        // TODO: I think I found a solution. Set the Exit Time in the Animator to 1 on the attack animation.
         
         // If the attack duration has not been reached, continue attacking.
         groundedAttackTimer += Time.deltaTime;
 
-        if (player.IsGrounded()) { FGDebugger.Debug("Attacking on the ground!", LogType.Log, StateType.Attack); }
+        if (player.IsGrounded()) { Logger.Debug("Attacking on the ground!", LogType.Log, StateType.Attack); }
 
         // Player has become airborne after starting the attack, cancel the attack. (e.g. player gets knocked into the air) 
         else
         {
-            FGDebugger.Debug("Player has been knocked into the air! \nCancelling the attack...", LogType.Log, StateType.Attack);
+            Logger.Debug("Player has been knocked into the air! \nCancelling the attack...", LogType.Log, StateType.Attack);
 
             // Cancel the attack.
             OnExit();
@@ -99,12 +95,11 @@ public class AttackState : State
         // Cancel the attack animation by playing the idle animation.
         animator.Play("Idle");
 
-        if (player.InputManager.MoveInput.x != 0 && player.IsGrounded())
+        if (player.IsGrounded() && player.InputManager.MoveInput.x != 0)
             // If the player is moving, transition to the walk state.
             player.StateMachine.TransitionToState(StateType.Walk);
-        
-        else // If the player is not moving, transition to the idle state. 
-            player.StateMachine.TransitionToState(StateType.Idle);
+        // If the player is not moving, transition to the idle state.
+        else player.StateMachine.TransitionToState(StateType.Idle);
 
         IsAttacking = false;
     }

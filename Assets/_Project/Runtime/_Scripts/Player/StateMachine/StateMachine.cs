@@ -54,7 +54,7 @@ public class StateMachine : MonoBehaviour
         
         // Checks if the current state is null, or if the new state has a higher priority than the current state.
         // If the new state has a lower or equal priority, the current state is entered like normal.
-        if (CurrentState != null && newState.Priority > CurrentState.Priority /*&& CurrentState.CanBeInterrupted()*/)
+        if (CurrentState != null && newState.Priority > CurrentState.Priority)
         {
             // If the current state can be interrupted, we exit the current state.
             CurrentState?.OnExit();
@@ -70,7 +70,10 @@ public class StateMachine : MonoBehaviour
     }
 
     // Runs the current state's update method. (Fixed interval of 60 calls per second)
-    public void FixedUpdate() => CurrentState?.UpdateState();
+    public void FixedUpdate()
+    {
+        CurrentState?.UpdateState(); 
+    }
 
     /// <summary>
     /// Handles the transition between states.
@@ -185,10 +188,10 @@ public class StateMachineEditor : Editor
         {
             {"IsGrounded", player.IsGrounded()},
             {"IsMoving", player.IsMoving()},
-            {"IsJumping", player.IsJumping()},
+            {"IsJumping", player.IsJumping()}, // Bug: Returns an error as the rigidbody of the player is null outside of playmode.
             {"IsFalling", player.IsFalling()},
             {"IsAttacking", player.IsAttacking()},
-            // {"IsAirborneAttacking", player.IsAirborneAttacking()}
+            {"IsAirborneAttacking", player.IsAirborneAttacking()}
         };
 
         LabelField("Current State", stateMachine.CurrentState?.GetType().Name);

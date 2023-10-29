@@ -8,6 +8,8 @@ using UnityEngine.InputSystem;
 /// </summary>
 public partial class PlayerManager : MonoBehaviour
 {
+    public static PlayerManager Instance { get; private set; }
+
     // -- Player Settings --
     
     [Header("Settings"), Space(5)]
@@ -81,6 +83,8 @@ public partial class PlayerManager : MonoBehaviour
     
     void Awake()
     {
+        Instance = this;
+        
         // Clear the players list on awake to prevent duplicate players,
         // as well as due to the nature of Enter Playmode Options not clearing static variables on restart.
         Players.Clear();
@@ -89,7 +93,7 @@ public partial class PlayerManager : MonoBehaviour
     #region Utility
     public static void AddPlayer(PlayerController player) => Players.Add(player);
     public static void RemovePlayer(PlayerController player) => Players.Remove(player);
-    public static void ChangePlayerColor(PlayerController player, Color newColor) => player.GetComponentInChildren<MeshRenderer>().material.color = newColor;
+    public static void SetPlayerColor(PlayerController player, Color newColor) => player.GetComponentInChildren<MeshRenderer>().material.color = newColor;
     public static void SetPlayerSpawnPoint(PlayerController player, Vector2 newSpawnPoint) => player.transform.position = newSpawnPoint;
 
     public static void SetPlayerHealthbar(PlayerController player, int playerID)

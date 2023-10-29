@@ -19,4 +19,8 @@ public class HealthbarManager : MonoBehaviour
     /// Gets the Healthbar of the second player.
     /// </summary>
     public static Healthbar PlayerTwo => Healthbars.Count > 1 ? Healthbars[1] : null;
+
+    void Awake() =>
+        // Clear the list of Healthbars as Unity wont clear the list when the game is restarted due to Enter Playmode Options.
+        Healthbars.Clear();
 }
