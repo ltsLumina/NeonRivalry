@@ -76,22 +76,6 @@ public partial class PlayerController : MonoBehaviour
     // Rotate the player when spawning in to face in a direction that is more natural.
     void Start() => Initialize();
 
-    void OnDisable()
-    {
-        Terminate();
-
-        return;
-        void Terminate()
-        {
-            PlayerManager.RemovePlayer(this);
-
-            const string warningMessage = "The player has been disabled! " + "Please refrain from disabling the player and opt to destroy it instead. \n" +
-                                          "If the object was destroyed correctly, please ignore this message.";
-            
-            Debug.LogWarning(warningMessage);
-        }
-    }
-
     void Update()
     {
         CheckIdle();
