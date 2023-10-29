@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -14,9 +15,8 @@ public partial class PlayerManager : MonoBehaviour
     
     [Header("Settings"), Space(5)]
     [SerializeField] PlayerDetails playerDetails;
-    
-    public PlayerColor PlayerColors => playerDetails.playerColors;
-    public PlayerSpawnPoint PlayerSpawnPoints => playerDetails.playerSpawnPoints;
+
+    PlayerSpawnPoint PlayerSpawnPoints => playerDetails.playerSpawnPoints;
 
     #region Player List & Properties
     /// <summary>
@@ -93,10 +93,18 @@ public partial class PlayerManager : MonoBehaviour
     #region Utility
     public static void AddPlayer(PlayerController player) => Players.Add(player);
     public static void RemovePlayer(PlayerController player) => Players.Remove(player);
-    public static void SetPlayerColor(PlayerController player, Color newColor) => player.GetComponentInChildren<MeshRenderer>().material.color = newColor;
-    public static void SetPlayerSpawnPoint(PlayerController player, Vector2 newSpawnPoint) => player.transform.position = newSpawnPoint;
 
-    public static void SetPlayerHealthbar(PlayerController player, int playerID)
+    public void SetPlayerSpawnPoint(PlayerController player, int PlayerID)
+    {
+        Action action = PlayerID switch
+        { 1 => () => player.transform.position = PlayerSpawnPoints.playerOneSpawnPoint,
+          2 => () => player.transform.position = PlayerSpawnPoints.playerTwoSpawnPoint,
+          _ => () => Debug.LogError($"Invalid PlayerID: {PlayerID}. Expected either 1 or 2."), };
+
+        action();
+    }
+
+    public static void AssignHealthbarToPlayer(PlayerController player, int playerID)
     {
         // Dictionary that maps the player's ID to the healthbar's tag and name.
         // The tag is used to find the healthbar in the scene, and the name is used to set the healthbar's name.
@@ -132,7 +140,5 @@ public partial class PlayerManager : MonoBehaviour
         // Initialize the healthbar.
         player.Healthbar.Initialize();
     }
-    
-    public static void SetPlayerInput(PlayerController player, PlayerInput playerInput) => player.PlayerInput = playerInput;
     #endregion
 }

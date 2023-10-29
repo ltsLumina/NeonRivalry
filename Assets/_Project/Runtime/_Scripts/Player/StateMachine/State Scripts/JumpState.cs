@@ -12,9 +12,9 @@ public class JumpState : State
 
     public bool IsJumping { get; private set; }
 
+    readonly float jumpForce;
+    readonly float jumpDuration;
     float jumpTimer;
-    float jumpForce;
-    float jumpDuration;
 
     public JumpState(PlayerController player, JumpStateData stateData) : base(player)
     {
@@ -36,8 +36,6 @@ public class JumpState : State
 
     public override void UpdateState()
     {
-        // Handle jump logic, such as applying jump force
-        
         if (jumpTimer < jumpDuration)
         {
             // Apply jump force
@@ -47,8 +45,8 @@ public class JumpState : State
         else
         {
             // Exit current state and transition to fall state
-            OnExit();
             player.StateMachine.TransitionToState(StateType.Fall);
+            OnExit();
         }
 
         jumpTimer += Time.fixedDeltaTime;

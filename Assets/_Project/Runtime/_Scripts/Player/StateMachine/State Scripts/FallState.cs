@@ -36,6 +36,7 @@ public class FallState : State
         if (player.IsGrounded())
         {
             OnExit();
+            return;
         }
 
         // Apply gravity
@@ -52,7 +53,7 @@ public class FallState : State
         // Perform any necessary cleanup or exit actions
 
         if (player.IsGrounded() && player.InputManager.MoveInput.x != 0) player.StateMachine.TransitionToState(StateType.Walk);
-        else player.StateMachine.TransitionToState(StateType.Idle);
+        //else player.StateMachine.TransitionToState(StateType.Idle);
 
         // Play land animation.
         IsFalling = false;

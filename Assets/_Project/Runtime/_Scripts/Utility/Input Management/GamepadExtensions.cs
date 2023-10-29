@@ -46,7 +46,6 @@ public static class GamepadExtensions
         rumbleSequence.Execute(() => gamepad.SetMotorSpeeds(lowFrequency, highFrequency)).WaitThenExecute(duration, () => gamepad.SetMotorSpeeds(0, 0));
 
         return; // Local function
-
         float LerpFrequency(float frequency) => Mathf.Lerp(frequency, frequency * 2, duration);
     }
 

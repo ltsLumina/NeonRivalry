@@ -31,7 +31,7 @@ public class InputDeviceManager : MonoBehaviour
     }
 
     void Start() =>
-        // Instantiate the players into the game scene if there are persistent devices from previous scenes.
+        // Instantiate the players into the scene if there are persistent devices from previous scenes.
         LoadPersistentPlayers();
 
     /// <summary>
@@ -45,11 +45,11 @@ public class InputDeviceManager : MonoBehaviour
         //Load the devices that were registered on previous scenes.
         foreach(KeyValuePair<InputDevice, int> kvp in persistentPlayerDevices)
         {
+            // Add the device to the playerDevices dictionary.
             playerDevices[kvp.Key] = kvp.Value;
-            
-            string controlScheme      = kvp.Key is Keyboard ? "Keyboard" : "Gamepad";
-            //manager.JoinPlayer(kvp.Value, -1, controlScheme, kvp.Key);
-            PlayerInput.Instantiate(playerPrefab, playerIndex: kvp.Value, controlScheme, -1, kvp.Key);
+
+            string controlScheme = kvp.Key is Keyboard ? "Keyboard" : "Gamepad";
+            PlayerInput.Instantiate(playerPrefab, kvp.Value, controlScheme, -1, kvp.Key);
 
             Debug.Log($"Player {kvp.Value + 1} joined using {controlScheme} control scheme! \nThis player was loaded in from a previous scene or game restart.");
         }
@@ -117,24 +117,18 @@ public class InputDeviceManager : MonoBehaviour
     /// <summary>
     ///    Instantiates a Menu Navigator or Player into the game scene.
     /// </summary>
-    
-    // BUG:
-    // Due to a weird bug with the PlayerInputManager, we instantiate a UI Navigator in the Intro, Main Menu, and Character Select scenes,
-    // but in the Game scene we instantiate the player prefab.
-    // The object to instantiate is selected in the PlayerInputManager component on the game object, but you must switch from "Join Manually" to "Join On Button Press" to be able to select it.
-    // Once you have switched the option, you must select the player prefab and then switch back to "Join Manually".
-    // Odd bug, but this is the only way I could think of to fix it.
     void InstantiatePlayer()
     {
         InputDevice device = GetActiveDevice();
         if (device == null || playerDevices.ContainsKey(device) || PlayerInputManager.instance.playerCount >= 2) return;
         
         playerDevices[device] = PlayerInputManager.instance.playerCount;
+        //playerDevices.Add(device, PlayerInputManager.instance.playerCount);
         // Also update the device to be persistent in next scenes
-        persistentPlayerDevices[device] = PlayerInputManager.instance.playerCount;
+        persistentPlayerDevices.Add(device, PlayerInputManager.instance.playerCount);
 
         string controlScheme = device is Keyboard ? "Keyboard" : "Gamepad";
-        PlayerInputManager.instance.JoinPlayer(playerDevices[device], -1, controlScheme, device);
+        PlayerInput.Instantiate(playerPrefab, playerDevices[device], controlScheme, -1, device);
 
         // Instantiate a second player if the 'DebugPlayers' option is enabled.
         if (Logger.DebugPlayers) PlayerInputManager.instance.JoinPlayer(1);

@@ -67,6 +67,7 @@ public partial class PlayerController : MonoBehaviour
         Rigidbody     = GetComponent<Rigidbody>();
         InputManager  = GetComponentInChildren<InputManager>();
         StateMachine  = GetComponent<StateMachine>();
+        PlayerInput   = GetComponentInChildren<PlayerInput>();
         animator      = GetComponentInChildren<Animator>();
 
         HitBox = GetComponentInChildren<HitBox>();
@@ -90,51 +91,29 @@ public partial class PlayerController : MonoBehaviour
     void Initialize()
     {
         PlayerManager.AddPlayer(this);
-
-        // Get the player's ID.
-        var playerInputManager = FindObjectOfType<PlayerInputManager>();
-        PlayerID = playerInputManager.playerCount;
-
-        // Set the player's name and parent.
+        
+        PlayerID = PlayerInput.playerIndex + 1;
         gameObject.name = $"Player {PlayerID}";
+        
+        // Parenting the player to the header is purely for organizational purposes.
         Transform header = GameObject.FindGameObjectWithTag("[Header] Players").transform;
 
-        // Check if Header is found
         if (header == null)
         {
             Debug.LogError("Header not found. Please check if the tag is correct.");
             return;
         }
 
-        // Set the player's parent to the header for better organization.
         transform.SetParent(header);
-        
+
         // Rotate to face the camera.
+        // This has no gameplay purpose and only serves as a visual aid.
         transform.rotation = Quaternion.Euler(0, 180, 0);
 
-        PlayerManager playerManager = PlayerManager.Instance;
-        
-        // Change the colour and spawn position of the player.
-        switch (PlayerID)
-        {
-            case 1:
-                PlayerManager.SetPlayerColor(this, playerManager.PlayerColors.playerOneColor);
-                PlayerManager.SetPlayerSpawnPoint(this, playerManager.PlayerSpawnPoints.playerOneSpawnPoint); // debug values; use PlayerManager.PlayerSpawnPoint[PlayerID - 1] instead
-                PlayerManager.SetPlayerHealthbar(this, PlayerID);
-                PlayerManager.SetPlayerInput(this, PlayerManager.PlayerInputs[PlayerID - 1]);
-                break;
+        var playerManager = PlayerManager.Instance;
 
-            case 2:
-                PlayerManager.SetPlayerColor(this, playerManager.PlayerColors.playerTwoColor);
-                PlayerManager.SetPlayerSpawnPoint(this, playerManager.PlayerSpawnPoints.playerTwoSpawnPoint); // debug values; use PlayerManager.PlayerSpawnPoint[PlayerID - 1] instead
-                PlayerManager.SetPlayerHealthbar(this, PlayerID);
-                PlayerManager.SetPlayerInput(this, PlayerManager.PlayerInputs[PlayerID - 2]);
-                break;
-
-            default:
-                Debug.LogError($"Invalid PlayerID: {PlayerID}. Expected either 1 or 2.");
-                return;
-        }
+        playerManager.SetPlayerSpawnPoint(this, PlayerID);
+        PlayerManager.AssignHealthbarToPlayer(this, PlayerID);
 
         // TODO: Change this once we have a system in place to determine when the round actually starts.
         //gameObject.SetActive(false);
