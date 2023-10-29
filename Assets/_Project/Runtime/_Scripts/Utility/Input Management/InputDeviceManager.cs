@@ -6,6 +6,8 @@ using Logger = Lumina.Debugging.Logger;
 
 public class InputDeviceManager : MonoBehaviour
 {
+    [SerializeField] GameObject playerPrefab;
+    
     readonly static Dictionary<InputDevice, int> persistentPlayerDevices = new (); // TODO: There is a chance that this doesn't work in builds.
     readonly Dictionary<InputDevice, int> playerDevices = new();
 
@@ -25,7 +27,7 @@ public class InputDeviceManager : MonoBehaviour
         
         // Clear the persistent devices if the scene is the Intro scene.
         // This is done to circumvent a bug where the persistent devices are not cleared when the game is restarted. (Due to Enter Playmode Options)
-        if (SceneManagerExtended.ActiveScene is Intro || Logger.DebugMode) persistentPlayerDevices.Clear();
+        if (SceneManagerExtended.ActiveScene is Intro) persistentPlayerDevices.Clear();
     }
 
     void Start() =>
@@ -46,7 +48,8 @@ public class InputDeviceManager : MonoBehaviour
             playerDevices[kvp.Key] = kvp.Value;
             
             string controlScheme      = kvp.Key is Keyboard ? "Keyboard" : "Gamepad";
-            manager.JoinPlayer(kvp.Value, -1, controlScheme, kvp.Key);
+            //manager.JoinPlayer(kvp.Value, -1, controlScheme, kvp.Key);
+            PlayerInput.Instantiate(playerPrefab, playerIndex: kvp.Value, controlScheme, -1, kvp.Key);
 
             Debug.Log($"Player {kvp.Value + 1} joined using {controlScheme} control scheme! \nThis player was loaded in from a previous scene or game restart.");
         }
@@ -82,7 +85,7 @@ public class InputDeviceManager : MonoBehaviour
         InputDevice activeDevice = GetActiveDevice();
 
         // Get the 'allowedScenes' list and check if the current scene allows player to join.
-        List<int> allowedScenes = GetAllowedScenes(Intro, MainMenu, CharacterSelect, Game);
+        List<int> allowedScenes = GetAllowedScenes();
 
         if (!allowedScenes.Contains(SceneManagerExtended.ActiveScene)) return false;
 
@@ -171,7 +174,7 @@ public class InputDeviceManager : MonoBehaviour
     }
 
     #region Utility
-    static List<int> GetAllowedScenes(int Intro, int MainMenu, int CharacterSelect, int Game)
+    static List<int> GetAllowedScenes()
     {
         List<int> allowedScenes = new ()
         { Intro, MainMenu, CharacterSelect };
