@@ -9,7 +9,7 @@ using static UnityEngine.GUILayout;
 public class UtilityWindow : EditorWindow
 {
     // -- Menus --
-
+    
     internal static UtilityWindow window;
     readonly static Vector2 winSize = new (475, 615);
 
@@ -19,11 +19,18 @@ public class UtilityWindow : EditorWindow
     [MenuItem("Tools/Character Management/Utility Window")]
     public static void Open()
     {
-        window              = GetWindow<UtilityWindow>();
-        window.titleContent = new ("Utility Window");
-        window.minSize      = new (winSize.x, winSize.y);
-        window.maxSize      = window.minSize;
-        window.Show();
+        if (window != null)
+        {
+            window.Focus();
+        }
+        else
+        {
+            window              = GetWindow<UtilityWindow>(true);
+            window.titleContent = new ("Utility Window");
+            window.minSize      = new (winSize.x, winSize.y);
+            window.maxSize      = window.minSize;
+            window.Show();
+        }
     }
 
     void OnEnable()
@@ -37,10 +44,8 @@ public class UtilityWindow : EditorWindow
 
         MovesetCreator.LoadExistingMoves();
 
-        activeMenu = DefaultMenu;
+        activeMenu ??= DefaultMenu;
     }
-
-    void OnDisable() => activeMenu = null;
 
     void OnGUI() => activeMenu();
 
@@ -67,19 +72,16 @@ public class UtilityWindow : EditorWindow
         {
             if (Button("Manage Moves", ExpandWidth(true)))
             {
-                MoveCreator.showAttributes = true;
-                MoveCreator.showResources  = true;
-                MoveCreator.showProperties = true;
-                
                 createdSuccessfully = false;
+                
+                activeMenu = MoveCreator.ManageMoveMenu;
                 window.titleContent = new ("Managing Moves...");
-                activeMenu          = MoveCreator.ManageMoveMenu;
-
             }
             
             if (Button("Manage Movesets", ExpandWidth(true)))
             {
                 createdSuccessfully = false;
+                
                 activeMenu          = MovesetCreator.ManageMovesetMenu;
                 window.titleContent = new ("Managing Movesets...");
             }
@@ -87,6 +89,7 @@ public class UtilityWindow : EditorWindow
             if (Button("Manage State Data", ExpandWidth(true)))
             {
                 createdSuccessfully = false;
+                
                 activeMenu          = StateDataManager.ManageStateDataMenu;
                 window.titleContent = new ("Managing State Data...");
             }
@@ -122,7 +125,7 @@ public class UtilityWindow : EditorWindow
             using (new HorizontalScope())
             {
                 FlexibleSpace();
-                Label("1. Click \"Manage Movesets\" or \"Mange Moves\".");
+                Label("1. Click \"Manage Moves\" or \"Mange Movesets\".");
                 FlexibleSpace();
             }
 
@@ -136,7 +139,7 @@ public class UtilityWindow : EditorWindow
             using (new HorizontalScope())
             {
                 FlexibleSpace();
-                Label("3. To create a new move or moveset, click \"Create Moveset\" or \"Create Move\"");
+                Label("3. To create a new move or moveset, click \"Create Move\" or \"Create Moveset\"");
                 FlexibleSpace();
             }
 
@@ -165,24 +168,44 @@ public class UtilityWindow : EditorWindow
     #endregion
 
     #region Utility
-    public static void DrawBackButton()
+    public static bool DrawBackButton()
     {
+        bool isButtonPressed = false;
+
         using (new HorizontalScope())
         {
             FlexibleSpace();
 
             if (Button("Back"))
             {
+                window.titleContent = new ("Utility Window");
+                
                 // -- Move Creator --
                 MoveCreator.ResetMoveCreator();
+                MoveCreator.moveName = string.Empty;
 
                 // -- Moveset Creator --
                 MovesetCreator.ResetMovesetCreator();
 
                 // -- End --
                 activeMenu = DefaultMenu;
+
+                isButtonPressed = true;
             }
         }
+
+        return isButtonPressed;
+    }
+
+    public static string GetFilePathByWindowsExplorer(string defaultFolder = "Moves")
+    {
+        const string folderPath = "Assets/_Project/Runtime/_Scripts/Player/Combat/Scriptable Objects/";
+        
+        string path = EditorUtility.SaveFolderPanel("Choose a folder to save the move in", folderPath, defaultFolder);
+        
+        // Replace the path with the relative path.
+        path = path.Replace(Application.dataPath, "Assets");
+        return path;
     }
 
     /// <summary>

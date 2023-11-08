@@ -12,16 +12,20 @@ namespace Lumina.Debugging
 /// This class is specifically designed to be used within the Unity engine hence derives from MonoBehaviour.
 /// <remarks> FG stands for FightingGame. </remarks>
 /// </summary>
-public static class FGDebugger
+public static class Logger
 {
-    public static bool debugMode = true;
+    [Tooltip("Allows the developer to skip the loading screen, join a player into the game scene directly, among with some other minor QoL changes.")]
+    public static bool DebugMode = true;
+    [Tooltip("Joins an additional player into the game scene for debugging purposes and modifies the players, such as disabling knockback.")]
+    public static bool DebugPlayers = false;
 
-    static FGDebugger()
+    static Logger()
     {
         // Disable the debug mode if we are not in the editor.
-        // It might seem as though this is redundant, but it does in fact run during a build.
+        // It might seem as though this is redundant, but it does in fact execute during a build.
 #if !UNITY_EDITOR
-        debugMode = false;
+        DebugMode = false;
+        DebugPlayers = false;
 #endif
     }
     
@@ -41,10 +45,49 @@ public static class FGDebugger
     public static Level LogLevel { get; set; } = Level.NONE;
     
     // Displays a cyan colored prefix on every debug logs
-    public static string ErrorMessagePrefix { get; private set; } = "<color=cyan>[FGDebugger] ►</color>";
+    public static string ErrorMessagePrefix { get; private set; } = "<color=cyan>[Logger] ►</color>";
 
     // Default error message if no particular message is provided
     const string defaultMessage = "An Error Has Occurred:";
+    
+    /// <summary>
+    /// Generic method for logging an error message.
+    /// Prints the same way of as the Debug.Log() method, but with a prefix.
+    /// </summary>
+    /// <param name="message"></param>
+    /// <param name="logType"></param>
+    public static void Log(string message = "", LogType logType = LogType.Log)
+    {
+        ErrorMessagePrefix = "<color=lightblue>[Log] ►</color>";
+        string logMsg = string.IsNullOrEmpty(message) ? $"{ErrorMessagePrefix} {defaultMessage}" : $"{ErrorMessagePrefix} {message}";
+
+        switch (logType)
+        {
+            case LogType.Log:
+                UnityEngine.Debug.Log(logMsg + "\n");
+                break;
+            
+            case LogType.Error:
+                UnityEngine.Debug.LogError(logMsg + "\n");
+                break;
+
+            case LogType.Warning:
+                UnityEngine.Debug.LogWarning(logMsg + "\n");
+                break;
+            
+            default:
+                UnityEngine.Debug.Log(logMsg + "\n");
+                break;
+        }
+    }
+    
+    /// <summary>
+    /// Overload of the Log method that takes a condition.
+    /// </summary>
+    public static void Log(string message = "", bool condition = false, LogType logType = LogType.Log)
+    {
+        if (condition) Log(message, logType);
+    }
     
     /// <summary>
     /// Logs an informational message with an optional state type.
@@ -57,7 +100,7 @@ public static class FGDebugger
         if ((state == null || state == ActiveStateType) && LogLevel == Level.INFO)
         {
             // Change the prefix color to green for INFO logs
-            ErrorMessagePrefix = "<color=green>[INFO] ►</color>";
+            ErrorMessagePrefix = "<color=cyan>[INFO] ►</color>";
 
             string logMsg = string.IsNullOrEmpty(message) ? $"{ErrorMessagePrefix} {defaultMessage}" : $"{ErrorMessagePrefix} {message}";
             UnityEngine.Debug.Log(logMsg + "\n");
@@ -73,8 +116,7 @@ public static class FGDebugger
     {
         if (states.Contains(ActiveStateType) && LogLevel == Level.INFO)
         {
-            // Change the prefix color to green for INFO logs
-            ErrorMessagePrefix = "<color=green>[INFO] ►</color>";
+            ErrorMessagePrefix = "<color=cyan>[INFO] ►</color>";
             
             string logMsg = string.IsNullOrEmpty(message) ? $"{ErrorMessagePrefix} {defaultMessage}" : $"{ErrorMessagePrefix} {message}";
             UnityEngine.Debug.Log(logMsg + "\n");
@@ -92,8 +134,7 @@ public static class FGDebugger
     {
         if ((state == null || state == ActiveStateType) && LogLevel == Level.DEBUG)
         {
-            // Change the prefix color to cyan for DEBUG logs
-            ErrorMessagePrefix = "<color=cyan>[DEBUG] ►</color>";
+            ErrorMessagePrefix = "<color=green>[DEBUG] ►</color>";
 
             string logMsg = string.IsNullOrEmpty(message) ? $"{ErrorMessagePrefix} {defaultMessage}" : $"{ErrorMessagePrefix} {message}";
 
@@ -124,8 +165,7 @@ public static class FGDebugger
     {
         if (states.Contains(ActiveStateType) && LogLevel == Level.DEBUG)
         {
-            // Change the prefix color to cyan for DEBUG logs
-            ErrorMessagePrefix = "<color=cyan>[DEBUG] ►</color>";
+            ErrorMessagePrefix = "<color=green>[DEBUG] ►</color>";
             string logMsg = string.IsNullOrEmpty(message) ? $"{ErrorMessagePrefix} {defaultMessage}" : $"{ErrorMessagePrefix} {message}";
 
             switch (logType)

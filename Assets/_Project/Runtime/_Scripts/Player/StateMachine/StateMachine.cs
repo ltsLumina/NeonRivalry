@@ -14,7 +14,7 @@ using static UnityEditor.EditorGUILayout;
 /// The state machine that handles the player's state.
 /// Allows for easy state transitions and state management.
 /// </summary>
-[RequireComponent(typeof(PlayerController))]
+[RequireComponent(typeof(PlayerController)), DefaultExecutionOrder(-300)]
 public class StateMachine : MonoBehaviour
 {
     [SerializeField] StateMachineData stateData;
@@ -54,7 +54,7 @@ public class StateMachine : MonoBehaviour
         
         // Checks if the current state is null, or if the new state has a higher priority than the current state.
         // If the new state has a lower or equal priority, the current state is entered like normal.
-        if (CurrentState != null && newState.Priority > CurrentState.Priority /*&& CurrentState.CanBeInterrupted()*/)
+        if (CurrentState != null && newState.Priority > CurrentState.Priority)
         {
             // If the current state can be interrupted, we exit the current state.
             CurrentState?.OnExit();
@@ -70,7 +70,10 @@ public class StateMachine : MonoBehaviour
     }
 
     // Runs the current state's update method. (Fixed interval of 60 calls per second)
-    public void FixedUpdate() => CurrentState?.UpdateState();
+    public void FixedUpdate()
+    {
+        CurrentState?.UpdateState(); 
+    }
 
     /// <summary>
     /// Handles the transition between states.
@@ -81,11 +84,13 @@ public class StateMachine : MonoBehaviour
         // Do NOT run any other code than the CheckStateDataThenExecute() method in this switch statement.
         switch (state)
         {
+            // Note: The 'when X condition' checks that we perform on each case seem to be redundant.
+            
             case Idle:
                 SetState(new IdleState(Player)); //TODO: Add state data, potentially. (Such as idleTimeThreshold. Currently handled in the player controller.)
                 break;
             
-            case Walk when Player.IsGrounded(): 
+            case Walk when Player.IsGrounded():
                 CheckStateDataThenExecute(stateData.moveStateData, data => SetState(new MoveState(Player, data)));
                 break;
             
@@ -185,10 +190,10 @@ public class StateMachineEditor : Editor
         {
             {"IsGrounded", player.IsGrounded()},
             {"IsMoving", player.IsMoving()},
-            {"IsJumping", player.IsJumping()},
+            {"IsJumping", player.IsJumping()}, // Bug: Returns an error as the rigidbody of the player is null outside of playmode.
             {"IsFalling", player.IsFalling()},
             {"IsAttacking", player.IsAttacking()},
-            // {"IsAirborneAttacking", player.IsAirborneAttacking()}
+            {"IsAirborneAttacking", player.IsAirborneAttacking()}
         };
 
         LabelField("Current State", stateMachine.CurrentState?.GetType().Name);

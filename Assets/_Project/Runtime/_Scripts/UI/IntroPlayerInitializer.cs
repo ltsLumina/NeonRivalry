@@ -1,10 +1,10 @@
 using System.Collections;
-using Lumina.Debugging;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
+using Logger = Lumina.Debugging.Logger;
 using Random = UnityEngine.Random;
 
 /// <summary>
@@ -27,7 +27,7 @@ public class IntroPlayerInitializer : MonoBehaviour
 
         // Check if debug mode is enabled, and if so, skip the loading screen.
         // Else, start the loading screen.
-        StartCoroutine(!FGDebugger.debugMode ? LoadingScreenRoutine() : DebugSkipLoadingScreen());
+        StartCoroutine(!Logger.DebugMode ? LoadingScreenRoutine() : DebugSkipLoadingScreen());
 
         yield break;
         IEnumerator LoadingScreenRoutine() //TODO: Make a UI_Utility class that handles things like loading screens etc.

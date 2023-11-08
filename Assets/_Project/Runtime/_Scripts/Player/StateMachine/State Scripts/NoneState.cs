@@ -1,5 +1,5 @@
-﻿using Lumina.Debugging;
-using UnityEngine;
+﻿using UnityEngine;
+using Logger = Lumina.Debugging.Logger;
 
 public class NoneState : State
 {
@@ -9,14 +9,9 @@ public class NoneState : State
     public NoneState(PlayerController player) : base(player)
     { }
 
-    public override bool CanBeInterrupted()
-    {
-        return interruptibilityRules[Type];
-    }
-
     public override void OnEnter()
     {
-        FGDebugger.Info("'None' state selected. This state is used when there is no state to transition to, or there is no player.");
+        Logger.Info("'None' state selected. This state is used when there is no state to transition to, or there is no player.");
         player.GetComponentInChildren<SpriteRenderer>().color = Color.grey;
     }
 

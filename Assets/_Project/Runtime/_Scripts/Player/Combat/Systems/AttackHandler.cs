@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Lumina.Debugging;
 using UnityEngine;
+using Logger = Lumina.Debugging.Logger;
 
 public class AttackHandler
 {
@@ -54,24 +54,28 @@ public class AttackHandler
     /// The attack to perform is determined by finding the first move in the attack moves list that matches the direction to perform (if any).
     /// The attack is then performed by calling <see cref="PerformAttack"/>.
     /// </remarks>
-    public void SelectAttack(InputManager.AttackType attackType)
+    /// <returns>True if the attack was selected successfully; otherwise, false.</returns>
+    public bool SelectAttack(InputManager.AttackType attackType)
     {
         List<MoveData> attackMoves = GetAttackMoves(attackType);
 
         // If there are no attack moves available, then return without performing a move
-        if (attackMoves == null) return;
+        if (attackMoves == null) return false;
 
         // Get the current movement input of the player
         Vector2 input = player.InputManager.MoveInput;
 
         // Determine the direction of attack based on whether the player is currently airborne or not
         MoveData.Direction directionToPerform = player.IsAirborne() ? MoveData.Direction.Airborne : GetDirectionFromInput(input);
+        
+        Logger.Trace("Attack direction determined. It has been set to: " + directionToPerform, new[]
+                         { State.StateType.Attack, State.StateType.AirborneAttack });
 
         // Select the appropriate attack move based on the direction of the attack
         MoveData selectedAttack = attackMoves.FirstOrDefault(move => move.direction == directionToPerform);
 
         // Perform the selected attack move
-        PerformAttack(selectedAttack, directionToPerform, attackType);
+        return PerformAttack(selectedAttack, directionToPerform, attackType);
     }
 
     /// <summary>
@@ -85,12 +89,14 @@ public class AttackHandler
     /// After assigning direction to action map, an animation corresponding to the direction and type of attack is being played.
     /// A debug message is also logged specifying the attack type being performed in conjunction with the direction.
     /// </remarks>
-    void PerformAttack(MoveData selectedAttack, MoveData.Direction directionToPerform, InputManager.AttackType type)
+    /// <returns>True if the attack was performed successfully; otherwise, false.</returns>
+    bool PerformAttack(MoveData selectedAttack, MoveData.Direction directionToPerform, InputManager.AttackType type)
     {
         if (selectedAttack == null)
         {
-            Debug.LogWarning("There is no move that corresponds to the direction that the player is pressing. \nPlease assign a move in the moveset.");
-            return;
+            Logger.Log("There is no move that corresponds to the direction that the player is pressing. \nPlease assign a move in the moveset.", LogType.Warning);
+            Logger.Log("Returned out of an attack early. \nThis means the player might behave unexpectedly.", LogType.Warning);
+            return false;
         }
 
         // Get the animation index based on the direction to perform.
@@ -102,9 +108,11 @@ public class AttackHandler
         string attackType = Enum.GetName(typeof(InputManager.AttackType), type);
         string logMessage = $"Performing {attackType} attack in the {directionToPerform} direction.";
 
-        FGDebugger.Debug
+        Logger.Debug
         (logMessage, LogType.Log, new[]
          { State.StateType.Attack, State.StateType.AirborneAttack });
+
+        return true;
     }
 
     /// <summary>
@@ -116,7 +124,7 @@ public class AttackHandler
     /// <remarks>
     /// The method sets the animator parameters based on the type of attack and the index provided, and then triggers the attack animation.
     /// The name of the parameter in the animator must be the same as the name of the attack type.
-    /// It also records this action to the FGDebugger for traceability purposes.
+    /// It also records this action to the Logger for traceability purposes.
     /// </remarks>
     void PlayAnimation(MoveData move, int animationIndex, InputManager.AttackType type)
     {
@@ -133,7 +141,7 @@ public class AttackHandler
         // If the attack type is airborne, then the animation index is always 0.
         animator.SetTrigger(attackType);
 
-        FGDebugger.Trace
+        Logger.Trace
         ($"Attack animation played. Animator parameters set to: \n{attackType} = true \nAnimation Index = {animationIndex}", new[]
          { State.StateType.Attack, State.StateType.AirborneAttack });
     }
@@ -156,40 +164,38 @@ public class AttackHandler
         switch (attackType)
         {
             case InputManager.AttackType.Punch:
-                return moveset.punchMoves;
+                return moveset.PunchMoves;
 
             case InputManager.AttackType.Kick:
-                return moveset.kickMoves;
+                return moveset.KickMoves;
 
             case InputManager.AttackType.Slash:
-                return moveset.slashMoves;
+                return moveset.SlashMoves;
 
             case InputManager.AttackType.Airborne:
-                return moveset.airborneMoves;
+                return moveset.AirborneMoves;
 
             case InputManager.AttackType.Unique:
-                return moveset.uniqueMoves;
+                return moveset.UniqueMoves;
 
             case InputManager.AttackType.None:
             default:
                 Debug.LogWarning($"The current attack type \"{attackType}\" is not valid. " + "\nIf you got this error then I am honestly impressed.");
-                return new ();
+                return null;
         }
     }
-    
+
     /// <summary>
     ///     Returns the direction that the player is pressing.
-    ///     Does not include the "Airborne" direction as that is handled separately.
+    ///     Does not include the "Airborne" direction as that is handled separately within
+    ///     the <see cref="SelectAttack" /> method.
     /// </summary>
-    /// <param name="input"> The player's input. </param>
+    /// <param name="inputDirection"> The direction the player is inputting. </param>
     /// <returns> The direction that the player is pressing. </returns>
-    static MoveData.Direction GetDirectionFromInput(Vector2 input)
-    {
-        // If the player is not inputting a direction, the move that will be performed is the "Neutral" move.
-        if (input == Vector2.zero) return MoveData.Direction.Neutral;
-
-        // If the player is inputting a direction, execute the action that corresponds to the direction that the player is pressing.
-        return input.x != 0 ? MoveData.Direction.Horizontal : MoveData.Direction.Crouch;
-    }
+    static MoveData.Direction GetDirectionFromInput(Vector2 inputDirection) => inputDirection switch
+    { _ when inputDirection   == Vector2.zero => MoveData.Direction.Neutral,
+      _ when inputDirection.x != 0            => MoveData.Direction.Horizontal,
+      _ when inputDirection.y < 0             => MoveData.Direction.Crouch,
+      _                                       => MoveData.Direction.Neutral };
     #endregion
 }

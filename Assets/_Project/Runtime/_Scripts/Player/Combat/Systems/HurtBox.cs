@@ -1,26 +1,30 @@
 ﻿#region
+using System;
+using System.Diagnostics.CodeAnalysis;
 using Lumina.Essentials.Sequencer;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using Logger = Lumina.Debugging.Logger;
 #endregion
 
 public class HurtBox : MonoBehaviour
 {
-    // DEBUG VALUE:
-    [SerializeField] int health = 100;
-    
     PlayerController player;
-    Rigidbody RB;
-    
-    public delegate void HurtBoxHitAction(HitBox hitBox);
-    public event HurtBoxHitAction OnHurtBoxHit;
+    new Rigidbody rigidbody;
+
+    public delegate void HurtBoxHit(HitBox hitBox);
+    public event HurtBoxHit OnHurtBoxHit;
 
     void Awake()
     {
-        player = GetComponentInParent<PlayerController>();
-        RB = player.GetComponent<Rigidbody>();
+        player    = GetComponentInParent<PlayerController>();
+        rigidbody = player.GetComponent<Rigidbody>();
     }
 
-    void Start() => OnHurtBoxHit += OnTakeDamage;
+    void OnEnable() => OnHurtBoxHit += OnTakeDamage;
+
+    //player.Healthbar.OnHealthChanged += healthbarValue => Debug.Log($"Healthbar value changed to {healthbarValue}!");
+    void OnDisable() => OnHurtBoxHit -= OnTakeDamage;
 
     void OnTriggerEnter(Collider other)
     {
@@ -28,12 +32,24 @@ public class HurtBox : MonoBehaviour
         if (hitBox != null) OnHurtBoxHit?.Invoke(hitBox);
     }
     
+    [SuppressMessage("ReSharper", "ConvertToLocalFunction")]
     void OnTakeDamage(HitBox hitBox)
     {
+        int health = player.Healthbar.Value;
+        
         Debug.Log($"HurtBox hit by {hitBox.name} and took {hitBox.DamageAmount} damage!");
         
+        // psuedo code:
+        // if (player.StateMachine.CurrentState is BlockState)
+        // {
+        //     // perform block related stuff
+        //     // make blockstate subscribe to OnHurtBoxHit and do the following:
+        //     // - on hit, execute the animation
+        // }
+        
+        
         // Take damage.
-        health -= hitBox.DamageAmount;
+        if (!player.Healthbar.Invincible) health -= hitBox.DamageAmount;
         player.Healthbar.Value = health;
 
         //TODO: Temporary for 25% Assignment
@@ -43,24 +59,37 @@ public class HurtBox : MonoBehaviour
         var flash = new Sequence(this);
         
         var meshRenderer  = player.GetComponentInChildren<SkinnedMeshRenderer>();
-        var originalColor = meshRenderer.material.color;
-        
-        flash.WaitThenExecute(0.1f, () => meshRenderer.material.color = Color.red).WaitThenExecute(0.1f, () => meshRenderer.material.color = originalColor);
-        
+
+        int    emissionColorId  = Shader.PropertyToID("_EmissionColor");
+        var    originalColor    = meshRenderer.material.GetColor(emissionColorId);
+        Action setRedColor      = () => SetColor(emissionColorId, Color.red);
+        Action setOriginalColor = () => SetColor(emissionColorId, originalColor);
+
+        flash.Execute(setRedColor).WaitThenExecute(0.15f, setOriginalColor);
+
+        void SetColor(int colorId, Color color) => meshRenderer.material.SetColor(colorId, color);
+
         // Temporary: Disable input for a short time.
         Sequence         disableInput   = new(this);
         PlayerController oppositePlayer = player.PlayerID == 1 ? PlayerManager.PlayerTwo : PlayerManager.PlayerOne;
         disableInput.Execute(() => oppositePlayer.PlayerInput.enabled = false).WaitThenExecute(0.5f, () => oppositePlayer.PlayerInput.enabled = true);
         #endregion
-        
-        Debug.Log($"Health: {health}");
 
         if (health <= 0)
         {
-            Debug.Log("Player is dead!");
+            Gamepad.current.Rumble(this);
             
-            var delayLoad = new Sequence(this);
-            delayLoad.WaitThenExecute(0.35f, () => SceneManagerExtended.LoadScene(SceneManagerExtended.ActiveScene));
+            //may god save us
+            // RoundManager.player1WonRoundsText.text = $"Rounds won: \n{FindObjectOfType<RoundManager>().player1WonRounds}/2";
+            // FindObjectOfType<RoundManager>().player1WonRounds++;
+            // FindObjectOfType<RoundManager>().currentRounds++;
+            Debug.Log("Player is dead!");
+
+            if (!Logger.DebugPlayers)
+            {
+                var delayLoad = new Sequence(this);
+                delayLoad.WaitThenExecute(0.35f, () => SceneManagerExtended.LoadScene(SceneManagerExtended.ActiveScene));
+            }
         }
         
         // Knock player back
@@ -69,9 +98,12 @@ public class HurtBox : MonoBehaviour
 
     void Knockback()
     {
+        // Don't knockback players while debugging.
+        if (Logger.DebugPlayers) return;
+        
         // Knockback the player based on the sign of the Y-rotation.
         float knockbackForce     = 450f;
         float knockbackDirection = -Mathf.Sign(transform.rotation.y);
-        RB.AddForce(knockbackDirection * knockbackForce * Vector3.right);
+        rigidbody.AddForce(knockbackDirection * knockbackForce * Vector3.right);
     }
 }

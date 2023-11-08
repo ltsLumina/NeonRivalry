@@ -1,83 +1,106 @@
-﻿using System;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
+using Logger = Lumina.Debugging.Logger;
 
 [CustomEditor(typeof(HealthbarManager))]
 public class HealthbarManagerEditor : Editor
 {
+    static HealthbarManager manager;
+
+    void OnEnable() => manager = (HealthbarManager) target;
+
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
-        
-        var manager = (HealthbarManager) target;
+
+        if (manager == null)
+        {
+            Logger.Debug("HealthbarManager is null.", LogType.Exception);
+            return;
+        } 
+
+        if (HealthbarManager.Healthbars.Count == 0) return;
 
         DisplaySectionTitle("Healthbar Values");
         
-        if (manager != null) AdjustSliders(manager);
+        AdjustSliders();
 
         DisplaySectionTitle("Debugging Tools");
         
-        SetHealth(manager);
+        SetHealth();
+        
+        DebugToggles();
+    }
+
+    static void DebugToggles()
+    {
+        GUILayout.Space(15);
+
+        GUILayout.Label("Debugging Toggles", EditorStyles.boldLabel);
+
+        for (int index = 0; index < HealthbarManager.Healthbars.Count; index++)
+        {
+            Healthbar healthbar = HealthbarManager.Healthbars[index];
+            GUILayout.Label($"Player {index + 1}", EditorStyles.boldLabel);
+            healthbar.Invincible = EditorGUILayout.Toggle("Invincible: ", healthbar.Invincible);
+        }
     }
 
     static void DisplaySectionTitle(string title) 
     {
+        if (HealthbarManager.Healthbars.Count == 0) title = "No Healthbars Found";
+
         EditorGUILayout.Space(15);
         EditorGUILayout.LabelField(title, EditorStyles.largeLabel, GUILayout.Height(20));
         EditorGUILayout.Space();
     }
 
-    static void SetHealth(HealthbarManager manager)
+    static void SetHealth()
     {
-        Healthbar playerOne = GetHealthbar(manager, 0);
-        Healthbar playerTwo = GetHealthbar(manager, 1);
+        GUILayout.Label("Set Health", EditorStyles.boldLabel);
 
-        if (playerOne != null || playerTwo != null)
-        {
-            SetSliderValues(playerOne, playerTwo, 100);
-            SetSliderValues(playerOne, playerTwo, 0);
-        }
+        SetSliderValues(HealthbarManager.PlayerOne, HealthbarManager.PlayerTwo, 100);
+        SetSliderValues(HealthbarManager.PlayerOne, HealthbarManager.PlayerTwo, 50);
+        SetSliderValues(HealthbarManager.PlayerOne, HealthbarManager.PlayerTwo, 25);
+        SetSliderValues(HealthbarManager.PlayerOne, HealthbarManager.PlayerTwo, 0);
     }
 
     #region Utility
-    static Healthbar GetHealthbar(HealthbarManager manager, int index) =>
-        manager.Healthbars.Count > index ? manager.Healthbars[index] : null;
-
+    // ReSharper disable Unity.PerformanceAnalysis
     static void SetSliderValues(Healthbar playerOne, Healthbar playerTwo, float value)
     {
-        using (new EditorGUILayout.HorizontalScope())
+        using (new GUILayout.HorizontalScope())
         {
             if (GUILayout.Button($"Set Left to {value}"))
-                try { playerOne.Slider.value = value; } 
-                catch (NullReferenceException e)
-                {
-                    Debug.LogError($"Player One Healthbar is null. \n {e}");
-                    throw;
-                }
+            {
+                if (playerOne != null) playerOne.Slider.value = value;
+                else Debug.LogError($"Player One Healthbar is null.");
+            }
+
+            // Return early if there is only one healthbar.
+            if (HealthbarManager.Healthbars.Count < 2) return;
 
             if (GUILayout.Button($"Set Right to {value}"))
-                try { playerTwo.Slider.value = value; } 
-                catch (NullReferenceException e)
-                {
-                    Debug.LogError($"Player One Healthbar is null. \n {e}");
-                    throw;
-                }
+            {
+                if (playerTwo != null) playerTwo.Slider.value = value;
+                else Debug.LogError($"Player Two Healthbar is null.");
+            }
         }
     }
     #endregion
 
-    static void AdjustSliders(HealthbarManager manager)
+    static void AdjustSliders()
     {
-        if (manager.Healthbars.Count >= 1) AdjustHealthbarSlider(manager.Healthbars[0], "Left Healthbar");
-        if (manager.Healthbars.Count >= 2) AdjustHealthbarSlider(manager.Healthbars[1], "Right Healthbar");
+        if (HealthbarManager.Healthbars.Count >= 1) AdjustHealthbarSlider(HealthbarManager.PlayerOne, "Left Healthbar");
+        if (HealthbarManager.Healthbars.Count >= 2) AdjustHealthbarSlider(HealthbarManager.PlayerTwo, "Right Healthbar");
     }
 
-    static void AdjustHealthbarSlider(Healthbar player, string label)
+    static void AdjustHealthbarSlider(Healthbar healthbar, string label)
     {
-        if (player != null)
+        if (healthbar != null)
         {
             EditorGUILayout.LabelField(label, EditorStyles.boldLabel);
-            player.Slider.value = EditorGUILayout.IntSlider((int) player.Slider.value, 0, 100);
+            healthbar.Slider.value = EditorGUILayout.IntSlider((int) healthbar.Slider.value, 0, 100);
         }
     }
 }
