@@ -14,10 +14,15 @@ public class AirborneAttackStateData : DefaultStateData
     [SerializeField] float fallGravityMultiplier;
     [SerializeField] float jumpHaltForce;
     
+    [Tooltip("The amount of time the player must be in the air before they can attack.")]
+    [SerializeField] float requiredAirTime;
+    
     // -- Properties --
 
     public Moveset Moveset => moveset;
     
     public float FallGravityMultiplier => fallGravityMultiplier;
     public float JumpHaltForce => jumpHaltForce;
+    
+    public float RequiredAirTime => requiredAirTime;
 }

@@ -44,10 +44,8 @@ public class UtilityWindow : EditorWindow
 
         MovesetCreator.LoadExistingMoves();
 
-        activeMenu = DefaultMenu;
+        activeMenu ??= DefaultMenu;
     }
-
-    void OnDisable() => activeMenu = null;
 
     void OnGUI() => activeMenu();
 

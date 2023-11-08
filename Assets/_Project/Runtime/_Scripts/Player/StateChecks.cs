@@ -84,7 +84,7 @@ public partial class PlayerController // StateChecks.cs
         bool isAirborne = !IsGrounded() || StateMachine.CurrentState is JumpState
         { IsJumping: true } or FallState
         { IsFalling: true } or AirborneAttackState
-        { IsAirborneAttacking: true, IsAirborne: true };
+        { IsAirborne: true };
         
         Logger.Trace($"IsAirborne() is {isAirborne}", new [] { State.StateType.Jump , State.StateType.Fall, State.StateType.AirborneAttack });
 
@@ -106,7 +106,7 @@ public partial class PlayerController // StateChecks.cs
     
     public bool CanMove() => IsIdle();
 
-    public bool CanJump() => IsGrounded();
+    public bool CanJump() => IsGrounded() && !IsAttacking() && !IsAirborneAttacking();
 
     public bool CanFall() => IsAirborne();
 

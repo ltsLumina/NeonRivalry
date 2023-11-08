@@ -7,12 +7,9 @@ using Logger = Lumina.Debugging.Logger;
 public class InputDeviceManager : MonoBehaviour
 {
     [SerializeField] GameObject playerPrefab;
-    
+
     readonly static Dictionary<InputDevice, int> persistentPlayerDevices = new (); // TODO: There is a chance that this doesn't work in builds.
     readonly Dictionary<InputDevice, int> playerDevices = new();
-
-    // -- Cached References --
-    PlayerInputManager manager;
     
     // -- Scenes --
     
@@ -23,8 +20,6 @@ public class InputDeviceManager : MonoBehaviour
 
     void Awake()
     {
-        manager = PlayerInputManager.instance;
-        
         // Clear the persistent devices if the scene is the Intro scene.
         // This is done to circumvent a bug where the persistent devices are not cleared when the game is restarted. (Due to Enter Playmode Options)
         if (SceneManagerExtended.ActiveScene is Intro) persistentPlayerDevices.Clear();

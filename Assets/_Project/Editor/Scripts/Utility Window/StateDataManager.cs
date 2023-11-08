@@ -27,7 +27,7 @@ public static class StateDataManager // NOTE: I haven't put as much effort into 
       // add more states here once they exist.
     };
 
-    public static void ManageStateDataMenu()
+    public static void ManageStateDataMenu() // Note: This method has not yet been refactored. Be aware that it is a mess.
     {
         scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
 

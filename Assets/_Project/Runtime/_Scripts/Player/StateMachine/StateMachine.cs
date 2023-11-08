@@ -14,7 +14,7 @@ using static UnityEditor.EditorGUILayout;
 /// The state machine that handles the player's state.
 /// Allows for easy state transitions and state management.
 /// </summary>
-[RequireComponent(typeof(PlayerController))]
+[RequireComponent(typeof(PlayerController)), DefaultExecutionOrder(-300)]
 public class StateMachine : MonoBehaviour
 {
     [SerializeField] StateMachineData stateData;
@@ -84,11 +84,13 @@ public class StateMachine : MonoBehaviour
         // Do NOT run any other code than the CheckStateDataThenExecute() method in this switch statement.
         switch (state)
         {
+            // Note: The 'when X condition' checks that we perform on each case seem to be redundant.
+            
             case Idle:
                 SetState(new IdleState(Player)); //TODO: Add state data, potentially. (Such as idleTimeThreshold. Currently handled in the player controller.)
                 break;
             
-            case Walk when Player.IsGrounded(): 
+            case Walk when Player.IsGrounded():
                 CheckStateDataThenExecute(stateData.moveStateData, data => SetState(new MoveState(Player, data)));
                 break;
             

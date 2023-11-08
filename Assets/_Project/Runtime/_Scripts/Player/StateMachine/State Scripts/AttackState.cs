@@ -73,14 +73,14 @@ public class AttackState : State
 
         if (player.IsGrounded()) { Logger.Debug("Attacking on the ground!", LogType.Log, StateType.Attack); }
 
-        // Player has become airborne after starting the attack, cancel the attack. (e.g. player gets knocked into the air) 
-        else
-        {
-            Logger.Debug("Player has been knocked into the air! \nCancelling the attack...", LogType.Log, StateType.Attack);
-
-            // Cancel the attack.
-            OnExit();
-        }
+        // // Player has become airborne after starting the attack, cancel the attack. (e.g. player gets knocked into the air) 
+        // else
+        // {
+        //     Logger.Debug("Player has been knocked into the air! \nCancelling the attack...", LogType.Log, StateType.Attack);
+        //
+        //     // Cancel the attack.
+        //     OnExit();
+        // }
 
         // i figured it out.
         // attackAnimationLength is the length of the IDLE ANIMATION, not the attack animation. :'(
