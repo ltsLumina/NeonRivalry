@@ -38,6 +38,7 @@ public abstract class State
         Fall,
         Attack,
         Block,
+        Dash,
         HitStun,    // HitStun indicates that the player has been hit and is unable to move or attack for a short period of time.
         Knockdown,  // Knockdown indicates that the player has been knocked down and is unable to move or attack for a short period of time.
         Dead,       // Dead indicates that the player has died and is unable to move or attack. This takes priority over all other states and should always be the highest priority.
@@ -54,6 +55,7 @@ public abstract class State
       { Fall, 5 },
       { Attack, 6 },
       { Block, 7 },
+      { Dash, 7 },
       { HitStun, 8 },
       { Knockdown, 10 },
       { Dead, 99 },
@@ -79,6 +81,7 @@ public abstract class State
       { Run, true },
       { Jump, true },
       { Fall, true },
+      {Dash, true },
       { Attack, false },
       { Dead, false },
       { None, false } };
