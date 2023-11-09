@@ -16,15 +16,6 @@ public class LockToDollyPath : MonoBehaviour
 
     void Awake() => virtualCam = GetComponent<CinemachineVirtualCamera>();
 
-    void Update()
-    {
-        // Note: This doesn't work whatsoever.
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            FollowPlayer(PlayerManager.PlayerOne.transform);
-        }
-    }
-
     public void FollowPlayer(Transform winPlayer)
     {
         dollyCart.m_Speed = dollyCartSpeed;
