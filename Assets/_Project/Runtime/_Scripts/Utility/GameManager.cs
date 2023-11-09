@@ -27,10 +27,5 @@ public class GameManager : MonoBehaviour
         {
             Application.Quit();
         }
-
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            SceneManagerExtended.LoadScene(0);
-        }
     }
 }
