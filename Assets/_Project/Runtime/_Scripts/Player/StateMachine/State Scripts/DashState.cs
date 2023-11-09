@@ -48,14 +48,15 @@ public class DashState : State
             dashing   =  true;
         }
 
-        if (dashTimer < 0) dashing = false;
+        if (dashTimer < 0)
+        {
+            dashing = false;
+            OnExit();
+        }
     }
 
-    public override void OnExit()
-    {
-        Logger.Trace("Exiting Dash State", Type);
-    }
-        #endregion
+    public override void OnExit() => Logger.Trace("Exiting Dash State", Type);
+    #endregion
 
     IEnumerator HandleDashing()
     {

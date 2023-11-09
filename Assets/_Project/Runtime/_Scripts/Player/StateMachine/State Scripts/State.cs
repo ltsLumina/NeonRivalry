@@ -51,7 +51,7 @@ public abstract class State
       { Fall, 5 },
       { Attack, 6 },
       { AirborneAttack, 6 },
-      {Dash, 7 },
+      { Dash, 7 },
       { Block, 7 },
       { HitStun, 8 },
       { Knockdown, 10 },
