@@ -110,6 +110,10 @@ public class StateMachine : MonoBehaviour
                 CheckStateDataThenExecute(stateData.airborneAttackStateData, data => SetState(new AirborneAttackState(Player, data)));
                 break;
 
+            case Dash when Player.CanDash():
+                CheckStateDataThenExecute(stateData.dashStateData, data => SetState(new DashState(Player, data)));
+                break;
+            
             // - Unused States -
             case Knockdown:
                 break;
@@ -165,6 +169,7 @@ internal struct StateMachineData
     public FallStateData fallStateData;
     public AttackStateData attackStateData;
     public AirborneAttackStateData airborneAttackStateData;
+    public DashStateData dashStateData;
 }
 
 #if UNITY_EDITOR

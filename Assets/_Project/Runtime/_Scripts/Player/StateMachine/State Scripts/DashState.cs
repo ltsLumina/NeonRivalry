@@ -1,32 +1,39 @@
+#region
 using System.Collections;
 using UnityEngine;
+using Logger = Lumina.Debugging.Logger;
+#endregion
 
 public class DashState : State
 {
-    private float dashDuration;
-    private float dashSpeed;
-    private float dashSleepTime;
-    private float dashInputBufferTime;
+    float dashDuration;
+    float dashSpeed;
+    float dashSleepTime;
+    float dashInputBufferTime;
 
-    private float dashDir;
-    private float dashTimer;
-    private bool dashing;
+    float dashDir;
+    float dashTimer;
+    bool dashing;
 
     public override StateType Type => StateType.Dash;
     public override int Priority => statePriorities[Type];
 
     public DashState(PlayerController player, DashStateData stateData) : base(player)
     {
-        dashDuration = stateData.DashDuration;
-        dashSpeed = stateData.DashSpeed;
-        dashSleepTime = stateData.DashSleepTime;
+        dashDuration        = stateData.DashDuration;
+        dashSpeed           = stateData.DashSpeed;
+        dashSleepTime       = stateData.DashSleepTime;
         dashInputBufferTime = stateData.DashInputBufferTime;
     }
+
+    #region State Methods
     public override void OnEnter()
     {
+        player.GetComponentInChildren<SpriteRenderer>().color = new (0.2f, 1f, 0.67f);
+
         Vector3 moveInput = player.InputManager.MoveInput;
 
-        dashDir = (int)moveInput.x;
+        dashDir = (int) moveInput.x;
 
         player.Rigidbody.useGravity = false;
 
@@ -35,35 +42,29 @@ public class DashState : State
 
     public override void UpdateState()
     {
-        if(dashTimer > 0)
+        if (dashTimer > 0)
         {
             dashTimer -= Time.deltaTime;
-            dashing = true;
+            dashing   =  true;
         }
 
-        if(dashTimer < 0)
-        {
-            dashing = false;
-        }
+        if (dashTimer < 0) dashing = false;
     }
 
     public override void OnExit()
     {
-        throw new System.NotImplementedException();
+        Logger.Trace("Exiting Dash State", Type);
     }
+        #endregion
 
-    private IEnumerator HandleDashing()
+    IEnumerator HandleDashing()
     {
         yield return new WaitForSeconds(dashSleepTime);
         dashTimer = dashDuration;
-        while(dashing)
-        {
-            player.Rigidbody.velocity = dashDir * dashSpeed * Vector3.right;
-        }
+        while (dashing) player.Rigidbody.velocity = dashDir * dashSpeed * Vector3.right;
         player.Rigidbody.useGravity = true;
 
         OnExit();
         yield return new WaitForEndOfFrame();
     }
-
 }
