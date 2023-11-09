@@ -12,15 +12,22 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(PlayerInput))]
 public class InputManager : MonoBehaviour
 {
+    /// <summary>
+    /// Enum for Attack Types.
+    /// </summary>
     public enum AttackType
     {
         None,
         Punch,
         Kick,
         Slash,
+        Airborne,
         Unique
     }
 
+    /// <summary>
+    /// Gets or sets the last pressed attack type.
+    /// </summary>
     public AttackType LastAttackPressed { get; set; } = AttackType.None;
     
     [Header("Read-Only Fields")]
@@ -30,103 +37,91 @@ public class InputManager : MonoBehaviour
     PlayerController player;
     StateMachine stateMachine;
 
-    // Serialized InputAction. Must be public as it can't be serialized through [SerializeField].
-    public InputAction runKeyModifier;
-
-    // temporary
-    bool isRunningKeyHeld;
-
+    /// <summary>
+    /// Gets or sets the move input.
+    /// </summary>
     public Vector2 MoveInput
     {
         get => moveInput;
         private set => moveInput = value;
     }
 
-    void OnEnable() => runKeyModifier.Enable();
-
-    void OnDisable() => runKeyModifier.Disable();
-
+    /// <summary>
+    /// Called when the script instance is being loaded.
+    /// </summary>
     void Awake()
     {
         player       = GetComponentInParent<PlayerController>();
         stateMachine = player.GetComponent<StateMachine>();
-        
-        // Disable the PlayerInput on the UI Navigation 
     }
-
-    void Update()
-    {
-        if (runKeyModifier.triggered)
-        {
-            isRunningKeyHeld = true;
-            Debug.Log($"isRunning: {isRunningKeyHeld}");
-        }
-    }
-
-    // -- Input Handling --
     
+    // -- Input Handling --
+
+    /// <summary>
+    /// Handles the move input from the player.
+    /// <para></para>
+    /// Calls a necessary transition in the player's state machine if the player
+    /// is in a state where movement is a valid action.
+    /// </summary>
+    /// <param name="context">The context from the input system containing movement input values</param>
     public void OnMove(InputAction.CallbackContext context)
     {
         MoveInput = context.ReadValue<Vector2>();
-        
-        if (context.performed && player.CanMove())
-        {
-            stateMachine.TransitionToState(State.StateType.Walk);
-        }
+        TransitionTo(context, player.CanMove, State.StateType.Walk);
     }
 
-    public void OnJump(InputAction.CallbackContext context)
-    {
-        if (context.performed && player.CanJump())
-        {
-            stateMachine.TransitionToState(State.StateType.Jump);
-        }
-    }
+    /// <summary>
+    /// Handles jump input.
+    /// </summary>
+    public void OnJump(InputAction.CallbackContext context) => TransitionTo(context, player.CanJump, State.StateType.Jump);
 
-    [Obsolete("Use OnPunch, OnKick, OnSlash, or OnUnique instead.")]
-    public void OnAttack(InputAction.CallbackContext context)
+    /// <summary>
+    /// Handles state transition.
+    /// </summary>
+    void TransitionTo(InputAction.CallbackContext context, Func<bool> condition, State.StateType stateType)
     {
-        if (context.performed && player.CanAttack())
-        {
-            stateMachine.TransitionToState(State.StateType.Attack);
-        }
+        if (context.performed && condition()) stateMachine.TransitionToState(stateType);
     }
 
     #region Attack Input Handling
 
-    public void OnPunch(InputAction.CallbackContext context)
+    /// <summary>
+    /// Handles punch input.
+    /// </summary>
+    public void OnPunch(InputAction.CallbackContext context) => PerformAttack(context, AttackType.Punch);
+
+    /// <summary>
+    /// Handles kick input.
+    /// </summary>
+    public void OnKick(InputAction.CallbackContext context) => PerformAttack(context, AttackType.Kick);
+
+    /// <summary>
+    /// Handles slash input.
+    /// </summary>
+    public void OnSlash(InputAction.CallbackContext context) => PerformAttack(context, AttackType.Slash);
+
+    /// <summary>
+    /// Handles unique input.
+    /// </summary>
+    public void OnUnique(InputAction.CallbackContext context) => PerformAttack(context, AttackType.Unique);
+
+    /// <summary>
+    /// Performs attack action.
+    /// </summary>
+    void PerformAttack(InputAction.CallbackContext context, AttackType attackType)
     {
-        if (context.performed && player.CanAttack())
+        if (context.performed)
         {
-            LastAttackPressed = AttackType.Punch;
-            stateMachine.TransitionToState(State.StateType.Attack);
-        }
-    }
-    
-    public void OnKick(InputAction.CallbackContext context)
-    {
-        if (context.performed && player.CanAttack())
-        {
-            LastAttackPressed = AttackType.Kick;
-            stateMachine.TransitionToState(State.StateType.Attack);
-        }
-    }
-    
-    public void OnSlash(InputAction.CallbackContext context)
-    {
-        if (context.performed && player.CanAttack())
-        {
-            LastAttackPressed = AttackType.Slash;
-            stateMachine.TransitionToState(State.StateType.Attack);
-        }
-    }
-    
-    public void OnUnique(InputAction.CallbackContext context)
-    {
-        if (context.performed && player.CanAttack())
-        {
-            LastAttackPressed = AttackType.Unique;
-            stateMachine.TransitionToState(State.StateType.Attack);
+            if (player.IsGrounded() && player.CanAttack())
+            {
+                LastAttackPressed = attackType;
+                stateMachine.TransitionToState(State.StateType.Attack);
+            }
+            else if (player.CanAirborneAttack())
+            {
+                LastAttackPressed = AttackType.Airborne;
+                stateMachine.TransitionToState(State.StateType.AirborneAttack);
+            }
         }
     }
     

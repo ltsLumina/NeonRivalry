@@ -8,8 +8,8 @@ public class ControlSchemeSwitcher : MonoBehaviour
 {
     PlayerInput playerInput;
 
-    // Called through Unity Event in the inspector on the button that is used to switch control schemes.
-    public void ToggleControlScheme(int playerToAssign)
+    // Called through Unity Event in the inspector on the button that is used to switch control schemes. Currently set to the "Settings" button.
+    public void ToggleControlScheme(int playerToAssignByPlayerID)
     {
         if (Gamepad.current == null)
         {
@@ -17,26 +17,25 @@ public class ControlSchemeSwitcher : MonoBehaviour
             return;
         }
 
-        playerInput = playerToAssign switch
-        { 1 => PlayerInput.all.FirstOrDefault(p => p.playerIndex == 0),
-          2 => PlayerInput.all.FirstOrDefault(p => p.playerIndex == 1),
+        playerInput = playerToAssignByPlayerID switch
+        { 1 => PlayerManager.PlayerOneInput,
+          2 => PlayerManager.PlayerTwoInput,
           _ => playerInput };
-
-        if (playerInput == null) return; // This should never happen, but just in case.
+        
         string currentScheme = playerInput.currentControlScheme;
 
         switch (currentScheme)
         {
-            case "Keyboard":
+            case "Keyboard": // Switch to Gamepad if the user is using Keyboard.
                 StartCoroutine(InputDeviceSwitcher.AssignGamepadToPlayerInput(playerInput));
-                Debug.LogWarning("Player " + playerToAssign + " switching to Gamepad");
+                
+                Debug.LogWarning("Player " + playerToAssignByPlayerID + " switched to Gamepad");
                 break;
 
-            case "Gamepad":
-                PlayerInput.all.FirstOrDefault()                                      // Get the first active PlayerInput
-                          ?.SwitchCurrentControlScheme("Keyboard", Keyboard.current); // Switch to Keyboard
+            case "Gamepad": // Switch to Keyboard if the user is using Gamepad.
+                PlayerManager.PlayerInputs.FirstOrDefault()?.SwitchCurrentControlScheme("Keyboard", Keyboard.current);
 
-                Debug.LogWarning("Player " + playerToAssign + " switching to Keyboard");
+                Debug.LogWarning("Player " + playerToAssignByPlayerID + " switched to Keyboard");
                 break;
         }
     }

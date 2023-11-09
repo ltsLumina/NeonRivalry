@@ -14,6 +14,7 @@ using static UnityEditor.EditorGUILayout;
 /// The state machine that handles the player's state.
 /// Allows for easy state transitions and state management.
 /// </summary>
+[RequireComponent(typeof(PlayerController)), DefaultExecutionOrder(-300)]
 public class StateMachine : MonoBehaviour
 {
     [SerializeField] StateMachineData stateData;
@@ -45,9 +46,15 @@ public class StateMachine : MonoBehaviour
     /// <seealso cref="TransitionToState"/>
     void SetState(State newState)
     {
+        if (newState == null)
+        {
+            Debug.LogError("The new state is null. Please assign a valid state.");
+            return;
+        }
+        
         // Checks if the current state is null, or if the new state has a higher priority than the current state.
         // If the new state has a lower or equal priority, the current state is entered like normal.
-        if (CurrentState != null && newState.Priority > CurrentState.Priority /*&& CurrentState.CanBeInterrupted()*/)
+        if (CurrentState != null && newState.Priority > CurrentState.Priority)
         {
             // If the current state can be interrupted, we exit the current state.
             CurrentState?.OnExit();
@@ -63,7 +70,10 @@ public class StateMachine : MonoBehaviour
     }
 
     // Runs the current state's update method. (Fixed interval of 60 calls per second)
-    public void FixedUpdate() => CurrentState?.UpdateState();
+    public void FixedUpdate()
+    {
+        CurrentState?.UpdateState(); 
+    }
 
     /// <summary>
     /// Handles the transition between states.
@@ -74,11 +84,13 @@ public class StateMachine : MonoBehaviour
         // Do NOT run any other code than the CheckStateDataThenExecute() method in this switch statement.
         switch (state)
         {
+            // Note: The 'when X condition' checks that we perform on each case seem to be redundant.
+            
             case Idle:
                 SetState(new IdleState(Player)); //TODO: Add state data, potentially. (Such as idleTimeThreshold. Currently handled in the player controller.)
                 break;
             
-            case Walk when Player.IsGrounded(): 
+            case Walk when Player.IsGrounded():
                 CheckStateDataThenExecute(stateData.moveStateData, data => SetState(new MoveState(Player, data)));
                 break;
             
@@ -93,17 +105,16 @@ public class StateMachine : MonoBehaviour
             case Attack when Player.CanAttack():
                 CheckStateDataThenExecute(stateData.attackStateData, data => SetState(new AttackState(Player, data)));
                 break;
+            
+            case AirborneAttack when Player.CanAirborneAttack():
+                CheckStateDataThenExecute(stateData.airborneAttackStateData, data => SetState(new AirborneAttackState(Player, data)));
+                break;
 
             // - Unused States -
             case Knockdown:
                 break;
 
             case Dead:
-                break;
-
-            case Run:
-                Debug.Log("RUNNING");
-                // technically unused (only used for debugging)
                 break;
 
             case Block:
@@ -153,6 +164,7 @@ internal struct StateMachineData
     public JumpStateData jumpStateData;
     public FallStateData fallStateData;
     public AttackStateData attackStateData;
+    public AirborneAttackStateData airborneAttackStateData;
 }
 
 #if UNITY_EDITOR
@@ -171,27 +183,37 @@ public class StateMachineEditor : Editor
 
         var stateMachine = (StateMachine) target;
         var player       =  stateMachine.Player;
+        
+        // Each bool represents a state. If the bool is true, then the state is active.
+        // Used to display the state values in the inspector.
+        Dictionary<string, bool> states = new ()
+        {
+            {"IsGrounded", player.IsGrounded()},
+            {"IsMoving", player.IsMoving()},
+            {"IsJumping", player.IsJumping()}, // Bug: Returns an error as the rigidbody of the player is null outside of playmode.
+            {"IsFalling", player.IsFalling()},
+            {"IsAttacking", player.IsAttacking()},
+            {"IsAirborneAttacking", player.IsAirborneAttacking()}
+        };
 
         LabelField("Current State", stateMachine.CurrentState?.GetType().Name);
         
-            Space();
+        Space();
         
-        // For debugging purposes, to see if the related bool is true or false, even if the state is not the current state.
         LabelField("State Booleans", EditorStyles.boldLabel);
 
         using (new EditorGUI.DisabledScope(true))
         {
-            Toggle("IsGrounded", player.IsGrounded());
-            Toggle("IsMoving", stateMachine.CurrentState is MoveState {IsMoving: true });
-            Toggle("IsJumping", stateMachine.CurrentState is JumpState {IsJumping: true });
-            Toggle("IsFalling", stateMachine.CurrentState is FallState {IsFalling: true });
-            Toggle("IsAttacking", stateMachine.CurrentState is AttackState {IsAttacking: true });
+            foreach (var state in states)
+            {
+                var label = new GUIContent(state.Key, "Shows the StateChecks.cs value for the state, not the state machine CurrentState value.");
+                
+                Toggle(label, state.Value);
+            }
         }
 
-        if (Application.isPlaying)
-        {
-            EditorUtility.SetDirty(stateMachine);
-        }
+        // Update the inspector if the application is playing to view live results.
+        if (Application.isPlaying) EditorUtility.SetDirty(stateMachine);
     }
 }
 #endif

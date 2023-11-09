@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Lumina.Essentials.Attributes;
-using Lumina.Debugging;
 using UnityEngine;
 using UnityEngine.UI;
+using Logger = Lumina.Debugging.Logger;
 #endregion
 
 public class InputVisualizer : MonoBehaviour
@@ -56,7 +56,7 @@ public class InputVisualizer : MonoBehaviour
 
         // If no InputManager is found or the component is disabled, disable the game object
         gameObject.SetActive(false);
-        FGDebugger.Debug($"No InputManager found. \n Disabling {gameObject.name}...");
+        Logger.Debug($"No InputManager found. \n Disabling {gameObject.name}...");
     }
 
     void UnassignInputManager()

@@ -1,12 +1,15 @@
 ﻿#region
-using Lumina.Debugging;
 using UnityEngine;
+using Logger = Lumina.Debugging.Logger;
 #endregion
 
 /*----------------------------------------------------------------------------
  * IMPORTANT NOTE: Use Time.fixedDeltaTime instead of Time.deltaTime
  *----------------------------------------------------------------------------*/
 
+/// <summary>
+/// <seealso cref="AttackStateData"/>
+/// </summary>
 public class AttackState : State
 {
     // -- Abstract Variables --
@@ -14,15 +17,15 @@ public class AttackState : State
     public override int Priority => statePriorities[Type];
     
     public bool IsAttacking { get; private set; }
-    public bool IsAirborne { get; private set; }
 
     // -- State Specific Variables --
     float groundedAttackTimer;
-    float airborneAttackTimer;
 
     readonly AttackHandler attackHandler;
     readonly Animator animator;
-    readonly Moveset moveset;
+    readonly Moveset moveset; // Could be declared as a local variable, but it will (probably) be used in the future.
+    
+    float attackAnimationLength;
 
       // -- Constructor --
       public AttackState(PlayerController player, AttackStateData stateData) : base(player)
@@ -35,25 +38,21 @@ public class AttackState : State
           attackHandler = new (moveset, animator, player);
       }
 
-    public override bool CanBeInterrupted() => interruptibilityRules[Type];
-
     public override void OnEnter()
     {
         // Play the attack animation.
         IsAttacking = true;
-        IsAirborne  = player.IsAirborne(); // Check whether the player was in air when attack started.
 
-        player.GetComponentInChildren<SpriteRenderer>().color = IsAirborne ? new (1f, 0.21f, 0.38f, 0.75f) : Color.red;
+        player.GetComponentInChildren<SpriteRenderer>().color = Color.red;
 
         groundedAttackTimer = 0;
-        airborneAttackTimer = 0;
 
-        var attackType = player.InputManager.LastAttackPressed;
+        InputManager.AttackType attackType = player.InputManager.LastAttackPressed;
 
         if (attackType != InputManager.AttackType.None)
         {
-            attackHandler.SelectAttack(attackType);
-            player.InputManager.LastAttackPressed = InputManager.AttackType.None; // Reset after usage
+            if (attackHandler.SelectAttack(attackType)) player.InputManager.LastAttackPressed = InputManager.AttackType.None; // Reset after usage
+            else OnExit();
         }
         else
         {
@@ -63,65 +62,44 @@ public class AttackState : State
 
     public override void UpdateState()
     {
-        // Player is grounded, perform grounded attack.
-        if (!IsAirborne)
+        // Have to set the attack animation length here because the animator will return the length of the idle animation instead of the attack animation.
+        // So we have to set the attack animation length every frame to ensure that it is the correct value.
+        attackAnimationLength = animator.GetCurrentAnimatorStateInfo(0).length;
+        
+        // Bug: On occasion, the animator will return the length of the idle animation instead of the attack animation.
+        
+        // If the attack duration has not been reached, continue attacking.
+        groundedAttackTimer += Time.deltaTime;
+
+        if (player.IsGrounded()) { Logger.Debug("Attacking on the ground!", LogType.Log, StateType.Attack); }
+
+        // // Player has become airborne after starting the attack, cancel the attack. (e.g. player gets knocked into the air) 
+        // else
+        // {
+        //     Logger.Debug("Player has been knocked into the air! \nCancelling the attack...", LogType.Log, StateType.Attack);
+        //
+        //     // Cancel the attack.
+        //     OnExit();
+        // }
+
+        // i figured it out.
+        // attackAnimationLength is the length of the IDLE ANIMATION, not the attack animation. :'(
+        if (groundedAttackTimer >= attackAnimationLength)
         {
-            // If the attack duration has not been reached, continue attacking.
-            if (groundedAttackTimer < animator.GetCurrentAnimatorStateInfo(0).length)
-            {
-                groundedAttackTimer += Time.fixedDeltaTime;
-
-                if (player.IsGrounded())
-                {
-                    FGDebugger.Debug("Attacking on the ground!", LogType.Log, StateType.Attack);
-                    
-                }
-                // Player has become airborne after starting the attack, cancel the attack. (e.g. player gets knocked into the air) 
-                else
-                {
-                    IsAirborne = true;
-                    FGDebugger.Debug("Player has been knocked into the air! \nCancelling the attack...", LogType.Log, StateType.Attack);
-                    
-                    // Cancel the attack.
-                    OnExit();
-                }
-            }
-            else { OnExit(); }
-        }
-        else // Player is airborne, perform airborne attack.
-        {
-            if (airborneAttackTimer < animator.GetCurrentAnimatorStateInfo(0).length)
-            {
-                airborneAttackTimer += Time.fixedDeltaTime;
-
-                // If the player lands, cancel the attack.
-                if (player.IsGrounded())
-                {
-                    FGDebugger.Debug("Airborne Attack cancelled!", LogType.Log, StateType.Attack);
-                    OnExit();
-                }
-                else
-                {
-                    FGDebugger.Debug("Attacking in the air!", LogType.Log, StateType.Attack);
-
-                    // Play airborne attack animation and run logic.
-                }
-            }
-            else { OnExit(); }
+            OnExit();
         }
     }
 
     public override void OnExit()
     {
-        // Cancel the attack animation by starting the idle animation.
+        // Cancel the attack animation by playing the idle animation.
         animator.Play("Idle");
 
-        if (player.InputManager.MoveInput.x != 0 && player.IsGrounded())
+        if (player.IsGrounded() && player.InputManager.MoveInput.x != 0)
             // If the player is moving, transition to the walk state.
             player.StateMachine.TransitionToState(StateType.Walk);
-        
-        else // If the player is not moving, transition to the idle state. 
-            player.StateMachine.TransitionToState(StateType.Idle);
+        // If the player is not moving, transition to the idle state.
+        else player.StateMachine.TransitionToState(StateType.Idle);
 
         IsAttacking = false;
     }

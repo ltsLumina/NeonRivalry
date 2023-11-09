@@ -17,17 +17,22 @@ public class MoveData : ScriptableObject
     }
 
     /// <summary>
-    /// The direction that the player needs to move in order to perform this move.
-    /// <para>For instance, if a move is set to "Forward", then the player needs to press the forward key in order to perform the move.</para>
-    /// <para>Or if a move is set to "Neutral", then the player needs to press the down key in order to perform the move.</para>
-    /// An example of a move that is set to "Down" is a crouching attack or sweep. (2P, 2K, 2S, 2U)
+    ///     The direction that the player needs to move in order to perform this move.
+    ///     <para>
+    ///         For instance, if a move is set to "Horizontal", then the player needs to press the forward key in order to
+    ///         perform the move.
+    ///     </para>
+    ///     <para>Or if a move is set to "Neutral", then the player needs to press the down key in order to perform the move.</para>
+    ///     An example of a move that is set to "Crouch" is a crouching attack or sweep. (2P, 2K, 2S, 2U)
+    ///     <para></para>
+    ///     <remarks>P = Punch, K = Kick, S = Slash, U = Unique</remarks>
     /// </summary>
-    public enum Direction
+    public enum Direction // Note: I don't entirely love the fact that 'Airborne' is included here, but it's the best solution I could come up with.
     {
-        Neutral, // Example: 5P, 5K, 5S, 5U
-        Forward, // Example: 6P, 6K, 6S, 6U
-        Down,    // Example: 2P, 2K, 2S, 2U
-        Up       // Example: 8P, 8K, 8S, 8U
+        Neutral,    // Example: 5P, 5K, 5S, 5U
+        Horizontal, // Example: 6P, 6K, 6S, 6U or 4P, 4K, 4S, 4U
+        Crouch,     // Example: 2P, 2K, 2S, 2U
+        Airborne,   // Example: 8P, 8K, 8S, 8U
     }
     
     /// <summary>
@@ -48,8 +53,8 @@ public class MoveData : ScriptableObject
     public Guard guard;
 
     [Space(10)]
-    [Header("Resources")]
-    public AnimationClip animation; // TODO: Replace this with Animator controller instead. Potentially add a list of animations as well.
+    [Header("Resources")] // Note: These variables are unused, and due to Unity limitations, we cannot make them usable. They are intended as reference only.
+    public AnimationClip animation;
     public AudioClip audioClip;
     public Sprite sprite;
     

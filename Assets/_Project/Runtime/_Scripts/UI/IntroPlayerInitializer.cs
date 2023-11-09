@@ -1,10 +1,11 @@
 using System.Collections;
-using Lumina.Debugging;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
+using Logger = Lumina.Debugging.Logger;
+using Random = UnityEngine.Random;
 
 /// <summary>
 /// Waits for a player to join.
@@ -26,7 +27,7 @@ public class IntroPlayerInitializer : MonoBehaviour
 
         // Check if debug mode is enabled, and if so, skip the loading screen.
         // Else, start the loading screen.
-        StartCoroutine(!FGDebugger.debugMode ? LoadingScreenRoutine() : DebugSkipLoadingScreen());
+        StartCoroutine(!Logger.DebugMode ? LoadingScreenRoutine() : DebugSkipLoadingScreen());
 
         yield break;
         IEnumerator LoadingScreenRoutine() //TODO: Make a UI_Utility class that handles things like loading screens etc.
@@ -59,7 +60,8 @@ public class IntroPlayerInitializer : MonoBehaviour
             }
 
             // Stop all rumble before loading next scene.
-            foreach (var gamepad in Gamepad.all) { gamepad.SetMotorSpeeds(0f, 0f); }
+            if (Gamepad.all.Count > 0)
+                foreach (var gamepad in Gamepad.all) { gamepad.SetMotorSpeeds(0f, 0f); }
 
             // When the loading bar is full, load the next scene.
             SceneManagerExtended.LoadNextScene();

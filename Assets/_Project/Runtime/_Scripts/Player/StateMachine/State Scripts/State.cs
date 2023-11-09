@@ -1,7 +1,4 @@
-﻿//NOTES FOR FUTURE ME:
-//  -   uh idk cant remember.
-
-#region
+﻿#region
 using System.Collections.Generic;
 using static State.StateType;
 #endregion
@@ -21,24 +18,23 @@ public abstract class State
     {
         this.player = player;
     }
+    
+    // -- Properties --
 
     public abstract StateType Type { get; }
-
-    protected Dictionary<StateType, bool> allowedTransitions = new ();
-
+    
     // StateType is used to indicate the type of state that the player is in.
     public enum StateType
     {
         // The values of the enum are used to determine the priority of the state.
         // They should all be unique, and the higher the value, the higher the priority.
         Idle,
-        Walk,       // Walk indicates that the player is moving.
-        Run,        // Run indicates that the player is moving faster than walking.
+        Walk,
         Jump,
         Fall,
         Attack,
+        AirborneAttack,
         Block,
-        Dash,
         HitStun,    // HitStun indicates that the player has been hit and is unable to move or attack for a short period of time.
         Knockdown,  // Knockdown indicates that the player has been knocked down and is unable to move or attack for a short period of time.
         Dead,       // Dead indicates that the player has died and is unable to move or attack. This takes priority over all other states and should always be the highest priority.
@@ -50,45 +46,16 @@ public abstract class State
     protected readonly Dictionary<StateType, int> statePriorities = new ()
     { { Idle, 1 },
       { Walk, 2 },
-      { Run, 3 },
       { Jump, 4 },
       { Fall, 5 },
       { Attack, 6 },
+      { AirborneAttack, 6 },
       { Block, 7 },
-      { Dash, 7 },
       { HitStun, 8 },
       { Knockdown, 10 },
       { Dead, 99 },
       { None, 0 } 
     };
-    
-    // This dictionary is used to determine if a state can be interrupted.
-    // By using a dictionary, we can easily change the interruptibility of a state without having to change the state itself.
-    // protected readonly Dictionary<StateType, bool> interruptibilityRules = new ()
-    // { { Idle, false },
-    //   { Walk, player.IsIdle() },
-    //   { Run, player.IsIdle() },
-    //   { Jump, player.IsAttacking() || player.IsGrounded() || player.IsFalling() },
-    //   { Fall, player.IsAttacking() || player.IsGrounded() || player.IsJumping() },
-    //   { Attack, false },
-    //   { Dead, false },
-    //   { None, false } };
-
-    // Attempt at new interruptibility system.
-    protected readonly Dictionary<StateType, bool> interruptibilityRules = new ()
-    { { Idle, false },
-      { Walk, true },
-      { Run, true },
-      { Jump, true },
-      { Fall, true },
-      {Dash, true },
-      { Attack, false },
-      { Dead, false },
-      { None, false } };
-
-    // -- Base Methods --
-
-    //protected static void TransitionTo(StateType newState) => Object.FindObjectOfType<StateMachine>().TransitionToState(newState);
     
     // -- State Methods --
 
@@ -97,22 +64,20 @@ public abstract class State
     /// </summary>
     public abstract int Priority { get; }
 
-    public abstract bool CanBeInterrupted();
-
     /// <summary>
     /// Called when the state is entered.
     /// </summary>
     public abstract void OnEnter();
+    
+    /// <summary>
+    /// Called to update the state's logic.
+    /// Run any logic that needs to be run every frame in this method.
+    /// </summary>
+    public abstract void UpdateState();
 
     /// <summary>
     ///     Called when the state is exited.
     ///     <remarks> Make sure to always run this method when exiting a state. </remarks>
     /// </summary>
     public abstract void OnExit();
-
-    /// <summary>
-    /// Called to update the state's logic.
-    /// Run any logic that needs to be run every frame in this method.
-    /// </summary>
-    public abstract void UpdateState();
 }

@@ -1,21 +1,34 @@
 using System.Collections;
-using Lumina.Debugging;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Logger = Lumina.Debugging.Logger;
 
+/// <summary>
+/// Manages the intro splash screen.
+/// This script 
+/// </summary>
 public class IntroSplashManager : MonoBehaviour
 {
+    // -- Serialized Fields --
     [SerializeField] Image splashScreen;
     [SerializeField] float splashScreenDuration;
-    [SerializeField] IntroPlayerInitializer playerInitializer;
-    [SerializeField] InputDeviceManager deviceManager;
     [SerializeField] TMP_Text pressAnyButtonText;
+
+    // -- Cached References --
+    IntroPlayerInitializer playerInitializer;
+    InputDeviceManager deviceManager;
+    
+    void Awake()
+    {
+        playerInitializer = FindObjectOfType<IntroPlayerInitializer>();
+        deviceManager = FindObjectOfType<InputDeviceManager>();
+    }
 
     void Start()
     {
         // If debug mode is enabled, skip the splash screen.
-        if (FGDebugger.debugMode)
+        if (Logger.DebugMode)
         {
             Destroy(splashScreen.gameObject);
             return;

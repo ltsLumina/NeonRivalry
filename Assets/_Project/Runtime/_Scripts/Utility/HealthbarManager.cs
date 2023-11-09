@@ -1,16 +1,26 @@
 using System.Collections.Generic;
-using Lumina.Essentials.Attributes;
 using UnityEngine;
 
 public class HealthbarManager : MonoBehaviour
 {
-    [Header("Serialized References")]
-    [SerializeField, ReadOnly] List<Healthbar> healthbars = new ();
-    
-    [Header("Optional Parameters")]
-    [SerializeField] float placeholder;
-
     // -- Properties --
 
-    public List<Healthbar> Healthbars => healthbars;
+    /// <summary>
+    /// Represents a list of Healthbars in the game.
+    /// </summary>
+    public static List<Healthbar> Healthbars { get; } = new();
+
+    /// <summary>
+    /// Gets the Healthbar of the first player.
+    /// </summary>
+    public static Healthbar PlayerOne => Healthbars.Count > 0 ? Healthbars[0] : null;
+
+    /// <summary>
+    /// Gets the Healthbar of the second player.
+    /// </summary>
+    public static Healthbar PlayerTwo => Healthbars.Count > 1 ? Healthbars[1] : null;
+
+    void Awake() =>
+        // Clear the list of Healthbars as Unity wont clear the list when the game is restarted due to Enter Playmode Options.
+        Healthbars.Clear();
 }
