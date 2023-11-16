@@ -12,7 +12,9 @@ public class RoundManager : MonoBehaviour
 
     [SerializeField] TMP_Text player1WonRoundsText;
     [SerializeField] TMP_Text player2WonRoundsText;
-    
+
+    public bool player1Victory;
+
     void Start()
     {
         // Clear the text fields
