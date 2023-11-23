@@ -20,9 +20,9 @@ public class ResultScreen : MonoBehaviour
     private void Start()
     {
         StartCoroutine(RandomizeSliderValues(1, 100));
+        if (FindObjectOfType<RoundManager>() == null) { return; }
 
         FindObjectOfType<RoundManager>().player1Victory = true;
-        if (FindObjectOfType<RoundManager>() == null) { return; }
         winner.text = FindObjectOfType<RoundManager>().player1Victory ? "Player 1 Has Won" : "Player 2 Has Won"; 
     }
 
