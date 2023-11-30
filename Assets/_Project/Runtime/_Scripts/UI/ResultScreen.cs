@@ -5,16 +5,14 @@ using UnityEngine.UI;
 
 public class ResultScreen : MonoBehaviour
 {
-    [SerializeField] TextMeshProUGUI winner;  
+    [SerializeField] TextMeshProUGUI winner;
     // Get all sliders in the children of this GameObject
     Slider[] sliders;
     public float animationDuration = 2f;
-    public float targetValue = 1f;
 
     private void Awake()
     {
         sliders = GetComponentsInChildren<Slider>();
-
     }
 
     private void Start()
@@ -23,7 +21,7 @@ public class ResultScreen : MonoBehaviour
         if (FindObjectOfType<RoundManager>() == null) { return; }
 
         FindObjectOfType<RoundManager>().player1Victory = true;
-        winner.text = FindObjectOfType<RoundManager>().player1Victory ? "Player 1 Has Won" : "Player 2 Has Won"; 
+        winner.text = FindObjectOfType<RoundManager>().player1Victory ? "Player 1 Has Won" : "Player 2 Has Won";
     }
 
     IEnumerator RandomizeSliderValues(float minValue, float maxValue)
@@ -47,8 +45,8 @@ public class ResultScreen : MonoBehaviour
 
         while (Time.time - startTime < animationDuration)
         {
-            float progress = (Time.time - startTime  / animationDuration);
-            slider.value = Mathf.Lerp(startValue, targetValue, progress );
+            float progress = Time.time - startTime / animationDuration;
+            slider.value = Mathf.Lerp(startValue, targetValue, progress);
             yield return null;
         }
 
