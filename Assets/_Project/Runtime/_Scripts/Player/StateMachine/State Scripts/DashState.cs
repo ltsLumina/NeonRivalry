@@ -9,7 +9,7 @@ public class DashState : State
     float dashDuration;
     float dashSpeed;
     float dashSleepTime;
-    float dashInputBufferTime;
+    int dashAmount;
 
     float dashDir;
     float dashTimer;
@@ -23,7 +23,7 @@ public class DashState : State
         dashDuration        = stateData.DashDuration;
         dashSpeed           = stateData.DashSpeed;
         dashSleepTime       = stateData.DashSleepTime;
-        dashInputBufferTime = stateData.DashInputBufferTime;
+        dashAmount          = stateData.DashAmount;
     }
 
     #region State Methods
@@ -36,6 +36,7 @@ public class DashState : State
         dashDir = (int) moveInput.x;
 
         player.Rigidbody.useGravity = false;
+        player.Rigidbody.velocity = Vector3.zero;
 
         player.StartCoroutine(HandleDashing());
     }
