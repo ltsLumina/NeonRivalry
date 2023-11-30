@@ -73,8 +73,8 @@ public class HealthbarManagerEditor : Editor
         {
             if (GUILayout.Button($"Set Left to {value}"))
             {
-                if (playerOne != null) playerOne.Slider.value = value;
-                else Debug.LogError($"Player One Healthbar is null.");
+                if (playerOne != null) playerOne.Value = (int) value;
+                else Debug.LogError("Player One Healthbar is null.");
             }
 
             // Return early if there is only one healthbar.
@@ -82,8 +82,8 @@ public class HealthbarManagerEditor : Editor
 
             if (GUILayout.Button($"Set Right to {value}"))
             {
-                if (playerTwo != null) playerTwo.Slider.value = value;
-                else Debug.LogError($"Player Two Healthbar is null.");
+                if (playerTwo != null) playerTwo.Value = (int) value;
+                else Debug.LogError("Player Two Healthbar is null.");
             }
         }
     }
@@ -100,7 +100,7 @@ public class HealthbarManagerEditor : Editor
         if (healthbar != null)
         {
             EditorGUILayout.LabelField(label, EditorStyles.boldLabel);
-            healthbar.Slider.value = EditorGUILayout.IntSlider((int) healthbar.Slider.value, 0, 100);
+            healthbar.Value = EditorGUILayout.IntSlider(healthbar.Value, 0, 100);
         }
     }
 }
