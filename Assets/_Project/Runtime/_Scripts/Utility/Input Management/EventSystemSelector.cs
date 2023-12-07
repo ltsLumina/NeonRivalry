@@ -88,6 +88,13 @@ public class EventSystemSelector : MonoBehaviour
         }
     }
 
+    public void FindButtonByButtonName(string buttonName)
+    {
+        var button = GameObject.Find(buttonName);
+        ProcessButton(button);
+        Debug.Log("Button found!" + buttonName, button);
+    }
+
     void ProcessButton(GameObject button)
     {
         firstSelected = button.GetComponent<Button>();

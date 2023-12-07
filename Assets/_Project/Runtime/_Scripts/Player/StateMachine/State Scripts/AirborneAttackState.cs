@@ -63,7 +63,7 @@ public class AirborneAttackState : State
             return;
         }
 
-        timeAirborne += Time.deltaTime;
+        timeAirborne += Time.deltaTime; // timeAirborne is always one frame step. (0.016 something)
 
         // Only attack if the player has been airborne for a certain amount of time.
         if(timeAirborne >= requiredAirTime && !IsAirborneAttacking) IsAirborneAttacking = true;
@@ -74,16 +74,7 @@ public class AirborneAttackState : State
             return;
         }
 
-        // Select the attack type.
-        InputManager.AttackType attackType = player.InputManager.LastAttackPressed;
-
-        // If the attack type is not None, select the attack.
-        if (attackType == InputManager.AttackType.Airborne)
-        {
-            attackHandler.SelectAttack(attackType);
-            player.InputManager.LastAttackPressed = InputManager.AttackType.None; // Reset after usage
-        }
-        else { Logger.Debug("No \"(None)\" attack type was selected. Something went wrong.", LogType.Error); }
+        PerformAttack();
 
         // If the attack animation is still playing, run logic.
         if (timeAirborneAttacking < animator.GetCurrentAnimatorStateInfo(0).length)
@@ -135,4 +126,18 @@ public class AirborneAttackState : State
         IsAirborne = false;
     }
     #endregion
+
+    void PerformAttack()
+    {
+        // Select the attack type.
+        InputManager.AttackType attackType = player.InputManager.LastAttackPressed;
+
+        // If the attack type is not None, select the attack.
+        if (attackType == InputManager.AttackType.Airborne)
+        {
+            attackHandler.SelectAttack(attackType);
+            player.InputManager.LastAttackPressed = InputManager.AttackType.None; // Reset after usage
+        }
+        else { Logger.Debug("No \"(None)\" attack type was selected. Something went wrong.", LogType.Error); }
+    }
 }

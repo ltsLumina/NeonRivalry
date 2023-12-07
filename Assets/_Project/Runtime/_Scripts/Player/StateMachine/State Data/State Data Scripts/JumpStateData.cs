@@ -5,13 +5,13 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "JumpStateData", menuName = "State Data/JumpState Data", order = 2)]
 public class JumpStateData : DefaultStateData
 {
-    [Tooltip("The force applied to the player when jumping. \nDefault Value: 650")]
+    [Tooltip("The force applied to the player when jumping.")]
     [SerializeField] float jumpForce;
     
-    [Tooltip("The duration of the jump. \nDefault Value: 0.1")]
+    [Tooltip("The duration of the jump.")]
     [SerializeField] float jumpDuration;
     
-    [Tooltip("The mass of the player while falling. \nDefault Value: 1.5")]
+    [Tooltip("The mass of the player while falling.")]
     [SerializeField] float playerMass;
 
     // -- Properties --
