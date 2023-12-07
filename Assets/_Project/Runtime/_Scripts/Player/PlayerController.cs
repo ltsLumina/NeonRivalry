@@ -70,7 +70,7 @@ public partial class PlayerController : MonoBehaviour
         PlayerInput   = GetComponentInChildren<PlayerInput>();
         animator      = GetComponentInChildren<Animator>();
 
-        HitBox = GetComponentInChildren<HitBox>();
+        HitBox  = GetComponentInChildren<HitBox>();
         HurtBox = GetComponentInChildren<HurtBox>();
     }
 
