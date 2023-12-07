@@ -95,6 +95,13 @@ public class EventSystemSelector : MonoBehaviour
         Debug.Log("Button found!" + buttonName, button);
     }
 
+    public void DisableButtonByButtonName(string buttonName)
+    {
+        var button = GameObject.Find(buttonName);
+        ProcessButton(button);
+        Debug.Log("Button found!" + buttonName, button);
+    }
+
     void ProcessButton(GameObject button)
     {
         firstSelected = button.GetComponent<Button>();

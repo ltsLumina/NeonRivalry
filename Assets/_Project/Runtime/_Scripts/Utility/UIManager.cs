@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class UIManager : SingletonPersistent<UIManager>
+public class UIManager : MonoBehaviour
 {
     const int Intro = 0;
     const int MainMenu = 1;

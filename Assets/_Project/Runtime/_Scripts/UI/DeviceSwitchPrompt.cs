@@ -3,6 +3,7 @@ using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class DeviceSwitchPrompt : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class DeviceSwitchPrompt : MonoBehaviour
     [SerializeField] TMP_Text ellipsisText;
     [SerializeField] GameObject[] objectsToEnable;
     [SerializeField] GameObject[] objectsToDisable;
+    [SerializeField] GameObject[] buttonsNotInteractable;
     
     // -- Private Variables --
     
@@ -48,6 +50,11 @@ public class DeviceSwitchPrompt : MonoBehaviour
         foreach (GameObject obj in objectsToEnable)
         {
             obj.SetActive(true);
+        }
+
+        foreach (GameObject obj in buttonsNotInteractable)
+        {
+            obj.GetComponent<Button>().interactable= false;
         }
         
         // Wait for the player to press a button on the keyboard
