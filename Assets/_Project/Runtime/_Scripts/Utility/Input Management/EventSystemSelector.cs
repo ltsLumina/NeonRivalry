@@ -88,26 +88,11 @@ public class EventSystemSelector : MonoBehaviour
         }
     }
 
-    GameObject FindButtonBySceneAndButtonName(int sceneIndex, string buttonName)
+    public void FindButtonByButtonName(string buttonName)
     {
-        switch (sceneIndex)
-        {
-            case Intro:
-                Debug.LogWarning("There is no button to find in the 'Intro' scene. \n Returning null. (This is not an error)");
-                return null;
-
-            case MainMenu:
-                return localPlayerID == 1 ? GameObject.Find(buttonName) : null;
-
-            case CharacterSelect:
-                return GameObject.Find($"{buttonName} (Player {localPlayerID})");
-
-            case Game:
-                return localPlayerID == 1 ? GameObject.Find(buttonName) : null;
-
-            default:
-                return null;
-        }
+        var button = GameObject.Find(buttonName);
+        ProcessButton(button);
+        Debug.Log("Button found!" + buttonName, button);
     }
 
     void ProcessButton(GameObject button)
