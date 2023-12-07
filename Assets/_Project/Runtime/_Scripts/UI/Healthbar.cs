@@ -11,8 +11,8 @@ public class Healthbar : MonoBehaviour
     [SerializeField, ReadOnly] PlayerController player;
     [SerializeField] Slider comboVisualSlider;
     [SerializeField] float doTweenSpeed;
-    [SerializeField] Ease inEase;
-    [SerializeField] Ease outEase;
+    [SerializeField, Tooltip("Make sure the easing method is ONLY In*** \nIf you want to use the \"Linear\" method make sure the other is set to \"Unset\"")] Ease inEase;
+    [SerializeField, Tooltip("Make sure the easing method is ONLY Out***")] Ease outEase;
 
     [SerializeField, ReadOnly] float comboTimer;
     [SerializeField, ReadOnly] bool isTweening;
