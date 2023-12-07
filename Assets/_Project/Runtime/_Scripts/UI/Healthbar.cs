@@ -1,4 +1,5 @@
-﻿using Lumina.Essentials.Attributes;
+﻿using DG.Tweening;
+using Lumina.Essentials.Attributes;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,8 +10,12 @@ public class Healthbar : MonoBehaviour
     [SerializeField, ReadOnly] Slider slider;
     [SerializeField, ReadOnly] PlayerController player;
     [SerializeField] Slider comboVisualSlider;
+    [SerializeField] float doTweenSpeed;
+    [SerializeField] Ease inEase;
+    [SerializeField] Ease outEase;
 
     [SerializeField, ReadOnly] float comboTimer;
+    [SerializeField, ReadOnly] bool isTweening;
     public Healthbar(bool invincible) { Invincible = invincible; }
 
     //[SerializeField, ReadOnly] PlayerStats playerStats;
@@ -85,12 +90,22 @@ public class Healthbar : MonoBehaviour
     {
         if(comboTimer > 0)
         {
+            isTweening = false;
             comboTimer -= Time.deltaTime;
         }
 
-        if (comboTimer <= 0)
+        if (comboTimer <= 0 && !isTweening)
         {
-            comboVisualSlider.value = Value;
+            StartCoroutine(UpdateHealthBar(Value, doTweenSpeed, inEase, outEase));
         }
     }
+
+    private IEnumerator UpdateHealthBar(float currentHealth, float speed, Ease inEase, Ease outEase)
+    {
+        isTweening = true;
+        comboVisualSlider.DOValue(currentHealth, speed, true).SetEase(inEase).SetEase(outEase);
+
+        yield return new WaitForEndOfFrame();
+    }
+
 }
