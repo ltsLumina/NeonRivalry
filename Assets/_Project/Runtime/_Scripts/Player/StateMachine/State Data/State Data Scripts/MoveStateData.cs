@@ -5,16 +5,16 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "MoveStateData", menuName = "State Data/MoveState Data", order = 1)]
 public class MoveStateData : DefaultStateData
 {
-    [Tooltip("The speed at which the player moves. \nDefault Value: 5")]
+    [Tooltip("The speed at which the player moves.")]
     [SerializeField] float moveSpeed;
     
-    [Tooltip("The rate at which the player accelerates. \nDefault Value: 5")]
+    [Tooltip("The rate at which the player accelerates.")]
     [SerializeField] float acceleration;
 
-    [Tooltip("The rate at which the player decelerates. \nDefault Value: 5")]
+    [Tooltip("The rate at which the player decelerates.")]
     [SerializeField] float deceleration;
 
-    [Tooltip("The power of the velocity. \nDefault Value: 1.3")]
+    [Tooltip("The power of the velocity.")]
     [SerializeField] float velocityPower;
     
     // -- Properties --

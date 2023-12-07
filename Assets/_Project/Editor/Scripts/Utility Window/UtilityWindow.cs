@@ -27,8 +27,7 @@ public class UtilityWindow : EditorWindow
         {
             window              = GetWindow<UtilityWindow>(true);
             window.titleContent = new ("Utility Window");
-            window.minSize      = new (winSize.x, winSize.y);
-            window.maxSize      = window.minSize;
+            window.minSize      = new (winSize.x, winSize.y / 2);
             window.Show();
         }
     }
@@ -36,7 +35,8 @@ public class UtilityWindow : EditorWindow
     void OnEnable()
     {
         window = GetWindow<UtilityWindow>();
-        
+        if (Resources.FindObjectsOfTypeAll<UtilityWindow>().Length > 1) Close();
+
         createdSuccessfully = false;
 
         // Initialize the dictionary with types

@@ -15,8 +15,8 @@ public class RoundTimer : MonoBehaviour
         HundredthsDecimal,
     }
 
-    [Header("Reference"), Space(10)]
-    [SerializeField, ReadOnly] TextMeshProUGUI timerText;
+    [Header("Reference"), Space(10), ReadOnly]
+    [SerializeField] TextMeshProUGUI timerText;
     
     [Header("Timer Settings"), ReadOnly]
     [SerializeField] float currentTime;
