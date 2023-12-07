@@ -74,6 +74,8 @@ public class InputManager : MonoBehaviour
     /// Handles jump input.
     /// </summary>
     public void OnJump(InputAction.CallbackContext context) => TransitionTo(context, player.CanJump, State.StateType.Jump);
+    
+    public void OnDash(InputAction.CallbackContext context) => TransitionTo(context, player.CanDash, State.StateType.Dash);
 
     /// <summary>
     /// Handles state transition.

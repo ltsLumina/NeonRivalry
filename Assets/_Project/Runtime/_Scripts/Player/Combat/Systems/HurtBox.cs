@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Lumina.Essentials.Sequencer;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Logger = Lumina.Debugging.Logger;
@@ -21,10 +22,23 @@ public class HurtBox : MonoBehaviour
         rigidbody = player.GetComponent<Rigidbody>();
     }
 
+    void Update() // TODO: Remove Update and DEBUG method when finished debugging.
+    {
+        DEBUG_TryHitHurtBox();
+    }
+
     void OnEnable() => OnHurtBoxHit += OnTakeDamage;
 
     //player.Healthbar.OnHealthChanged += healthbarValue => Debug.Log($"Healthbar value changed to {healthbarValue}!");
     void OnDisable() => OnHurtBoxHit -= OnTakeDamage;
+    
+    void DEBUG_TryHitHurtBox()
+    {
+        if (!Input.GetKeyDown(KeyCode.H)) return;
+
+        var hitBox = FindObjectOfType<HitBox>();
+        if (hitBox != null) OnHurtBoxHit?.Invoke(hitBox);
+    }
 
     void OnTriggerEnter(Collider other)
     {

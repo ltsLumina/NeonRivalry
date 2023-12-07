@@ -109,6 +109,7 @@ MonoBehaviour:
     attackStateData: {fileID: 11400000, guid: 94193d24b81e1b249af95577285dc892, type: 2}
     airborneAttackStateData: {fileID: 11400000, guid: 559e865cd42f87b41a1244816e1c685c,
       type: 2}
+    dashStateData: {fileID: 11400000, guid: 09527e709a92ce6448f2121794cc08d9, type: 2}
   player: {fileID: 323316177474802617}
 --- !u!54 &8910499296590818988
 Rigidbody:
@@ -136,7 +137,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 88
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
 --- !u!1 &585080059154549107
 GameObject:
   m_ObjectHideFlags: 0
@@ -1806,7 +1807,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf981be2032947fe943903e588d37069, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DamageAmount: 34
+  DamageAmount: 10
 --- !u!1 &5044539672242485143
 GameObject:
   m_ObjectHideFlags: 0
@@ -2912,6 +2913,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 6aeba393-d85a-41f3-b8df-ccada26a3869
     m_ActionName: Player/Unique[/XInputControllerWindows/buttonNorth,/XInputControllerWindows1/buttonNorth]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 3139786390274206684}
+        m_TargetAssemblyTypeName: InputManager, _Project
+        m_MethodName: OnDash
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 0067ff0d-9489-4b44-960b-4fa1d7c75316
+    m_ActionName: Player/New action
   m_NeverAutoSwitchControlSchemes: 1
   m_DefaultControlScheme: Gamepad
   m_DefaultActionMap: Player
