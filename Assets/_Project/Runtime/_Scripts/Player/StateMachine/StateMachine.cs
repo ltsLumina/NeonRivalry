@@ -14,7 +14,7 @@ using static UnityEditor.EditorGUILayout;
 /// The state machine that handles the player's state.
 /// Allows for easy state transitions and state management.
 /// </summary>
-[RequireComponent(typeof(PlayerController))]
+[RequireComponent(typeof(PlayerController)), DefaultExecutionOrder(-300)]
 public class StateMachine : MonoBehaviour
 {
     [SerializeField] StateMachineData stateData;
@@ -54,7 +54,7 @@ public class StateMachine : MonoBehaviour
         
         // Checks if the current state is null, or if the new state has a higher priority than the current state.
         // If the new state has a lower or equal priority, the current state is entered like normal.
-        if (CurrentState != null && newState.Priority > CurrentState.Priority /*&& CurrentState.CanBeInterrupted()*/)
+        if (CurrentState != null && newState.Priority > CurrentState.Priority)
         {
             // If the current state can be interrupted, we exit the current state.
             CurrentState?.OnExit();
@@ -70,7 +70,10 @@ public class StateMachine : MonoBehaviour
     }
 
     // Runs the current state's update method. (Fixed interval of 60 calls per second)
-    public void FixedUpdate() => CurrentState?.UpdateState();
+    public void FixedUpdate()
+    {
+        CurrentState?.UpdateState(); 
+    }
 
     /// <summary>
     /// Handles the transition between states.
@@ -81,11 +84,13 @@ public class StateMachine : MonoBehaviour
         // Do NOT run any other code than the CheckStateDataThenExecute() method in this switch statement.
         switch (state)
         {
+            // Note: The 'when X condition' checks that we perform on each case seem to be redundant.
+            
             case Idle:
                 SetState(new IdleState(Player)); //TODO: Add state data, potentially. (Such as idleTimeThreshold. Currently handled in the player controller.)
                 break;
             
-            case Walk when Player.IsGrounded(): 
+            case Walk when Player.IsGrounded():
                 CheckStateDataThenExecute(stateData.moveStateData, data => SetState(new MoveState(Player, data)));
                 break;
             
@@ -105,6 +110,10 @@ public class StateMachine : MonoBehaviour
                 CheckStateDataThenExecute(stateData.airborneAttackStateData, data => SetState(new AirborneAttackState(Player, data)));
                 break;
 
+            case Dash when Player.CanDash():
+                CheckStateDataThenExecute(stateData.dashStateData, data => SetState(new DashState(Player, data)));
+                break;
+            
             // - Unused States -
             case Knockdown:
                 break;
@@ -160,6 +169,7 @@ internal struct StateMachineData
     public FallStateData fallStateData;
     public AttackStateData attackStateData;
     public AirborneAttackStateData airborneAttackStateData;
+    public DashStateData dashStateData;
 }
 
 #if UNITY_EDITOR
@@ -181,14 +191,14 @@ public class StateMachineEditor : Editor
         
         // Each bool represents a state. If the bool is true, then the state is active.
         // Used to display the state values in the inspector.
-        Dictionary<string, bool> states = new()
+        Dictionary<string, bool> states = new ()
         {
             {"IsGrounded", player.IsGrounded()},
             {"IsMoving", player.IsMoving()},
-            {"IsJumping", player.IsJumping()},
+            {"IsJumping", player.IsJumping()}, // Bug: Returns an error as the rigidbody of the player is null outside of playmode.
             {"IsFalling", player.IsFalling()},
             {"IsAttacking", player.IsAttacking()},
-            {"IsAirborneAttack", player.IsAirborneAttacking()}
+            {"IsAirborneAttacking", player.IsAirborneAttacking()}
         };
 
         LabelField("Current State", stateMachine.CurrentState?.GetType().Name);
@@ -201,7 +211,9 @@ public class StateMachineEditor : Editor
         {
             foreach (var state in states)
             {
-                Toggle(state.Key, state.Value);
+                var label = new GUIContent(state.Key, "Shows the StateChecks.cs value for the state, not the state machine CurrentState value.");
+                
+                Toggle(label, state.Value);
             }
         }
 

@@ -27,10 +27,10 @@ public class MoveData : ScriptableObject
     ///     <para></para>
     ///     <remarks>P = Punch, K = Kick, S = Slash, U = Unique</remarks>
     /// </summary>
-    public enum Direction
+    public enum Direction // Note: I don't entirely love the fact that 'Airborne' is included here, but it's the best solution I could come up with.
     {
         Neutral,    // Example: 5P, 5K, 5S, 5U
-        Horizontal, // Example: 6P, 6K, 6S, 6U
+        Horizontal, // Example: 6P, 6K, 6S, 6U or 4P, 4K, 4S, 4U
         Crouch,     // Example: 2P, 2K, 2S, 2U
         Airborne,   // Example: 8P, 8K, 8S, 8U
     }

@@ -1,4 +1,8 @@
 #region
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+using JetBrains.Annotations;
 using Lumina.Essentials.Attributes;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -14,8 +18,9 @@ using static State;
 [RequireComponent(typeof(Rigidbody))]
 public partial class PlayerController : MonoBehaviour
 {
-    [Header("Player Stats"), ReadOnly]
-    [SerializeField] Healthbar healthbar;
+    [Header("Player Stats"), UsedImplicitly]
+    [SerializeField, ReadOnly] public int health;
+    [SerializeField, ReadOnly] Healthbar healthbar;
 
     [Header("Read-Only Fields")]
     [SerializeField] float idleTimeThreshold;
@@ -25,15 +30,11 @@ public partial class PlayerController : MonoBehaviour
     [SerializeField] float raycastDistance = 1.022f;
     [SerializeField] LayerMask groundLayer;
 
-    [Header("Animation References")]
-    [SerializeField] Transform characterModel;
-
     [Header("Player ID"), Tooltip("The player's ID. \"1\"refers to player 1, \"2\" refers to player 2.")]
     [SerializeField] [ReadOnly] int playerID;
 
     // Cached References
-    Animator anim;
-    PlayerManager playerManager;
+    Animator animator;
 
     // -- Properties --
     
@@ -41,7 +42,9 @@ public partial class PlayerController : MonoBehaviour
     public InputManager InputManager { get; private set; }
     public StateMachine StateMachine { get; private set; }
     public PlayerInput PlayerInput { get; set; }
-    
+    public HitBox HitBox { get; set; }
+    public HurtBox HurtBox { get; set; }
+
     // -- Serialized Properties --
 
     public int PlayerID
@@ -61,14 +64,26 @@ public partial class PlayerController : MonoBehaviour
     void Awake()
     {
         // Get the player's rigidbody, input manager, and state machine.
-        Rigidbody          = GetComponent<Rigidbody>();
-        InputManager       = GetComponentInChildren<InputManager>();
-        StateMachine       = GetComponent<StateMachine>();
-        playerManager      = FindObjectOfType<PlayerManager>();
-        
-        Initialize();
+        Rigidbody     = GetComponent<Rigidbody>();
+        InputManager  = GetComponentInChildren<InputManager>();
+        StateMachine  = GetComponent<StateMachine>();
+        PlayerInput   = GetComponentInChildren<PlayerInput>();
+        animator      = GetComponentInChildren<Animator>();
+
+        HitBox  = GetComponentInChildren<HitBox>();
+        HurtBox = GetComponentInChildren<HurtBox>();
     }
 
+    // Rotate the player when spawning in to face in a direction that is more natural.
+    void Start() => Initialize();
+
+    void Update()
+    {
+        CheckIdle();
+        
+        RotateToFaceEnemy();
+    }
+    
     /// <summary>
     ///     Initialize the player to the correct state.
     ///     This includes setting the player's color and spawn point as well as the player's ID.
@@ -76,104 +91,50 @@ public partial class PlayerController : MonoBehaviour
     void Initialize()
     {
         PlayerManager.AddPlayer(this);
-
-        // Get the player's ID.
-        var playerInputManager = FindObjectOfType<PlayerInputManager>();
-        PlayerID = playerInputManager.playerCount;
-
-        // Set the player's name and parent.
+        
+        PlayerID = PlayerInput.playerIndex + 1;
         gameObject.name = $"Player {PlayerID}";
+        
+        // Parenting the player to the header is purely for organizational purposes.
         Transform header = GameObject.FindGameObjectWithTag("[Header] Players").transform;
 
-        // Check if Header is found
         if (header == null)
         {
             Debug.LogError("Header not found. Please check if the tag is correct.");
             return;
         }
 
-        // Set the player's parent to the header for better organization.
         transform.SetParent(header);
-        
-        // Change the colour and spawn position of the player.
-        switch (PlayerID)
-        {
-            case 1:
-                PlayerManager.ChangePlayerColor(this, playerManager.PlayerColors.playerOneColor);
-                PlayerManager.SetPlayerSpawnPoint(this, new (-5, 3)); // debug values; use PlayerManager.PlayerSpawnPoints[PlayerID - 1] instead
-                PlayerManager.SetPlayerHealthbar(this, PlayerID);
-                PlayerManager.SetPlayerInput(this, PlayerManager.PlayerInputs[PlayerID - 1]);
-                break;
 
-            case 2:
-                PlayerManager.ChangePlayerColor(this, playerManager.PlayerColors.playerTwoColor);
-                PlayerManager.SetPlayerSpawnPoint(this, new (5, 3)); // debug values; use PlayerManager.PlayerSpawnPoints[PlayerID - 1] instead
-                PlayerManager.SetPlayerHealthbar(this, PlayerID);
-                PlayerManager.SetPlayerInput(this, PlayerManager.PlayerInputs[PlayerID - 2]);
-                break;
+        // Rotate to face the camera.
+        // This has no gameplay purpose and only serves as a visual aid.
+        transform.rotation = Quaternion.Euler(0, 180, 0);
 
-            default:
-                Debug.LogError($"Invalid PlayerID: {PlayerID}. Expected either 1 or 2.");
-                return;
-        }
-    }
-    
+        var playerManager = PlayerManager.Instance;
 
-    void OnDisable()
-    {
-        Terminate();
+        playerManager.SetPlayerSpawnPoint(this, PlayerID);
+        PlayerManager.AssignHealthbarToPlayer(this, PlayerID);
 
-        return;
-        void Terminate()
-        {
-            PlayerManager.RemovePlayer(this);
-
-            const string warningMessage = "The player has been disabled! " + "Please refrain from disabling the player and opt to destroy it instead. \n" +
-                                          "If the object was destroyed correctly, please ignore this message.";
-            
-            Debug.LogWarning(warningMessage);
-        }
+        // TODO: Change this once we have a system in place to determine when the round actually starts.
+        //gameObject.SetActive(false);
     }
 
-    // Rotate the player to the right when spawning in to face in a direction that is more natural.
-    void Start() => characterModel.Rotate(0, 75,0);
-
-    void Update()
-    {
-        CheckIdle();
-
-        RotateToFaceEnemy();
-    }
-    
     void RotateToFaceEnemy()
     {
-        if (PlayerManager.PlayerTwo != null)
+        if (PlayerManager.PlayerTwo == null) return;
+
+        var players         = PlayerManager.Players;
+        var oppositePlayer = players[PlayerID == 1 ? 1 : 0];
+
+        if (IsGrounded())
         {
-            var players        = PlayerManager.Players;
-            var oppositePlayer = players[PlayerID == 1 ? 1 : 0];
-            var speed          = 20f;
-
-            if (IsGrounded())
+            if (oppositePlayer.transform.position.x > transform.position.x)
             {
-                // Obtain the vector pointing from our object to the target object.
-                Vector3 direction = oppositePlayer.characterModel.position - characterModel.position;
-
-                // Zero out the y-component of the vector so the player will only rotate around the y-axis and will not tilt upwards.
-                direction.y = 0;
-
-                // Create a rotation that looks in the opposite direction of where our object is to the target (hence the negative direction).
-                Quaternion rotation = Quaternion.LookRotation(-direction);
-                Transform parent = oppositePlayer.transform.GetComponentInParent<PlayerController>().transform;
-                
-                // Gradually rotate from our current rotation to the aforementioned rotation. This smooths out the rotation so it does not snap into place.
-                parent.rotation = Quaternion.Slerp
-                    (parent.rotation, rotation, speed * Time.deltaTime);
-
-                // Repeat for our character model, creating a rotation that looks in the direction of where our object is to the target.
-                rotation = Quaternion.LookRotation(direction);
-
-                // As before, gradually rotate from our current rotation to the new rotation.
-                characterModel.rotation = Quaternion.Slerp(characterModel.rotation, rotation, speed * Time.deltaTime);
+                transform.rotation = Quaternion.Euler(0, 90, 0);
+            }
+            else
+            {
+                transform.rotation = Quaternion.Euler(0, -90, 0);
             }
         }
     }
@@ -198,3 +159,22 @@ public partial class PlayerController : MonoBehaviour
         else { idleTime = 0; }
     }
 }
+
+#if UNITY_EDITOR
+[CustomEditor(typeof(PlayerController))]
+public class PlayerControllerInspector : Editor
+{
+    public override void OnInspectorGUI()
+    {
+        base.OnInspectorGUI();
+        
+        var player = (PlayerController) target;
+        var healthbar = player.Healthbar;
+        if (player == null || healthbar == null) return;
+
+        // Replace the health variable in the inspector with the healthbar's value
+        // so that the healthbar's value can be changed in the inspector.
+        player.health = healthbar.Value;
+    }
+}
+#endif

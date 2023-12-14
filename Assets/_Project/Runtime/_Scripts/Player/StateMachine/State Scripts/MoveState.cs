@@ -22,10 +22,6 @@ public class MoveState : State
         velocityPower = stateData.AccelerationRate;
     }
 
-    public override bool CanBeInterrupted() =>
-        // return true if the player is doing anything other than moving
-        player.IsAttacking() || player.IsAirborne();
-
     public override void OnEnter()
     {
         // Play the move animation.
@@ -64,9 +60,8 @@ public class MoveState : State
     public override void OnExit()
     {
         // Perform any necessary cleanup or exit actions
-        
-        if (player.InputManager.MoveInput.x != 0 && player.IsGrounded()) player.StateMachine.TransitionToState(StateType.Walk);
-        else player.StateMachine.TransitionToState(StateType.Idle);
+
+        if (player.IsGrounded()) player.StateMachine.TransitionToState(player.InputManager.MoveInput.x != 0 ? StateType.Walk : StateType.Idle);
 
         IsMoving = false;
     }

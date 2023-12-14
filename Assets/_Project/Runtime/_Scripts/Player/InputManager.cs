@@ -1,6 +1,5 @@
 ﻿#region
 using System;
-using Lumina.Debugging;
 using Lumina.Essentials.Attributes;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -75,6 +74,8 @@ public class InputManager : MonoBehaviour
     /// Handles jump input.
     /// </summary>
     public void OnJump(InputAction.CallbackContext context) => TransitionTo(context, player.CanJump, State.StateType.Jump);
+    
+    public void OnDash(InputAction.CallbackContext context) => TransitionTo(context, player.CanDash, State.StateType.Dash);
 
     /// <summary>
     /// Handles state transition.
@@ -111,14 +112,14 @@ public class InputManager : MonoBehaviour
     /// </summary>
     void PerformAttack(InputAction.CallbackContext context, AttackType attackType)
     {
-        if (context.performed && player.CanAttack())
+        if (context.performed)
         {
-            if (player.IsGrounded())
+            if (player.IsGrounded() && player.CanAttack())
             {
                 LastAttackPressed = attackType;
                 stateMachine.TransitionToState(State.StateType.Attack);
             }
-            else
+            else if (player.CanAirborneAttack())
             {
                 LastAttackPressed = AttackType.Airborne;
                 stateMachine.TransitionToState(State.StateType.AirborneAttack);

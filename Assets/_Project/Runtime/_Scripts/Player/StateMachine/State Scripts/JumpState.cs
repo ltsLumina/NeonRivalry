@@ -1,4 +1,5 @@
 ﻿#region
+using System;
 using UnityEngine;
 #endregion
 
@@ -12,50 +13,39 @@ public class JumpState : State
 
     public bool IsJumping { get; private set; }
 
+    readonly float playerMass;
+    readonly float jumpForce;
+    readonly float jumpDuration;
     float jumpTimer;
-    float jumpForce;
-    float jumpDuration;
 
     public JumpState(PlayerController player, JumpStateData stateData) : base(player)
     {
-        float playerMass = stateData.PlayerMass;
-        player.Rigidbody.mass = playerMass;
-        
+        playerMass = stateData.PlayerMass;
         jumpForce = stateData.JumpForce;
         jumpDuration = stateData.JumpDuration;
     }
 
-    public override bool CanBeInterrupted()
-    {
-        // return true if the player is attacking or is grounded
-        //Log("JumpState: CanBeInterrupted()");
-        return player.IsAttacking() || player.IsGrounded() || player.IsFalling();
-    }
-
     public override void OnEnter()
-    {
-        // Initiate jump animation
-        //Log("Entered Jump State");
+    {   
         IsJumping = true;
 
         player.GetComponentInChildren<SpriteRenderer>().color = Color.yellow;
+
+        player.Rigidbody.mass = playerMass;
     }
 
     public override void UpdateState()
     {
-        // Handle jump logic, such as applying jump force
-        
         if (jumpTimer < jumpDuration)
         {
-            // Apply jump force
             player.Rigidbody.AddForce(Vector3.up * (jumpForce / jumpDuration), ForceMode.Force);
         }
         // Player has reached the apex of their jump
         else
         {
-            // Exit current state and transition to fall state
-            OnExit();
             player.StateMachine.TransitionToState(StateType.Fall);
+            OnExit();
+            return;
         }
 
         jumpTimer += Time.fixedDeltaTime;

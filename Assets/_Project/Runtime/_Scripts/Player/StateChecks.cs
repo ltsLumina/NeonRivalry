@@ -1,6 +1,6 @@
 ﻿#region
-using Lumina.Debugging;
 using UnityEngine;
+using Logger = Lumina.Debugging.Logger;
 #endregion
 
 // This is a partial class, which allows us to split the class definition across multiple files.
@@ -13,9 +13,9 @@ public partial class PlayerController // StateChecks.cs
 
     public bool IsGrounded()
     {
-        bool raycastHit = Physics.Raycast(transform.position, Vector3.down,raycastDistance,groundLayer);
+        bool raycastHit = Physics.Raycast(transform.position, Vector3.down, raycastDistance,groundLayer);
         
-        FGDebugger.Trace($"IsGrounded() is {raycastHit}", State.StateType.Idle);
+        Logger.Trace($"IsGrounded() is {raycastHit}", State.StateType.Idle);
 
         return raycastHit;
     }
@@ -25,7 +25,7 @@ public partial class PlayerController // StateChecks.cs
         bool isMoving = IsGrounded() && Rigidbody.velocity.x != 0 && StateMachine.CurrentState is MoveState
         { IsMoving: true };
 
-        FGDebugger.Trace($"IsMoving() is {isMoving}", State.StateType.Walk);
+        Logger.Trace($"IsMoving() is {isMoving}", State.StateType.Walk);
 
         return isMoving;
     }
@@ -33,10 +33,10 @@ public partial class PlayerController // StateChecks.cs
     // ReSharper disable Unity.PerformanceAnalysis
     public bool IsJumping()
     {
-        bool isJumping = IsGrounded() && Rigidbody.velocity.y > 0 && StateMachine.CurrentState is JumpState
+        bool isJumping = Rigidbody.velocity.y > 0 && StateMachine.CurrentState is JumpState
         { IsJumping: true };
 
-        FGDebugger.Trace($"IsJumping() is {isJumping}", State.StateType.Jump);
+        Logger.Trace($"IsJumping() is {isJumping}", State.StateType.Jump);
 
         return isJumping;
     }
@@ -47,7 +47,7 @@ public partial class PlayerController // StateChecks.cs
         bool isFalling = !IsGrounded() || (Rigidbody.velocity.y < 0 && StateMachine.CurrentState is FallState
         { IsFalling: true });
 
-        FGDebugger.Trace($"IsFalling() is {isFalling}", State.StateType.Fall);
+        Logger.Trace($"IsFalling() is {isFalling}", State.StateType.Fall);
 
         return isFalling;
     }
@@ -55,11 +55,12 @@ public partial class PlayerController // StateChecks.cs
     // ReSharper disable Unity.PerformanceAnalysis
     public bool IsAttacking()
     {
-        //TODO: This is a temporary implementation. We need to check if the player is attacking some other way.
-        bool isAttacking = StateMachine.CurrentState is AttackState
+        // Don't know if the normalizedTime check is necessary, but it's here just in case.
+        // It checks if the animation is still playing, and if it is, it returns true.
+        bool isAttacking = animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1.0f && StateMachine.CurrentState is AttackState
         { IsAttacking: true };
 
-        FGDebugger.Trace($"IsAttacking() is {isAttacking}", State.StateType.Attack);
+        Logger.Trace($"IsAttacking() is {isAttacking}", State.StateType.Attack);
 
         return isAttacking;
     }
@@ -67,9 +68,9 @@ public partial class PlayerController // StateChecks.cs
     public bool IsAirborneAttacking()
     {
         bool isAirborneAttacking = StateMachine.CurrentState is AirborneAttackState
-        { IsAirborneAttacking: true };
+        { IsAirborneAttacking: true, IsAirborne: true};
         
-        FGDebugger.Trace($"IsAirborneAttacking() is {isAirborneAttacking}", State.StateType.AirborneAttack);
+        Logger.Trace($"IsAirborneAttacking() is {isAirborneAttacking}", State.StateType.AirborneAttack);
         
         return isAirborneAttacking;
     }
@@ -78,30 +79,42 @@ public partial class PlayerController // StateChecks.cs
     /// This method checks if the player is airborne, which is defined as not being grounded, jumping, or falling.
     /// </summary>
     /// <returns> True if the player is airborne, false otherwise. </returns>
-    public bool IsAirborne() => !IsGrounded() || IsJumping() || IsFalling();
-    
+    public bool IsAirborne()
+    {
+        bool isAirborne = !IsGrounded() || StateMachine.CurrentState is JumpState
+        { IsJumping: true } or FallState
+        { IsFalling: true } or AirborneAttackState
+        { IsAirborne: true };
+        
+        Logger.Trace($"IsAirborne() is {isAirborne}", new [] { State.StateType.Jump , State.StateType.Fall, State.StateType.AirborneAttack });
+
+        return isAirborne;
+    }
+
     /// <summary>
     /// This method checks if the player is idle.
     /// </summary>
     /// <returns> True if the player is idle, false otherwise.</returns>
     public bool IsIdle()
     {
-        bool isIdle = IsGrounded() && !(IsMoving() || IsAirborne() || IsAttacking());
+        bool isIdle = IsGrounded() && !(IsMoving() || IsAirborne() || IsAttacking() || IsAirborneAttacking());
 
-        FGDebugger.Trace($"IsIdle() is {isIdle}", State.StateType.Idle);
+        Logger.Trace($"IsIdle() is {isIdle}", State.StateType.Idle);
 
         return isIdle;
     }
     
     public bool CanMove() => IsIdle();
 
-    public bool CanJump() => !IsAirborne() && !IsAttacking();
-    
-    public bool CanFall() => IsAirborne() && !IsAttacking();
+    public bool CanJump() => IsGrounded() && !IsAttacking() && !IsAirborneAttacking();
 
-    public bool CanAttack() => !IsAttacking();
+    public bool CanFall() => IsAirborne();
+
+    public bool CanAttack() => IsGrounded() && !IsAttacking() && !IsAirborneAttacking();
+
+    public bool CanAirborneAttack() => IsAirborne() && !IsAirborneAttacking() && !IsAttacking();
     
-    public bool CanAirborneAttack() => IsAirborne();
+    public bool CanDash() => !IsAttacking() && !IsAirborneAttacking();
 
     // -- Gizmos --
 

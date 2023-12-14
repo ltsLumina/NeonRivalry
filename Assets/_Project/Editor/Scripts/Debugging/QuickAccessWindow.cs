@@ -28,12 +28,14 @@ public class QuickAccessWindow : EditorWindow
     static Vector2 scrollPosition;
 
     [MenuItem("Tools/Debugging/Quick Access")]
-    static void ShowWindow()
+    public static void ShowWindow()
     {
-        var window = GetWindow<QuickAccessWindow>();
+        // Dock next to inspector. Find the inspector window using reflection
+        var window = GetWindow<QuickAccessWindow>("Quick Access", true, typeof(EditorWindow).Assembly.GetType("UnityEditor.InspectorWindow"));
         window.titleContent = new ("Quick Access");
         window.minSize      = new (350, 200);
         window.maxSize      = window.minSize;
+        
         window.Show();
     }
 
@@ -219,8 +221,8 @@ public class QuickAccessWindow : EditorWindow
 
             if (windowsFoldout)
             {
-                CreateButtonWithAction("Utility Window", BaseUtilityWindow.Open);
-                CreateButtonWithAction("State Debugger", FGDebuggerWindow.Open);
+                CreateButtonWithAction("Utility Window", UtilityWindow.Open);
+                CreateButtonWithAction("Debugger", StateDebuggerWindow.Open);
                 CreateButtonWithAction("Lumina's Essentials", UtilityPanel.OpenUtilityPanel);
             }
         }
@@ -237,7 +239,8 @@ public class QuickAccessWindow : EditorWindow
             if (optionsFoldout)
             {
                 EditorSettings.enterPlayModeOptionsEnabled = EditorGUILayout.Toggle("Enter Playmode Options", EditorSettings.enterPlayModeOptionsEnabled);
-                FGDebugger.debugMode = EditorGUILayout.Toggle(EditorGUIUtils.debugModeContent, FGDebugger.debugMode);
+                Logger.DebugMode                       = EditorGUILayout.Toggle("Debug Mode", Logger.DebugMode);
+                Logger.DebugPlayers                    = EditorGUILayout.Toggle("Debug Players", Logger.DebugPlayers);
             }
         }
     }
@@ -325,7 +328,7 @@ public class QuickAccessWindow : EditorWindow
         EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo();
         
         EditorSceneManager.OpenScene(path, OpenSceneMode.Single);
-        Debug.LogWarning("Loaded a scene using the debug menu! \nThe scene might not behave as expected.");
+        Debug.LogWarning("Opened a scene using the debug menu! \nThe scene might not behave as expected.");
     }
 
     static void AddCustomScenes()

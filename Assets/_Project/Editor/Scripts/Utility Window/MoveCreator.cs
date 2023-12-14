@@ -1,21 +1,22 @@
 ﻿#region
-using Lumina.Debugging;
 using UnityEditor;
 using UnityEngine;
 using static EditorGUIUtils;
 using static UnityEngine.GUILayout;
+using Logger = Lumina.Debugging.Logger;
 #endregion
 
 public static class MoveCreator
 {
+    #region Move Data
     // -- Fields --
     
     static MoveData currentMove;
-    static string moveName;
+    internal static string moveName;
 
-    public static bool showAttributes;
-    public static bool showResources;
-    public static bool showProperties;
+    static bool showAttributes;
+    static bool showResources;
+    static bool showProperties;
 
     // -- Attributes --
 
@@ -44,11 +45,16 @@ public static class MoveCreator
     static bool isArmor;
     static bool isInvincible;
     static bool isGuardBreak;
-
     // -- End --
+    #endregion
 
+    #region GUI
     public static void ManageMoveMenu()
     {
+        showAttributes = true;
+        showResources  = true;
+        showProperties = true;
+        
         DrawMenuHeader();
         currentMove = GetMoveToEdit();
 
@@ -61,10 +67,9 @@ public static class MoveCreator
         DisplayMoveEditor();
     }
     
-    #region GUI
     static void DrawMenuHeader()
     {
-        BaseUtilityWindow.DrawBackButton();
+        UtilityWindow.DrawBackButton();
         EditorGUILayout.LabelField("Creating Move", EditorStyles.boldLabel);
     }
 
@@ -76,33 +81,31 @@ public static class MoveCreator
         Space(10);
         
         moveName = GetMoveName();
-        string assetName = GenerateAssetName(moveName);
+        var label = new GUIContent($"Create {moveName}", "Creates the move. \nThe name of the move will be the name of the ScriptableObject.");
 
-        if (Button($"Create {moveName}"))
+        bool isNullOrEmpty = string.IsNullOrEmpty(moveName);
+        if (isNullOrEmpty) label.text = "Please choose a name.";
+
+        Space(5);
+        
+        using (new EditorGUI.DisabledScope(isNullOrEmpty))
         {
-            BaseUtilityWindow.window.titleContent = new ("Creating New Move...");
-            SwitchToMoveCreatorMenu(assetName);
+            if (Button(label, Height(35)))
+            {
+                UtilityWindow.window.titleContent = new ("Creating New Move...");
+                SwitchToMoveCreatorMenu();
+            }
         }
     }
 
-    static string GetMoveName() => EditorGUILayout.TextField("Move Name", moveName);
+    internal static string GetMoveName() => EditorGUILayout.TextField("Move Name", moveName);
 
-    static string GenerateAssetName(string moveName)
+    internal static void SwitchToMoveCreatorMenu()
     {
-        const string defaultName = "New Move";
-        return string.IsNullOrEmpty(moveName) ? defaultName : moveName;
-    }
+        UtilityWindow.activeMenu = DrawCreatingMoveMenu;
 
-    static void SwitchToMoveCreatorMenu(string assetName)
-    {
-        if (string.IsNullOrEmpty(assetName) || assetName == "New Move")
-        {
-            const string warning = "Warning";
-            string       message = BaseUtilityWindow.WarningMessage(assetName, false);
-
-            if (EditorUtility.DisplayDialog(warning, message, "Proceed", "Cancel")) BaseUtilityWindow.activeMenu = DrawCreatingMoveMenu;
-        }
-        else { BaseUtilityWindow.activeMenu = DrawCreatingMoveMenu; }
+        // Set the name of the ScriptableObject to the name of the move so that the user doesn't have to write it out again.
+        name = moveName;
     }
 
     static void DisplayMoveEditor()
@@ -114,7 +117,7 @@ public static class MoveCreator
 
     static void DrawCreatingMoveMenu()
     {
-        BaseUtilityWindow.DrawBackButton();
+        if (UtilityWindow.DrawBackButton()) UtilityWindow.window.titleContent = new ("Utility Window");
 
         Label("Creating Move", EditorStyles.boldLabel);
 
@@ -192,11 +195,10 @@ public static class MoveCreator
             string label = showAttributes ? "Attributes (click to hide)" : "Attributes (click to show)";
 
             showAttributes = EditorGUILayout.Foldout(showAttributes, label, true, EditorStyles.boldLabel);
-
+            
             if (showAttributes)
             {
                 // Initialize the name of the move with the name of the ScriptableObject
-                name = moveName;
                 if (string.IsNullOrEmpty(moveName)) name = "New Move";
 
                 name        = EditorGUILayout.TextField(nameContent, name);
@@ -232,6 +234,81 @@ public static class MoveCreator
     #endregion
 
     #region Utility
+    static void CreateMove()
+    {
+        var  label                = new GUIContent($"Create \"{name}\"", "Creates the move. \nThe name of the move will be the name of the ScriptableObject.");
+        bool emptyName            = string.IsNullOrEmpty(name);
+        if (emptyName) label.text = "Please choose a name.";
+
+        using (new EditorGUI.DisabledScope(emptyName))
+        {
+            if (Button(label))
+            {
+                FlexibleSpace();
+
+                currentMove = ScriptableObject.CreateInstance<MoveData>();
+
+                string path      = UtilityWindow.GetFilePathByWindowsExplorer("Moves");
+                string assetName = name;
+
+                if (string.IsNullOrEmpty(path)) return;
+
+                try
+                {
+                    AssetDatabase.CreateAsset(currentMove, $"{path}/{assetName}.asset");
+                } 
+                catch (UnityException e)
+                {
+                    Debug.LogError($"{Logger.ErrorMessagePrefix} Failed to create asset. The path in the script is probably invalid.\n{e.Message}");
+                    throw;
+                }
+                finally
+                {
+                    AssetDatabase.SaveAssets();
+                    AssetDatabase.Refresh();
+                }
+
+                // Assign the currentMove's values
+                currentMove.type      = type;
+                currentMove.direction = direction;
+                currentMove.guard     = guard;
+
+                currentMove.name        = name;
+                currentMove.description = description;
+                currentMove.damage      = damage;
+                currentMove.startup     = startup;
+                currentMove.active      = active;
+                currentMove.recovery    = recovery;
+                currentMove.blockstun   = blockstun;
+
+                currentMove.animation = animation;
+                currentMove.audioClip = audioClip;
+                currentMove.sprite    = sprite;
+
+                currentMove.isAirborne   = isAirborne;
+                currentMove.isSweep      = isSweep;
+                currentMove.isOverhead   = isOverhead;
+                currentMove.isArmor      = isArmor;
+                currentMove.isInvincible = isInvincible;
+                currentMove.isGuardBreak = isGuardBreak;
+
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+
+                UtilityWindow.activeMenu = UtilityWindow.DefaultMenu;
+
+                Debug.Log($"Created new move: \"{currentMove.name}\".");
+                Selection.activeObject = currentMove;
+                EditorGUIUtility.PingObject(currentMove);
+
+                currentMove                       = null;
+                UtilityWindow.createdSuccessfully = true;
+            
+                ResetMoveCreator();
+            }
+        }
+    }
+
     public static void ResetMoveCreator()
     {
         currentMove = null;
@@ -260,67 +337,6 @@ public static class MoveCreator
         isArmor      = false;
         isInvincible = false;
         isGuardBreak = false;
-    }
-
-    static void CreateMove()
-    {
-        if (Button(new GUIContent("Create Move", "Creates the move. \nThe name of the move will be the name of the ScriptableObject.")))
-        {
-            FlexibleSpace();
-
-            currentMove = ScriptableObject.CreateInstance<MoveData>();
-
-            const string path        = "Assets/_Project/Runtime/_Scripts/Player/Combat/Scriptable Objects/Moves";
-            const string defaultName = "New Move";
-            string       assetName   = string.IsNullOrEmpty(name) ? defaultName : name;
-
-            try { AssetDatabase.CreateAsset(currentMove, $"{path}/{assetName}.asset"); } catch (UnityException e)
-            {
-                Debug.LogError($"{FGDebugger.ErrorMessagePrefix} Failed to create asset. The path in the script is probably invalid.\n{e.Message}");
-                throw;
-            }
-            finally
-            {
-                AssetDatabase.SaveAssets();
-                AssetDatabase.Refresh();
-            }
-
-            // Assign the currentMove's values
-            currentMove.type      = type;
-            currentMove.direction = direction;
-            currentMove.guard     = guard;
-
-            currentMove.name        = name;
-            currentMove.description = description;
-            currentMove.damage      = damage;
-            currentMove.startup     = startup;
-            currentMove.active      = active;
-            currentMove.recovery    = recovery;
-            currentMove.blockstun   = blockstun;
-
-            currentMove.animation = animation;
-            currentMove.audioClip = audioClip;
-            currentMove.sprite    = sprite;
-
-            currentMove.isAirborne   = isAirborne;
-            currentMove.isSweep      = isSweep;
-            currentMove.isOverhead   = isOverhead;
-            currentMove.isArmor      = isArmor;
-            currentMove.isInvincible = isInvincible;
-            currentMove.isGuardBreak = isGuardBreak;
-
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
-
-            BaseUtilityWindow.activeMenu = BaseUtilityWindow.DefaultMenu;
-
-            Debug.Log($"Created new move: \"{currentMove.name}\".");
-            Selection.activeObject = currentMove;
-            EditorGUIUtility.PingObject(currentMove);
-
-            currentMove = null;
-            BaseUtilityWindow.createdSuccessfully = true;
-        }
     }
     #endregion
 }

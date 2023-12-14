@@ -23,10 +23,6 @@ public class FallState : State
         jumpHaltForce         = stateData.JumpHaltForce;
     }
 
-    public override bool CanBeInterrupted() =>
-        // return true if the player is attacking or is grounded
-        player.IsAttacking() || player.IsGrounded() || player.IsJumping();
-
     public override void OnEnter()
     {
         // Play the attack animation.
@@ -40,6 +36,7 @@ public class FallState : State
         if (player.IsGrounded())
         {
             OnExit();
+            return;
         }
 
         // Apply gravity
@@ -55,8 +52,8 @@ public class FallState : State
     {
         // Perform any necessary cleanup or exit actions
 
-        if (player.InputManager.MoveInput.x != 0 && player.IsGrounded()) player.StateMachine.TransitionToState(StateType.Walk);
-        else player.StateMachine.TransitionToState(StateType.Idle);
+        if (player.IsGrounded() && player.InputManager.MoveInput.x != 0) player.StateMachine.TransitionToState(StateType.Walk);
+        else if (player.IsGrounded()) player.StateMachine.TransitionToState(StateType.Idle);
 
         // Play land animation.
         IsFalling = false;
