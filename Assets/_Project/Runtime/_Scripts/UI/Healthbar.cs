@@ -107,5 +107,4 @@ public class Healthbar : MonoBehaviour
 
         yield return new WaitForEndOfFrame();
     }
-
 }
