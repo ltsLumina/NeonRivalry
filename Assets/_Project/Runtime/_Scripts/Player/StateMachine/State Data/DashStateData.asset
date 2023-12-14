@@ -9,10 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4923c2a7bc144f05a84524f74bdd8fc3, type: 3}
-  m_Name: MoveStateData
+  m_Script: {fileID: 11500000, guid: 6ec3168fad4c8014da7ce0bf2a99b3d9, type: 3}
+  m_Name: DashStateData
   m_EditorClassIdentifier: 
-  moveSpeed: 3.5
-  acceleration: 8
-  deceleration: 10
-  velocityPower: 1.4
+  dashDuration: 1
+  dashSpeed: 1
+  dashSleepTime: 1
+  dashAmount: 1
