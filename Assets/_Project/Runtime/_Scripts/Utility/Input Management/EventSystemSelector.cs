@@ -90,16 +90,9 @@ public class EventSystemSelector : MonoBehaviour
 
     public void FindButtonByButtonName(string buttonName)
     {
-        var button = GameObject.Find(buttonName);
+        GameObject button = GameObject.Find(buttonName);
         ProcessButton(button);
-        Debug.Log("Button found!" + buttonName, button);
-    }
-
-    public void DisableButtonByButtonName(string buttonName)
-    {
-        var button = GameObject.Find(buttonName);
-        ProcessButton(button);
-        Debug.Log("Button found!" + buttonName, button);
+        Debug.Log($"Found the button \"{buttonName}\"!" + "\n", button);
     }
 
     void ProcessButton(GameObject button)
