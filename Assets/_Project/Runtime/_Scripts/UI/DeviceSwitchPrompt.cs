@@ -11,19 +11,19 @@ public class DeviceSwitchPrompt : MonoBehaviour
     [SerializeField] TMP_Text ellipsisText;
     [SerializeField] GameObject[] objectsToEnable;
     [SerializeField] GameObject[] objectsToDisable;
-    [SerializeField] GameObject[] buttonsNotInteractable;
-    
+    [SerializeField] GameObject[] swapButtonInteractable;
+
     // -- Private Variables --
-    
+
     const string baseText = "Press the START/SPACEBAR button to continue";
-    
+
     // -- Properties --
-    
+
     public static bool IsWaitingForInput { get; private set; }
 
     void OnEnable()
     {
-        ellipsisText.text = baseText; 
+        ellipsisText.text = baseText;
         StopCoroutine(ShowDotsWithInterval(ellipsisText, 3, 1f));
 
         // Reset the isWaitingForInput bool to false.
@@ -36,27 +36,27 @@ public class DeviceSwitchPrompt : MonoBehaviour
     {
         // Start the coroutine that shows the ellipsis
         StartCoroutine(ShowDotsWithInterval(ellipsisText, 3, 1f));
-        
+
         // Set the isWaitingForInput bool to true. This is used to prevent a player from joining while the prompt is active.
         IsWaitingForInput = true;
-        
+
         // Disable all objects in the objectsToDisable array
         foreach (GameObject obj in objectsToDisable)
         {
             obj.SetActive(false);
         }
-        
+
         // Enable all objects in the objectsToEnable array
         foreach (GameObject obj in objectsToEnable)
         {
             obj.SetActive(true);
         }
 
-        foreach (GameObject obj in buttonsNotInteractable)
+        foreach (GameObject obj in swapButtonInteractable)
         {
-            obj.GetComponent<Button>().interactable= false;
+            obj.GetComponent<Button>().interactable = false;
         }
-        
+
         // Wait for the player to press a button on the keyboard
         while (true)
         {
@@ -64,25 +64,25 @@ public class DeviceSwitchPrompt : MonoBehaviour
             if (Keyboard.current.spaceKey.wasPressedThisFrame || Gamepad.current != null && Gamepad.current.startButton.wasPressedThisFrame)
             {
                 // If so, break out of the while loop
-                break; 
+                break;
             }
-            
+
             // Wait for the next frame
             yield return null;
         }
-        
+
         // An input was detected, so stop the coroutine
         StopCoroutine(ShowDotsWithInterval(ellipsisText, 3, 1f));
-        
+
         // Set the isWaitingForInput bool to false.
         IsWaitingForInput = false;
-        
+
         // Disable all objects in the objectsToEnable array
         foreach (GameObject obj in objectsToEnable)
         {
             obj.SetActive(false);
         }
-        
+
         // Enable all objects in the objectsToDisable array
         foreach (GameObject obj in objectsToDisable)
         {
@@ -104,9 +104,29 @@ public class DeviceSwitchPrompt : MonoBehaviour
             }
 
             // This resets the string back to the baseText.
-            sb.Length       = baseText.Length;
+            sb.Length = baseText.Length;
             promptText.text = baseText;
             yield return new WaitForSeconds(intervalInSeconds);
+        }
+    }
+
+    public void HideDotsWithoutInterval()
+    {
+        // Disable all objects in the objectsToEnable array
+        foreach (GameObject obj in objectsToEnable)
+        {
+            obj.SetActive(false);
+        }
+
+        // Enable all objects in the objectsToDisable array
+        foreach (GameObject obj in objectsToDisable)
+        {
+            obj.SetActive(true);
+        }
+
+        foreach (GameObject obj in swapButtonInteractable)
+        {
+            obj.GetComponent<Button>().interactable = true;
         }
     }
 }
