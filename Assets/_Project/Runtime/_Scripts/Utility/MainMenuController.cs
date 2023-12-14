@@ -1,8 +1,10 @@
-using Lumina.Essentials.Sequencer;
+using DG.Tweening;
 using UnityEngine;
+using Sequence = Lumina.Essentials.Sequencer.Sequence;
 
 public class MainMenuController : MonoBehaviour
 {
+    #region Scene Management Methods
     public void LoadNextScene()
     {
         var sequence = new Sequence(this);
@@ -25,4 +27,5 @@ public class MainMenuController : MonoBehaviour
     {
         SceneManagerExtended.LoadScene(sceneIndex);
     }
+    #endregion
 }

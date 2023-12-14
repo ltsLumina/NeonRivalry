@@ -785,7 +785,7 @@ GameObject:
   - component: {fileID: 297043949}
   - component: {fileID: 297043948}
   m_Layer: 5
-  m_Name: Controls
+  m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1501,7 +1501,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &780451525
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2230,7 +2230,7 @@ MonoBehaviour:
   - {fileID: 1481491907}
   objectsToDisable:
   - {fileID: 1952919878}
-  swapButtonInteractable:
+  mainMenuButtons:
   - {fileID: 200678084}
   - {fileID: 1893694578}
   - {fileID: 1914371399}
@@ -2477,13 +2477,15 @@ GameObject:
   - component: {fileID: 1291109107}
   - component: {fileID: 1291109106}
   - component: {fileID: 1291109105}
+  - component: {fileID: 1291109108}
+  - component: {fileID: 1291109109}
   m_Layer: 5
   m_Name: Control
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1291109104
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2548,9 +2550,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1071174804}
-        m_TargetAssemblyTypeName: MainMenuController, _Project
-        m_MethodName: QuitGame
+      - m_Target: {fileID: 1291109108}
+        m_TargetAssemblyTypeName: DeviceSwitchPrompt, _Project
+        m_MethodName: StartWaitingForInput
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2558,6 +2560,30 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1291109109}
+        m_TargetAssemblyTypeName: ControlSchemeSwitcher, _Project
+        m_MethodName: ToggleControlScheme
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 1
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1291109109}
+        m_TargetAssemblyTypeName: UnityEngine.Component, UnityEngine
+        m_MethodName: SendMessage
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: THIS IS NOT DONE I GIVE UP
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!114 &1291109106
@@ -2598,6 +2624,44 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1291109103}
   m_CullTransparentMesh: 1
+--- !u!114 &1291109108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1291109103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1764a7dac3a920946880d63964fe311a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ellipsisText: {fileID: 879078498}
+  objectsToEnable:
+  - {fileID: 1407394502}
+  - {fileID: 49239143}
+  - {fileID: 879078496}
+  objectsToDisable:
+  - {fileID: 1407394502}
+  - {fileID: 1941250220}
+  - {fileID: 780451524}
+  - {fileID: 1481491907}
+  - {fileID: 1291109103}
+  - {fileID: 49239143}
+  - {fileID: 879078496}
+  mainMenuButtons: []
+--- !u!114 &1291109109
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1291109103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7dc6683d3d50478db719233c4c74744c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1407394502
 GameObject:
   m_ObjectHideFlags: 0
@@ -2615,7 +2679,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1407394503
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2691,7 +2755,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1481491908
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3384,7 +3448,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1941250221
 RectTransform:
   m_ObjectHideFlags: 0
