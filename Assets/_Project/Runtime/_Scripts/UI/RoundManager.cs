@@ -12,12 +12,14 @@ public class RoundManager : MonoBehaviour
 
     [SerializeField] TMP_Text player1WonRoundsText;
     [SerializeField] TMP_Text player2WonRoundsText;
-    
+
+    public bool player1Victory;
+
     void Start()
     {
         // Clear the text fields
-        player1WonRoundsText = null;
-        player2WonRoundsText = null;
+        //player1WonRoundsText = null;
+        //player2WonRoundsText = null;
     }
 
     void OnEnable()
@@ -28,6 +30,18 @@ public class RoundManager : MonoBehaviour
     void OnDisable()
     {
         foreach (var healthbar in HealthbarManager.Healthbars) { healthbar.OnPlayerDeath -= CheckRoundStatus; }
+    }
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Z)) PlayerVictory(ref player1WonRounds, player1WonRoundsText);
+
+        // Press X to manually increment Player 2 victories
+        if (Input.GetKeyDown(KeyCode.X)) PlayerVictory(ref player2WonRounds, player2WonRoundsText);
+        if (currentRounds > maxRounds || player1WonRounds >= 2 || player2WonRounds >= 2)
+        {
+            ResetGame();
+            return;
+        }
     }
 
     // The Update method checks for updates in each frame of the game
@@ -67,7 +81,7 @@ public class RoundManager : MonoBehaviour
     // ResetGame resets the game status and empties the round text
     void ResetGame()
     {
-        currentRounds             = 0;
+        currentRounds             = 1;
         player1WonRounds          = 0;
         player2WonRounds          = 0;
         player1WonRoundsText.text = string.Empty;
