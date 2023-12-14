@@ -11,8 +11,6 @@ public class DeviceSwitchPrompt : MonoBehaviour
     [SerializeField] TMP_Text ellipsisText;
     [SerializeField] GameObject[] objectsToEnable;
     [SerializeField] GameObject[] objectsToDisable;
-    [Tooltip("These are the buttons that are disabled when the prompt is active. \nThey will be re-enabled when the prompt is hidden.")]
-    [SerializeField] GameObject[] mainMenuButtons;
 
     // -- Private Variables --
 
@@ -51,11 +49,6 @@ public class DeviceSwitchPrompt : MonoBehaviour
         foreach (GameObject obj in objectsToEnable)
         {
             obj.SetActive(true);
-        }
-
-        foreach (GameObject obj in mainMenuButtons)
-        {
-            obj.GetComponent<Button>().interactable = false;
         }
 
         // Wait for the player to press a button on the keyboard
@@ -123,11 +116,6 @@ public class DeviceSwitchPrompt : MonoBehaviour
         foreach (GameObject obj in objectsToDisable)
         {
             obj.SetActive(true);
-        }
-
-        foreach (GameObject obj in mainMenuButtons)
-        {
-            obj.GetComponent<Button>().interactable = true;
         }
     }
 }
