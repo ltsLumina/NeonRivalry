@@ -31,7 +31,7 @@ public partial class PlayerController : MonoBehaviour
     [SerializeField] LayerMask groundLayer;
 
     [Header("Player ID"), Tooltip("The player's ID. \"1\"refers to player 1, \"2\" refers to player 2.")]
-    [SerializeField] [ReadOnly] int playerID;
+    [SerializeField, ReadOnly] int playerID;
 
     // Cached References
     Animator animator;
@@ -44,8 +44,8 @@ public partial class PlayerController : MonoBehaviour
     // -- Properties --
     
     public Rigidbody Rigidbody { get; private set; }
-    public InputManager InputManager { get; private set; }
     public StateMachine StateMachine { get; private set; }
+    public InputManager InputManager { get; private set; }
     public PlayerInput PlayerInput { get; set; }
     public HitBox HitBox { get; set; }
     public HurtBox HurtBox { get; set; }
@@ -55,7 +55,7 @@ public partial class PlayerController : MonoBehaviour
     public int PlayerID
     {
         get => playerID;
-        private set =>
+        private set => 
             // Clamp the playerID between 1 and 2.
             playerID = Mathf.Clamp(value, 1, 2);
     }
@@ -70,8 +70,8 @@ public partial class PlayerController : MonoBehaviour
     {
         // Get the player's rigidbody, input manager, and state machine.
         Rigidbody     = GetComponent<Rigidbody>();
-        InputManager  = GetComponentInChildren<InputManager>();
         StateMachine  = GetComponent<StateMachine>();
+        InputManager  = GetComponentInChildren<InputManager>();
         PlayerInput   = GetComponentInChildren<PlayerInput>();
         animator      = GetComponentInChildren<Animator>();
 
