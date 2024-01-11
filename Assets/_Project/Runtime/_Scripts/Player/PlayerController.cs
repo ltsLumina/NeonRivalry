@@ -36,6 +36,11 @@ public partial class PlayerController : MonoBehaviour
     // Cached References
     Animator animator;
 
+    float moveSpeed = 3.5f;
+    float acceleration = 8f;
+    float deceleration = 10f;
+    float velocityPower = 1.4f;
+
     // -- Properties --
     
     public Rigidbody Rigidbody { get; private set; }
@@ -82,6 +87,42 @@ public partial class PlayerController : MonoBehaviour
         CheckIdle();
         
         RotateToFaceEnemy();
+
+        //TODO: Temporary fix to test new state machine.
+        if (StateMachine.CurrentState is not AttackState or AirborneAttackState)
+        {
+            if (IsGrounded())
+            {
+                DEBUGMovement();
+            } 
+        }
+    }
+
+    void DEBUGMovement()
+    {
+        // Getting the move input from the player's input manager.
+        Vector3 moveInput = InputManager.MoveInput;
+
+        // Determining the direction of the movement (left or right).
+        int moveDirection = (int) moveInput.x;
+
+        // Calculating the target speed based on direction and move speed.
+        float targetSpeed = moveDirection * moveSpeed;
+
+        // Calculate difference between target speed and current velocity.
+        float speedDifference = targetSpeed - Rigidbody.velocity.x;
+
+        // Determine the acceleration rate based on whether the target speed is greater than 0.01 or not.
+        float accelRate = Mathf.Abs(targetSpeed) > 0.01f ? acceleration : deceleration;
+
+        // Calculate the final movement force to be applied on the player's rigidbody.
+        float movement = Mathf.Pow(Mathf.Abs(speedDifference) * accelRate, velocityPower) * Mathf.Sign(speedDifference);
+
+        // Apply the force to the player's rigidbody.
+        Rigidbody.AddForce(movement * Vector3.right);
+
+        // Call the OnExit function after the force has been applied.
+        //OnExit();
     }
     
     /// <summary>
@@ -96,7 +137,8 @@ public partial class PlayerController : MonoBehaviour
         gameObject.name = $"Player {PlayerID}";
         
         // Parenting the player to the header is purely for organizational purposes.
-        Transform header = GameObject.FindGameObjectWithTag("[Header] Players").transform;
+        const string headerTag = "[Header] Players";
+        Transform header = GameObject.FindGameObjectWithTag(headerTag).transform;
 
         if (header == null)
         {

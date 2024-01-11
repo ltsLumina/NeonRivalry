@@ -32,29 +32,29 @@ public class MoveState : State
 
     public override void UpdateState()
     {
-        // Getting the move input from the player's input manager.
-        Vector3 moveInput = player.InputManager.MoveInput;
-
-        // Determining the direction of the movement (left or right).
-        int moveDirection = (int) moveInput.x;
-
-        // Calculating the target speed based on direction and move speed.
-        float targetSpeed = moveDirection * moveSpeed;
-
-        // Calculate difference between target speed and current velocity.
-        float speedDifference = targetSpeed - player.Rigidbody.velocity.x;
-
-        // Determine the acceleration rate based on whether the target speed is greater than 0.01 or not.
-        float accelRate = Mathf.Abs(targetSpeed) > 0.01f ? acceleration : deceleration;
-
-        // Calculate the final movement force to be applied on the player's rigidbody.
-        float movement = Mathf.Pow(Mathf.Abs(speedDifference) * accelRate, velocityPower) * Mathf.Sign(speedDifference);
-
-        // Apply the force to the player's rigidbody.
-        player.Rigidbody.AddForce(movement * Vector3.right);
-
-        // Call the OnExit function after the force has been applied.
-        OnExit();
+        // // Getting the move input from the player's input manager.
+        // Vector3 moveInput = player.InputManager.MoveInput;
+        //
+        // // Determining the direction of the movement (left or right).
+        // int moveDirection = (int) moveInput.x;
+        //
+        // // Calculating the target speed based on direction and move speed.
+        // float targetSpeed = moveDirection * moveSpeed;
+        //
+        // // Calculate difference between target speed and current velocity.
+        // float speedDifference = targetSpeed - player.Rigidbody.velocity.x;
+        //
+        // // Determine the acceleration rate based on whether the target speed is greater than 0.01 or not.
+        // float accelRate = Mathf.Abs(targetSpeed) > 0.01f ? acceleration : deceleration;
+        //
+        // // Calculate the final movement force to be applied on the player's rigidbody.
+        // float movement = Mathf.Pow(Mathf.Abs(speedDifference) * accelRate, velocityPower) * Mathf.Sign(speedDifference);
+        //
+        // // Apply the force to the player's rigidbody.
+        // player.Rigidbody.AddForce(movement * Vector3.right);
+        //
+        // // Call the OnExit function after the force has been applied.
+        // OnExit();
     }
 
     public override void OnExit()

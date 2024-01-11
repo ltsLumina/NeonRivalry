@@ -49,7 +49,7 @@ public class AttackHandler
     /// <remarks>
     /// The method gets a list of moves associated with the given attack type by calling <see cref="GetAttackMoves"/>. 
     /// If there are no attack moves for the supplied type, the method returns.
-    /// A Vector2 input is then retrieved from <see cref="InputManager.MoveInput"/>.
+    /// <para>A Vector2 input is then retrieved from <see cref="InputManager.MoveInput"/>.</para>
     /// The direction to perform is calculated based on the player's aerial status or the direction derived from the input.
     /// The attack to perform is determined by finding the first move in the attack moves list that matches the direction to perform (if any).
     /// The attack is then performed by calling <see cref="PerformAttack"/>.
