@@ -10,6 +10,9 @@ using Logger = Lumina.Debugging.Logger;
 
 public class HurtBox : MonoBehaviour
 {
+    [SerializeField] GameObject punchKickEffect;
+    
+    
     PlayerController player;
     new Rigidbody rigidbody;
 
@@ -52,6 +55,8 @@ public class HurtBox : MonoBehaviour
         int health = player.Healthbar.Value;
         
         Debug.Log($"HurtBox hit by {hitBox.name} and took {hitBox.DamageAmount} damage!");
+        
+        PlayEffect(out GameObject effect);
         
         // psuedo code:
         // if (player.StateMachine.CurrentState is BlockState)
@@ -109,6 +114,7 @@ public class HurtBox : MonoBehaviour
         // Knock player back
         Knockback();
     }
+    void PlayEffect(out GameObject effect) => effect = Instantiate(punchKickEffect, transform.position + new Vector3(0.2f, transform.position.y - 1, transform.position.z - 1), transform.rotation);
 
     void Knockback()
     {
