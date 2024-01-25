@@ -6,17 +6,20 @@ using UnityEngine;
 public class RoundManager : MonoBehaviour
 {
     [SerializeField] int maxRounds;
-    [SerializeField] int currentRounds;
-    [SerializeField] int player1WonRounds;
-    [SerializeField] int player2WonRounds;
+    [SerializeField] public static int currentRounds;
+    [SerializeField] public static int player1WonRounds;
+    [SerializeField] public static int player2WonRounds;
 
     [SerializeField] TMP_Text player1WonRoundsText;
     [SerializeField] TMP_Text player2WonRoundsText;
 
+    ResultScreen resultScreen;
     public bool player1Victory;
+
 
     void Start()
     {
+        resultScreen = FindObjectOfType<ResultScreen>();
         // Clear the text fields
         //player1WonRoundsText = null;
         //player2WonRoundsText = null;
@@ -33,13 +36,17 @@ public class RoundManager : MonoBehaviour
     }
     private void Update()
     {
+        Debug.Log("current rounds " + currentRounds);
+        Debug.Log("player1 " + player1WonRounds);
+        Debug.Log("player2 " + player2WonRounds);
         if (Input.GetKeyDown(KeyCode.Z)) PlayerVictory(ref player1WonRounds, player1WonRoundsText);
 
         // Press X to manually increment Player 2 victories
         if (Input.GetKeyDown(KeyCode.X)) PlayerVictory(ref player2WonRounds, player2WonRoundsText);
-        if (currentRounds > maxRounds || player1WonRounds >= 2 || player2WonRounds >= 2)
+
+        if (Input.GetKeyDown(KeyCode.C))
         {
-            ResetGame();
+            Resultscreen();
             return;
         }
     }
@@ -52,9 +59,9 @@ public class RoundManager : MonoBehaviour
     void CheckRoundStatus(PlayerController playerThatDied)
     {
         // Reset game if rounds exceeded maximum, or if a player won 2 rounds
-        if (currentRounds >= maxRounds || player1WonRounds >= 2 || player2WonRounds >= 2)
+        if (currentRounds > maxRounds || player1WonRounds >= 2 || player2WonRounds >= 2)
         {
-            ResetGame();
+            Resultscreen();
             return;
         }
 
@@ -86,5 +93,12 @@ public class RoundManager : MonoBehaviour
         player2WonRounds          = 0;
         player1WonRoundsText.text = string.Empty;
         player2WonRoundsText.text = string.Empty;
+    }
+
+    void Resultscreen()
+    {
+        resultScreen.GetComponent<Canvas>().enabled = true;
+        FindObjectOfType<EventSystemSelector>().FindButtonByButtonName("Rematch Button (Player 1)");
+        StartCoroutine(resultScreen.RandomizeSliderValues(1, 100));
     }
 }

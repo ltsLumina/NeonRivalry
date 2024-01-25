@@ -79,10 +79,10 @@ public class HurtBox : MonoBehaviour
         {
             Gamepad.current.Rumble(this);
             
-            //may god save us
-            // RoundManager.player1WonRoundsText.text = $"Rounds won: \n{FindObjectOfType<RoundManager>().player1WonRounds}/2";
-            // FindObjectOfType<RoundManager>().player1WonRounds++;
-            // FindObjectOfType<RoundManager>().currentRounds++;
+            //RoundManager.player1WonRoundsText.text = $"Rounds won: \n{RoundManager.player1WonRounds}/2";
+            //RoundManager.player1WonRounds++;
+            //RoundManager.currentRounds++;
+            
             Debug.Log("Player is dead!");
 
             if (!Logger.DebugPlayers)

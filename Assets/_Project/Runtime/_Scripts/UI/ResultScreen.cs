@@ -18,7 +18,6 @@ public class ResultScreen : MonoBehaviour
 
     private void Start()
     {
-        StartCoroutine(RandomizeSliderValues(1, 100));
         if (FindObjectOfType<RoundManager>() == null) { return; }
 
         FindObjectOfType<RoundManager>().player1Victory = true;
@@ -26,7 +25,7 @@ public class ResultScreen : MonoBehaviour
 
     }
 
-    IEnumerator RandomizeSliderValues(float minValue, float maxValue)
+    public IEnumerator RandomizeSliderValues(float minValue, float maxValue)
     {
         foreach (Slider slider in sliders)
         {
@@ -38,5 +37,10 @@ public class ResultScreen : MonoBehaviour
         }
 
         yield return null;
+    }
+
+    public void testmethod()
+    {
+
     }
 }
