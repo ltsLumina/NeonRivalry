@@ -150,7 +150,7 @@ public partial class PlayerController : MonoBehaviour
 
         // Rotate to face the camera.
         // This has no gameplay purpose and only serves as a visual aid.
-        transform.rotation = Quaternion.Euler(0, 180, 0);
+        transform.rotation = Quaternion.Euler(0, 120, 0);
 
         var playerManager = PlayerManager.Instance;
 
