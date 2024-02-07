@@ -2,7 +2,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Lumina.Essentials.Sequencer;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Logger = Lumina.Debugging.Logger;
@@ -107,23 +106,21 @@ public class HurtBox : MonoBehaviour
             if (!Logger.DebugPlayers)
             {
                 var delayLoad = new Sequence(this);
-                delayLoad.WaitThenExecute(0.35f, () => SceneManagerExtended.LoadScene(SceneManagerExtended.ActiveScene));
+                delayLoad.WaitThenExecute(1f, SceneManagerExtended.ReloadScene);
             }
         }
         
         // Knock player back
         Knockback();
     }
-    void PlayEffect(out GameObject effect) => effect = Instantiate(punchKickEffect, transform.position + new Vector3(0.2f, transform.position.y - 1, transform.position.z - 1), transform.rotation);
+    
+    void PlayEffect(out GameObject effect) => effect = Instantiate(punchKickEffect, transform.position + new Vector3(0.2f, transform.position.y - 1, transform.position.z - 1), Quaternion.identity);
 
     void Knockback()
     {
-        // Don't knockback players while debugging.
-        if (Logger.DebugPlayers) return;
-        
         // Knockback the player based on the sign of the Y-rotation.
-        float knockbackForce     = 450f;
-        float knockbackDirection = -Mathf.Sign(transform.rotation.y);
+        float knockbackForce     = 500f;
+        float knockbackDirection = Mathf.Sign(transform.rotation.y);
         rigidbody.AddForce(knockbackDirection * knockbackForce * Vector3.right);
     }
 }
