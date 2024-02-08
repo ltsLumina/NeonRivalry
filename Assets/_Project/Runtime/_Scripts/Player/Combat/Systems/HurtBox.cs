@@ -114,13 +114,21 @@ public class HurtBox : MonoBehaviour
         Knockback();
     }
     
-    void PlayEffect(out GameObject effect) => effect = Instantiate(punchKickEffect, transform.position + new Vector3(0.2f, transform.position.y - 1, transform.position.z - 1), Quaternion.identity);
+    void PlayEffect(out GameObject effect) => effect = Instantiate(punchKickEffect, transform.position + new Vector3(0.2f, transform.position.y, transform.position.z - 1), Quaternion.identity);
 
     void Knockback()
     {
         // Knockback the player based on the sign of the Y-rotation.
-        float knockbackForce     = 500f;
-        float knockbackDirection = Mathf.Sign(transform.rotation.y);
-        rigidbody.AddForce(knockbackDirection * knockbackForce * Vector3.right);
+        float knockbackForce     = 65f;
+        
+        // Knockback player away from the other player
+        Vector3 knockbackDirection;
+        var playerOne = PlayerManager.PlayerOne;
+        var playerTwo = PlayerManager.PlayerTwo;
+        
+        if (player.PlayerID == 1) knockbackDirection = playerTwo.transform.position - playerOne.transform.position;
+        else                      knockbackDirection = playerOne.transform.position - playerTwo.transform.position;
+        
+        rigidbody.AddForce(-knockbackDirection * knockbackForce);
     }
 }

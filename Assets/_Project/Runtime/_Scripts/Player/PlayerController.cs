@@ -38,6 +38,11 @@ public partial class PlayerController : MonoBehaviour
     [SerializeField] Animator combatAnimator;
     [SerializeField] Animator movementAnimator;
 
+    [SerializeField] GameObject mainCharacter;
+    [SerializeField] GameObject secondCharacter; // TODO: temp
+
+    
+
     
 
     // Cached References
@@ -140,6 +145,12 @@ public partial class PlayerController : MonoBehaviour
         
         PlayerID = PlayerInput.playerIndex + 1;
         gameObject.name = $"Player {PlayerID}";
+
+        if (PlayerID == 2)
+        {
+            mainCharacter.SetActive(false);
+            secondCharacter.SetActive(true);
+        }
         
         // Parenting the player to the header is purely for organizational purposes.
         const string headerTag = "[Header] Players";
