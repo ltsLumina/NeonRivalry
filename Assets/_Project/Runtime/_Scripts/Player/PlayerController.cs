@@ -21,7 +21,6 @@ public partial class PlayerController : MonoBehaviour
 {
     [Header("Player Stats"), UsedImplicitly]
     [SerializeField, ReadOnly] public int health;
-    [SerializeField, ReadOnly] Healthbar healthbar;
 
     [Header("Read-Only Fields")]
     [SerializeField] float idleTimeThreshold;
@@ -35,15 +34,8 @@ public partial class PlayerController : MonoBehaviour
     [SerializeField, ReadOnly] int playerID;
     
     [Header("Player Components")]
-    [SerializeField] Animator combatAnimator;
-    [SerializeField] Animator movementAnimator;
-
-    [SerializeField] GameObject mainCharacter;
-    [SerializeField] GameObject secondCharacter; // TODO: temp
-
-    
-
-    
+    [SerializeField, ReadOnly] Healthbar healthbar;
+    [SerializeField, ReadOnly] Animator animator;
 
     // Cached References
     float moveSpeed = 3f;
@@ -76,16 +68,21 @@ public partial class PlayerController : MonoBehaviour
         set => healthbar = value;
     }
 
+    public Animator Animator
+    {
+        get => animator;
+        set => animator = value;
+    }
+
     void Awake()
     {
-        // Get the player's rigidbody, input manager, and state machine.
-        Rigidbody     = GetComponent<Rigidbody>();
-        StateMachine  = GetComponent<StateMachine>();
-        InputManager  = GetComponentInChildren<InputManager>();
-        PlayerInput   = GetComponentInChildren<PlayerInput>();
-
-        HitBox  = GetComponentInChildren<HitBox>();
-        HurtBox = GetComponentInChildren<HurtBox>();
+        Rigidbody    = GetComponent<Rigidbody>();
+        StateMachine = GetComponent<StateMachine>();
+        InputManager = GetComponentInChildren<InputManager>();
+        PlayerInput  = GetComponentInChildren<PlayerInput>();
+        HitBox       = GetComponentInChildren<HitBox>();
+        HurtBox      = GetComponentInChildren<HurtBox>();
+        Animator     = GetComponentInChildren<Animator>();
     }
 
     // Rotate the player when spawning in to face in a direction that is more natural.
@@ -113,8 +110,8 @@ public partial class PlayerController : MonoBehaviour
         Vector3 moveInput = InputManager.MoveInput;
 
         // Animating the player based on the move input.
-        movementAnimator.SetBool("Walk_Forward", moveInput.x > 0);
-        movementAnimator.SetBool("Walk_Backward", moveInput.x < 0);
+        Animator.SetBool("Walk_Forward", moveInput.x > 0);
+        Animator.SetBool("Walk_Backward", moveInput.x < 0);
 
         // Determining the direction of the movement (left or right).
         int moveDirection = (int) moveInput.x;
@@ -145,12 +142,6 @@ public partial class PlayerController : MonoBehaviour
         
         PlayerID = PlayerInput.playerIndex + 1;
         gameObject.name = $"Player {PlayerID}";
-
-        if (PlayerID == 2)
-        {
-            mainCharacter.SetActive(false);
-            secondCharacter.SetActive(true);
-        }
         
         // Parenting the player to the header is purely for organizational purposes.
         const string headerTag = "[Header] Players";
