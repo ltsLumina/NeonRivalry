@@ -57,7 +57,7 @@ public partial class PlayerController // StateChecks.cs
     {
         // Don't know if the normalizedTime check is necessary, but it's here just in case.
         // It checks if the animation is still playing, and if it is, it returns true.
-        bool isAttacking = animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1.0f && StateMachine.CurrentState is AttackState
+        bool isAttacking = Animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1.0f && StateMachine.CurrentState is AttackState
         { IsAttacking: true };
 
         Logger.Trace($"IsAttacking() is {isAttacking}", State.StateType.Attack);
