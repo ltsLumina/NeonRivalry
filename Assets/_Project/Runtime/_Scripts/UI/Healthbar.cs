@@ -1,18 +1,21 @@
-﻿using DG.Tweening;
+﻿using System.Collections;
+using DG.Tweening;
 using Lumina.Essentials.Attributes;
-using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class Healthbar : MonoBehaviour
 {
-    [Header("Reference"), Space(5)]
-    [SerializeField, ReadOnly] Slider slider;
-    [SerializeField, ReadOnly] PlayerController player;
+    [Header("Reference")] [Space(5)]
+    [SerializeField] [ReadOnly] Slider slider;
+    [SerializeField] [ReadOnly] PlayerController player;
     [SerializeField] Slider comboVisualSlider;
+    
     [SerializeField] float doTweenSpeed;
-    [SerializeField, Tooltip("Make sure the easing method is ONLY In*** \nIf you want to use the \"Linear\" method make sure the other is set to \"Unset\"")] Ease inEase;
-    [SerializeField, Tooltip("Make sure the easing method is ONLY Out***")] Ease outEase;
+    [Tooltip("Make sure the easing method is ONLY In*** \nIf you want to use the \"Linear\" method make sure the other is set to \"Unset\"")]
+    [SerializeField] Ease inEase;
+    [Tooltip("Make sure the easing method is ONLY Out***")]
+    [SerializeField] Ease outEase;
 
     [SerializeField, ReadOnly] float comboTimer;
     [SerializeField, ReadOnly] bool isTweening;
@@ -86,7 +89,7 @@ public class Healthbar : MonoBehaviour
         if (Player != null) comboTimer = 0.5f;
     }
 
-    private void Update()
+    void Update()
     {
         if(comboTimer > 0)
         {
@@ -100,7 +103,7 @@ public class Healthbar : MonoBehaviour
         }
     }
 
-    private IEnumerator UpdateHealthBar(float currentHealth, float speed, Ease inEase, Ease outEase)
+    IEnumerator UpdateHealthBar(float currentHealth, float speed, Ease inEase, Ease outEase)
     {
         isTweening = true;
         comboVisualSlider.DOValue(currentHealth, speed, true).SetEase(inEase).SetEase(outEase);

@@ -21,6 +21,8 @@ public class StateMachine : MonoBehaviour
     [SerializeField] PlayerController player;
 
     // Cached References
+    bool isTransitioning;
+    
     public PlayerController Player
     {
         get => player;
@@ -72,7 +74,7 @@ public class StateMachine : MonoBehaviour
     // Runs the current state's update method. (Fixed interval of 60 calls per second)
     public void FixedUpdate()
     {
-        CurrentState?.UpdateState(); 
+        if (!isTransitioning) CurrentState?.UpdateState();
     }
 
     /// <summary>
@@ -81,6 +83,10 @@ public class StateMachine : MonoBehaviour
     /// <param name="state"> The state to transition into. </param>
     public void TransitionToState(StateType state)
     {
+        if (isTransitioning) return;
+        
+        isTransitioning = true;
+        
         // Do NOT run any other code than the CheckStateDataThenExecute() method in this switch statement.
         switch (state)
         {
@@ -138,6 +144,8 @@ public class StateMachine : MonoBehaviour
                                            "The state you are trying to transition to does not exist! " +
                                            "\nLikely, the player got stuck and tried to transition to a state but was unable to.");
         }
+        
+        isTransitioning = false;
     }
 
     // I totally wrote this method myself and didn't copy it from the internet.

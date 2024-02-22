@@ -37,6 +37,10 @@ public class JumpState : State
     {
         if (jumpTimer < jumpDuration)
         {
+            // Alternative: (that i prefer)
+            // float force = jumpForce * (1 - Mathf.Pow(2 * jumpTimer / jumpDuration - 1, 2));
+            // player.Rigidbody.AddForce(Vector3.up * force, ForceMode.Force);
+            
             player.Rigidbody.AddForce(Vector3.up * (jumpForce / jumpDuration), ForceMode.Force);
         }
         // Player has reached the apex of their jump

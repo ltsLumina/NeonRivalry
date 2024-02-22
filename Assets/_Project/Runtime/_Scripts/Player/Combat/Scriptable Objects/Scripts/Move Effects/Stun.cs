@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-[CreateAssetMenu(fileName = "Stun", menuName = "MoveEffects/Stun", order = 0)]
+[CreateAssetMenu(fileName = "Stun", menuName = "Move Effects/Stun", order = 0)]
 public class Stun : MoveEffect
 {
     public float duration;
