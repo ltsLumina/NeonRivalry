@@ -113,7 +113,7 @@ public partial class PlayerController : MonoBehaviour
         Animator.SetBool("Walk_Forward", moveInput.x > 0);
         Animator.SetBool("Walk_Backward", moveInput.x < 0);
 
-        // Determining the direction of the movement (left or right).
+        // Determining the direction of the movement (left or fright).
         int moveDirection = (int) moveInput.x;
 
         // Calculating the target speed based on direction and move speed.
