@@ -17,6 +17,7 @@ public class InputDeviceManager : MonoBehaviour
     const int MainMenu = 1;
     const int CharacterSelect = 2;
     const int Game = 3;
+    const int GameScene2 = 4;
 
     void Awake()
     {
@@ -169,7 +170,7 @@ public class InputDeviceManager : MonoBehaviour
         { Intro, MainMenu, CharacterSelect };
 
         // If debug mode is active, allow the player to join directly into the game scene as well.
-        if (Logger.DebugMode) allowedScenes.Add(Game);
+        if (Logger.DebugMode) allowedScenes.Add(Game); if (Logger.DebugMode) allowedScenes.Add(GameScene2);
         return allowedScenes;
     }
     #endregion

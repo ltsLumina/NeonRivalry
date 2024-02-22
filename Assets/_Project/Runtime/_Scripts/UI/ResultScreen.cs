@@ -31,9 +31,8 @@ public class ResultScreen : MonoBehaviour
         {
             // Generate a random value within the specified range
             float randomValue = Random.Range(minValue, maxValue) + Random.Range(1, 10) * Random.Range(0.05f, 2) / Random.Range(0.5f, 3);
-
             // Lerp the slider to the random value. The bool makes the slider fill in differently, I like true more.
-            slider.DOValue(randomValue, animationDuration, true);
+            slider.DOValue(randomValue, animationDuration);
         }
 
         yield return null;

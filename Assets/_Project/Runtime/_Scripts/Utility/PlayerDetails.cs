@@ -23,7 +23,7 @@ public partial class PlayerManager
     [Serializable]
     public struct PlayerSpawnPoint
     {
-        public Vector2 playerOneSpawnPoint;
-        public Vector2 playerTwoSpawnPoint;
+        public Vector3 playerOneSpawnPoint;
+        public Vector3 playerTwoSpawnPoint;
     }
 }

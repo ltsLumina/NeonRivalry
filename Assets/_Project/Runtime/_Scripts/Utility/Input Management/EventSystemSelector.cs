@@ -24,6 +24,7 @@ public class EventSystemSelector : MonoBehaviour
     const int MainMenu = 1;
     const int CharacterSelect = 2;
     const int Game = 3;
+    const int SampleScene = 4;
 
     // In the case of the Menu Navigator game object, the PlayerInput is tied to this game object.
     // The Player's UI Navigator, however, is childed to the Player's game object.
@@ -35,7 +36,7 @@ public class EventSystemSelector : MonoBehaviour
         int sceneIndex = SceneManagerExtended.ActiveScene;
 
         // If the scene is the Intro or Game scene, return, as we don't want to select a button in these scenes.
-        if (sceneIndex is Intro or Game) return;
+        if (sceneIndex is Intro or Game or SampleScene) return;
 
         // Assign the localPlayerID based on the playerInput's playerIndex.
         // Usually we would use player.PlayerID, but there is no "player" instance until the game scene.
