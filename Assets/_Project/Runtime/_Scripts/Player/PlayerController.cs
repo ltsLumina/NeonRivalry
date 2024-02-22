@@ -2,6 +2,7 @@
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Lumina.Essentials.Attributes;
 using UnityEngine;
@@ -20,7 +21,6 @@ public partial class PlayerController : MonoBehaviour
 {
     [Header("Player Stats"), UsedImplicitly]
     [SerializeField, ReadOnly] public int health;
-    [SerializeField, ReadOnly] Healthbar healthbar;
 
     [Header("Read-Only Fields")]
     [SerializeField] float idleTimeThreshold;
@@ -31,12 +31,14 @@ public partial class PlayerController : MonoBehaviour
     [SerializeField] LayerMask groundLayer;
 
     [Header("Player ID"), Tooltip("The player's ID. \"1\"refers to player 1, \"2\" refers to player 2.")]
-    [SerializeField] [ReadOnly] int playerID;
+    [SerializeField, ReadOnly] int playerID;
+    
+    [Header("Player Components")]
+    [SerializeField, ReadOnly] Healthbar healthbar;
+    [SerializeField, ReadOnly] Animator animator;
 
     // Cached References
-    Animator animator;
-
-    float moveSpeed = 3.5f;
+    float moveSpeed = 3f;
     float acceleration = 8f;
     float deceleration = 10f;
     float velocityPower = 1.4f;
@@ -44,8 +46,8 @@ public partial class PlayerController : MonoBehaviour
     // -- Properties --
     
     public Rigidbody Rigidbody { get; private set; }
-    public InputManager InputManager { get; private set; }
     public StateMachine StateMachine { get; private set; }
+    public InputManager InputManager { get; private set; }
     public PlayerInput PlayerInput { get; set; }
     public HitBox HitBox { get; set; }
     public HurtBox HurtBox { get; set; }
@@ -55,7 +57,7 @@ public partial class PlayerController : MonoBehaviour
     public int PlayerID
     {
         get => playerID;
-        private set =>
+        private set => 
             // Clamp the playerID between 1 and 2.
             playerID = Mathf.Clamp(value, 1, 2);
     }
@@ -66,17 +68,21 @@ public partial class PlayerController : MonoBehaviour
         set => healthbar = value;
     }
 
+    public Animator Animator
+    {
+        get => animator;
+        set => animator = value;
+    }
+
     void Awake()
     {
-        // Get the player's rigidbody, input manager, and state machine.
-        Rigidbody     = GetComponent<Rigidbody>();
-        InputManager  = GetComponentInChildren<InputManager>();
-        StateMachine  = GetComponent<StateMachine>();
-        PlayerInput   = GetComponentInChildren<PlayerInput>();
-        animator      = GetComponentInChildren<Animator>();
-
-        HitBox  = GetComponentInChildren<HitBox>();
-        HurtBox = GetComponentInChildren<HurtBox>();
+        Rigidbody    = GetComponent<Rigidbody>();
+        StateMachine = GetComponent<StateMachine>();
+        InputManager = GetComponentInChildren<InputManager>();
+        PlayerInput  = GetComponentInChildren<PlayerInput>();
+        HitBox       = GetComponentInChildren<HitBox>();
+        HurtBox      = GetComponentInChildren<HurtBox>();
+        Animator     = GetComponentInChildren<Animator>();
     }
 
     // Rotate the player when spawning in to face in a direction that is more natural.
@@ -103,6 +109,10 @@ public partial class PlayerController : MonoBehaviour
         // Getting the move input from the player's input manager.
         Vector3 moveInput = InputManager.MoveInput;
 
+        // Animating the player based on the move input.
+        Animator.SetBool("Walk_Forward", moveInput.x > 0);
+        Animator.SetBool("Walk_Backward", moveInput.x < 0);
+
         // Determining the direction of the movement (left or right).
         int moveDirection = (int) moveInput.x;
 
@@ -120,9 +130,6 @@ public partial class PlayerController : MonoBehaviour
 
         // Apply the force to the player's rigidbody.
         Rigidbody.AddForce(movement * Vector3.right);
-
-        // Call the OnExit function after the force has been applied.
-        //OnExit();
     }
     
     /// <summary>
@@ -150,7 +157,8 @@ public partial class PlayerController : MonoBehaviour
 
         // Rotate to face the camera.
         // This has no gameplay purpose and only serves as a visual aid.
-        transform.rotation = Quaternion.Euler(0, 180, 0);
+        var model = transform.GetComponentInChildren<Animator>().transform;
+        model.rotation = Quaternion.Euler(0, PlayerID == 1 ? 120 : 240, 0);
 
         var playerManager = PlayerManager.Instance;
 
@@ -164,21 +172,26 @@ public partial class PlayerController : MonoBehaviour
     void RotateToFaceEnemy()
     {
         if (PlayerManager.PlayerTwo == null) return;
+        List<PlayerController> players        = PlayerManager.Players;
+        var                    oppositePlayer = players[PlayerID == 1 ? 1 : 0];
+        var                    model          = transform.GetComponentInChildren<Animator>().transform;
 
-        var players         = PlayerManager.Players;
-        var oppositePlayer = players[PlayerID == 1 ? 1 : 0];
+        Quaternion targetRotation;
 
-        if (IsGrounded())
+        if (oppositePlayer.transform.position.x > transform.position.x)
         {
-            if (oppositePlayer.transform.position.x > transform.position.x)
-            {
-                transform.rotation = Quaternion.Euler(0, 90, 0);
-            }
-            else
-            {
-                transform.rotation = Quaternion.Euler(0, -90, 0);
-            }
+            model.localScale = new (1, 1, 1);
+            targetRotation   = Quaternion.Euler(0, 70, 0);
         }
+        else
+        {
+            model.localScale = new (-1, 1, 1);
+            targetRotation   = Quaternion.Euler(0, -70, 0);
+        }
+
+        // Lerp rotation over time
+        float rotationSpeed = 0.75f; // Adjust this value to change the speed of rotation
+        model.rotation = Quaternion.Lerp(model.rotation, targetRotation, Time.deltaTime * rotationSpeed);
     }
 
     // -- State Checks --

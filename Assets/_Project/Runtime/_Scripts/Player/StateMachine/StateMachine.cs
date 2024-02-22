@@ -196,6 +196,7 @@ public class StateMachineEditor : Editor
 
         var stateMachine = (StateMachine) target;
         var player       =  stateMachine.Player;
+        if (!player.Rigidbody) return;
         
         // Each bool represents a state. If the bool is true, then the state is active.
         // Used to display the state values in the inspector.

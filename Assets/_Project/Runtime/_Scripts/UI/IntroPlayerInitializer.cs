@@ -74,7 +74,7 @@ public class IntroPlayerInitializer : MonoBehaviour
         const string debugWarning = "Debug Mode is enabled, skipping the loading screen!";
 
         // Warn the player through the console and on screen.
-        Debug.LogWarning(debugWarning);
+        Logger.Log(debugWarning, LogType.Warning);
         pressAnyButtonText.text = "Skipping Loading Screen...";
 
         // Wait a few seconds before loading the next scene.
