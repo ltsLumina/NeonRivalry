@@ -1,7 +1,10 @@
 using System.Collections.Generic;
+using System.Linq;
+using Lumina.Essentials.Sequencer;
+using TransitionsPlus;
 using UnityEngine;
 
-public class HealthbarManager : MonoBehaviour
+public class HealthbarManager : MonoBehaviour //TODO This could totally just be a static class.
 {
     // -- Properties --
 
@@ -23,4 +26,14 @@ public class HealthbarManager : MonoBehaviour
     void Awake() =>
         // Clear the list of Healthbars as Unity wont clear the list when the game is restarted due to Enter Playmode Options.
         Healthbars.Clear();
+
+    void Update()
+    {
+        // If any healthbar's value is less than or equal to 0, then a player has died and we should start the transition.
+        if (Healthbars.Any(healthbar => healthbar.Value <= 0))
+        {
+            var delayLoad = new Sequence(this);
+            delayLoad.WaitThenExecute(2f, () => { FindObjectOfType<TransitionAnimator>().enabled = true; });
+        }
+    }
 }
