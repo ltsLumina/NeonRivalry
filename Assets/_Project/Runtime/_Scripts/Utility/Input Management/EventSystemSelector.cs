@@ -12,7 +12,7 @@ public class EventSystemSelector : MonoBehaviour
     
     [SerializeField] PlayerInput playerInput;
     [SerializeField, ReadOnly] int localPlayerID;
-
+    
     // -- Cached References --
     
     MultiplayerEventSystem eventSystem;
