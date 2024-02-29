@@ -15,7 +15,7 @@ public class JumpState : State
     readonly float playerMass;
     readonly float jumpForce;
     readonly float jumpDuration;
-    float jumpTimer;
+    bool hasJumped;
 
     public JumpState(PlayerController player, JumpStateData stateData) : base(player)
     {
@@ -27,6 +27,7 @@ public class JumpState : State
     public override void OnEnter()
     {   
         IsJumping = true;
+        hasJumped = false;
 
         player.GetComponentInChildren<SpriteRenderer>().color = Color.yellow;
 
@@ -35,32 +36,26 @@ public class JumpState : State
 
     public override void UpdateState()
     {
-        if (jumpTimer < jumpDuration)
+        if (!hasJumped)
         {
-            // Alternative: (that i prefer)
-            float pow   = 1 - Mathf.Pow(2 * jumpTimer / jumpDuration - 1, 2);
-            float force = jumpForce              * pow;
-            player.Rigidbody.AddForce(Vector3.up * force, ForceMode.Force);
-            
-            //player.Rigidbody.AddForce(Vector3.up * (jumpForce / jumpDuration), ForceMode.Force);
+            player.Rigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            hasJumped = true;
         }
         // Player has reached the apex of their jump
-        else
+        else if (player.Rigidbody.velocity.y < 0)
         {
             // pull them down
             player.StateMachine.TransitionToState(StateType.Fall);
             OnExit();
             return;
         }
-
-        jumpTimer += Time.fixedDeltaTime;
     }
 
     public override void OnExit()
     {
         // Perform any necessary cleanup or exit actions
         // Debug.Log("Exited Jump State");
-        
+        player.Rigidbody.mass = 1f;
         IsJumping = false;
     }
 }
