@@ -14,15 +14,17 @@ public class RoundManager : MonoBehaviour
     [SerializeField] TMP_Text player2WonRoundsText;
 
     ResultScreen resultScreen;
+    RoundTimer roundTimer;
     public bool player1Victory;
 
 
     void Start()
     {
         resultScreen = FindObjectOfType<ResultScreen>();
-        // Clear the text fields
-        //player1WonRoundsText = null;
-        //player2WonRoundsText = null;
+        roundTimer = FindObjectOfType<RoundTimer>();
+        Resultscreen();
+        // Clear the text fields and static ints
+        ResetGame();
     }
 
     void OnEnable()
@@ -41,6 +43,12 @@ public class RoundManager : MonoBehaviour
         Debug.Log("current rounds " + currentRounds);
         Debug.Log("player1 " + player1WonRounds);
         Debug.Log("player2 " + player2WonRounds);
+        if (currentRounds > maxRounds || player1WonRounds >= 2 || player2WonRounds >= 2)
+        {
+            SceneManagerExtended.LoadScene(2);
+            return;
+        }
+
         if (Input.GetKeyDown(KeyCode.Z)) PlayerVictory(ref player1WonRounds, player1WonRoundsText);
 
         // Press X to manually increment Player 2 victories
@@ -67,8 +75,9 @@ public class RoundManager : MonoBehaviour
             return;
         }
 
-        if (playerThatDied      == PlayerManager.PlayerOne && PlayerManager.PlayerTwo != null && PlayerManager.PlayerTwo.Healthbar.Value > 0) { PlayerVictory(ref player2WonRounds, player2WonRoundsText); }
+        if (playerThatDied == PlayerManager.PlayerOne && PlayerManager.PlayerTwo != null && PlayerManager.PlayerTwo.Healthbar.Value > 0) { PlayerVictory(ref player2WonRounds, player2WonRoundsText); }
         else if (playerThatDied == PlayerManager.PlayerTwo && PlayerManager.PlayerOne != null && PlayerManager.PlayerOne.Healthbar.Value > 0) { PlayerVictory(ref player1WonRounds, player1WonRoundsText); }
+        if (roundTimer.CurrentTime <= 0f) { Debug.Log("timerwin"); PlayerVictory(ref player1WonRounds, player1WonRoundsText); }
 
         // Press Z to manually increment Player 1 victories
         if (Input.GetKeyDown(KeyCode.Z)) PlayerVictory(ref player1WonRounds, player1WonRoundsText);
