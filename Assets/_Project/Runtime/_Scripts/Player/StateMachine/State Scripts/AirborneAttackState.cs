@@ -85,7 +85,8 @@ public class AirborneAttackState : State
             if (!player.IsGrounded())
             {
                 Logger.Debug("Attacking in the air!", LogType.Log, StateType.AirborneAttack);
-
+                
+                // Stop the player once they attack in the air.
                 player.Rigidbody.velocity = new Vector2(player.Rigidbody.velocity.x, 0);
 
                 if (player.IsGrounded())
