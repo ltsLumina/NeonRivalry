@@ -7,6 +7,11 @@ using UnityEngine.SceneManagement;
 
 public static class SceneManagerExtended
 {
+    public static int Intro => 0;
+    public static int MainMenu => 1;
+    public static int CharacterSelect => 2;
+    public static int Game => 3;
+    
     static int previousScene;
 
     public static string ActiveSceneName => SceneManager.GetActiveScene().name;

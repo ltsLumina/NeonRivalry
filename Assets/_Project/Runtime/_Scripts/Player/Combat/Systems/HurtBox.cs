@@ -2,14 +2,15 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Lumina.Essentials.Sequencer;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using Logger = Lumina.Debugging.Logger;
 #endregion
 
 public class HurtBox : MonoBehaviour
 {
+    [SerializeField] GameObject punchKickEffect;
+    
+    
     PlayerController player;
     new Rigidbody rigidbody;
 
@@ -53,6 +54,8 @@ public class HurtBox : MonoBehaviour
         
         Debug.Log($"HurtBox hit by {hitBox.name} and took {hitBox.DamageAmount} damage!");
         
+        PlayEffect(out GameObject effect);
+
         // psuedo code:
         // if (player.StateMachine.CurrentState is BlockState)
         // {
@@ -98,26 +101,34 @@ public class HurtBox : MonoBehaviour
             // FindObjectOfType<RoundManager>().player1WonRounds++;
             // FindObjectOfType<RoundManager>().currentRounds++;
             Debug.Log("Player is dead!");
-
-            if (!Logger.DebugPlayers)
-            {
-                var delayLoad = new Sequence(this);
-                delayLoad.WaitThenExecute(0.35f, () => SceneManagerExtended.LoadScene(SceneManagerExtended.ActiveScene));
-            }
         }
         
         // Knock player back
         Knockback();
     }
 
+    void PlayEffect(out GameObject effect)
+    {
+        effect   = Instantiate(punchKickEffect, transform.position + new Vector3(0.2f, transform.position.y, transform.position.z - 1), Quaternion.identity);
+        var destroyDelay = new Sequence(this);
+        
+        GameObject o = effect;
+        destroyDelay.WaitThenExecute(0.5f, () => Destroy(o));
+    }
+
     void Knockback()
     {
-        // Don't knockback players while debugging.
-        if (Logger.DebugPlayers) return;
-        
         // Knockback the player based on the sign of the Y-rotation.
-        float knockbackForce     = 450f;
-        float knockbackDirection = -Mathf.Sign(transform.rotation.y);
-        rigidbody.AddForce(knockbackDirection * knockbackForce * Vector3.right);
+        float knockbackForce     = 65f;
+        
+        // Knockback player away from the other player
+        Vector3 knockbackDirection;
+        var playerOne = PlayerManager.PlayerOne;
+        var playerTwo = PlayerManager.PlayerTwo;
+        
+        if (player.PlayerID == 1) knockbackDirection = playerTwo.transform.position - playerOne.transform.position;
+        else                      knockbackDirection = playerOne.transform.position - playerTwo.transform.position;
+        
+        rigidbody.AddForce(-knockbackDirection * knockbackForce);
     }
 }

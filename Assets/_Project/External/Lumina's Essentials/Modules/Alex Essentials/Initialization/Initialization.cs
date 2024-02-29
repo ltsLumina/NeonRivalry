@@ -1,10 +1,8 @@
 ﻿// Uncomment the #define statement to enable the use of the initialization script.
-#define USING_INITIALIZATION
+//#define USING_INITIALIZATION
 // I highly recommended you use this script, as it will save you a lot of time and effort struggling with singletons.
 
 #region
-using UnityEngine;
-using static UnityEngine.Object;
 #endregion
 
 /// <summary>

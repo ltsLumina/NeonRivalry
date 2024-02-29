@@ -116,7 +116,6 @@ public class QuickAccessWindow : EditorWindow
     static void DrawSceneButtons()
     {
         DrawBasicSceneButtons();
-        DrawCustomSceneButtons();
     }
 
     static void DrawBasicSceneButtons()
