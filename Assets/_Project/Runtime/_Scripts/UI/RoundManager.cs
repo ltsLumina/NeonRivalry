@@ -27,12 +27,14 @@ public class RoundManager : MonoBehaviour
 
     void OnEnable()
     {
-        foreach (var healthbar in HealthbarManager.Healthbars) { healthbar.OnPlayerDeath += CheckRoundStatus; }
+        // TODO: Wont work anymore
+        foreach (var healthbar in HealthbarManager.Healthbars) { Healthbar.OnPlayerDeath += CheckRoundStatus; }
     }
 
     void OnDisable()
     {
-        foreach (var healthbar in HealthbarManager.Healthbars) { healthbar.OnPlayerDeath -= CheckRoundStatus; }
+        // TODO: Wont work anymore
+        foreach (var healthbar in HealthbarManager.Healthbars) { Healthbar.OnPlayerDeath -= CheckRoundStatus; }
     }
     private void Update()
     {

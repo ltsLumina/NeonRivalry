@@ -27,6 +27,8 @@ public class IntroSplashManager : MonoBehaviour
 
     void Start()
     {
+        GameManager.SetState(GameManager.GameState.Transitioning);
+        
         // If debug mode is enabled, skip the splash screen.
         if (Logger.DebugMode)
         {
@@ -83,5 +85,7 @@ public class IntroSplashManager : MonoBehaviour
         // Enable all input after the splash screen is done fading and the buttons and text are visible.
         playerInitializer.enabled = true;
         deviceManager.enabled     = true;
+        
+        GameManager.SetState(GameManager.GameState.Intro);
     }
 }

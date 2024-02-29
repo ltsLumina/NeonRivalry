@@ -12,7 +12,7 @@ public class EventSystemSelector : MonoBehaviour
     
     [SerializeField] PlayerInput playerInput;
     [SerializeField, ReadOnly] int localPlayerID;
-
+    
     // -- Cached References --
     
     MultiplayerEventSystem eventSystem;
@@ -79,7 +79,7 @@ public class EventSystemSelector : MonoBehaviour
                 return localPlayerID == 1 ? GameObject.Find("Play") : null;
 
             case CharacterSelect: 
-                return GameObject.Find($"Reaper (Player {localPlayerID})");
+                return GameObject.Find($"Shellby (Player {localPlayerID})");
 
             case Game: 
                 return localPlayerID == 1 ? GameObject.Find("Debug Button") : null;

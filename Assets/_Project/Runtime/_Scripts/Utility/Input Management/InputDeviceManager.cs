@@ -6,8 +6,10 @@ using Logger = Lumina.Debugging.Logger;
 
 public class InputDeviceManager : MonoBehaviour
 {
-    [SerializeField] GameObject playerPrefab;
-
+    [SerializeField] GameObject menuNavigator;
+    [SerializeField] GameObject shellbyPrefab;
+    [SerializeField] GameObject dorathyPrefab;
+    
     readonly static Dictionary<InputDevice, int> persistentPlayerDevices = new (); // TODO: There is a chance that this doesn't work in builds.
     readonly Dictionary<InputDevice, int> playerDevices = new();
     
@@ -39,15 +41,31 @@ public class InputDeviceManager : MonoBehaviour
     void LoadPersistentPlayers()
     {
         //Load the devices that were registered on previous scenes.
-        foreach(KeyValuePair<InputDevice, int> kvp in persistentPlayerDevices)
+        foreach (KeyValuePair<InputDevice, int> kvp in persistentPlayerDevices)
         {
             // Add the device to the playerDevices dictionary.
             playerDevices[kvp.Key] = kvp.Value;
 
-            string controlScheme = kvp.Key is Keyboard ? "Keyboard" : "Gamepad";
-            PlayerInput.Instantiate(playerPrefab, kvp.Value, controlScheme, -1, kvp.Key);
+            string     controlScheme = kvp.Key is Keyboard ? "Keyboard" : "Gamepad";
+            GameObject prefabToInstantiate;
 
-            Debug.Log($"Player {kvp.Value + 1} joined using {controlScheme} control scheme! \nThis player was loaded in from a previous scene or game restart.");
+            switch (CharacterSelector.GetSelectedCharacter(kvp.Value))
+            {
+                case "Shellby":
+                    prefabToInstantiate = shellbyPrefab;
+                    break;
+
+                case "Dorathy":
+                    prefabToInstantiate = dorathyPrefab;
+                    break;
+
+                default:
+                    prefabToInstantiate = menuNavigator;
+                    break;
+            }
+
+            var player = PlayerInput.Instantiate(prefabToInstantiate, kvp.Value, controlScheme, -1, kvp.Key);
+            Debug.Log($"Player {kvp.Value + 1} joined using {controlScheme} control scheme! \nThis player was loaded in from a previous scene or game restart.", player);
         }
     }
 
@@ -111,7 +129,7 @@ public class InputDeviceManager : MonoBehaviour
     }
 
     /// <summary>
-    ///    Instantiates a Menu Navigator or Player into the game scene.
+    ///    Instantiates a Menu Navigator or Player.
     /// </summary>
     void InstantiatePlayer()
     {
@@ -124,10 +142,12 @@ public class InputDeviceManager : MonoBehaviour
         persistentPlayerDevices.Add(device, PlayerInputManager.instance.playerCount);
 
         string controlScheme = device is Keyboard ? "Keyboard" : "Gamepad";
-        PlayerInput.Instantiate(playerPrefab, playerDevices[device], controlScheme, -1, device);
 
-        // Instantiate a second player if the 'DebugPlayers' option is enabled.
-        if (Logger.DebugPlayers) PlayerInputManager.instance.JoinPlayer(1);
+        // TODO: TEMPORARY
+        if (SceneManagerExtended.ActiveScene == Game) PlayerInput.Instantiate(shellbyPrefab, playerDevices[device], controlScheme, -1, device);
+        
+        // original
+        PlayerInput.Instantiate(menuNavigator, playerDevices[device], controlScheme, -1, device);
 
         // Uses the default (recommended) rumble amount and duration.
         if (device is Gamepad gamepad) gamepad.Rumble(this); // bug: The rumble might be too weak on some gamepads, making it nearly unnoticeable.

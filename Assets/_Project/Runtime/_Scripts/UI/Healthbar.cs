@@ -30,8 +30,8 @@ public class Healthbar : MonoBehaviour
     public delegate void HealthChanged(int value);
     public event HealthChanged OnHealthChanged;
     
-    public delegate void PlayerDeath(PlayerController player);
-    public event PlayerDeath OnPlayerDeath;
+    public delegate void PlayerDeath(PlayerController player = default);
+    public static event PlayerDeath OnPlayerDeath;
     
     // -- Properties --
     
