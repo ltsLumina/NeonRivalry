@@ -48,7 +48,7 @@ public partial class PlayerController : MonoBehaviour
     public Rigidbody Rigidbody { get; private set; }
     public StateMachine StateMachine { get; private set; }
     public InputManager InputManager { get; private set; }
-    public PlayerInput PlayerInput { get; set; }
+    public PlayerInput PlayerInput { get; private set; }
     public HitBox HitBox { get; set; }
     public HurtBox HurtBox { get; set; }
 
