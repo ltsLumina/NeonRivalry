@@ -48,6 +48,8 @@ public class RoundManager : MonoBehaviour
             SceneManagerExtended.LoadScene(2);
             return;
         }
+        if (Input.GetKeyDown(KeyCode.R) && roundTimer.CurrentTime <= 0f && PlayerManager.PlayerOne.Healthbar.Value > PlayerManager.PlayerTwo.Healthbar.Value) { PlayerVictory(ref player1WonRounds, player1WonRoundsText); }
+        if (Input.GetKeyDown(KeyCode.R) && roundTimer.CurrentTime <= 0f && PlayerManager.PlayerTwo.Healthbar.Value > PlayerManager.PlayerOne.Healthbar.Value) { PlayerVictory(ref player2WonRounds, player2WonRoundsText); }
 
         if (Input.GetKeyDown(KeyCode.Z)) PlayerVictory(ref player1WonRounds, player1WonRoundsText);
 
@@ -77,7 +79,6 @@ public class RoundManager : MonoBehaviour
 
         if (playerThatDied == PlayerManager.PlayerOne && PlayerManager.PlayerTwo != null && PlayerManager.PlayerTwo.Healthbar.Value > 0) { PlayerVictory(ref player2WonRounds, player2WonRoundsText); }
         else if (playerThatDied == PlayerManager.PlayerTwo && PlayerManager.PlayerOne != null && PlayerManager.PlayerOne.Healthbar.Value > 0) { PlayerVictory(ref player1WonRounds, player1WonRoundsText); }
-        if (roundTimer.CurrentTime <= 0f) { Debug.Log("timerwin"); PlayerVictory(ref player1WonRounds, player1WonRoundsText); }
 
         // Press Z to manually increment Player 1 victories
         if (Input.GetKeyDown(KeyCode.Z)) PlayerVictory(ref player1WonRounds, player1WonRoundsText);
@@ -109,7 +110,7 @@ public class RoundManager : MonoBehaviour
     void Resultscreen()
     {
         resultScreen.GetComponent<Canvas>().enabled = true;
-        FindObjectOfType<EventSystemSelector>().FindButtonByButtonName("Rematch Button (Player 1)");
+        //FindObjectOfType<EventSystemSelector>().FindButtonByButtonName("Rematch Button (Player 1)");
         StartCoroutine(resultScreen.RandomizeSliderValues(1, 100));
     }
 }
