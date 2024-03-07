@@ -1,15 +1,21 @@
 ﻿#region
 using System;
-using System.Diagnostics.CodeAnalysis;
 using Lumina.Essentials.Sequencer;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using VInspector;
 #endregion
 
 public class HurtBox : MonoBehaviour
 {
-    [SerializeField] GameObject punchKickEffect;
+    [Tab("Locations")]
+    [Tooltip("Where to spawn the effect.")]
+    [SerializeField] Transform punchKickLocation;
+    [SerializeField] Transform blockLocation;
     
+    [Tab("Effects")]
+    [SerializeField] GameObject punchKickEffect;
+    [SerializeField] GameObject blockEffect;
     
     PlayerController player;
     new Rigidbody rigidbody;
@@ -34,29 +40,31 @@ public class HurtBox : MonoBehaviour
         if (hitBox != null) OnHurtBoxHit?.Invoke(hitBox);
     }
     
-    [SuppressMessage("ReSharper", "ConvertToLocalFunction")]
     void OnTakeDamage(HitBox hitBox)
     {
-        int health = player.Healthbar.Value;
-        
-        Debug.Log($"HurtBox hit by {hitBox.name} and took {hitBox.DamageAmount} damage!");
-        
-        PlayEffect(out GameObject effect);
+        if (player.IsBlocking)
+        {
+            Debug.Log("Player blocked the incoming attack!");
+            // Play block effect.
+            PlayEffect(blockEffect, blockLocation);
 
-        // psuedo code:
-        // if (player.StateMachine.CurrentState is BlockState)
-        // {
-        //     // perform block related stuff
-        //     // make blockstate subscribe to OnHurtBoxHit and do the following:
-        //     // - on hit, execute the animation
-        // }
-        
+            // Note: psuedo code for dash gauge
+            int dashGauge = 0;
+            dashGauge += hitBox.DamageAmount;
+            Debug.Log($"Dash gauge: {dashGauge}");
+            return;
+        }
+
+        int health = player.Healthbar.Value;
+        Debug.Log($"HurtBox hit by {hitBox.name} and took {hitBox.DamageAmount} damage!");
+
+        PlayEffect(punchKickEffect, punchKickLocation);
         
         // Take damage.
         if (!player.Healthbar.Invincible) health -= hitBox.DamageAmount;
         player.Healthbar.Value = health;
 
-        //TODO: Temporary for 25% Assignment
+        //TODO: Temporary for 25% Assignment (doesnt even work anymore lol)
         #region Temporary for 25% Assignment
         
         // Flash player red.
@@ -94,17 +102,19 @@ public class HurtBox : MonoBehaviour
         Knockback();
     }
 
-    void PlayEffect(out GameObject effect)
+    void PlayEffect(GameObject effect, Transform location)
     {
-        effect   = Instantiate(punchKickEffect, transform.position + new Vector3(0.2f, transform.position.y, transform.position.z - 1), Quaternion.identity);
-        var destroyDelay = new Sequence(this);
+        effect = Instantiate(effect, location.position, effect.transform.rotation);
         
+        var destroyDelay = new Sequence(this);
         GameObject o = effect;
         destroyDelay.WaitThenExecute(0.5f, () => Destroy(o));
     }
 
     void Knockback()
     {
+        if (PlayerManager.PlayerTwo == null) return;
+        
         // Knockback the player based on the sign of the Y-rotation.
         float knockbackForce     = 65f;
         
