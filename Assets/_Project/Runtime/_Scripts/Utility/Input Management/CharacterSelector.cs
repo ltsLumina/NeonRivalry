@@ -21,17 +21,13 @@ public class CharacterSelector : MonoBehaviour
         {
             case 0 when SceneManagerExtended.ActiveScene == SceneManagerExtended.Game:
                 return "Shellby";
-                break;
-            
+
             case 1 when SceneManagerExtended.ActiveScene == SceneManagerExtended.Game:
                 return "Dorathy";
-                break;
-            
+
             default: // player index is 0 on any other scene than the game scene, return null (meaning to instantiate a menu navigator for Player 1)
                 return null;
         }
-        
-        return null;
     }
     
     public void SelectCharacter()
