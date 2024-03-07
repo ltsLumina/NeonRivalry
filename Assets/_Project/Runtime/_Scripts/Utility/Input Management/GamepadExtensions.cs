@@ -38,6 +38,8 @@ public static class GamepadExtensions
     /// <param name="duration">The duration for the rumble, defaults to 0.25 (float) seconds.</param>
     public static void Rumble(this Gamepad gamepad, MonoBehaviour host, float lowFrequency = 0.25f, float highFrequency = 0.25f, float duration = 0.25f)
     {
+        if (gamepad == null) return;
+        
         lowFrequency  = LerpFrequency(lowFrequency);
         highFrequency = LerpFrequency(highFrequency);
 

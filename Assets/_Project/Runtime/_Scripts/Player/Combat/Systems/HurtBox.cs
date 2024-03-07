@@ -1,5 +1,6 @@
 ﻿#region
 using System;
+using System.Collections;
 using Lumina.Essentials.Sequencer;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -52,9 +53,20 @@ public class HurtBox : MonoBehaviour
         var hitBox = other.GetComponent<HitBox>();
         if (hitBox != null) OnHurtBoxHit?.Invoke(hitBox);
     }
+
+    IEnumerator InvincibilityFrames()
+    {
+        yield return new WaitForSeconds(0.5f);
+
+        // Set player back to vulnerable
+        player.IsInvincible = false;
+    }
     
     void OnTakeDamage(HitBox hitBox)
     {
+        // Check if the player is invincible
+        if (player.IsInvincible) return;
+
         if (player.IsBlocking)
         {
             Debug.Log("Player blocked the incoming attack!");
@@ -76,29 +88,13 @@ public class HurtBox : MonoBehaviour
         // Take damage.
         if (!player.Healthbar.Invincible) health -= hitBox.DamageAmount;
         player.Healthbar.Value = health;
-
-        //TODO: Temporary for 25% Assignment (doesnt even work anymore lol)
-        #region Temporary for 25% Assignment
         
-        // Flash player red.
-        var flash = new Sequence(this);
-        
-        var meshRenderer  = player.GetComponentInChildren<SkinnedMeshRenderer>();
+        // Flash player red on take damage.
+        StartCoroutine(FlashRedOnDamage());
 
-        int    emissionColorId  = Shader.PropertyToID("_EmissionColor");
-        var    originalColor    = meshRenderer.material.GetColor(emissionColorId);
-        Action setRedColor      = () => SetColor(emissionColorId, Color.red);
-        Action setOriginalColor = () => SetColor(emissionColorId, originalColor);
-
-        flash.Execute(setRedColor).WaitThenExecute(0.15f, setOriginalColor);
-
-        void SetColor(int colorId, Color color) => meshRenderer.material.SetColor(colorId, color);
-
-        // Temporary: Disable input for a short time.
-        Sequence         disableInput   = new(this);
-        PlayerController oppositePlayer = player.PlayerID == 1 ? PlayerManager.PlayerTwo : PlayerManager.PlayerOne;
-        disableInput.Execute(() => oppositePlayer.PlayerInput.enabled = false).WaitThenExecute(0.5f, () => oppositePlayer.PlayerInput.enabled = true);
-        #endregion
+        // Set player to invincible and start the invincibility frames coroutine
+        player.IsInvincible = true;
+        StartCoroutine(InvincibilityFrames());
 
         if (health <= 0)
         {
@@ -113,6 +109,31 @@ public class HurtBox : MonoBehaviour
         
         // Knock player back
         Knockback();
+    }
+
+    IEnumerator FlashRedOnDamage()
+    {
+        var meshRenderer = player.GetComponentInChildren<SkinnedMeshRenderer>();
+
+        int baseColor       = Shader.PropertyToID("_BaseColor");
+        int firstShadeColor = Shader.PropertyToID("_1st_ShadeColor");
+
+        var baseOriginalColor  = meshRenderer.material.GetColor(baseColor);
+        var firstShadeOriginalColor = meshRenderer.material.GetColor(firstShadeColor);
+
+        // Set colors to red
+        meshRenderer.material.SetColor(baseColor, Color.red);
+        meshRenderer.material.SetColor(firstShadeColor, Color.red);
+
+        // Wait for 0.15 seconds
+        yield return new WaitForSeconds(0.15f);
+
+        // Set colors back to original
+        meshRenderer.material.SetColor(baseColor, baseOriginalColor);
+        meshRenderer.material.SetColor(firstShadeColor, firstShadeOriginalColor);
+
+        // Wait for 0.05 seconds
+        yield return new WaitForSeconds(0.05f);
     }
 
     void PlayEffect(GameObject effect, Transform location)

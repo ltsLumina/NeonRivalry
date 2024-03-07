@@ -53,6 +53,7 @@ public partial class PlayerController : MonoBehaviour
     public PlayerInput PlayerInput { get; private set; }
     public HitBox HitBox { get; set; }
     public HurtBox HurtBox { get; set; }
+    public bool IsInvincible { get; set; }
 
     // -- Serialized Properties --
 
