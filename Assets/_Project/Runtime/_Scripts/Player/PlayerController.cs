@@ -1,12 +1,12 @@
 #region
 #if UNITY_EDITOR
+using UnityEditor;
 #endif
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Lumina.Essentials.Attributes;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using VInspector;
 using static State;
 #endregion
 
@@ -19,7 +19,6 @@ using static State;
 [RequireComponent(typeof(Rigidbody))]
 public partial class PlayerController : MonoBehaviour
 {
-    [Tab("Player Stats")]
     [Header("Player Stats"), UsedImplicitly]
     [SerializeField, ReadOnly] public int health;
 
@@ -34,19 +33,21 @@ public partial class PlayerController : MonoBehaviour
     [Header("Player ID"), Tooltip("The player's ID. \"1\"refers to player 1, \"2\" refers to player 2.")]
     [SerializeField, ReadOnly] int playerID;
     
-    [Tab("Movement")]
-    [SerializeField] float moveSpeed = 3f;
-    [SerializeField] float acceleration = 8f;
-    [SerializeField] float deceleration = 10f;
-    [SerializeField] float velocityPower = 1.4f;
-
-    [Tab("Settings")]
     [Header("Player Components")]
     [SerializeField, ReadOnly] Healthbar healthbar;
     [SerializeField, ReadOnly] Animator animator;
 
-    // -- Properties --
-    
+    public static float GlobalGravity = -9.81f;
+
+    // Cached References
+    public float gravityScale = 1.0f;
+    float moveSpeed = 3f;
+    float acceleration = 8f;
+    float deceleration = 10f;
+    float velocityPower = 1.4f;
+
+    // -- Properties --  
+    public float GravityScale { get; private set; }
     public Rigidbody Rigidbody { get; private set; }
     public StateMachine StateMachine { get; private set; }
     public InputManager InputManager { get; private set; }
@@ -78,13 +79,22 @@ public partial class PlayerController : MonoBehaviour
 
     void Awake()
     {
-        Rigidbody    = GetComponent<Rigidbody>();
+        Rigidbody = GetComponent<Rigidbody>();
         StateMachine = GetComponent<StateMachine>();
         InputManager = GetComponentInChildren<InputManager>();
-        PlayerInput  = GetComponentInChildren<PlayerInput>();
-        HitBox       = GetComponentInChildren<HitBox>();
-        HurtBox      = GetComponentInChildren<HurtBox>();
-        Animator     = GetComponentInChildren<Animator>();
+        PlayerInput = GetComponentInChildren<PlayerInput>();
+        HitBox = GetComponentInChildren<HitBox>();
+        HurtBox = GetComponentInChildren<HurtBox>();
+        Animator = GetComponentInChildren<Animator>();
+
+        Rigidbody = GetComponent<Rigidbody>();
+        Rigidbody.useGravity = false;
+    }
+
+    void FixedUpdate()
+    {
+        Vector3 gravity = GlobalGravity * gravityScale * Vector3.up;
+        Rigidbody.AddForce(gravity, ForceMode.Acceleration);
     }
 
     // Rotate the player when spawning in to face in a direction that is more natural.
@@ -115,7 +125,7 @@ public partial class PlayerController : MonoBehaviour
         Animator.SetBool("Walk_Forward", moveInput.x > 0);
         Animator.SetBool("Walk_Backward", moveInput.x < 0);
 
-        // Determining the direction of the movement (left or right).
+        // Determining the direction of the movement (left or fright).
         int moveDirection = (int) moveInput.x;
 
         // Calculating the target speed based on direction and move speed.
@@ -217,21 +227,23 @@ public partial class PlayerController : MonoBehaviour
     }
 }
 
-// #if UNITY_EDITOR
-// [CustomEditor(typeof(PlayerController))]
-// public class PlayerControllerInspector : Editor
-// {
-//     public override void OnInspectorGUI()
-//     {
-//         base.OnInspectorGUI();
-//         
-//         var player = (PlayerController) target;
-//         var healthbar = player.Healthbar;
-//         if (player == null || healthbar == null) return;
-//
-//         // Replace the health variable in the inspector with the healthbar's value
-//         // so that the healthbar's value can be changed in the inspector.
-//         player.health = healthbar.Value;
-//     }
-// }
-// #endif
+#if UNITY_EDITOR
+[CustomEditor(typeof(PlayerController))]
+public class PlayerControllerInspector : Editor
+{
+    public override void OnInspectorGUI()
+    {
+        base.OnInspectorGUI();
+        
+        var player = (PlayerController) target;
+        var healthbar = player.Healthbar;
+        if (player == null || healthbar == null) return;
+
+        // Replace the health variable in the inspector with the healthbar's value
+        // so that the healthbar's value can be changed in the inspector.
+        player.health = healthbar.Value;
+    }
+}
+#endif
+
+       
