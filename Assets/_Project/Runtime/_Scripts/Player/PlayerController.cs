@@ -155,11 +155,6 @@ public partial class PlayerController : MonoBehaviour
 
         transform.SetParent(header);
 
-        // Rotate to face the camera.
-        // This has no gameplay purpose and only serves as a visual aid.
-        var model = transform.GetComponentInChildren<Animator>().transform;
-        model.rotation = Quaternion.Euler(0, PlayerID == 1 ? 120 : 240, 0);
-
         var playerManager = PlayerManager.Instance;
 
         playerManager.SetPlayerSpawnPoint(this, PlayerID);
