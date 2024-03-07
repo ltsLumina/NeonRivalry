@@ -14,7 +14,6 @@ public class DashState : State
     float dashDir;
     float dashTimer;
     bool dashing;
-    bool dashed;
 
     public override StateType Type => StateType.Dash;
     public override int Priority => statePriorities[Type];
@@ -30,12 +29,6 @@ public class DashState : State
     #region State Methods
     public override void OnEnter()
     {
-        dashed = false;
-        if (player.IsGrounded())
-        {
-            OnExit();
-            return;
-        }
         player.GetComponentInChildren<SpriteRenderer>().color = new (0.2f, 1f, 0.67f);
 
         Vector3 moveInput = player.InputManager.MoveInput;
@@ -61,31 +54,23 @@ public class DashState : State
             dashing = false;
             OnExit();
         }
-
-        if (dashing)
-        {
-                player.Rigidbody.velocity = dashDir * dashSpeed * Vector3.right;
-                Debug.LogWarning("Should be Dashing");
-        }
     }
 
     public override void OnExit()
     {
-        if(dashed) player.StateMachine.TransitionToState(StateType.Fall);
+        if (player.IsGrounded() && player.InputManager.MoveInput.x != 0) player.StateMachine.TransitionToState(StateType.Walk);
+        else if (player.IsGrounded()) player.StateMachine.TransitionToState(StateType.Idle);
+        
+        Logger.Trace("Exiting Dash State", Type);
     }
     #endregion
 
     IEnumerator HandleDashing()
     {
-        Debug.LogWarning("Entered dash routine");
         yield return new WaitForSeconds(dashSleepTime);
-        Debug.LogWarning("Dashsleep is over");
         dashTimer = dashDuration;
-        Debug.LogWarning("Setting dash timer");
-        yield return new WaitForSeconds(dashTimer);
-        player.Rigidbody.velocity *= 0f;
+        while (dashing) player.Rigidbody.velocity = dashDir * dashSpeed * Vector3.right;
         player.Rigidbody.useGravity = true;
-        dashed = true;
 
         OnExit();
         yield return new WaitForEndOfFrame();
