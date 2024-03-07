@@ -25,7 +25,7 @@ public class JumpState : State
     }
 
     public override void OnEnter()
-    {   
+    {
         IsJumping = true;
 
         player.GetComponentInChildren<SpriteRenderer>().color = Color.yellow;

@@ -29,11 +29,12 @@ public static class Logger
 #endif
     }
     
+    // Level enum is used to specify the log level
     public enum Level
     {
-        TRACE, // Track the flow of the program and trace its execution
-        DEBUG, // Debug information such as variable values, etc.
-        INFO, // Informational messages, typically used for reporting arbitrary changes
+        TRACE,
+        DEBUG,
+        INFO,
         NONE, // No log reporting
     }
     

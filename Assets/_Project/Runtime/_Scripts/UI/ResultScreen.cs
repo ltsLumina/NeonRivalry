@@ -18,7 +18,6 @@ public class ResultScreen : MonoBehaviour
 
     private void Start()
     {
-        StartCoroutine(RandomizeSliderValues(1, 100));
         if (FindObjectOfType<RoundManager>() == null) { return; }
 
         FindObjectOfType<RoundManager>().player1Victory = true;
@@ -26,17 +25,21 @@ public class ResultScreen : MonoBehaviour
 
     }
 
-    IEnumerator RandomizeSliderValues(float minValue, float maxValue)
+    public IEnumerator RandomizeSliderValues(float minValue, float maxValue)
     {
         foreach (Slider slider in sliders)
         {
             // Generate a random value within the specified range
             float randomValue = Random.Range(minValue, maxValue) + Random.Range(1, 10) * Random.Range(0.05f, 2) / Random.Range(0.5f, 3);
-
             // Lerp the slider to the random value. The bool makes the slider fill in differently, I like true more.
-            slider.DOValue(randomValue, animationDuration, true);
+            slider.DOValue(randomValue, animationDuration);
         }
 
         yield return null;
+    }
+
+    public void testmethod()
+    {
+
     }
 }

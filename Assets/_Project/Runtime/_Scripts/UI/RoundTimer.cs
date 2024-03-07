@@ -73,6 +73,11 @@ public class RoundTimer : MonoBehaviour
         if (countdownMode) DecreaseTime(Time.deltaTime);
         else IncreaseTime(Time.deltaTime);
 
+        if (CurrentTime <= 0f)
+        {
+            Finished = true;
+        }
+        
         UpdateTimerText();
     }
 
