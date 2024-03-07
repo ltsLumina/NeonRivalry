@@ -6,17 +6,16 @@ using UnityEngine;
 public class JumpStateData : DefaultStateData
 {
     [Tooltip("The force applied to the player when jumping.")]
-    [SerializeField] float jumpForce;
-    
-    [Tooltip("The duration of the jump.")]
-    [SerializeField] float jumpDuration;
-    
+    [SerializeField] float jumpHeight;
+
     [Tooltip("The mass of the player while falling.")]
-    [SerializeField] float playerMass;
+    [SerializeField] float gravityScale;
+
+    [SerializeField] float globalGravity;
 
     // -- Properties --
     
-    public float JumpForce => jumpForce;
-    public float JumpDuration => jumpDuration;
-    public float PlayerMass => playerMass;
+    public float JumpForce => jumpHeight;
+    public float GravityScale => gravityScale;
+    public float GlobalGravity => globalGravity;
 }

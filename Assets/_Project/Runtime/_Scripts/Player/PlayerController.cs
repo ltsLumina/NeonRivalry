@@ -37,14 +37,17 @@ public partial class PlayerController : MonoBehaviour
     [SerializeField, ReadOnly] Healthbar healthbar;
     [SerializeField, ReadOnly] Animator animator;
 
+    public static float GlobalGravity = -9.81f;
+
     // Cached References
+    public float gravityScale = 1.0f;
     float moveSpeed = 3f;
     float acceleration = 8f;
     float deceleration = 10f;
     float velocityPower = 1.4f;
 
-    // -- Properties --
-    
+    // -- Properties --  
+    public float GravityScale { get; private set; }
     public Rigidbody Rigidbody { get; private set; }
     public StateMachine StateMachine { get; private set; }
     public InputManager InputManager { get; private set; }
@@ -76,13 +79,22 @@ public partial class PlayerController : MonoBehaviour
 
     void Awake()
     {
-        Rigidbody    = GetComponent<Rigidbody>();
+        Rigidbody = GetComponent<Rigidbody>();
         StateMachine = GetComponent<StateMachine>();
         InputManager = GetComponentInChildren<InputManager>();
-        PlayerInput  = GetComponentInChildren<PlayerInput>();
-        HitBox       = GetComponentInChildren<HitBox>();
-        HurtBox      = GetComponentInChildren<HurtBox>();
-        Animator     = GetComponentInChildren<Animator>();
+        PlayerInput = GetComponentInChildren<PlayerInput>();
+        HitBox = GetComponentInChildren<HitBox>();
+        HurtBox = GetComponentInChildren<HurtBox>();
+        Animator = GetComponentInChildren<Animator>();
+
+        Rigidbody = GetComponent<Rigidbody>();
+        Rigidbody.useGravity = false;
+    }
+
+    void FixedUpdate()
+    {
+        Vector3 gravity = GlobalGravity * gravityScale * Vector3.up;
+        Rigidbody.AddForce(gravity, ForceMode.Acceleration);
     }
 
     // Rotate the player when spawning in to face in a direction that is more natural.
@@ -233,3 +245,5 @@ public class PlayerControllerInspector : Editor
     }
 }
 #endif
+
+       
