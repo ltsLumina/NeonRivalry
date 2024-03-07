@@ -68,6 +68,9 @@ public class InputManager : MonoBehaviour
     {
         MoveInput = context.ReadValue<Vector2>();
         TransitionTo(context, player.CanMove, State.StateType.Walk);
+
+        // If player is moving backwards, set the player to block.
+        if (player.IsGrounded()) player.IsBlocking = MoveInput.x < 0;
     }
 
     /// <summary>

@@ -11,6 +11,8 @@ public partial class PlayerController // StateChecks.cs
 {
     // -- State Checks --
 
+    public bool IsBlocking { get; set; }
+
     public bool IsGrounded()
     {
         bool raycastHit = Physics.Raycast(transform.position, Vector3.down, raycastDistance,groundLayer);
