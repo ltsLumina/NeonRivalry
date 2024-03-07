@@ -26,7 +26,7 @@ public class JumpState : State
 
     public override void OnEnter()
     {
-        PlayerController.GlobalGravity = globalGravity * -1;
+        player.GlobalGravity = globalGravity;
         IsJumping = true;
         hasJumped = false;
         player.GetComponentInChildren<SpriteRenderer>().color = Color.yellow;
@@ -34,18 +34,6 @@ public class JumpState : State
 
     public override void UpdateState()
     {
-        //if(hasJumped)
-        //{
-        //    float spring = 1.2f;
-        //    float drag = 0.9f;
-
-        //    var Velocity = player.Rigidbody.velocity;
-        //    Velocity.y += (jumpHeight -player.transform.position.y) * spring;
-        //    Velocity.y -= drag * Velocity.y;
-        //    player.Rigidbody.velocity = Velocity;
-
-        //}
-
         if (player.Rigidbody.velocity.y > 0)
         {
             player.Rigidbody.velocity = new Vector3(player.Rigidbody.velocity.x, player.Rigidbody.velocity.y * 0.98f, player.Rigidbody.velocity.z);
@@ -54,16 +42,16 @@ public class JumpState : State
         if (!hasJumped)
         {
             player.gravityScale = gravityScale;
-            float jumpForce = Mathf.Sqrt(jumpHeight * (Physics.gravity.y * player.gravityScale) * -2) * player.Rigidbody.mass;
-          
+            float jumpForce = Mathf.Sqrt(jumpHeight * (player.GlobalGravity * player.gravityScale) * -2) * player.Rigidbody.mass;
+
             //float jumpForce = Mathf.Sqrt((-2 * jumpHeight) * Physics.gravity.y);
             player.Rigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
 
-      
+
 
             hasJumped = true;
         }
-        // Player has reached the apex of their jump
+        //Player has reached the apex of their jump
         else if (player.Rigidbody.velocity.y < 0)
         {
             // pull them down
@@ -71,6 +59,7 @@ public class JumpState : State
             OnExit();
             return;
         }
+
     }
 
     public override void OnExit()

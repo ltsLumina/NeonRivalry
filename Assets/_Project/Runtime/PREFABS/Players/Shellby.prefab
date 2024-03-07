@@ -154,7 +154,7 @@ MonoBehaviour:
   health: 0
   idleTimeThreshold: 2
   idleTime: 0
-  raycastDistance: 0.05
+  raycastDistance: 0.075
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -163,9 +163,10 @@ MonoBehaviour:
   acceleration: 8
   deceleration: 10
   velocityPower: 1.4
+  GlobalGravity: -35
+  gravityScale: 1
   healthbar: {fileID: 0}
   animator: {fileID: 0}
-  gravityScale: 1
 --- !u!114 &488312444501934667
 MonoBehaviour:
   m_ObjectHideFlags: 0

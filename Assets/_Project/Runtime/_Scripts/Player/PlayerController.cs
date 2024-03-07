@@ -40,7 +40,7 @@ public partial class PlayerController : MonoBehaviour
     [SerializeField] float deceleration = 10f;
     [SerializeField] float velocityPower = 1.4f;
     
-    public static float GlobalGravity = -9.81f;
+    public float GlobalGravity = -35f;
     public float gravityScale = 1.0f;
 
     [Tab("Settings")]

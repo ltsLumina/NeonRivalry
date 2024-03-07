@@ -15,12 +15,12 @@ public class DashStateData : DefaultStateData
     [Tooltip("The amount of time the game will freeze before initiating the dash.")]
     [SerializeField] private float dashSleepTime;
 
-    [Tooltip("The amount of dashes the player can use before having to touch the ground to reset them")]
-    [SerializeField] private int dashAmount;
+    [Tooltip("Changes how fast the player falls after a dash ends")]
+    [SerializeField] private float dashEndGravity;
 
     public float DashDuration => dashDuration;
     public float DashSpeed => dashSpeed;
     public float DashSleepTime => dashSleepTime;
 
-    public int DashAmount => dashAmount;
+    public float DashEndGravity => dashEndGravity;
 }

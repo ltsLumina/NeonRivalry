@@ -41,7 +41,7 @@ public class FallState : State
 
         // Apply gravity
         if (player.Rigidbody.velocity.y < 0) 
-            player.Rigidbody.AddForce(fallGravityMultiplier * Vector3.down);
+            player.Rigidbody.AddForce(fallGravityMultiplier * Vector3.down, ForceMode.Acceleration);
 
         // Apply jump halt force
         if (player.Rigidbody.velocity.y > 0) 
