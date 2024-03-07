@@ -17,18 +17,17 @@ public class CharacterSelector : MonoBehaviour
 
     public static string GetSelectedCharacter(int playerIndex)
     {
-        switch (playerIndex) //TODO: On the right track, but this is not the right way to do it.
+        switch (playerIndex) //TODO: On the right track, but this is not done.
         {
-            case 0:
+            case 0 when SceneManagerExtended.ActiveScene == SceneManagerExtended.Game:
                 return "Shellby";
-                break;
-            
-            case 1:
+
+            case 1 when SceneManagerExtended.ActiveScene == SceneManagerExtended.Game:
                 return "Dorathy";
-                break;
+
+            default: // player index is 0 on any other scene than the game scene, return null (meaning to instantiate a menu navigator for Player 1)
+                return null;
         }
-        
-        return null;
     }
     
     public void SelectCharacter()
