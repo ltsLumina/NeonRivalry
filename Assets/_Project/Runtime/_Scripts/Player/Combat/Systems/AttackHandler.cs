@@ -18,7 +18,7 @@ public class AttackHandler
     /// </summary>
     readonly static Dictionary<MoveData.Direction, (string logMessage, int animationIndex)> directionToActionMap = new ()
     { { MoveData.Direction.Neutral, ("Neutral move performed.", (int) MoveData.Direction.Neutral) },
-      { MoveData.Direction.Forward, ("Forward move performed.", (int) MoveData.Direction.Forward) },
+      { MoveData.Direction.Horizontal, ("Horizontal move performed.", (int) MoveData.Direction.Horizontal) },
       { MoveData.Direction.Airborne, ("Airborne move performed.", (int) MoveData.Direction.Airborne) },
       { MoveData.Direction.Crouch, ("Crouch move performed.", (int) MoveData.Direction.Crouch) } };
 
@@ -98,11 +98,6 @@ public class AttackHandler
             Logger.Log("Returned out of an attack early. \nThis means the player might behave unexpectedly.", LogType.Warning);
             return false;
         }
-        
-        // Cancel any ongoing animations.
-        animator.SetBool("Walk_Forward", false);
-        animator.SetBool("Walk_Backward", false);
-        
 
         // Get the animation index based on the direction to perform.
         // The airborne attack only has one animation, so the animation index is always 0.
@@ -144,10 +139,7 @@ public class AttackHandler
 
         // Trigger the correct animation.
         // If the attack type is airborne, then the animation index is always 0.
-        //animator.SetTrigger(attackType);
-
-        animator.Play(move.direction + " " + attackType, 0, 0f);
-        //Debug.Log($"Playing {directionToActionMap[move.direction]} {attackType} animation.");
+        animator.SetTrigger(attackType);
 
         Logger.Trace
         ($"Attack animation played. Animator parameters set to: \n{attackType} = true \nAnimation Index = {animationIndex}", new[]
@@ -202,7 +194,7 @@ public class AttackHandler
     /// <returns> The direction that the player is pressing. </returns>
     static MoveData.Direction GetDirectionFromInput(Vector2 inputDirection) => inputDirection switch
     { _ when inputDirection   == Vector2.zero => MoveData.Direction.Neutral,
-      _ when inputDirection.x != 0            => MoveData.Direction.Forward,
+      _ when inputDirection.x != 0            => MoveData.Direction.Horizontal,
       _ when inputDirection.y < 0             => MoveData.Direction.Crouch,
       _                                       => MoveData.Direction.Neutral };
     #endregion

@@ -67,12 +67,11 @@ public class AttackState : State
         attackAnimationLength = animator.GetCurrentAnimatorStateInfo(0).length;
         
         // Bug: On occasion, the animator will return the length of the idle animation instead of the attack animation.
-        if (attackAnimationLength > 1.8f) return; // temporary fix when the attack animation length is incorrect.
         
         // If the attack duration has not been reached, continue attacking.
         groundedAttackTimer += Time.deltaTime;
 
-        if (player.IsGrounded()) Logger.Debug("Attacking on the ground!", LogType.Log, StateType.Attack);
+        if (player.IsGrounded()) { Logger.Debug("Attacking on the ground!", LogType.Log, StateType.Attack); }
 
         // // Player has become airborne after starting the attack, cancel the attack. (e.g. player gets knocked into the air) 
         // else
