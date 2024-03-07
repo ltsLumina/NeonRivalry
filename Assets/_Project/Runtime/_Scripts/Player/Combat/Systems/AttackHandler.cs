@@ -12,6 +12,9 @@ public class AttackHandler
     readonly Animator animator;
     readonly PlayerController player;
 
+    readonly static int Walk_Forward = Animator.StringToHash("Walk_Forward");
+    readonly static int Walk_Backward = Animator.StringToHash("Walk_Backward");
+
     /// <summary>
     ///     A dictionary that defines the associations between different move directions and their corresponding actions, log
     ///     messages, and animation indexes.
@@ -100,9 +103,8 @@ public class AttackHandler
         }
         
         // Cancel any ongoing animations.
-        animator.SetBool("Walk_Forward", false);
-        animator.SetBool("Walk_Backward", false);
-        
+        animator.SetBool(Walk_Forward, false);
+        animator.SetBool(Walk_Backward, false);
 
         // Get the animation index based on the direction to perform.
         // The airborne attack only has one animation, so the animation index is always 0.
@@ -113,9 +115,7 @@ public class AttackHandler
         string attackType = Enum.GetName(typeof(InputManager.AttackType), type);
         string logMessage = $"Performing {attackType} attack in the {directionToPerform} direction.";
 
-        Logger.Debug
-        (logMessage, LogType.Log, new[]
-         { State.StateType.Attack, State.StateType.AirborneAttack });
+        Logger.Debug(logMessage, LogType.Log, new[] { State.StateType.Attack, State.StateType.AirborneAttack });
 
         return true;
     }
