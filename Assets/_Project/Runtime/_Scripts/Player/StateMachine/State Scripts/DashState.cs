@@ -56,7 +56,13 @@ public class DashState : State
         }
     }
 
-    public override void OnExit() => Logger.Trace("Exiting Dash State", Type);
+    public override void OnExit()
+    {
+        if (player.IsGrounded() && player.InputManager.MoveInput.x != 0) player.StateMachine.TransitionToState(StateType.Walk);
+        else if (player.IsGrounded()) player.StateMachine.TransitionToState(StateType.Idle);
+        
+        Logger.Trace("Exiting Dash State", Type);
+    }
     #endregion
 
     IEnumerator HandleDashing()
