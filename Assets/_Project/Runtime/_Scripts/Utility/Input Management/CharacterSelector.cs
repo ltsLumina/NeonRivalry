@@ -1,5 +1,7 @@
+using Lumina.Essentials.Attributes;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 
 /// <summary>
@@ -7,17 +9,33 @@ using UnityEngine.UI;
 /// </summary>
 public class CharacterSelector : MonoBehaviour
 {
-    PlayerController player;
-    string characterTag;
-    bool isCharacterSelected;
+    [SerializeField] Button confirmationButton;
+    [SerializeField, ReadOnly] bool isCharacterSelected;
+    [SerializeField, ReadOnly] bool allCharactersSelected;
+    [SerializeField, ReadOnly] bool confirmSelection;
+
+
+    public static string GetSelectedCharacter(int playerIndex)
+    {
+        switch (playerIndex) //TODO: On the right track, but this is not done.
+        {
+            case 0 when SceneManagerExtended.ActiveScene == SceneManagerExtended.Game:
+                return "Shellby";
+
+            case 1 when SceneManagerExtended.ActiveScene == SceneManagerExtended.Game:
+                return "Dorathy";
+
+            default: // player index is 0 on any other scene than the game scene, return null (meaning to instantiate a menu navigator for Player 1)
+                return null;
+        }
+    }
     
-    public void SetCharacter()
+    public void SelectCharacter()
     {
         // Button is clicked.
         isCharacterSelected = !isCharacterSelected;
         
         var selectedButton = EventSystem.current.currentSelectedGameObject.GetComponent<Button>();
-        var buttonName = selectedButton.gameObject.ToString();
         
         // Toggle the checkmark.
         var checkmark = selectedButton.gameObject.transform.GetComponentInChildren<RawImage>();
@@ -31,40 +49,42 @@ public class CharacterSelector : MonoBehaviour
             { mode = Navigation.Mode.None }
             : new ()
             { mode = Navigation.Mode.Automatic };
+        
+        var characterSelectors = FindObjectsOfType<CharacterSelector>();
+        foreach (var selector in characterSelectors)
+        {
+            if (!selector.isCharacterSelected)
+            {
+                allCharactersSelected = false;
+                break;
+            }
+            
+            allCharactersSelected = true;
+        }
+        
+        // Toggle the confirmation button. If all characters are selected, enable the confirmation button, else disable it.
+        confirmationButton.gameObject.SetActive(allCharactersSelected);
 
-        // Removes (Player X) from e.g "Shellby (Player X)"
-        characterTag = TrimString(buttonName);
-        
-        //TODO: Can only confirm selection if both players have selected a character. (Smash Bros. Style)
-        // Confirm selection.
-        // if (isCharacterSelected)
-        // {
-        //     Debug.Log("Character selected: " + characterTag);
-        //     EnableCharacterModel();
-        // }
-        
+        if (allCharactersSelected)
+        {
+            foreach (var eventSystem in FindObjectsOfType<MultiplayerEventSystem>())
+            {
+                // set the first selected gameobject to the first character selector.
+                eventSystem.SetSelectedGameObject(confirmationButton.gameObject);
+            }
+        }
     }
 
-    // TODO: this method will send a callback to the following scene or something which spawns in the correct player model.
-    void EnableCharacterModel()
+    public void ConfirmSelection()
     {
-        var obj = GameObject.FindWithTag("Character");
-        Debug.Log("Found: " + obj);
+        confirmSelection = !confirmSelection;
 
-        switch (characterTag)
+        // Confirm selection.
+        if (allCharactersSelected && confirmSelection)
         {
-            case "Shellby":
-                obj.transform.GetChild(0).gameObject.SetActive(true);
-                break;
-            
-            case "Dorathy":
-                obj.transform.GetChild(1).gameObject.SetActive(true);
-                break;
-            
-            default:
-                Debug.LogError("something went wrong.");
-                return;
+            confirmationButton.interactable = false;
         }
+
     }
 
     #region Utility

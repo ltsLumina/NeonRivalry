@@ -1,12 +1,12 @@
 #region
 #if UNITY_EDITOR
-using UnityEditor;
 #endif
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Lumina.Essentials.Attributes;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using VInspector;
 using static State;
 #endregion
 
@@ -19,6 +19,7 @@ using static State;
 [RequireComponent(typeof(Rigidbody))]
 public partial class PlayerController : MonoBehaviour
 {
+    [Tab("Player Stats")]
     [Header("Player Stats"), UsedImplicitly]
     [SerializeField, ReadOnly] public int health;
 
@@ -33,15 +34,16 @@ public partial class PlayerController : MonoBehaviour
     [Header("Player ID"), Tooltip("The player's ID. \"1\"refers to player 1, \"2\" refers to player 2.")]
     [SerializeField, ReadOnly] int playerID;
     
+    [Tab("Movement")]
+    [SerializeField] float moveSpeed = 3f;
+    [SerializeField] float acceleration = 8f;
+    [SerializeField] float deceleration = 10f;
+    [SerializeField] float velocityPower = 1.4f;
+
+    [Tab("Settings")]
     [Header("Player Components")]
     [SerializeField, ReadOnly] Healthbar healthbar;
     [SerializeField, ReadOnly] Animator animator;
-
-    // Cached References
-    float moveSpeed = 3f;
-    float acceleration = 8f;
-    float deceleration = 10f;
-    float velocityPower = 1.4f;
 
     // -- Properties --
     
@@ -155,11 +157,6 @@ public partial class PlayerController : MonoBehaviour
 
         transform.SetParent(header);
 
-        // Rotate to face the camera.
-        // This has no gameplay purpose and only serves as a visual aid.
-        var model = transform.GetComponentInChildren<Animator>().transform;
-        model.rotation = Quaternion.Euler(0, PlayerID == 1 ? 120 : 240, 0);
-
         var playerManager = PlayerManager.Instance;
 
         playerManager.SetPlayerSpawnPoint(this, PlayerID);
@@ -215,21 +212,21 @@ public partial class PlayerController : MonoBehaviour
     }
 }
 
-#if UNITY_EDITOR
-[CustomEditor(typeof(PlayerController))]
-public class PlayerControllerInspector : Editor
-{
-    public override void OnInspectorGUI()
-    {
-        base.OnInspectorGUI();
-        
-        var player = (PlayerController) target;
-        var healthbar = player.Healthbar;
-        if (player == null || healthbar == null) return;
-
-        // Replace the health variable in the inspector with the healthbar's value
-        // so that the healthbar's value can be changed in the inspector.
-        player.health = healthbar.Value;
-    }
-}
-#endif
+// #if UNITY_EDITOR
+// [CustomEditor(typeof(PlayerController))]
+// public class PlayerControllerInspector : Editor
+// {
+//     public override void OnInspectorGUI()
+//     {
+//         base.OnInspectorGUI();
+//         
+//         var player = (PlayerController) target;
+//         var healthbar = player.Healthbar;
+//         if (player == null || healthbar == null) return;
+//
+//         // Replace the health variable in the inspector with the healthbar's value
+//         // so that the healthbar's value can be changed in the inspector.
+//         player.health = healthbar.Value;
+//     }
+// }
+// #endif
