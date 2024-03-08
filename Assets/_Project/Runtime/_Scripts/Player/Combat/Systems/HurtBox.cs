@@ -9,6 +9,11 @@ using VInspector;
 
 public class HurtBox : MonoBehaviour
 {
+    [Tab("Stats")]
+    [SerializeField] int blockHealth = 100;
+    [SerializeField] float blockDamageReductionPercentage = 0.5f;
+    [SerializeField] int blockStunDuration;
+    
     [Tab("Locations")]
     [Tooltip("Where to spawn the effect.")]
     [SerializeField] Transform punchKickLocation;
@@ -77,6 +82,7 @@ public class HurtBox : MonoBehaviour
             int dashGauge = 0;
             dashGauge += hitBox.DamageAmount;
             Debug.Log($"Dash gauge: {dashGauge}");
+            
             return;
         }
 
@@ -118,19 +124,33 @@ public class HurtBox : MonoBehaviour
         int baseColor       = Shader.PropertyToID("_BaseColor");
         int firstShadeColor = Shader.PropertyToID("_1st_ShadeColor");
 
-        var baseOriginalColor  = meshRenderer.material.GetColor(baseColor);
+        var baseOriginalColor       = meshRenderer.material.GetColor(baseColor);
         var firstShadeOriginalColor = meshRenderer.material.GetColor(firstShadeColor);
 
         // Set colors to red
-        meshRenderer.material.SetColor(baseColor, Color.red);
-        meshRenderer.material.SetColor(firstShadeColor, Color.red);
+        var col = new Color(0.91f, 0.34f, 0.47f, 0.45f);
+        meshRenderer.material.SetColor(baseColor, col);
+        meshRenderer.material.SetColor(firstShadeColor, col);
 
-        // Wait for 0.15 seconds
-        yield return new WaitForSeconds(0.15f);
+        // Fade out over 0.15 seconds
+        float duration    = 0.15f;
+        float elapsedTime = 0f;
 
-        // Set colors back to original
-        meshRenderer.material.SetColor(baseColor, baseOriginalColor);
-        meshRenderer.material.SetColor(firstShadeColor, firstShadeOriginalColor);
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+            float t = elapsedTime / duration;
+
+            // Interpolate color
+            Color baseInterpolatedColor       = Color.Lerp(col, baseOriginalColor, t);
+            Color firstShadeInterpolatedColor = Color.Lerp(col, firstShadeOriginalColor, t);
+
+            // Apply interpolated color
+            meshRenderer.material.SetColor(baseColor, baseInterpolatedColor);
+            meshRenderer.material.SetColor(firstShadeColor, firstShadeInterpolatedColor);
+
+            yield return null;
+        }
 
         // Wait for 0.05 seconds
         yield return new WaitForSeconds(0.05f);
