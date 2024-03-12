@@ -20,10 +20,6 @@ using static State;
 public partial class PlayerController : MonoBehaviour
 {
     [Tab("Player Stats")]
-    [Header("Player Stats"), UsedImplicitly]
-    [SerializeField, ReadOnly] public int health;
-
-    [Header("Read-Only Fields")]
     [SerializeField] float idleTimeThreshold;
     [SerializeField, ReadOnly] public float idleTime; //TODO: Make this private, but I should probably move it to a different script.
 
@@ -86,6 +82,9 @@ public partial class PlayerController : MonoBehaviour
         HitBox       = GetComponentInChildren<HitBox>();
         HurtBox      = GetComponentInChildren<HurtBox>();
         Animator     = GetComponentInChildren<Animator>();
+
+        // Enable the player input.
+        SetPlayerState(false);
     }
 
     // Rotate the player when spawning in to face in a direction that is more natural.
@@ -211,6 +210,8 @@ public partial class PlayerController : MonoBehaviour
         }
         else { idleTime = 0; }
     }
+
+    public void SetPlayerState(bool disabled) => PlayerInput.enabled = !disabled;
 }
 
 // #if UNITY_EDITOR

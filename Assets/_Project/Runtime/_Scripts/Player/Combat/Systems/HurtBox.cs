@@ -10,29 +10,34 @@ using VInspector;
 public class HurtBox : MonoBehaviour
 {
     [Tab("Stats")]
-    [SerializeField] int blockHealth = 100;
     [SerializeField] float blockDamageReductionPercentage = 0.5f;
-    [SerializeField] int blockStunDuration;
-    
-    [Tab("Locations")]
-    [Tooltip("Where to spawn the effect.")]
-    [SerializeField] Transform punchKickLocation;
-    [SerializeField] Transform blockLocation;
     
     [Tab("Effects")]
-    [SerializeField] GameObject punchKickEffect;
-    [SerializeField] GameObject blockEffect;
+    [SerializeField] float totalBlockedDamage;
+    [SerializeField] float lastBlockTime;
+    [SerializeField] float blockFadeDuration = 3f; // Duration in seconds to fade the block
     
-    PlayerController player;
-    new Rigidbody rigidbody;
+    [Header("Punch/Kick Effect")]
+    [SerializeField] GameObject punchKickEffect;
+    [Space(5)]
+    [Header("Block Effect")]
+    [SerializeField] GameObject blockEffect;
+    [SerializeField] Gradient blockStrainGradient;
+    
+    string ThisPlayer => $"Player {player.PlayerID}";
 
-    public delegate void HurtBoxHit(HitBox hitBox);
-    public event HurtBoxHit OnHurtBoxHit;
+     PlayerController player;
+
+     public delegate void HurtBoxHit(HitBox hitBox);
+     public event HurtBoxHit OnHurtBoxHit;
+    
+    delegate void BlockHit();
+    event BlockHit OnBlockHit;
 
     void Awake()
     {
         player    = GetComponentInParent<PlayerController>();
-        rigidbody = player.GetComponent<Rigidbody>();
+        player.GetComponent<Rigidbody>();
     }
 
     void Update() // TODO: Remove Update and DEBUG method when finished debugging.
@@ -40,11 +45,14 @@ public class HurtBox : MonoBehaviour
         DEBUG_TryHitHurtBox();
     }
 
-    void OnEnable() => OnHurtBoxHit += OnTakeDamage;
+    void OnEnable()
+    {
+        OnHurtBoxHit += OnTakeDamage; 
+        OnBlockHit   += () => PlayEffect(blockEffect);
+    }
 
-    //player.Healthbar.OnHealthChanged += healthbarValue => Debug.Log($"Healthbar value changed to {healthbarValue}!");
     void OnDisable() => OnHurtBoxHit -= OnTakeDamage;
-    
+
     void DEBUG_TryHitHurtBox()
     {
         if (!Input.GetKeyDown(KeyCode.H)) return;
@@ -59,9 +67,10 @@ public class HurtBox : MonoBehaviour
         if (hitBox != null) OnHurtBoxHit?.Invoke(hitBox);
     }
 
-    IEnumerator InvincibilityFrames()
+    IEnumerator InvincibilityFrames(float duration = 0.35f)
     {
-        yield return new WaitForSeconds(0.5f);
+        player.IsInvincible = true;
+        yield return new WaitForSeconds(duration);
 
         // Set player back to vulnerable
         player.IsInvincible = false;
@@ -72,49 +81,84 @@ public class HurtBox : MonoBehaviour
         // Check if the player is invincible
         if (player.IsInvincible) return;
 
+        // Create variable to represent the player's health
+        int health = player.Healthbar.Value;
+
         if (player.IsBlocking)
         {
-            Debug.Log("Player blocked the incoming attack!");
-            // Play block effect.
-            PlayEffect(blockEffect, blockLocation);
+            OnBlockHit?.Invoke();
 
-            // Note: psuedo code for dash gauge
-            int dashGauge = 0;
-            dashGauge += hitBox.DamageAmount;
-            Debug.Log($"Dash gauge: {dashGauge}");
-            
+            int reducedDamage = Mathf.RoundToInt(hitBox.DamageAmount * blockDamageReductionPercentage);
+            int finalDamage   = hitBox.DamageAmount - reducedDamage; // Subtract the reduced damage from the original damage
+            player.Healthbar.Value -= finalDamage;                   // Apply the final damage
+            Debug.Log($"Blocked and took {finalDamage} damage!");
+
+            // Add the blocked damage to the total
+            totalBlockedDamage += finalDamage;
+            lastBlockTime      =  Time.time;
+
+            // Start the coroutine to reset the total blocked damage
+            StartCoroutine(ResetTotalBlockedDamage());
+
+            // Calculate the strain percentage
+            float strainPercentage = totalBlockedDamage / (totalBlockedDamage + hitBox.DamageAmount);
+
+            // Get the color from the gradient based on the strain percentage
+            Color strainColor = blockStrainGradient.Evaluate(strainPercentage);
+
+            // Apply the color to the block
+            blockEffect.GetComponent<SpriteRenderer>().material.color = strainColor;
+
+            // Play block effect.
+            PlayEffect(blockEffect);
+
+            StartCoroutine(InvincibilityFrames());
+
             return;
         }
-
-        int health = player.Healthbar.Value;
-        Debug.Log($"HurtBox hit by {hitBox.name} and took {hitBox.DamageAmount} damage!");
-
-        PlayEffect(punchKickEffect, punchKickLocation);
         
-        // Take damage.
-        if (!player.Healthbar.Invincible) health -= hitBox.DamageAmount;
+        Debug.Log($"HurtBox hit by {hitBox.name} and took {hitBox.DamageAmount} damage!");
+        PlayEffect(punchKickEffect);
+        
+        // Reduce health by the damage amount, and update the health bar.
+        health -= hitBox.DamageAmount;
         player.Healthbar.Value = health;
         
-        // Flash player red on take damage.
-        StartCoroutine(FlashRedOnDamage());
+        // Plays effects over time such as flashing red and invincibility frames.
+        TakeDamageRoutine();
 
-        // Set player to invincible and start the invincibility frames coroutine
-        player.IsInvincible = true;
-        StartCoroutine(InvincibilityFrames());
-
+        // Player has died.
         if (health <= 0)
         {
+            player.SetPlayerState(true);
+            
             Gamepad.current.Rumble(this);
             
             //may god save us
             // RoundManager.player1WonRoundsText.text = $"Rounds won: \n{FindObjectOfType<RoundManager>().player1WonRounds}/2";
             // FindObjectOfType<RoundManager>().player1WonRounds++;
             // FindObjectOfType<RoundManager>().currentRounds++;
-            Debug.Log("Player is dead!");
+            Debug.Log($"{ThisPlayer} is dead!");
         }
-        
-        // Knock player back
-        Knockback();
+    }
+    
+    IEnumerator ResetTotalBlockedDamage()
+    {
+        // Wait for the block fade duration
+        yield return new WaitForSeconds(blockFadeDuration);
+
+        // If no new blocks have occurred during the wait time, reset the total blocked damage
+        if (Time.time >= lastBlockTime + blockFadeDuration) { totalBlockedDamage = 0f; }
+    }
+    
+    
+    void TakeDamageRoutine()
+    {
+        // Flash player red on take damage.
+        StartCoroutine(FlashRedOnDamage());
+
+        // Set player to invincible and start the invincibility frames coroutine
+        StartCoroutine(InvincibilityFrames());
     }
 
     IEnumerator FlashRedOnDamage()
@@ -156,30 +200,21 @@ public class HurtBox : MonoBehaviour
         yield return new WaitForSeconds(0.05f);
     }
 
-    void PlayEffect(GameObject effect, Transform location)
+    void PlayEffect(GameObject effect)
     {
-        effect = Instantiate(effect, location.position, effect.transform.rotation);
-        
-        var destroyDelay = new Sequence(this);
-        GameObject o = effect;
-        destroyDelay.WaitThenExecute(0.5f, () => Destroy(o));
+        // Enable the effect
+        effect.SetActive(true);
+
+        // Start the coroutine to disable the effect after the animation has finished
+        StartCoroutine(DisableEffectAfterAnimation(effect));
     }
 
-    void Knockback()
+    IEnumerator DisableEffectAfterAnimation(GameObject effect)
     {
-        if (PlayerManager.PlayerTwo == null) return;
-        
-        // Knockback the player based on the sign of the Y-rotation.
-        float knockbackForce     = 65f;
-        
-        // Knockback player away from the other player
-        Vector3 knockbackDirection;
-        var playerOne = PlayerManager.PlayerOne;
-        var playerTwo = PlayerManager.PlayerTwo;
-        
-        if (player.PlayerID == 1) knockbackDirection = playerTwo.transform.position - playerOne.transform.position;
-        else                      knockbackDirection = playerOne.transform.position - playerTwo.transform.position;
-        
-        rigidbody.AddForce(-knockbackDirection * knockbackForce);
+        // Wait for the duration of the animation
+        yield return new WaitForSeconds(0.35f);
+
+        // Disable the effect
+        effect.SetActive(false);
     }
 }
