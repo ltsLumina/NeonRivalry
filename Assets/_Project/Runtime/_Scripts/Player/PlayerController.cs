@@ -37,6 +37,9 @@ public partial class PlayerController : MonoBehaviour
     [SerializeField] float velocityPower = 1.4f;
 
     [Tab("Settings")]
+    [Header("Debug")]
+    [SerializeField] bool godMode;
+    [Space(5)]
     [Header("Player Components")]
     [SerializeField, ReadOnly] Healthbar healthbar;
     [SerializeField, ReadOnly] Animator animator;
@@ -50,6 +53,8 @@ public partial class PlayerController : MonoBehaviour
     public HitBox HitBox { get; set; }
     public HurtBox HurtBox { get; set; }
     public bool IsInvincible { get; set; }
+
+    string ThisPlayer => $"Player {PlayerID}";
 
     // -- Serialized Properties --
 
@@ -82,7 +87,7 @@ public partial class PlayerController : MonoBehaviour
         HitBox       = GetComponentInChildren<HitBox>();
         HurtBox      = GetComponentInChildren<HurtBox>();
         Animator     = GetComponentInChildren<Animator>();
-
+        
         // Enable the player input.
         SetPlayerState(false);
     }
@@ -211,7 +216,27 @@ public partial class PlayerController : MonoBehaviour
         else { idleTime = 0; }
     }
 
-    public void SetPlayerState(bool disabled) => PlayerInput.enabled = !disabled;
+    public void SetPlayerState(bool disabled)
+    {
+        PlayerInput.enabled = !disabled;
+        HitBox.enabled      = !disabled;
+        HurtBox.enabled     = !disabled;
+    }
+
+    public void Death()
+    {
+        // Disable any necessary components
+        SetPlayerState(true);
+        
+        // Rumble controller
+        Gamepad.current.Rumble(this);
+
+        //may god save us
+        // RoundManager.player1WonRoundsText.text = $"Rounds won: \n{FindObjectOfType<RoundManager>().player1WonRounds}/2";
+        // FindObjectOfType<RoundManager>().player1WonRounds++;
+        // FindObjectOfType<RoundManager>().currentRounds++;
+        Debug.Log($"{ThisPlayer} is dead!");
+    }
 }
 
 // #if UNITY_EDITOR

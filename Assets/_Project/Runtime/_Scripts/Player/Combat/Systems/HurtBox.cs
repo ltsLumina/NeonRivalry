@@ -23,14 +23,12 @@ public class HurtBox : MonoBehaviour
     [Header("Block Effect")]
     [SerializeField] GameObject blockEffect;
     [SerializeField] Gradient blockStrainGradient;
-    
-    string ThisPlayer => $"Player {player.PlayerID}";
 
-     PlayerController player;
+    PlayerController player;
 
-     public delegate void HurtBoxHit(HitBox hitBox);
-     public event HurtBoxHit OnHurtBoxHit;
-    
+    public delegate void HurtBoxHit(HitBox hitBox);
+    public event HurtBoxHit OnHurtBoxHit;
+
     delegate void BlockHit();
     event BlockHit OnBlockHit;
 
@@ -86,34 +84,7 @@ public class HurtBox : MonoBehaviour
 
         if (player.IsBlocking)
         {
-            OnBlockHit?.Invoke();
-
-            int reducedDamage = Mathf.RoundToInt(hitBox.DamageAmount * blockDamageReductionPercentage);
-            int finalDamage   = hitBox.DamageAmount - reducedDamage; // Subtract the reduced damage from the original damage
-            player.Healthbar.Value -= finalDamage;                   // Apply the final damage
-            Debug.Log($"Blocked and took {finalDamage} damage!");
-
-            // Add the blocked damage to the total
-            totalBlockedDamage += finalDamage;
-            lastBlockTime      =  Time.time;
-
-            // Start the coroutine to reset the total blocked damage
-            StartCoroutine(ResetTotalBlockedDamage());
-
-            // Calculate the strain percentage
-            float strainPercentage = totalBlockedDamage / (totalBlockedDamage + hitBox.DamageAmount);
-
-            // Get the color from the gradient based on the strain percentage
-            Color strainColor = blockStrainGradient.Evaluate(strainPercentage);
-
-            // Apply the color to the block
-            blockEffect.GetComponent<SpriteRenderer>().material.color = strainColor;
-
-            // Play block effect.
-            PlayEffect(blockEffect);
-
-            StartCoroutine(InvincibilityFrames());
-
+            HandleBlock(hitBox);
             return;
         }
         
@@ -130,25 +101,65 @@ public class HurtBox : MonoBehaviour
         // Player has died.
         if (health <= 0)
         {
-            player.SetPlayerState(true);
-            
-            Gamepad.current.Rumble(this);
-            
-            //may god save us
-            // RoundManager.player1WonRoundsText.text = $"Rounds won: \n{FindObjectOfType<RoundManager>().player1WonRounds}/2";
-            // FindObjectOfType<RoundManager>().player1WonRounds++;
-            // FindObjectOfType<RoundManager>().currentRounds++;
-            Debug.Log($"{ThisPlayer} is dead!");
+            player.Death();
         }
     }
     
-    IEnumerator ResetTotalBlockedDamage()
+    void HandleBlock(HitBox hitBox)
     {
-        // Wait for the block fade duration
-        yield return new WaitForSeconds(blockFadeDuration);
+        OnBlockHit?.Invoke();
 
-        // If no new blocks have occurred during the wait time, reset the total blocked damage
-        if (Time.time >= lastBlockTime + blockFadeDuration) { totalBlockedDamage = 0f; }
+        CalculateDamageTaken(out float strainPercentage);
+
+        // Apply the strain gradient to the block effect
+        BlockStrain(strainPercentage);
+
+        // Play block effect.
+        PlayEffect(blockEffect);
+
+        StartCoroutine(InvincibilityFrames());
+
+        return;
+
+        void CalculateDamageTaken(out float _strainPercentage)
+        {
+            // Calculate the strain percentage
+            _strainPercentage = totalBlockedDamage / (totalBlockedDamage + hitBox.DamageAmount);
+
+            // Modify the blockDamageReductionPercentage based on the strainPercentage
+            float modifiedBlockDamageReductionPercentage = blockDamageReductionPercentage * (1 - _strainPercentage);
+            modifiedBlockDamageReductionPercentage = Mathf.Clamp(modifiedBlockDamageReductionPercentage, 0.35f, 1f);
+
+            int reducedDamage = Mathf.RoundToInt(hitBox.DamageAmount * modifiedBlockDamageReductionPercentage);
+            int finalDamage   = hitBox.DamageAmount - reducedDamage; // Subtract the reduced damage from the original damage
+            player.Healthbar.Value -= finalDamage;                   // Apply the final damage
+            Debug.Log($"Blocked and took {finalDamage} damage!");
+
+            // Add the blocked damage to the total
+            totalBlockedDamage += finalDamage;
+            lastBlockTime      =  Time.time;
+
+            // Start the coroutine to reset the total blocked damage
+            StartCoroutine(ResetTotalBlockedDamage());
+        }
+
+        IEnumerator ResetTotalBlockedDamage()
+        {
+            // Wait for the block fade duration
+            yield return new WaitForSeconds(blockFadeDuration);
+
+            // If no new blocks have occurred during the wait time, reset the total blocked damage
+            if (Time.time >= lastBlockTime + blockFadeDuration) { totalBlockedDamage = 0f; }
+        }
+
+        void BlockStrain(float strainPercentage)
+        {
+            // Get the color from the gradient based on the strain percentage
+            Color strainColor = blockStrainGradient.Evaluate(strainPercentage);
+
+            // Apply the color to the block
+            blockEffect.GetComponent<SpriteRenderer>().material.color = strainColor;
+        }
     }
     
     

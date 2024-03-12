@@ -11,14 +11,18 @@ public class Healthbar : MonoBehaviour
     [SerializeField] [ReadOnly] PlayerController player;
     [SerializeField] Slider comboVisualSlider;
     
-    [SerializeField] float doTweenSpeed;
-    [Tooltip("Make sure the easing method is ONLY In*** \nIf you want to use the \"Linear\" method make sure the other is set to \"Unset\"")]
-    [SerializeField] Ease inEase;
-    [Tooltip("Make sure the easing method is ONLY Out***")]
-    [SerializeField] Ease outEase;
-
+    [Header("Settings")] [Space(5)]
+    [SerializeField] float tweenSpeed;
+    [SerializeField, Tooltip("Make sure the easing method is ONLY In*** \nIf you want to use the \"Linear\" method make sure the other is set to \"Unset\"")]
+    Ease outEase;
+    [SerializeField, Tooltip("Make sure the easing method is ONLY Out***")]
+    Ease inEase;
+    
+    [Header("Debug")] [Space(5)]
+    [SerializeField] bool invincible;
     [SerializeField, ReadOnly] float comboTimer;
     [SerializeField, ReadOnly] bool isTweening;
+
     public Healthbar(bool invincible) { Invincible = invincible; }
 
     //[SerializeField, ReadOnly] PlayerStats playerStats;
@@ -60,7 +64,7 @@ public class Healthbar : MonoBehaviour
                 if (Invincible) return;
                 
                 Slider.value = value;
-                comboTimer = 0.5f;
+                comboTimer = 0.75f; // The time a combo lasts. Once it reaches 0, the healthbar will begin to tween.
                 OnHealthChanged?.Invoke(value);
 
                 if (value <= 0) OnPlayerDeath?.Invoke(Player);
@@ -72,7 +76,11 @@ public class Healthbar : MonoBehaviour
     /// Used to determine whether or not the player is invincible.
     /// Only meant to be used for debugging purposes.
     /// </summary>
-    public bool Invincible { get; set; }
+    public bool Invincible
+    {
+        get => invincible;
+        set => invincible = value;
+    }
 
     void Awake()
     {
@@ -91,6 +99,8 @@ public class Healthbar : MonoBehaviour
 
     void Update()
     {
+        if (Invincible) Value = 100;
+
         if(comboTimer > 0)
         {
             isTweening = false;
@@ -99,7 +109,7 @@ public class Healthbar : MonoBehaviour
 
         if (comboTimer <= 0 && !isTweening)
         {
-            StartCoroutine(UpdateHealthBar(Value, doTweenSpeed, inEase, outEase));
+            StartCoroutine(UpdateHealthBar(Value, tweenSpeed, inEase, outEase));
         }
     }
 

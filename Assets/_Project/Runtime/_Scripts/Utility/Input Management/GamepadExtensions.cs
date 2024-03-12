@@ -65,6 +65,8 @@ public static class GamepadExtensions
     /// </remarks>
     public static void Rumble(this Gamepad gamepad, PlayerController player, float lowFrequency = 0.25f, float highFrequency = 0.25f, float duration = 0.25f)
     {
+        if (gamepad == null) return;
+        
         lowFrequency  = LerpFrequency(lowFrequency);
         highFrequency = LerpFrequency(highFrequency);
 
