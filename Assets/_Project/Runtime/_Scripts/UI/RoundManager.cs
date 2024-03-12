@@ -109,7 +109,7 @@ public class RoundManager : MonoBehaviour
 
     void Resultscreen()
     {
-        resultScreen.GetComponent<Canvas>().enabled = true;
+        //resultScreen.GetComponent<Canvas>().enabled = true;
         //FindObjectOfType<EventSystemSelector>().FindButtonByButtonName("Rematch Button (Player 1)");
         StartCoroutine(resultScreen.RandomizeSliderValues(1, 100));
     }
