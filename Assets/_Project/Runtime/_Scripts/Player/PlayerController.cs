@@ -2,7 +2,6 @@
 #if UNITY_EDITOR
 #endif
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Lumina.Essentials.Attributes;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -32,6 +31,7 @@ public partial class PlayerController : MonoBehaviour
     
     [Tab("Movement")]
     [SerializeField] float moveSpeed = 3f;
+    [SerializeField] float backwardSpeedFactor = 0.5f;
     [SerializeField] float acceleration = 8f;
     [SerializeField] float deceleration = 10f;
     [SerializeField] float velocityPower = 1.4f;
@@ -43,6 +43,10 @@ public partial class PlayerController : MonoBehaviour
     [Header("Player Components")]
     [SerializeField, ReadOnly] Healthbar healthbar;
     [SerializeField, ReadOnly] Animator animator;
+    
+    // Cached Animation References
+    readonly static int Walk_Forward = Animator.StringToHash("Walk_Forward");
+    readonly static int Walk_Backward = Animator.StringToHash("Walk_Backward");
 
     // -- Properties --
     
@@ -92,6 +96,9 @@ public partial class PlayerController : MonoBehaviour
         SetPlayerState(false);
     }
 
+    void OnEnable() => Healthbar.OnPlayerDeath += Death;
+    void OnDisable() => Healthbar.OnPlayerDeath -= Death;
+
     // Rotate the player when spawning in to face in a direction that is more natural.
     void Start() => Initialize();
 
@@ -117,14 +124,15 @@ public partial class PlayerController : MonoBehaviour
         Vector3 moveInput = InputManager.MoveInput;
 
         // Animating the player based on the move input.
-        Animator.SetBool("Walk_Forward", moveInput.x > 0);
-        Animator.SetBool("Walk_Backward", moveInput.x < 0);
+        Animator.SetBool(Walk_Forward, moveInput.x  > 0);
+        Animator.SetBool(Walk_Backward, moveInput.x < 0);
 
         // Determining the direction of the movement (left or right).
         int moveDirection = (int) moveInput.x;
 
         // Calculating the target speed based on direction and move speed.
-        float targetSpeed = moveDirection * moveSpeed;
+        // If moving backward, multiply the moveSpeed with the backwardSpeedFactor
+        float targetSpeed = moveDirection * (moveInput.x < 0 ? moveSpeed * backwardSpeedFactor : moveSpeed);
 
         // Calculate difference between target speed and current velocity.
         float speedDifference = targetSpeed - Rigidbody.velocity.x;
@@ -223,7 +231,7 @@ public partial class PlayerController : MonoBehaviour
         HurtBox.enabled     = !disabled;
     }
 
-    public void Death()
+    public void Death(PlayerController playerThatDied)
     {
         // Disable any necessary components
         SetPlayerState(true);
