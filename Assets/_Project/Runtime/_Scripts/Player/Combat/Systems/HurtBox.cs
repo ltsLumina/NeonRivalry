@@ -1,9 +1,6 @@
 ﻿#region
-using System;
 using System.Collections;
-using Lumina.Essentials.Sequencer;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using VInspector;
 #endregion
 
@@ -11,12 +8,11 @@ public class HurtBox : MonoBehaviour
 {
     [Tab("Stats")]
     [SerializeField] float blockDamageReductionPercentage = 0.5f;
-    
-    [Tab("Effects")]
     [SerializeField] float totalBlockedDamage;
     [SerializeField] float lastBlockTime;
     [SerializeField] float blockFadeDuration = 3f; // Duration in seconds to fade the block
     
+    [Tab("Effects")]
     [Header("Punch/Kick Effect")]
     [SerializeField] GameObject punchKickEffect;
     [Space(5)]
@@ -34,7 +30,7 @@ public class HurtBox : MonoBehaviour
 
     void Awake()
     {
-        player    = GetComponentInParent<PlayerController>();
+        player = GetComponentInParent<PlayerController>();
         player.GetComponent<Rigidbody>();
     }
 
@@ -88,21 +84,16 @@ public class HurtBox : MonoBehaviour
             return;
         }
         
-        Debug.Log($"HurtBox hit by {hitBox.name} and took {hitBox.DamageAmount} damage!");
-        PlayEffect(punchKickEffect);
+        // -- Player was hit by another character --
         
         // Reduce health by the damage amount, and update the health bar.
         health -= hitBox.DamageAmount;
         player.Healthbar.Value = health;
         
+        PlayEffect(punchKickEffect);
+        
         // Plays effects over time such as flashing red and invincibility frames.
         TakeDamageRoutine();
-
-        // Player has died.
-        if (health <= 0)
-        {
-            player.Death();
-        }
     }
     
     void HandleBlock(HitBox hitBox)
@@ -119,6 +110,7 @@ public class HurtBox : MonoBehaviour
 
         StartCoroutine(InvincibilityFrames());
 
+        #region Local Functions
         return;
 
         void CalculateDamageTaken(out float _strainPercentage)
@@ -152,6 +144,7 @@ public class HurtBox : MonoBehaviour
             if (Time.time >= lastBlockTime + blockFadeDuration) { totalBlockedDamage = 0f; }
         }
 
+        // ReSharper disable once VariableHidesOuterVariable
         void BlockStrain(float strainPercentage)
         {
             // Get the color from the gradient based on the strain percentage
@@ -160,6 +153,7 @@ public class HurtBox : MonoBehaviour
             // Apply the color to the block
             blockEffect.GetComponent<SpriteRenderer>().material.color = strainColor;
         }
+        #endregion
     }
     
     
@@ -172,9 +166,10 @@ public class HurtBox : MonoBehaviour
         StartCoroutine(InvincibilityFrames());
     }
 
-    IEnumerator FlashRedOnDamage()
+    IEnumerator FlashRedOnDamage(float duration = 0.15f)
     {
         var meshRenderer = player.GetComponentInChildren<SkinnedMeshRenderer>();
+        if (!meshRenderer) yield break;
 
         int baseColor       = Shader.PropertyToID("_BaseColor");
         int firstShadeColor = Shader.PropertyToID("_1st_ShadeColor");
@@ -188,7 +183,6 @@ public class HurtBox : MonoBehaviour
         meshRenderer.material.SetColor(firstShadeColor, col);
 
         // Fade out over 0.15 seconds
-        float duration    = 0.15f;
         float elapsedTime = 0f;
 
         while (elapsedTime < duration)

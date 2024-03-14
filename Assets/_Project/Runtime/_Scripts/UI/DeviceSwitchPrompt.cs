@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Text;
 using TMPro;
@@ -12,15 +13,17 @@ public class DeviceSwitchPrompt : MonoBehaviour
     [SerializeField] GameObject[] objectsToEnable;
     [SerializeField] GameObject[] objectsToDisable;
     [Tooltip("These are the buttons that are disabled when the prompt is active. \nThey will be re-enabled when the prompt is hidden.")]
-    [SerializeField] GameObject[] mainMenuButtons;
 
     // -- Private Variables --
 
+    UIManager UIManager;
     const string baseText = "Press the START/SPACEBAR button to continue";
-
+    
     // -- Properties --
 
     public static bool IsWaitingForInput { get; private set; }
+
+    void Awake() => UIManager = FindObjectOfType<UIManager>();
 
     void OnEnable()
     {
@@ -53,9 +56,9 @@ public class DeviceSwitchPrompt : MonoBehaviour
             obj.SetActive(true);
         }
 
-        foreach (GameObject obj in mainMenuButtons)
+        foreach (Button obj in UIManager.MainMenuButtons)
         {
-            obj.GetComponent<Button>().interactable = false;
+            obj.interactable = false;
         }
 
         // Wait for the player to press a button on the keyboard
@@ -125,9 +128,9 @@ public class DeviceSwitchPrompt : MonoBehaviour
             obj.SetActive(true);
         }
 
-        foreach (GameObject obj in mainMenuButtons)
+        foreach (Button obj in UIManager.MainMenuButtons)
         {
-            obj.GetComponent<Button>().interactable = true;
+            obj.interactable = true;
         }
     }
 }

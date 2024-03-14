@@ -13,6 +13,9 @@ public class InputDeviceManager : MonoBehaviour
     readonly static Dictionary<InputDevice, int> persistentPlayerDevices = new (); // TODO: There is a chance that this doesn't work in builds.
     readonly Dictionary<InputDevice, int> playerDevices = new();
     
+    public delegate void PlayerJoin();
+    public static event PlayerJoin OnPlayerJoin;
+    
     // -- Scenes --
     
     const int Intro = 0;
@@ -65,6 +68,8 @@ public class InputDeviceManager : MonoBehaviour
 
             var player = PlayerInput.Instantiate(prefabToInstantiate, kvp.Value, controlScheme, -1, kvp.Key);
             Debug.Log($"Player {kvp.Value + 1} joined using {controlScheme} control scheme! \nThis player was loaded in from a previous scene or game restart.", player);
+            
+            OnPlayerJoin?.Invoke();
         }
     }
 
@@ -152,6 +157,7 @@ public class InputDeviceManager : MonoBehaviour
         if (device is Gamepad gamepad) gamepad.Rumble(this); // bug: The rumble might be too weak on some gamepads, making it nearly unnoticeable.
 
         Debug.Log($"Player {playerDevices[device] + 1} joined using {controlScheme} control scheme!" + "\n");
+        OnPlayerJoin?.Invoke();
     }
 
     static InputDevice GetActiveDevice()
