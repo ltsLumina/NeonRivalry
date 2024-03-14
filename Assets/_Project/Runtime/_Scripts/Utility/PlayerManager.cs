@@ -91,6 +91,12 @@ public partial class PlayerManager : MonoBehaviour
     }
 
     #region Utility
+    public static PlayerController OtherPlayer(PlayerController player)
+    {
+        if (player == null) return null;
+        return player == PlayerOne ? PlayerTwo : PlayerOne;
+    }
+
     public static void AddPlayer(PlayerController player) => Players.Add(player);
     public static void RemovePlayer(PlayerController player) => Players.Remove(player);
 

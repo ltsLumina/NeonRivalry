@@ -44,14 +44,17 @@ public partial class PlayerController : MonoBehaviour
     [SerializeField, ReadOnly] Healthbar healthbar;
     [SerializeField, ReadOnly] Animator animator;
     
+    // Cached References
+    PlayerController player;
+    
     // Cached Animation References
     readonly static int Walk_Forward = Animator.StringToHash("Walk_Forward");
     readonly static int Walk_Backward = Animator.StringToHash("Walk_Backward");
 
     // -- Properties --
     
-    public Rigidbody Rigidbody { get; private set; }
     public StateMachine StateMachine { get; private set; }
+    public Rigidbody Rigidbody { get; private set; }
     public InputManager InputManager { get; private set; }
     public PlayerInput PlayerInput { get; private set; }
     public HitBox HitBox { get; set; }
@@ -84,8 +87,9 @@ public partial class PlayerController : MonoBehaviour
 
     void Awake()
     {
-        Rigidbody    = GetComponent<Rigidbody>();
+        player       = GetComponent<PlayerController>();
         StateMachine = GetComponent<StateMachine>();
+        Rigidbody    = GetComponent<Rigidbody>();
         InputManager = GetComponentInChildren<InputManager>();
         PlayerInput  = GetComponentInChildren<PlayerInput>();
         HitBox       = GetComponentInChildren<HitBox>();
@@ -93,11 +97,10 @@ public partial class PlayerController : MonoBehaviour
         Animator     = GetComponentInChildren<Animator>();
         
         // Enable the player input.
-        SetPlayerState(false);
+        DisablePlayer(false);
     }
-
-    void OnEnable() => Healthbar.OnPlayerDeath += Death;
-    void OnDisable() => Healthbar.OnPlayerDeath -= Death;
+    
+    void OnDestroy() => Healthbar.OnPlayerDeath -= Death;
 
     // Rotate the player when spawning in to face in a direction that is more natural.
     void Start() => Initialize();
@@ -175,16 +178,16 @@ public partial class PlayerController : MonoBehaviour
         playerManager.SetPlayerSpawnPoint(this, PlayerID);
         PlayerManager.AssignHealthbarToPlayer(this, PlayerID);
 
-        // TODO: Change this once we have a system in place to determine when the round actually starts.
-        //gameObject.SetActive(false);
+        Healthbar.OnPlayerDeath += Death;
     }
 
     void RotateToFaceEnemy()
     {
-        if (PlayerManager.PlayerTwo == null) return;
+        if (PlayerManager.OtherPlayer(player) == null) return;
+        
         List<PlayerController> players        = PlayerManager.Players;
-        var                    oppositePlayer = players[PlayerID == 1 ? 1 : 0];
-        var                    model          = transform.GetComponentInChildren<Animator>().transform;
+        PlayerController       oppositePlayer = players[PlayerID == 1 ? 1 : 0];
+        Transform              model          = transform.GetComponentInChildren<Animator>().transform;
 
         Quaternion targetRotation;
 
@@ -200,7 +203,7 @@ public partial class PlayerController : MonoBehaviour
         }
 
         // Lerp rotation over time
-        float rotationSpeed = 0.75f; // Adjust this value to change the speed of rotation
+        const float rotationSpeed = 0.75f; // Adjust this value to change the speed of rotation
         model.rotation = Quaternion.Lerp(model.rotation, targetRotation, Time.deltaTime * rotationSpeed);
     }
 
@@ -224,20 +227,24 @@ public partial class PlayerController : MonoBehaviour
         else { idleTime = 0; }
     }
 
-    public void SetPlayerState(bool disabled)
+    public void DisablePlayer(bool disabled)
     {
-        PlayerInput.enabled = !disabled;
-        HitBox.enabled      = !disabled;
-        HurtBox.enabled     = !disabled;
+        player.enabled       = !disabled;
+        HitBox.enabled       = !disabled;
+        HurtBox.enabled      = !disabled;
     }
 
     public void Death(PlayerController playerThatDied)
     {
         // Disable any necessary components
-        SetPlayerState(true);
+        DisablePlayer(true);
+        
+        // Stop any ongoing animations and play the death animation
+        Animator.Play("Idle");
+        //Animator.SetTrigger("HasDied");
         
         // Rumble controller
-        Gamepad.current.Rumble(this);
+        GamepadExtensions.RumbleAll(this);
 
         //may god save us
         // RoundManager.player1WonRoundsText.text = $"Rounds won: \n{FindObjectOfType<RoundManager>().player1WonRounds}/2";

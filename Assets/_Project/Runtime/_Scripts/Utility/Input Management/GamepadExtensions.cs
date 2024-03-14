@@ -9,6 +9,9 @@ using UnityEngine.InputSystem.Controls;
 
 public static class GamepadExtensions
 {
+    public static bool StartButtonPressed(this Gamepad gamepad) => gamepad.startButton.wasPressedThisFrame;
+    public static bool SelectButtonPressed(this Gamepad gamepad) => gamepad.selectButton.wasPressedThisFrame;
+    
     public static bool AnyButtonDown(this Gamepad gamepad)
     {
         // Create a list of all buttons on the gamepad
@@ -79,4 +82,29 @@ public static class GamepadExtensions
         return; // Local function
         float LerpFrequency(float frequency) => Mathf.Lerp(frequency, frequency * 2, duration);
     }
+
+    public static void RumbleAll(MonoBehaviour host, float lowFrequency = 0.25f, float highFrequency = 0.25f, float duration = 0.25f)
+    {
+        if (Gamepad.all.Count == 0) return;
+
+        lowFrequency  = LerpFrequency(lowFrequency);
+        highFrequency = LerpFrequency(highFrequency);
+
+        // Rumble the controller that joined for 'duration' time.
+        var rumbleSequence = new Sequence(host);
+
+        foreach (Gamepad gamepad in Gamepad.all)
+        {
+            rumbleSequence.Execute(() => gamepad.SetMotorSpeeds(lowFrequency, highFrequency)).WaitThenExecute(duration, () => gamepad.SetMotorSpeeds(0, 0));
+        }
+
+        return; // Local function
+        float LerpFrequency(float frequency) => Mathf.Lerp(frequency, frequency * 2, duration);
+    }
+}
+
+public static class KeyboardExtensions
+{
+    public static bool EscapeKeyPressed(this Keyboard keyboard) => keyboard.escapeKey.wasPressedThisFrame;
+    public static bool AnyKeyDown(this Keyboard keyboard) => keyboard.anyKey.wasPressedThisFrame;
 }

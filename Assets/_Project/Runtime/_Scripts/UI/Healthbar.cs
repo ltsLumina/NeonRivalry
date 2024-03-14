@@ -25,8 +25,6 @@ public class Healthbar : MonoBehaviour
 
     public Healthbar(bool invincible) { Invincible = invincible; }
 
-    //[SerializeField, ReadOnly] PlayerStats playerStats;
-
     /// <summary>
     /// An event that is invoked when the player's health changes.
     /// Can be subscribed to in order to perform actions whenever the player's health changes.
@@ -34,8 +32,8 @@ public class Healthbar : MonoBehaviour
     public delegate void HealthChanged(int value);
     public event HealthChanged OnHealthChanged;
     
-    public delegate void PlayerDeath(PlayerController player = default);
-    public static event PlayerDeath OnPlayerDeath;
+    public delegate void PlayerDeath(PlayerController player);
+    public event PlayerDeath OnPlayerDeath;
     
     // -- Properties --
     

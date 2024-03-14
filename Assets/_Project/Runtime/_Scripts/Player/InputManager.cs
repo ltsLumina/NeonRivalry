@@ -9,7 +9,6 @@ using UnityEngine.InputSystem;
 /// Handles all player input, such as movement, jumping, attacking, etc.
 /// Partial class, see StateChecks.cs for the input checks.
 /// </summary>
-[RequireComponent(typeof(PlayerInput))]
 public class InputManager : MonoBehaviour
 {
     /// <summary>
@@ -54,7 +53,7 @@ public class InputManager : MonoBehaviour
         player       = GetComponentInParent<PlayerController>();
         stateMachine = player.GetComponent<StateMachine>();
     }
-    
+
     // -- Input Handling --
 
     /// <summary>
@@ -69,9 +68,19 @@ public class InputManager : MonoBehaviour
         MoveInput = context.ReadValue<Vector2>();
         TransitionTo(context, player.CanMove, State.StateType.Walk);
 
-        // If player is inputting backwards and is grounded, set the player to block.
-        if (player.IsGrounded() && MoveInput.x < 0) player.IsBlocking = true;
-        else player.IsBlocking                                        = false;
+        // Get the direction to the other player
+        Vector3 toOtherPlayer = PlayerManager.OtherPlayer(player).transform.position - player.transform.position;
+        toOtherPlayer.Normalize();
+
+        // Get the direction of movement
+        Vector3 moveDirection = new Vector3(MoveInput.x, 0, MoveInput.y);
+        moveDirection.Normalize();
+
+        // Calculate the dot product
+        float dotProduct = Vector3.Dot(toOtherPlayer, moveDirection);
+
+        // If the dot product is less than 0, the player is blocking
+        player.IsBlocking = dotProduct < 0;
     }
 
     /// <summary>
@@ -86,6 +95,7 @@ public class InputManager : MonoBehaviour
     /// </summary>
     void TransitionTo(InputAction.CallbackContext context, Func<bool> condition, State.StateType stateType)
     {
+        if (!player.enabled) return;
         if (context.performed && condition()) stateMachine.TransitionToState(stateType);
     }
 

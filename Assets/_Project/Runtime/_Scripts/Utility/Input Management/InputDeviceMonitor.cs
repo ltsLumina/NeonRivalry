@@ -9,9 +9,9 @@ public class InputDeviceMonitor : MonoBehaviour
     [SerializeField] GameObject pauseMenu;
     [SerializeField] Image deviceDisconnectImage;
     
-    // Start is called before the first frame update
-    void Start() => InputSystem.onDeviceChange += DeviceChangeListener;
-
+    void OnEnable() => InputSystem.onDeviceChange += DeviceChangeListener;
+    void OnDisable() => InputSystem.onDeviceChange -= DeviceChangeListener;
+    
     void DeviceChangeListener(InputDevice device, InputDeviceChange change)
     {
         if (change == InputDeviceChange.Disconnected)
@@ -23,7 +23,4 @@ public class InputDeviceMonitor : MonoBehaviour
             Time.timeScale = 0f;
         }
     }
-
-    // make sure to unregister the event handler to prevent memory leaks
-    void OnDestroy() => InputSystem.onDeviceChange -= DeviceChangeListener;
 }

@@ -21,18 +21,7 @@ public class RoundManager : MonoBehaviour
         //player1WonRoundsText = null;
         //player2WonRoundsText = null;
     }
-
-    void OnEnable()
-    {
-        // TODO: Wont work anymore
-        foreach (var healthbar in HealthbarManager.Healthbars) { Healthbar.OnPlayerDeath += CheckRoundStatus; }
-    }
-
-    void OnDisable()
-    {
-        // TODO: Wont work anymore
-        foreach (var healthbar in HealthbarManager.Healthbars) { Healthbar.OnPlayerDeath -= CheckRoundStatus; }
-    }
+    
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Z)) PlayerVictory(ref player1WonRounds, player1WonRoundsText);

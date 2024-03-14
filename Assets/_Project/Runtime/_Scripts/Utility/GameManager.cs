@@ -154,11 +154,16 @@ public class GameManager : MonoBehaviour
         IsPaused = !IsPaused;
         SetState(IsPaused ? GameState.Paused : GameState.Playing);
 
-        var player = FindObjectOfType<PlayerController>();
-        player.enabled = !IsPaused;
+        var players = PlayerManager.Players;
+        foreach (var player in players)
+        {
+            player.DisablePlayer(IsPaused);
+        }
 
         var UIManager = FindObjectOfType<UIManager>();
         UIManager.PauseMenu.SetActive(IsPaused);
+        
+        UIManager.SelectButtonByName("Debug Button");
     }
 
     public static bool IsCurrentState(params GameState[] states) => states.Contains(State);
