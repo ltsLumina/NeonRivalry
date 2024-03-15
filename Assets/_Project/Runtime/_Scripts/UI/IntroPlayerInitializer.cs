@@ -24,7 +24,7 @@ public class IntroPlayerInitializer : MonoBehaviour
         // This might seem redundant, but it is necessary to prevent the game from loading the next scene before a player joins.
         yield return new WaitUntil(() => (player = FindObjectOfType<MultiplayerEventSystem>()) != null);
 
-        Debug.Log("Player joined! Loading next scene...");
+        Debug.Log("Player joined! Loading next scene..." + "\n");
         TransitionAnimator transition = FindObjectOfType<TransitionAnimator>();
         transition.enabled = true;
     }

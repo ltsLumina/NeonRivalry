@@ -70,7 +70,7 @@ public class SettingsManager : MonoBehaviour
             
             backgrounds[1].DOFade(0, tweenDuration).OnComplete(() =>
             {
-                ToggleButtonClickable(settingsButtons[0], true);
+                foreach (Button button in settingsButtons) { ToggleButtonClickable(button, true); }
                 settingsButtons[0].Select();
             });
         }
@@ -84,22 +84,24 @@ public class SettingsManager : MonoBehaviour
                 ToggleMainMenuButtonsShown();
             }
             
-            // Disable interaction with the "Close" button.
-            ToggleButtonClickable(settingsButtons[2], false);
-            
+            // Disable interaction with the buttons.
+            foreach (Button button in settingsButtons) { ToggleButtonClickable(button, false); }
+
             // Fade in the background and buttons.
             backgrounds[0].DOFade(backgroundOpacity, tweenDuration).OnComplete
             (() =>
             {
                 foreach (Button button in settingsButtons)
                 {
+                    ToggleButtonClickable(button, false);
+                    
                     // Activate button and scale it up to 1.
                     button.gameObject.SetActive(true);
                     button.transform.DOScale(1, tweenDuration).SetEase(Ease.OutBack).OnComplete
                     (() =>
                     {
-                        // Buttons are active. Activate interaction with the "Close" button
-                        ToggleButtonClickable(settingsButtons[2], true);
+                        // Buttons are active. Activate interaction with the buttons.
+                        ToggleButtonClickable(button, true);
                         
                         // Select the "Audio" button.
                         settingsButtons[0].Select();
@@ -117,8 +119,8 @@ public class SettingsManager : MonoBehaviour
                 // Scale down button to 0 and deactivate it.
                 button.transform.DOScale(0, tweenDuration).SetEase(Ease.InBack).OnComplete(() => button.gameObject.SetActive(false));
 
-                // Disable interaction with the "Close" button.
-                ToggleButtonClickable(settingsButtons[2], false);
+                // Disable interaction with all buttons.
+                ToggleButtonClickable(button, false);
             }
 
             backgrounds[0].DOFade(0, tweenDuration).OnComplete
@@ -129,8 +131,12 @@ public class SettingsManager : MonoBehaviour
                 {
                     ToggleMainMenuButtonsShown();
                 }
-                
-                ToggleButtonClickable(settingsButtons[2], true);
+
+                foreach (Button button in settingsButtons)
+                {
+                    // Enable interaction with all buttons.
+                    ToggleButtonClickable(button, true);
+                }
                 UIManager.MainMenuButtons[1].Select();
             });
         }

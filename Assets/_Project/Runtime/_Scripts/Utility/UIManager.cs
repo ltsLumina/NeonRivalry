@@ -16,11 +16,6 @@ public class UIManager : MonoBehaviour
     /// </summary>
     public List<Button> MainMenuButtons => mainMenuButtons;
 
-    const int Intro = 0;
-    const int MainMenu = 1;
-    const int CharacterSelect = 2;
-    const int Game = 3;
-
     EventSystemSelector eventSystemSelector;
 
     void Awake() => eventSystemSelector = null;

@@ -20,7 +20,7 @@ public class CharacterSelector : MonoBehaviour
         switch (playerIndex) //TODO: On the right track, but this is not done.
         {
             case 0 when SceneManagerExtended.ActiveScene == SceneManagerExtended.Game:
-                return "Shellby";
+                return "Shelby";
 
             case 1 when SceneManagerExtended.ActiveScene == SceneManagerExtended.Game:
                 return "Dorathy";

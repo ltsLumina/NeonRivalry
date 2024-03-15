@@ -7,7 +7,7 @@ using Logger = Lumina.Debugging.Logger;
 public class InputDeviceManager : MonoBehaviour
 {
     [SerializeField] GameObject menuNavigator;
-    [SerializeField] GameObject shellbyPrefab;
+    [SerializeField] GameObject shelbyPrefab;
     [SerializeField] GameObject dorathyPrefab;
     
     readonly static Dictionary<InputDevice, int> persistentPlayerDevices = new (); // TODO: There is a chance that this doesn't work in builds.
@@ -40,7 +40,7 @@ public class InputDeviceManager : MonoBehaviour
     /// <para></para>
     /// <seealso cref="TryJoinPlayer"/>
     /// </summary>
-    void LoadPersistentPlayers()
+    void LoadPersistentPlayers() // Note: Which character is instantiated is currently a work in progress.
     {
         //Load the devices that were registered on previous scenes.
         foreach (KeyValuePair<InputDevice, int> kvp in persistentPlayerDevices)
@@ -53,8 +53,8 @@ public class InputDeviceManager : MonoBehaviour
 
             switch (CharacterSelector.GetSelectedCharacter(kvp.Value))
             {
-                case "Shellby":
-                    prefabToInstantiate = shellbyPrefab;
+                case "Shelby":
+                    prefabToInstantiate = shelbyPrefab;
                     break;
 
                 case "Dorathy":
@@ -148,7 +148,7 @@ public class InputDeviceManager : MonoBehaviour
         string controlScheme = device is Keyboard ? "Keyboard" : "Gamepad";
 
         // TODO: TEMPORARY
-        if (SceneManagerExtended.ActiveScene == Game) PlayerInput.Instantiate(shellbyPrefab, playerDevices[device], controlScheme, -1, device);
+        if (SceneManagerExtended.ActiveScene == Game) PlayerInput.Instantiate(shelbyPrefab, playerDevices[device], controlScheme, -1, device);
         
         // original
         PlayerInput.Instantiate(menuNavigator, playerDevices[device], controlScheme, -1, device);

@@ -163,7 +163,7 @@ public class GameManager : MonoBehaviour
         var UIManager = FindObjectOfType<UIManager>();
         UIManager.PauseMenu.SetActive(IsPaused);
         
-        UIManager.SelectButtonByName("Debug Button");
+        UIManager.SelectButtonByName("Resume Button");
     }
 
     public static bool IsCurrentState(params GameState[] states) => states.Contains(State);

@@ -27,6 +27,8 @@ public class QuickAccessWindow : EditorWindow
     
     static Vector2 scrollPosition;
 
+    static DateTime lastDebugLogTime = DateTime.MinValue;
+
     [MenuItem("Tools/Debugging/Quick Access")]
     public static void ShowWindow()
     {
@@ -327,7 +329,12 @@ public class QuickAccessWindow : EditorWindow
         EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo();
         
         EditorSceneManager.OpenScene(path, OpenSceneMode.Single);
-        Debug.LogWarning("Opened a scene using the debug menu! \nThe scene might not behave as expected.");
+        
+        if ((DateTime.Now - lastDebugLogTime).TotalHours >= 2)
+        {
+            Debug.LogWarning("Opened a scene using the debug menu! \nThe scene might not behave as expected.");
+            lastDebugLogTime = DateTime.Now;
+        }
     }
 
     static void AddCustomScenes()
