@@ -11,19 +11,19 @@ public class SettingsManager : MonoBehaviour
     [Tab("Tweening"), Range(0,1)]
     [SerializeField] float backgroundOpacity = 0.5f;
     [SerializeField] float tweenDuration = 0.5f;
-    
+
     [Tab("References")]
-    [SerializeField] List<Button> settingsButtons; 
+    [SerializeField] List<Image> backgrounds;
+    [SerializeField] List<Button> settingsButtons;
+    [SerializeField] List<Selectable> audioSelectables; // Buttons, sliders, etc.
 
     // -- Cached References --
     
     UIManager UIManager;
-    Image background; // note: hard-coded value of 0.5f (half opacity) in ShowSettings().
 
     void Awake()
     {
         UIManager = FindObjectOfType<UIManager>(); 
-        background = settingsButtons[0].transform.parent.GetComponentInChildren<Image>();
     }
 
     void Start()
@@ -31,6 +31,17 @@ public class SettingsManager : MonoBehaviour
         foreach (Button button in settingsButtons)
         {
             button.gameObject.SetActive(false);
+        }
+        
+        foreach (Selectable selectable in audioSelectables)
+        {
+            selectable.gameObject.SetActive(false);
+        }
+        
+        foreach (Image background in backgrounds)
+        {
+            background.gameObject.SetActive(true);
+            background.color = new (background.color.r, background.color.g, background.color.b, 0);
         }
     }
 
@@ -40,19 +51,44 @@ public class SettingsManager : MonoBehaviour
         if (settingsButtons.Any(button => button.gameObject.activeSelf)) CloseButton();
     }
 
-    public void ShowSettings()
+    public void ToggleSettingsShown()
     {
+        // If audio settings are open, close them.
+        if (audioSelectables.Any(selectable => selectable.gameObject.activeSelf))
+        {
+            var masterVolumeSlider = audioSelectables[0];
+            masterVolumeSlider.gameObject.transform.DOScale(0, tweenDuration).SetEase(Ease.InBack).OnComplete(() =>
+            {
+                masterVolumeSlider.gameObject.SetActive(false);
+            });
+            
+            var closeButton = audioSelectables[1].GetComponent<Button>();
+            closeButton.gameObject.transform.DOScale(0, tweenDuration).SetEase(Ease.InBack).OnComplete(() =>
+            {
+                closeButton.gameObject.SetActive(false);
+            });
+            
+            backgrounds[1].DOFade(0, tweenDuration).OnComplete(() =>
+            {
+                ToggleButtonClickable(settingsButtons[0], true);
+                settingsButtons[0].Select();
+            });
+        }
+        
         // If the background is invisible, fade it in.
-        if (background.color.a == 0)
+        if (backgrounds[0].color.a == 0)
         {
             // Toggle the main menu buttons.
-            ToggleMainMenuButtonsShown();
+            if (backgrounds[1].color.a == 0) // If the audio settings aren't shown.
+            {
+                ToggleMainMenuButtonsShown();
+            }
             
             // Disable interaction with the "Close" button.
             ToggleButtonClickable(settingsButtons[2], false);
             
             // Fade in the background and buttons.
-            background.DOFade(backgroundOpacity, tweenDuration).OnComplete
+            backgrounds[0].DOFade(backgroundOpacity, tweenDuration).OnComplete
             (() =>
             {
                 foreach (Button button in settingsButtons)
@@ -62,9 +98,11 @@ public class SettingsManager : MonoBehaviour
                     button.transform.DOScale(1, tweenDuration).SetEase(Ease.OutBack).OnComplete
                     (() =>
                     {
-                        // Buttons are active. Activate interaction with the "Close" button and select it.
+                        // Buttons are active. Activate interaction with the "Close" button
                         ToggleButtonClickable(settingsButtons[2], true);
-                        settingsButtons[2].Select();
+                        
+                        // Select the "Audio" button.
+                        settingsButtons[0].Select();
                     });
                 }
             });
@@ -83,11 +121,14 @@ public class SettingsManager : MonoBehaviour
                 ToggleButtonClickable(settingsButtons[2], false);
             }
 
-            background.DOFade(0, tweenDuration).OnComplete
+            backgrounds[0].DOFade(0, tweenDuration).OnComplete
             (() =>
             {
                 // Toggle the main menu buttons.
-                ToggleMainMenuButtonsShown();
+                if (backgrounds[1].color.a == 0) // If the audio settings aren't shown.
+                {
+                    ToggleMainMenuButtonsShown();
+                }
                 
                 ToggleButtonClickable(settingsButtons[2], true);
                 UIManager.MainMenuButtons[1].Select();
@@ -117,9 +158,7 @@ public class SettingsManager : MonoBehaviour
                 });
             }
         }
-    } 
-
-    void ToggleButtonClickable(Button button) => button.interactable = !button.interactable;
+    }
 
     void ToggleButtonClickable(Button button, bool clickable) => button.interactable = clickable;
 
@@ -135,6 +174,30 @@ public class SettingsManager : MonoBehaviour
 
     public void AudioButton()
     {
+        ToggleSettingsShown();
+
+        // Disable interaction with the "Audio" button.
+        ToggleButtonClickable(settingsButtons[0], false);
+        
+        backgrounds[1].DOFade(backgroundOpacity, tweenDuration).OnComplete(() =>
+        {
+            // Select the "Audio" Slider.
+            var masterVolumeSlider = audioSelectables[0];
+            masterVolumeSlider.gameObject.SetActive(!masterVolumeSlider.gameObject.activeSelf);
+            masterVolumeSlider.gameObject.transform.DOScale(4, tweenDuration).SetEase(Ease.OutBack).OnComplete(() =>
+            {
+                masterVolumeSlider.Select();
+            });
+            
+            var closeButton = audioSelectables[1].GetComponent<Button>();
+            closeButton.gameObject.SetActive(!closeButton.gameObject.activeSelf);
+            closeButton.gameObject.transform.DOScale(1, tweenDuration).SetEase(Ease.OutBack).OnComplete(() =>
+            {
+                // Enable interaction with the "Audio" button.
+                ToggleButtonClickable(settingsButtons[0], true);
+            });
+            
+        });
         
     }
 
@@ -145,7 +208,7 @@ public class SettingsManager : MonoBehaviour
 
     public void CloseButton()
     {
-        ShowSettings();
+        ToggleSettingsShown();
         
         // Select the "Settings" button.
         UIManager.MainMenuButtons[1].Select();

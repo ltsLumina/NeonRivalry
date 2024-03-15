@@ -68,6 +68,13 @@ public class InputManager : MonoBehaviour
         MoveInput = context.ReadValue<Vector2>();
         TransitionTo(context, player.CanMove, State.StateType.Walk);
 
+        // Handle single player blocking
+        if (PlayerManager.PlayerCount < 2)
+        {
+            player.IsBlocking = MoveInput.x < 0;
+            return;
+        }
+        
         // Get the direction to the other player
         Vector3 toOtherPlayer = PlayerManager.OtherPlayer(player).transform.position - player.transform.position;
         toOtherPlayer.Normalize();

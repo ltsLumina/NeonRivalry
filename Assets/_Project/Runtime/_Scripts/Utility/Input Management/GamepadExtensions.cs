@@ -9,9 +9,9 @@ using UnityEngine.InputSystem.Controls;
 
 public static class GamepadExtensions
 {
-    public static bool StartButtonPressed(this Gamepad gamepad) => gamepad.startButton.wasPressedThisFrame;
-    public static bool SelectButtonPressed(this Gamepad gamepad) => gamepad.selectButton.wasPressedThisFrame;
-    
+    public static bool StartButtonPressed(this Gamepad gamepad) => gamepad != null && gamepad.startButton.wasPressedThisFrame;
+    public static bool SelectButtonPressed(this Gamepad gamepad) => gamepad != null && gamepad.selectButton.wasPressedThisFrame;
+
     public static bool AnyButtonDown(this Gamepad gamepad)
     {
         // Create a list of all buttons on the gamepad
