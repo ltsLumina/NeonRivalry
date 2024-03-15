@@ -70,45 +70,13 @@ public class EventSystemSelector : MonoBehaviour
     {
         switch (sceneIndex)
         {
-            case Intro:
-                Debug.LogWarning("There is no button to find in the 'Intro' scene. \n Returning null. (This is not an error)");
-                return null;
-
-            case MainMenu: 
-                return localPlayerID == 1 ? GameObject.Find("Play") : null;
-
             case CharacterSelect: 
                 return GameObject.Find($"Shelby (Player {localPlayerID})");
-
-            case Game: 
-                return localPlayerID == 1 ? GameObject.Find("Debug Button") : null;
 
             default:
                 return null;
         }
     }
-
-    public void FindButtonByButtonName(string buttonName)
-    {
-        GameObject button = GameObject.Find(buttonName);
-        ProcessButton(button);
-        //Debug.Log($"Found the button \"{buttonName}\"!" + "\n", button);
-    }
-
-    public void FindButtonByReference(Button button)
-    {
-        ProcessButton(button.gameObject);
-        //Debug.Log($"Found the button \"{button.name}\"!" + "\n", button);
-    }
-    
-    public void SelectButtonByName(string buttonName)
-    {
-        GameObject button = GameObject.Find(buttonName);
-        Button component = button.GetComponent<Button>();
-        component.Select();
-    }
-    
-    public void SelectButtonByReference(Button button) => button.Select();
 
     void ProcessButton(GameObject button)
     {

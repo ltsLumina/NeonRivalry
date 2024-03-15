@@ -14,7 +14,6 @@ public class CharacterSelector : MonoBehaviour
     [SerializeField, ReadOnly] bool allCharactersSelected;
     [SerializeField, ReadOnly] bool confirmSelection;
 
-
     public static string GetSelectedCharacter(int playerIndex)
     {
         switch (playerIndex) //TODO: On the right track, but this is not done.

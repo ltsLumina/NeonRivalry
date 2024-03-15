@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
@@ -13,6 +14,7 @@ public class SettingsManager : MonoBehaviour
     [SerializeField] float tweenDuration = 0.5f;
 
     [Tab("References")]
+    [SerializeField] List<Button> mainMenuButtons;
     [SerializeField] List<Image> backgrounds;
     [SerializeField] List<Button> settingsButtons;
     [SerializeField] List<Selectable> audioSelectables; // Buttons, sliders, etc.
@@ -23,8 +25,14 @@ public class SettingsManager : MonoBehaviour
 
     void Awake()
     {
-        UIManager = FindObjectOfType<UIManager>(); 
+        UIManager = FindObjectOfType<UIManager>();
     }
+
+    #region Event Subscription
+    void OnEnable() => InputDeviceManager.OnPlayerJoin += SelectPlayButton;
+    void OnDisable() => InputDeviceManager.OnPlayerJoin -= SelectPlayButton;
+    void SelectPlayButton() => mainMenuButtons[0].Select();
+    #endregion
 
     void Start()
     {
@@ -137,6 +145,8 @@ public class SettingsManager : MonoBehaviour
                     // Enable interaction with all buttons.
                     ToggleButtonClickable(button, true);
                 }
+                
+                // Select the "Settings" button.
                 UIManager.MainMenuButtons[1].Select();
             });
         }
@@ -219,4 +229,30 @@ public class SettingsManager : MonoBehaviour
         // Select the "Settings" button.
         UIManager.MainMenuButtons[1].Select();
     }
+
+    #region TEST LATER
+
+    public void FadeOpenMenu(GameObject menu, List<Button> buttons, float duration)
+    {
+        if (menu.activeSelf) return;
+
+        menu.SetActive(true);
+        var background = menu.transform.GetChild(0).GetComponent<Image>();
+
+        if (background.color.a == 0) background.DOFade(0.5f, duration);
+        else background.DOFade(0, duration).OnComplete(() => menu.SetActive(false));
+
+        foreach (Button button in buttons)
+        {
+            button.gameObject.SetActive(false);
+            button.transform.localScale = Vector3.zero;
+
+            Sequence sequence = DOTween.Sequence();
+            sequence.Append(button.transform.DOScale(1, duration));
+            sequence.OnComplete(() => button.gameObject.SetActive(true));
+            sequence.Play();
+        }
+    }
+    
+    #endregion
 }

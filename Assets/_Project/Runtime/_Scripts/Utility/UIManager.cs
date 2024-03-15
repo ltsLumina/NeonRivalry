@@ -22,6 +22,12 @@ public class UIManager : MonoBehaviour
 
     void OnEnable() => InputDeviceManager.OnPlayerJoin += () => eventSystemSelector = FindObjectOfType<EventSystemSelector>();
     
-    public void SelectButtonByName(string buttonName) => eventSystemSelector.SelectButtonByName(buttonName);
-    public void SelectButtonByReference(Button button) => eventSystemSelector.SelectButtonByReference(button);
+    public void SelectButtonByName(string buttonName)
+    {
+        GameObject button    = GameObject.Find(buttonName);
+        Button     component = button.GetComponent<Button>();
+        component.Select();
+    }
+
+    public void SelectButtonByReference(Button button) => button.Select();
 }
