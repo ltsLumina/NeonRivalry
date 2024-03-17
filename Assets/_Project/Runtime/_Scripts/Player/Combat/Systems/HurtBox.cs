@@ -76,7 +76,7 @@ public class HurtBox : MonoBehaviour
         if (player.IsInvincible) return;
 
         // Create variable to represent the player's health
-        int health = player.Healthbar.Value;
+        int health = player.Healthbar.Health;
 
         if (player.IsBlocking)
         {
@@ -88,7 +88,7 @@ public class HurtBox : MonoBehaviour
         
         // Reduce health by the damage amount, and update the health bar.
         health -= hitBox.DamageAmount;
-        player.Healthbar.Value = health;
+        player.Healthbar.Health = health;
         
         PlayEffect(punchKickEffect);
         
@@ -124,7 +124,7 @@ public class HurtBox : MonoBehaviour
 
             int reducedDamage = Mathf.RoundToInt(hitBox.DamageAmount * modifiedBlockDamageReductionPercentage);
             int finalDamage   = hitBox.DamageAmount - reducedDamage; // Subtract the reduced damage from the original damage
-            player.Healthbar.Value -= finalDamage;                   // Apply the final damage
+            player.Healthbar.Health -= finalDamage;                   // Apply the final damage
             Debug.Log($"Blocked and took {finalDamage} damage!");
 
             // Add the blocked damage to the total

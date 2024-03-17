@@ -68,7 +68,7 @@ public class InputDeviceManager : MonoBehaviour
 
             var player = PlayerInput.Instantiate(prefabToInstantiate, kvp.Value, controlScheme, -1, kvp.Key);
             Debug.Log($"Player {kvp.Value + 1} joined using {controlScheme} control scheme! \nThis player was loaded in from a previous scene or game restart.", player);
-            
+
             OnPlayerJoin?.Invoke();
         }
     }

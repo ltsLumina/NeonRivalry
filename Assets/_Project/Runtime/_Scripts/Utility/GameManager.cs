@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
 #endregion
 
@@ -117,53 +118,52 @@ public class GameManager : MonoBehaviour
                 break;
 
             case GameState.Playing:
-                // Allow the player to pause the game
-                if (Input.GetKeyDown(KeyCode.Escape)) TogglePause();
                 break;
 
             case GameState.Paused:
-                // Allow the player to unpause the game
-                if (Input.GetKeyDown(KeyCode.Escape)) TogglePause();
                 break;
 
             case GameState.GameOver:
-
-                // DEBUG:
-                if (Input.GetKeyDown(KeyCode.Space)) SetState(GameState.Playing);
                 break;
 
             default:
                 throw new ArgumentOutOfRangeException();
         }
         
-        if (Input.GetKeyDown(KeyCode.Backspace))
+        if (Input.GetKeyDown(KeyCode.Backspace) && Application.isEditor)
         {
             Debug.LogWarning("Reloaded Scene with a debug key! (Backspace)");
             SceneManagerExtended.ReloadScene();
         }
-        
-        // If the user is in a build, pressing the escape key will quit the game.
-        if (Input.GetKeyDown(KeyCode.Escape) && !Application.isEditor)
-        {
-            Application.Quit();
-        }
     }
 
-    public static void TogglePause()
+    public static void TogglePause(PlayerController playerThatPaused)
     {
         IsPaused = !IsPaused;
         SetState(IsPaused ? GameState.Paused : GameState.Playing);
 
-        var players = PlayerManager.Players;
-        foreach (var player in players)
-        {
-            player.DisablePlayer(IsPaused);
-        }
+        foreach (var player in PlayerManager.Players) { player.DisablePlayer(IsPaused); }
 
         var UIManager = FindObjectOfType<UIManager>();
         UIManager.PauseMenu.SetActive(IsPaused);
-        
-        UIManager.SelectButtonByName("Resume Button");
+
+        if (IsPaused)
+        {
+            PausingPlayer = playerThatPaused;
+            UIManager.PauseMenuTitle.text = $"Paused (Player {PausingPlayer.PlayerID})";
+
+            PausingPlayer.GetComponentInChildren<MultiplayerEventSystem>().SetSelectedGameObject(UIManager.PauseMenuButtons[0].gameObject);
+            var otherPlayer = PlayerManager.OtherPlayer(PausingPlayer);
+            if (otherPlayer != null) otherPlayer.PlayerInput.enabled = !IsPaused;
+        }
+        else
+        {
+            PausingPlayer.GetComponentInChildren<MultiplayerEventSystem>().SetSelectedGameObject(null);
+            var otherPlayer = PlayerManager.OtherPlayer(PausingPlayer);
+            if (otherPlayer != null) otherPlayer.PlayerInput.enabled = !IsPaused;
+
+            PausingPlayer = null;
+        }
     }
 
     public static bool IsCurrentState(params GameState[] states) => states.Contains(State);

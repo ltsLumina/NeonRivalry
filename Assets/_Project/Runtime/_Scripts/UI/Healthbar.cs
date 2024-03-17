@@ -52,12 +52,12 @@ public class Healthbar : MonoBehaviour
     }
     
     /// <summary> The player's health associated with this <see cref="Healthbar" />. </summary>
-    public int Value
+    public int Health
     {
         get => (int) Slider.value;
         set
         {
-            if (Value != value)
+            if (Health != value)
             {
                 if (Invincible) return;
                 
@@ -65,13 +65,13 @@ public class Healthbar : MonoBehaviour
                 comboTimer = 0.75f; // The time a combo lasts. Once it reaches 0, the healthbar will begin to tween.
                 OnHealthChanged?.Invoke(value);
 
-                if (value <= 0) OnPlayerDeath?.Invoke(Player);
+                if (value <= 0 && Player != null) OnPlayerDeath?.Invoke(Player);
             }
         }
     }
 
     /// <summary>
-    /// Used to determine whether or not the player is invincible.
+    /// Used to determine whether the player is invincible.
     /// Only meant to be used for debugging purposes.
     /// </summary>
     public bool Invincible
@@ -89,15 +89,16 @@ public class Healthbar : MonoBehaviour
 
     public void Initialize()
     {
-        if (Player != null) Value = (int)Slider.maxValue;
-        else Value = 0;
+        if (Player != null) Health = (int)Slider.maxValue;
+        else Health = 0;
 
         if (Player != null) comboTimer = 0.5f;
+        HealthbarManager.Initialize(); // Subscribe to the OnPlayerDeath event, allowing the HealthbarManager to check if any player has died.
     }
 
     void Update()
     {
-        if (Invincible) Value = 100;
+        if (Invincible) Health = 100;
 
         if(comboTimer > 0)
         {
@@ -107,7 +108,7 @@ public class Healthbar : MonoBehaviour
 
         if (comboTimer <= 0 && !isTweening)
         {
-            StartCoroutine(UpdateHealthBar(Value, tweenSpeed, inEase, outEase));
+            StartCoroutine(UpdateHealthBar(Health, tweenSpeed, inEase, outEase));
         }
     }
 
@@ -116,6 +117,14 @@ public class Healthbar : MonoBehaviour
         isTweening = true;
         comboVisualSlider.DOValue(currentHealth, speed, true).SetEase(inEase).SetEase(outEase);
 
-        yield return new WaitForEndOfFrame();
+        yield return null;
+    }
+    
+    public int Heal(PlayerController player, int amount)
+    {
+        if (Health + amount > Slider.maxValue) Health = (int)Slider.maxValue;
+        else Health += amount;
+        
+        return Health;
     }
 }

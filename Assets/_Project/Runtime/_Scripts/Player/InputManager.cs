@@ -11,6 +11,9 @@ using UnityEngine.InputSystem;
 /// </summary>
 public class InputManager : MonoBehaviour
 {
+    [Header("Read-Only Fields")]
+    [SerializeField, ReadOnly] Vector2 moveInput;
+    
     /// <summary>
     /// Enum for Attack Types.
     /// </summary>
@@ -28,13 +31,6 @@ public class InputManager : MonoBehaviour
     /// Gets or sets the last pressed attack type.
     /// </summary>
     public AttackType LastAttackPressed { get; set; } = AttackType.None;
-    
-    [Header("Read-Only Fields")]
-    [SerializeField, ReadOnly] Vector2 moveInput;
-
-    // Cached References
-    PlayerController player;
-    StateMachine stateMachine;
 
     /// <summary>
     /// Gets or sets the move input.
@@ -44,6 +40,15 @@ public class InputManager : MonoBehaviour
         get => moveInput;
         private set => moveInput = value;
     }
+    
+    /// <summary>
+    /// Whether the input manager is enabled.
+    /// </summary>
+    public bool Enabled { get; set; } = true;
+    
+    // Cached References
+    PlayerController player;
+    StateMachine stateMachine;
 
     /// <summary>
     /// Called when the script instance is being loaded.
@@ -128,12 +133,17 @@ public class InputManager : MonoBehaviour
     /// </summary>
     public void OnUnique(InputAction.CallbackContext context) => PerformAttack(context, AttackType.Unique);
 
+    public void OnPause(InputAction.CallbackContext context)
+    {
+        if (context.performed) GameManager.TogglePause(player);
+    }
+    
     /// <summary>
     /// Performs attack action.
     /// </summary>
     void PerformAttack(InputAction.CallbackContext context, AttackType attackType)
     {
-        if (context.performed)
+        if (context.performed && Enabled)
         {
             if (player.IsGrounded() && player.CanAttack())
             {

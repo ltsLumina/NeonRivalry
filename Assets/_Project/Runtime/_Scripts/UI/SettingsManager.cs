@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
@@ -16,9 +15,10 @@ public class SettingsManager : MonoBehaviour
     [Tab("References")]
     [SerializeField] List<Button> mainMenuButtons;
     [SerializeField] List<Image> backgrounds;
+    [SerializeField] List<Button> previousButtons; // The buttons that were active before the settings buttons were shown.
     [SerializeField] List<Button> settingsButtons;
     [SerializeField] List<Selectable> audioSelectables; // Buttons, sliders, etc.
-
+    
     // -- Cached References --
     
     UIManager UIManager;
@@ -31,7 +31,11 @@ public class SettingsManager : MonoBehaviour
     #region Event Subscription
     void OnEnable() => InputDeviceManager.OnPlayerJoin += SelectPlayButton;
     void OnDisable() => InputDeviceManager.OnPlayerJoin -= SelectPlayButton;
-    void SelectPlayButton() => mainMenuButtons[0].Select();
+
+    void SelectPlayButton()
+    {
+        if (mainMenuButtons.Count > 0) mainMenuButtons[0].Select();
+    }
     #endregion
 
     void Start()
@@ -61,6 +65,17 @@ public class SettingsManager : MonoBehaviour
 
     public void ToggleSettingsShown()
     {
+        if (!AreSettingsShown())
+        {
+            // Disable interaction with the previous buttons. (Mainly used for the "Settings" button in the Pause Menu)
+            foreach (Button button in previousButtons) { ToggleButtonClickable(button, false); }
+        }
+        else
+        {
+            // Enable interaction with the previous buttons. (Mainly used for the "Settings" button in the Pause Menu)
+            foreach (Button button in previousButtons) { ToggleButtonClickable(button, true); }
+        }
+        
         // If audio settings are open, close them.
         if (audioSelectables.Any(selectable => selectable.gameObject.activeSelf))
         {
@@ -147,7 +162,7 @@ public class SettingsManager : MonoBehaviour
                 }
                 
                 // Select the "Settings" button.
-                UIManager.MainMenuButtons[1].Select();
+                UIManager.MainMenuButtons[1].Select(); // bug: causes a DOTween warning as the buttons in the list are not referenced in the game scene.
             });
         }
     }
@@ -188,6 +203,8 @@ public class SettingsManager : MonoBehaviour
 
     void SelectButtonByReference(Button button) => UIManager.SelectButtonByReference(button);
 
+    public bool AreSettingsShown() => settingsButtons.Any(button => button.gameObject.activeSelf);
+    
     public void AudioButton()
     {
         ToggleSettingsShown();
@@ -226,8 +243,8 @@ public class SettingsManager : MonoBehaviour
     {
         ToggleSettingsShown();
         
-        // Select the "Settings" button.
-        UIManager.MainMenuButtons[1].Select();
+        if (UIManager.PauseMenu.activeSelf) UIManager.SelectButtonByReference(UIManager.PauseMenuButtons[0]); // Select the "Resume" button.
+        else UIManager.MainMenuButtons[1].Select(); // Select the "Settings" button.
     }
 
     #region TEST LATER

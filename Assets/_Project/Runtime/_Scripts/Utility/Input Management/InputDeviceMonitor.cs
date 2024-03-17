@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 #endregion
 
-public class InputDeviceMonitor : MonoBehaviour
+public class InputDeviceMonitor : MonoBehaviour //TODO: FINISH THIS
 {
     [SerializeField] GameObject pauseMenu;
     [SerializeField] Image deviceDisconnectImage;
@@ -20,7 +20,11 @@ public class InputDeviceMonitor : MonoBehaviour
             
             pauseMenu.SetActive(true);
             deviceDisconnectImage.enabled = true;
-            Time.timeScale = 0f;
+            
+            foreach (var player in PlayerManager.Players)
+            {
+                player.DisablePlayer(true);
+            } 
         }
     }
 }

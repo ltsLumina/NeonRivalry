@@ -20,7 +20,8 @@ public partial class PlayerController : MonoBehaviour
 {
     [Tab("Player Stats")]
     [SerializeField] float idleTimeThreshold;
-    [SerializeField, ReadOnly] public float idleTime; //TODO: Make this private, but I should probably move it to a different script.
+    [SerializeField, ReadOnly] public float IdleTime; //TODO: Make this private, but I should probably move it to a different script.
+    [SerializeField, ReadOnly] public float AirborneTime;
 
     [Header("Ground Check"), Tooltip("The minimum distance the ray-cast must be from the ground.")]
     [SerializeField] float raycastDistance = 1.022f;
@@ -116,16 +117,28 @@ public partial class PlayerController : MonoBehaviour
         {
             if (IsGrounded())
             {
+                // Reset the airborne time if the player is grounded.
+                AirborneTime = 0;
+                
                 DEBUGMovement();
-            } 
+            }
+            else
+            {
+                // If the player is airborne, we add to the airborne time.
+                AirborneTime += Time.deltaTime;
+                
+            }
         }
     }
 
     void DEBUGMovement()
     {
         // Getting the move input from the player's input manager.
-        Vector3 moveInput = InputManager.MoveInput;
+        Vector2 moveInput = InputManager.MoveInput;
 
+        // Fix rigidbody velocity issue (velocity is absurdly low when standing still)
+        if (moveInput == Vector2.zero) Rigidbody.velocity = new (0, Rigidbody.velocity.y);
+        
         // Animating the player based on the move input.
         Animator.SetBool(Walk_Forward, moveInput.x  > 0);
         Animator.SetBool(Walk_Backward, moveInput.x < 0);
@@ -216,20 +229,21 @@ public partial class PlayerController : MonoBehaviour
         if (IsIdle())
         {
             // If the player is idle, we add to the idle time.
-            idleTime += Time.deltaTime;
+            IdleTime += Time.deltaTime;
 
             // If the idle time is greater than the threshold, we transition to the idle state.
-            if (idleTime >= idleTimeThreshold)
+            if (IdleTime >= idleTimeThreshold)
             {
                 StateMachine.TransitionToState(StateType.Idle);
             }
         }
-        else { idleTime = 0; }
+        else { IdleTime = 0; }
     }
 
     public void DisablePlayer(bool disabled)
     {
         player.enabled       = !disabled;
+        InputManager.Enabled = !disabled;
         HitBox.enabled       = !disabled;
         HurtBox.enabled      = !disabled;
     }

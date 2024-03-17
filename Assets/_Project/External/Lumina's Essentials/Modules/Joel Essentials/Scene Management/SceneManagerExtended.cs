@@ -14,6 +14,7 @@ public static class SceneManagerExtended
     
     static int previousScene;
 
+    public static int PreviousScene => previousScene;
     public static string ActiveSceneName => SceneManager.GetActiveScene().name;
     public static int ActiveScene => SceneManager.GetActiveScene().buildIndex;
 
@@ -63,7 +64,7 @@ public static class SceneManagerExtended
         AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(scene);
 
         // Wait for the scene to finish loading
-        while (!asyncOperation.isDone) yield return null;
+        while (asyncOperation is { isDone: false }) yield return null;
 
         // Resume the game
         Time.timeScale = 1f;

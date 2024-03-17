@@ -1,14 +1,27 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using VInspector;
 
 public class UIManager : MonoBehaviour
 {
+    [Tab("Pause Menu")]
     [SerializeField] GameObject pauseMenu;
+    [SerializeField] TextMeshProUGUI pauseMenuTitle;
+    [SerializeField] List<Button> pauseMenuButtons = new ();
+    
+    [Tab("Main Menu")]
     [SerializeField] List<Button> mainMenuButtons = new ();
 
     public GameObject PauseMenu => pauseMenu;
-    
+    public TextMeshProUGUI PauseMenuTitle
+    {
+        get => pauseMenuTitle;
+        set => pauseMenuTitle = value;
+    }
+    public List<Button> PauseMenuButtons => pauseMenuButtons;
+
     /// <summary>
     /// <para> 0: Play </para>
     /// <para> 1: Settings </para>
@@ -19,6 +32,11 @@ public class UIManager : MonoBehaviour
     EventSystemSelector eventSystemSelector;
 
     void Awake() => eventSystemSelector = null;
+
+    void Start()
+    {
+        PauseMenu.SetActive(false);
+    }
 
     void OnEnable() => InputDeviceManager.OnPlayerJoin += () => eventSystemSelector = FindObjectOfType<EventSystemSelector>();
     

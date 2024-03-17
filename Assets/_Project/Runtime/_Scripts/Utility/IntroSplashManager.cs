@@ -1,4 +1,5 @@
 using System.Collections;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -25,7 +26,7 @@ public class IntroSplashManager : MonoBehaviour
         deviceManager = FindObjectOfType<InputDeviceManager>();
     }
 
-    void Start()
+    IEnumerator Start()
     {
         GameManager.SetState(GameManager.GameState.Transitioning);
         
@@ -33,7 +34,7 @@ public class IntroSplashManager : MonoBehaviour
         if (Logger.DebugMode)
         {
             Destroy(splashScreen.gameObject);
-            return;
+            yield break;
         } 
 
         splashScreen.gameObject.SetActive(true);
@@ -45,47 +46,25 @@ public class IntroSplashManager : MonoBehaviour
         // Make the "Press any button" text invisible.
         pressAnyButtonText.alpha = 0f;
         
-        StartCoroutine(FadeSplashScreenBackground());
-    }
-
-    IEnumerator FadeSplashScreenBackground()
-    {
-        // Disable all input until the splash screen is done fading.
+        yield return new WaitForSeconds(0.2f);
         
-        // Fade the splash screen background out.
-        splashScreen.CrossFadeAlpha(0f, splashScreenDuration, true);
-
-        yield return new WaitForSeconds(splashScreenDuration);
-        
-        Destroy(splashScreen.gameObject);
-        
-        // Fade in the buttons and text once the splash screen is done fading.
-        StartCoroutine(FadeInText());
+        splashScreen.DOFade(0f, splashScreenDuration).OnComplete(() =>
+        {
+            Destroy(splashScreen.gameObject);
+            FadeInText();
+        });
     }
 
     // Fades in the buttons and text once the splash screen is done fading.
-    IEnumerator FadeInText() //TODO: DOTween makes this easier.
+    void FadeInText() //TODO: DOTween makes this easier.
     {
-        Color color = pressAnyButtonText.color;
-
-        while (color.a < 1.0f)
+        pressAnyButtonText.DOFade(1f, 1f).OnComplete(() =>
         {
-            // Increase alpha
-            color.a += 1 * Time.deltaTime;
-
-            // Clamp it to 1.0
-            color.a = Mathf.Min(color.a, 1.0f);
-
-            pressAnyButtonText.color = color;
-
-            // Yield execution until next frame.
-            yield return null;
-        }
-
-        // Enable all input after the splash screen is done fading and the buttons and text are visible.
-        playerInitializer.enabled = true;
-        deviceManager.enabled     = true;
-        
-        GameManager.SetState(GameManager.GameState.Intro);
+            // Enable all input after the splash screen is done fading and the buttons and text are visible.
+            playerInitializer.enabled = true;
+            deviceManager.enabled = true;
+            
+            GameManager.SetState(GameManager.GameState.Intro);
+        });
     }
 }

@@ -11,9 +11,10 @@ public class AirborneAttackState : State
 
     float timeAirborneAttacking;
     float timeAirborne;
+    bool hasAttacked;
     
     readonly float requiredAirTime;
-
+    
     public AirborneAttackState(PlayerController player, AirborneAttackStateData stateData) : base(player)
     {
         animator = player.GetComponentInChildren<Animator>();
@@ -24,7 +25,9 @@ public class AirborneAttackState : State
         jumpHaltForce         = stateData.JumpHaltForce;
         
         // Attack variables
+        timeAirborne    = player.AirborneTime;
         requiredAirTime = stateData.RequiredAirTime;
+        hasAttacked     = false;
         
         Debug.Assert(moveset != null, "Moveset is null in the AttackStateData. Please assign it in the inspector.");
 
@@ -50,8 +53,7 @@ public class AirborneAttackState : State
         IsAirborne          = true; // Check whether the player was in air when attack started.
         
         player.GetComponentInChildren<SpriteRenderer>().color = new (1f, 0.21f, 0.38f, 0.75f);
-
-        timeAirborne = 0f;
+        
         timeAirborneAttacking = 0;
     }
 
@@ -63,17 +65,19 @@ public class AirborneAttackState : State
             return;
         }
 
-        timeAirborne += Time.deltaTime; // bug: timeAirborne is always one frame step. (0.016 something)
-
         // Only attack if the player has been airborne for a certain amount of time.
-        if(timeAirborne >= requiredAirTime && !IsAirborneAttacking) IsAirborneAttacking = true;
+        if (timeAirborne >= requiredAirTime && !IsAirborneAttacking && !hasAttacked)
+        {
+            IsAirborneAttacking = true;
+            hasAttacked = true;
+        }
 
         if (!IsAirborneAttacking)
         {
             player.StateMachine.TransitionToState(StateType.Fall);
             return;
         }
-
+        
         PerformAttack();
 
         // If the attack animation is still playing, run logic.
@@ -115,6 +119,10 @@ public class AirborneAttackState : State
     {
         // Cancel the attack animation by starting the idle animation.
         animator.Play("Idle");
+        
+        IsAirborneAttacking = false;
+        IsAirborne          = false;
+        hasAttacked         = false;
 
         player.StateMachine.TransitionToState(player.IsGrounded() ? StateType.Idle : StateType.Fall);
 
@@ -124,9 +132,6 @@ public class AirborneAttackState : State
         
         else // If the player is not moving, transition to the idle state. 
             player.StateMachine.TransitionToState(StateType.Idle);
-
-        IsAirborneAttacking = false;
-        IsAirborne = false;
     }
     #endregion
 
@@ -141,6 +146,6 @@ public class AirborneAttackState : State
             attackHandler.SelectAttack(attackType);
             player.InputManager.LastAttackPressed = InputManager.AttackType.None; // Reset after usage
         }
-        else { Logger.Debug("No \"(None)\" attack type was selected. Something went wrong.", LogType.Error); }
+        else { Logger.Debug("No \"(AttackType.None)\" attack type was selected. Something went wrong.", LogType.Error); }
     }
 }

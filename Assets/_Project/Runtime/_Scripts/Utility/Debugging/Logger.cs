@@ -16,8 +16,6 @@ public static class Logger
 {
     [Tooltip("Allows the developer to skip the loading screen, join a player into the game scene directly, among with some other minor QoL changes.")]
     public static bool DebugMode = true;
-    [Tooltip("Joins an additional player into the game scene for debugging purposes and modifies the players, such as disabling knockback.")]
-    public static bool DebugPlayers = false;
 
     static Logger()
     {

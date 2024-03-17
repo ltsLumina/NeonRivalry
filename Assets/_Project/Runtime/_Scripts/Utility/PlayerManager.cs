@@ -93,8 +93,9 @@ public partial class PlayerManager : MonoBehaviour
     #region Utility
     public static PlayerController OtherPlayer(PlayerController player)
     {
-        if (player == null) return null;
-        return player == PlayerOne ? PlayerTwo : PlayerOne;
+        if (player != null) return player == PlayerOne ? PlayerTwo : PlayerOne;
+        Debug.LogError("The player is null. Please assign a valid player.");
+        return null;
     }
 
     public static void AddPlayer(PlayerController player) => Players.Add(player);

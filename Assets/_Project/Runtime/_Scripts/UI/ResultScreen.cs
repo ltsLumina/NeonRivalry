@@ -21,8 +21,8 @@ public class ResultScreen : MonoBehaviour
         StartCoroutine(RandomizeSliderValues(1, 100));
         if (FindObjectOfType<RoundManager>() == null) { return; }
 
-        FindObjectOfType<RoundManager>().player1Victory = true;
-        winner.text = FindObjectOfType<RoundManager>().player1Victory ? "Player 1 Has Won" : "Player 2 Has Won";
+        //FindObjectOfType<RoundManager>().player1Victory = true;
+        //winner.text = FindObjectOfType<RoundManager>().player1Victory ? "Player 1 Has Won" : "Player 2 Has Won";
 
     }
 
