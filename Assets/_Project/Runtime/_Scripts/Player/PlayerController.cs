@@ -2,9 +2,12 @@
 #if UNITY_EDITOR
 #endif
 using System.Collections.Generic;
+using DG.Tweening;
 using Lumina.Essentials.Attributes;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using VInspector;
 using static State;
 #endregion
@@ -51,7 +54,7 @@ public partial class PlayerController : MonoBehaviour
     // Cached Animation References
     readonly static int Walk_Forward = Animator.StringToHash("Walk_Forward");
     readonly static int Walk_Backward = Animator.StringToHash("Walk_Backward");
-
+    
     // -- Properties --
     
     public StateMachine StateMachine { get; private set; }
@@ -100,7 +103,7 @@ public partial class PlayerController : MonoBehaviour
         // Enable the player input.
         DisablePlayer(false);
     }
-    
+
     void OnDestroy() => Healthbar.OnPlayerDeath -= Death;
 
     // Rotate the player when spawning in to face in a direction that is more natural.
@@ -248,23 +251,43 @@ public partial class PlayerController : MonoBehaviour
         HurtBox.enabled      = !disabled;
     }
 
-    public void Death(PlayerController playerThatDied)
+    void Death(PlayerController playerThatDied)
     {
-        // Disable any necessary components
         DisablePlayer(true);
-        
+        GamepadExtensions.RumbleAll(this);
+
+        // Get the Volume component
+        var volume = FindObjectOfType<Volume>();
+        if (volume == null) return;
+
+        DeathEffect();
+
         // Stop any ongoing animations and play the death animation
         Animator.Play("Idle");
         //Animator.SetTrigger("HasDied");
         
-        // Rumble controller
-        GamepadExtensions.RumbleAll(this);
-
-        //may god save us
-        // RoundManager.player1WonRoundsText.text = $"Rounds won: \n{FindObjectOfType<RoundManager>().player1WonRounds}/2";
-        // FindObjectOfType<RoundManager>().player1WonRounds++;
-        // FindObjectOfType<RoundManager>().currentRounds++;
         Debug.Log($"{ThisPlayer} is dead!");
+
+        return;
+        void DeathEffect()
+        {
+            // Try to get the ChromaticAberration effect
+            if (!volume.profile.TryGet(out ChromaticAberration chromaticAberration)) return;
+            if (!volume.profile.TryGet(out DepthOfField depthOfField)) return;
+            if (!volume.profile.TryGet(out LensDistortion lensDistortion)) return;
+            
+            Sequence sequence = DOTween.Sequence();
+            int      mult     = 2;
+            sequence.Join(DOTween.To(() => chromaticAberration.intensity.value, x => chromaticAberration.intensity.value = x, 1f     * mult, .65f).SetEase(Ease.InOutCubic));
+            sequence.Join(DOTween.To(() => depthOfField.focusDistance.value, x => depthOfField.focusDistance.value       = x, 1.85f  * mult, .5f).SetEase(Ease.OutCubic));
+            sequence.Join(DOTween.To(() => lensDistortion.intensity.value, x => lensDistortion.intensity.value           = x, -0.35f * mult, 2f).SetEase(Ease.OutCubic));
+            //sequence.Append(DOTween.To(() => chromaticAberration.intensity.value, x => chromaticAberration.intensity.value = x, 1f, .65f).SetEase(Ease.OutCubic)); // Holds the effect for a bit
+            sequence.AppendInterval(.1f); // Required to prevent the next sequence from starting too early
+            sequence.Join(DOTween.To(() => chromaticAberration.intensity.value, x => chromaticAberration.intensity.value = x, 0f, .5f).SetEase(Ease.OutQuint));
+            sequence.Join(DOTween.To(() => depthOfField.focusDistance.value, x => depthOfField.focusDistance.value       = x, 1.85f, .5f).SetEase(Ease.OutCubic));
+            sequence.Join(DOTween.To(() => lensDistortion.intensity.value, x => lensDistortion.intensity.value           = x, 0f, .5f).SetEase(Ease.OutQuint));
+            sequence.Play();
+        }
     }
 }
 

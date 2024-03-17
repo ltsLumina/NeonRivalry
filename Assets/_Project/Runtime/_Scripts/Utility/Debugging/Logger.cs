@@ -23,7 +23,6 @@ public static class Logger
         // It might seem as though this is redundant, but it does in fact execute during a build.
 #if !UNITY_EDITOR
         DebugMode = false;
-        DebugPlayers = false;
 #endif
     }
     

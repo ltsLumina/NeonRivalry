@@ -9,17 +9,32 @@ public class RoundManager : MonoBehaviour
     [SerializeField] int maxRounds;
     [SerializeField, ReadOnly] int currentRound;
     [Space(10)]
+    [DisableIf(nameof(disabled))]
     [SerializeField] SerializedDictionary<string, int> playerScores = new()
     {
         {"Player 1", 0},
         {"Player 2", 0}
     };
+
+    #region VInspector make dictionary readonly.
+#pragma warning disable CS0414 // Field is assigned but its value is never used
+    bool disabled = true;
+#pragma warning restore CS0414 // Field is assigned but its value is never used
+    #endregion
     
     public delegate void RoundEnded();
     public static event RoundEnded OnRoundEnded;
     
     static int player1WonRounds;
     static int player2WonRounds;
+
+    // -- Properties --
+
+    public int CurrentRound
+    {
+        get => currentRound;
+        private set => currentRound = value;
+    }
 
     void Start()
     {
@@ -34,11 +49,6 @@ public class RoundManager : MonoBehaviour
             playerScores["Player 1"] = player1WonRounds;
             playerScores["Player 2"] = player2WonRounds;
         }
-    }
-
-    void Update()
-    {
-        maxRounds = Mathf.Clamp(maxRounds, 1, 5);
     }
 
     void OnEnable() => HealthbarManager.OnPlayerDeath += IncrementRound;
@@ -60,6 +70,9 @@ public class RoundManager : MonoBehaviour
             playerScores["Player 1"]++;
             player2WonRounds++;
         }
+        
+        // TODO: uncomment this line when the game is ready to be played. 
+        //SceneManagerExtended.ReloadScene(2f);
     }
 
     void Reset()

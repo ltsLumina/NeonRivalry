@@ -33,6 +33,7 @@ public class QuickAccessWindow : EditorWindow
     { { "help", "Shows the list of available commands." },
       { "hitbox", "Increases the hitbox damage to 34." },
       { "heal", "Heals all players to full health." },
+      { "kill", "Kills player one."}
       };
     
 
@@ -463,6 +464,13 @@ public class QuickAccessWindow : EditorWindow
 
                 case var command when command.Contains("heal"):
                     foreach (var player in FindObjectsOfType<PlayerController>()) { player.Healthbar.Heal(player, 100); }
+                    Debug.LogWarning(message);
+                    break;
+                
+                case var command when command.Contains("kill"):
+                    PlayerController playerOne = PlayerManager.PlayerOne;
+                    playerOne.Healthbar.Health = 0;
+                    
                     Debug.LogWarning(message);
                     break;
 

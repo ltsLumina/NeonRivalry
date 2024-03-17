@@ -1,5 +1,6 @@
 ﻿using UnityEditor;
 using UnityEngine;
+using UnityEngine.UI;
 using Logger = Lumina.Debugging.Logger;
 
 [CustomEditor(typeof(HealthbarManager))]
@@ -101,6 +102,9 @@ public class HealthbarManagerEditor : Editor
         {
             EditorGUILayout.LabelField(label, EditorStyles.boldLabel);
             healthbar.Health = EditorGUILayout.IntSlider(healthbar.Health, 0, 100);
+            
+            var comboTimer = healthbar.transform.GetChild(0).GetComponent<Slider>();
+            comboTimer.value = healthbar.Health;
         }
     }
 }

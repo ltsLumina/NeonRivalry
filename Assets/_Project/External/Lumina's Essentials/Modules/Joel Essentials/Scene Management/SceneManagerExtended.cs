@@ -1,6 +1,5 @@
 #region
 using System.Collections;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 #endregion
@@ -37,12 +36,51 @@ public static class SceneManagerExtended
     }
 
     /// <summary>
+    /// This extension method allows a MonoBehaviour to reload the current scene after a specified delay.
+    /// </summary>
+    /// <param name="delay">The delay in seconds before the current scene is reloaded.</param>
+    public static void ReloadScene(float delay)
+    {
+        CoroutineHelper.StartCoroutine(ReloadSceneRoutine());
+        
+        return;  // Define the coroutine
+        IEnumerator ReloadSceneRoutine()
+        {
+            // Wait for the specified delay
+            yield return new WaitForSeconds(delay);
+
+            // Reload the current scene
+            ReloadScene();
+        }
+    }
+
+    /// <summary>
     ///     Loads the next scene according to build index order.
     /// </summary>
     public static void LoadNextScene()
     {
         previousScene = SceneManager.GetActiveScene().buildIndex;
         SceneManager.LoadScene(ClampBuildIndex(SceneManager.GetActiveScene().buildIndex + 1));
+    }
+
+
+    /// <summary>
+    /// This extension method allows a MonoBehaviour to load the next scene after a specified delay.
+    /// </summary>
+    /// <param name="delay">The delay in seconds before the next scene is loaded.</param>
+    public static void LoadNextScene(float delay)
+    {
+        CoroutineHelper.StartCoroutine(LoadNextSceneRoutine());
+        
+        return;  // Define the coroutine
+        IEnumerator LoadNextSceneRoutine()
+        {
+            // Wait for the specified delay
+            yield return new WaitForSeconds(delay);
+
+            // Load the next scene
+            LoadNextScene();
+        }
     }
 
     /// <summary>
@@ -100,11 +138,7 @@ public static class SceneManagerExtended
     /// </summary>
     public static void QuitGame()
     {
-#if UNITY_EDITOR
         Debug.Log("Quitting game...");
-        EditorApplication.isPlaying = false;
-#else
         Application.Quit();
-#endif
     }
 }
