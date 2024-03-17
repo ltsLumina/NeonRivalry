@@ -18,12 +18,13 @@ namespace Lumina.Debugging
 public class QuickAccessWindow : EditorWindow
 {
     static Action activeMenu;
-    static bool windowsFoldout = true;
+    static bool windowsFoldout;
     static bool optionsFoldout = true;
     static bool addedScenesFoldout;
     static bool manageScenesFoldout = true;
     static bool otherToolsFoldout = true;
-    static bool commandsFoldout = true;
+    static bool commandsFoldout;
+    static bool commandsListFoldout = true;
     static string searchQuery = string.Empty;
     static int maxPingedAssets = 20;
     static bool isSettingMaxPingedAssets;
@@ -35,7 +36,6 @@ public class QuickAccessWindow : EditorWindow
       { "heal", "Heals all players to full health." },
       { "kill", "Kills player one."}
       };
-    
 
     readonly static List<string> addedScenes = new ();
     
@@ -370,9 +370,15 @@ public class QuickAccessWindow : EditorWindow
         using (new VerticalScope("box"))
         {
             Label("Console Commands", EditorStyles.boldLabel);
-            CreateButtonWithAction("Clear PlayerPrefs", PlayerPrefs.DeleteAll);
-            CreateButtonWithAction("Clear Console", Shortcuts.ClearConsole);
-            CreateButtonWithAction("Open Console", () => EditorApplication.ExecuteMenuItem("Window/General/Console"));
+
+            commandsFoldout = EditorGUILayout.Foldout(commandsFoldout, "Button Commands", true, EditorStyles.foldoutHeader);
+            
+            if (commandsFoldout)
+            {
+                CreateButtonWithAction("Clear PlayerPrefs", PlayerPrefs.DeleteAll);
+                CreateButtonWithAction("Clear Console", Shortcuts.ClearConsole);
+                CreateButtonWithAction("Open Console", () => EditorApplication.ExecuteMenuItem("Window/General/Console"));
+            }
             
             Space(10);
             
@@ -384,9 +390,9 @@ public class QuickAccessWindow : EditorWindow
                 if (Button("Execute", Width(100), Height(25)) && CommandExecuted()) return;
             }
 
-            commandsFoldout = EditorGUILayout.Foldout(commandsFoldout, "Commands", true, EditorStyles.foldoutHeader);
+            commandsListFoldout = EditorGUILayout.Foldout(commandsListFoldout, "Console Commands", true, EditorStyles.foldoutHeader);
 
-            if (commandsFoldout)
+            if (commandsListFoldout)
             {
                 // Text for the commands.
                 foreach (var command in commandDictionary)
@@ -445,7 +451,7 @@ public class QuickAccessWindow : EditorWindow
             switch (cmd.ToLower())
             {
                 case var command when command.Contains("help"):
-                    if (!commandsFoldout) commandsFoldout = true;
+                    if (!commandsListFoldout) commandsListFoldout = true;
                     else Logger.Log("Commands can be viewed from the commands list at the bottom of the" + nameof(QuickAccessWindow), LogType.Log);
                     break;
                 
