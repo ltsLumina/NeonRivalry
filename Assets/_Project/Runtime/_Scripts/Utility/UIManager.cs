@@ -6,13 +6,13 @@ using VInspector;
 
 public class UIManager : MonoBehaviour
 {
+    [Tab("Main Menu")]
+    [SerializeField] List<Button> mainMenuButtons = new ();
+    
     [Tab("Pause Menu")]
     [SerializeField] GameObject pauseMenu;
     [SerializeField] TextMeshProUGUI pauseMenuTitle;
     [SerializeField] List<Button> pauseMenuButtons = new ();
-    
-    [Tab("Main Menu")]
-    [SerializeField] List<Button> mainMenuButtons = new ();
 
     public GameObject PauseMenu => pauseMenu;
     public TextMeshProUGUI PauseMenuTitle
@@ -29,16 +29,10 @@ public class UIManager : MonoBehaviour
     /// </summary>
     public List<Button> MainMenuButtons => mainMenuButtons;
 
-    EventSystemSelector eventSystemSelector;
-
-    void Awake() => eventSystemSelector = null;
-
     void Start()
     {
-        PauseMenu.SetActive(false);
+        if (PauseMenu != null) PauseMenu.SetActive(false);
     }
-
-    void OnEnable() => InputDeviceManager.OnPlayerJoin += () => eventSystemSelector = FindObjectOfType<EventSystemSelector>();
     
     public void SelectButtonByName(string buttonName)
     {
