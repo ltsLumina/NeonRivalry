@@ -375,9 +375,9 @@ public class QuickAccessWindow : EditorWindow
             
             if (commandsFoldout)
             {
-                CreateButtonWithAction("Clear PlayerPrefs", PlayerPrefs.DeleteAll);
-                CreateButtonWithAction("Clear Console", Shortcuts.ClearConsole);
-                CreateButtonWithAction("Open Console", () => EditorApplication.ExecuteMenuItem("Window/General/Console"));
+                CreateButtonWithAction("Increase Damage", () => HitboxCommand("Increased hitbox damage to 34."));
+                CreateButtonWithAction("Heal All Players", () => HealCommand("Healed all players to full health."));
+                CreateButtonWithAction("Kill Player One", () => KillCommand("Killed player one."));
             }
             
             Space(10);
@@ -451,33 +451,19 @@ public class QuickAccessWindow : EditorWindow
             switch (cmd.ToLower())
             {
                 case var command when command.Contains("help"):
-                    if (!commandsListFoldout) commandsListFoldout = true;
-                    else Logger.Log("Commands can be viewed from the commands list at the bottom of the" + nameof(QuickAccessWindow), LogType.Log);
+                    HelpCommand();
                     break;
                 
                 case var command when command.Contains("hitbox"):
-                    const int newDamage      = 34;
-                    HitBox    playerAffected = null;
-
-                    foreach (var hitbox in FindObjectsOfType<HitBox>())
-                    {
-                        hitbox.DamageAmount = newDamage;
-                        playerAffected      = hitbox;
-                    }
-                    
-                    Debug.LogWarning(message, playerAffected);
+                    HitboxCommand(message);
                     break;
 
                 case var command when command.Contains("heal"):
-                    foreach (var player in FindObjectsOfType<PlayerController>()) { player.Healthbar.Heal(player, 100); }
-                    Debug.LogWarning(message);
+                    HealCommand(message);
                     break;
                 
                 case var command when command.Contains("kill"):
-                    PlayerController playerOne = PlayerManager.PlayerOne;
-                    playerOne.Healthbar.Health = 0;
-                    
-                    Debug.LogWarning(message);
+                    KillCommand(message);
                     break;
 
                 default:
@@ -488,6 +474,44 @@ public class QuickAccessWindow : EditorWindow
             commandQuery = string.Empty;
         }
     }
+
+    #region Command Methods
+    static void KillCommand(string message)
+    {
+        PlayerController playerOne = PlayerManager.PlayerOne;
+        playerOne.Healthbar.Health = 0;
+                    
+        Debug.LogWarning(message);
+    }
+    static void HealCommand(string message)
+    {
+        foreach (var player in FindObjectsOfType<PlayerController>())
+        {
+            // Revive the player if they are dead.
+            if (player.Healthbar.Health <= 0) player.DisablePlayer(false);
+            player.Healthbar.Heal(player, 100); 
+        }
+        Debug.LogWarning(message);
+    }
+    static void HelpCommand()
+    {
+        if (!commandsListFoldout) commandsListFoldout = true;
+        else Logger.Log("Commands can be viewed from the commands list at the bottom of the" + nameof(QuickAccessWindow), LogType.Log);
+    }
+    static void HitboxCommand(string message)
+    {
+        const int newDamage      = 34;
+        HitBox    playerAffected = null;
+
+        foreach (var hitbox in FindObjectsOfType<HitBox>())
+        {
+            hitbox.DamageAmount = newDamage;
+            playerAffected      = hitbox;
+        }
+                    
+        Debug.LogWarning(message, playerAffected);
+    }
+    #endregion
     #endregion
     
     #region Utility
