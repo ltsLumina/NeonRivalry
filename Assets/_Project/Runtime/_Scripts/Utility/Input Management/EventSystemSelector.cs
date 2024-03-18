@@ -24,6 +24,18 @@ public class EventSystemSelector : MonoBehaviour
     const int MainMenu = 1;
     const int CharacterSelect = 2;
     const int Game = 3;
+    
+    public GameObject CurrentSelectedGameObject
+    {
+        get
+        {
+            OnSelectionChange?.Invoke(eventSystem.currentSelectedGameObject);
+            return eventSystem.currentSelectedGameObject;
+        }
+    }
+
+    public delegate void SelectionChange(GameObject newSelectedGameObject);
+    public event SelectionChange OnSelectionChange;
 
     // In the case of the Menu Navigator game object, the PlayerInput is tied to this game object.
     // The Player's UI Navigator, however, is childed to the Player's game object.
@@ -70,6 +82,9 @@ public class EventSystemSelector : MonoBehaviour
     {
         switch (sceneIndex)
         {
+            case MainMenu: 
+                return GameObject.Find("Play");
+            
             case CharacterSelect: 
                 return GameObject.Find($"Shelby (Player {localPlayerID})");
 
@@ -91,5 +106,15 @@ public class EventSystemSelector : MonoBehaviour
     public void OnPressButton()
     {
         Debug.Log($"Player {localPlayerID} pressed a button using \"{playerInput.currentControlScheme}\" control scheme!");
+    }
+
+    public void OnCancel(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            SettingsManagerNEW settingsManager = FindObjectOfType<SettingsManagerNEW>();
+            settingsManager.CloseCurrentMainMenu();
+            settingsManager.CloseCurrentSettingsMenu();
+        }
     }
 }

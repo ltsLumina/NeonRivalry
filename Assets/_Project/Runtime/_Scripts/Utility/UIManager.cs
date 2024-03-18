@@ -41,5 +41,5 @@ public class UIManager : MonoBehaviour
         component.Select();
     }
 
-    public void SelectButtonByReference(Button button) => button.Select();
+    public static void SelectButtonByReference(Button button) => button.Select();
 }

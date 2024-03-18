@@ -132,8 +132,8 @@ public class GameManager : MonoBehaviour
         
         if (Input.GetKeyDown(KeyCode.Backspace) && Application.isEditor)
         {
-            Debug.LogWarning("Reloaded Scene with a debug key! (Backspace)");
-            SceneManagerExtended.ReloadScene();
+            //Debug.LogWarning("Reloaded Scene with a debug key! (Backspace)");
+            //SceneManagerExtended.ReloadScene();
         }
     }
 

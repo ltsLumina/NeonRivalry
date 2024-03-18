@@ -41,11 +41,11 @@ public class HurtBox : MonoBehaviour
 
     void OnEnable()
     {
-        OnHurtBoxHit += OnTakeDamage; 
+        OnHurtBoxHit += TakeDamage; 
         OnBlockHit   += () => PlayEffect(blockEffect);
     }
 
-    void OnDisable() => OnHurtBoxHit -= OnTakeDamage;
+    void OnDisable() => OnHurtBoxHit -= TakeDamage;
 
     void DEBUG_TryHitHurtBox()
     {
@@ -60,17 +60,8 @@ public class HurtBox : MonoBehaviour
         var hitBox = other.GetComponent<HitBox>();
         if (hitBox != null) OnHurtBoxHit?.Invoke(hitBox);
     }
-
-    IEnumerator InvincibilityFrames(float duration = 0.35f)
-    {
-        player.IsInvincible = true;
-        yield return new WaitForSeconds(duration);
-
-        // Set player back to vulnerable
-        player.IsInvincible = false;
-    }
     
-    void OnTakeDamage(HitBox hitBox)
+    void TakeDamage(HitBox hitBox)
     {
         // Check if the player is invincible
         if (player.IsInvincible) return;
@@ -85,6 +76,8 @@ public class HurtBox : MonoBehaviour
         }
         
         // -- Player was hit by another character --
+        
+        player.Animator.SetTrigger("Hitstun");
         
         // Reduce health by the damage amount, and update the health bar.
         health -= hitBox.DamageAmount;
@@ -156,7 +149,6 @@ public class HurtBox : MonoBehaviour
         #endregion
     }
     
-    
     void TakeDamageRoutine()
     {
         // Flash player red on take damage.
@@ -205,10 +197,20 @@ public class HurtBox : MonoBehaviour
         yield return new WaitForSeconds(0.05f);
     }
 
+    IEnumerator InvincibilityFrames(float duration = 0.35f)
+    {
+        player.IsInvincible = true;
+        yield return new WaitForSeconds(duration);
+
+        // Set player back to vulnerable
+        player.IsInvincible = false;
+    }
+
     void PlayEffect(GameObject effect)
     {
         // Enable the effect
         effect.SetActive(true);
+        player.Animator.SetTrigger("Blocked");
 
         // Start the coroutine to disable the effect after the animation has finished
         StartCoroutine(DisableEffectAfterAnimation(effect));

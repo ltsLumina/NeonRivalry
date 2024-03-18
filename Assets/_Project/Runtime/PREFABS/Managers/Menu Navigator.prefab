@@ -91,7 +91,19 @@ MonoBehaviour:
     m_ActionId: d7bd00fc-7052-44a9-a9a0-64e83d9b1a30
     m_ActionName: UI/Submit
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 4062431423150835742}
+        m_TargetAssemblyTypeName: EventSystemSelector, _Project
+        m_MethodName: OnCancel
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: 6d8e6735-040e-4a49-b28a-0b6f52d6059f
     m_ActionName: UI/Cancel
   - m_PersistentCalls:
@@ -138,9 +150,17 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 6aeba393-d85a-41f3-b8df-ccada26a3869
     m_ActionName: Player/Unique[/XInputControllerWindows/buttonNorth,/XInputControllerWindows1/buttonNorth]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 0067ff0d-9489-4b44-960b-4fa1d7c75316
+    m_ActionName: Player/Dash[/Keyboard/leftShift]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 7b749409-a87c-4ee7-8a13-705550b7e4f5
+    m_ActionName: Player/Pause[/Keyboard/escape]
   m_NeverAutoSwitchControlSchemes: 1
   m_DefaultControlScheme: Gamepad
-  m_DefaultActionMap: Player
+  m_DefaultActionMap: UI
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
 --- !u!114 &-7907636821074277119
@@ -209,7 +229,8 @@ MonoBehaviour:
     type: 3}
   m_SubmitAction: {fileID: 2064916234097673511, guid: 058b2bc6b63c87d46a5e937a644e4bab,
     type: 3}
-  m_CancelAction: {fileID: 0}
+  m_CancelAction: {fileID: -7321772815861845285, guid: 058b2bc6b63c87d46a5e937a644e4bab,
+    type: 3}
   m_LeftClickAction: {fileID: 0}
   m_MiddleClickAction: {fileID: 0}
   m_RightClickAction: {fileID: 0}
