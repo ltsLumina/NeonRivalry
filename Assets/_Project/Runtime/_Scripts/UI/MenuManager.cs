@@ -273,7 +273,6 @@ public class MenuManager : MonoBehaviour
             {
                 // Toggle the credits menu
                 creditsMenu.SetActive(false);
-                creditsContent.SetActive(false);
                 
                 creditsButton.interactable = true;
                 UIManager.SelectButtonByReference(creditsButton);
@@ -284,17 +283,21 @@ public class MenuManager : MonoBehaviour
     void CloseCredits()
     {
         Sequence sequence = DOTween.Sequence();
+
+        // Fade out the canvasgroup
+        sequence.Append(creditsContent.GetComponent<CanvasGroup>().DOFade(0, 0.5f));
+        sequence.AppendInterval(1f);
         
         // Fade out the background and scale Y from 1 to 0.
-        sequence.Append(creditsBackground.DOFade(isCreditsActive ? backgroundOpacity : 0, backgroundTweenDuration));
-        sequence.Join(creditsBackground.transform.DOScaleY(isCreditsActive ? 1 : 0, backgroundTweenDuration));
+        sequence.Append(creditsBackground.DOFade(0, backgroundTweenDuration));
+        sequence.Join(creditsBackground.transform.DOScaleY(0, backgroundTweenDuration));
+        creditsButton.interactable = true;
 
         sequence.OnComplete
         (() =>
         {
             // Toggle the credits menu
             creditsMenu.SetActive(false);
-            creditsContent.SetActive(false);
 
             creditsButton.interactable = true;
             UIManager.SelectButtonByReference(creditsButton);
