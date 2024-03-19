@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
@@ -6,6 +7,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using VInspector;
 
+[Obsolete("This class is no longer used. Please refer to the MenuManager class.")]
 public class SettingsManager : MonoBehaviour
 {
     [Tab("Tweening"), Range(0,1)]

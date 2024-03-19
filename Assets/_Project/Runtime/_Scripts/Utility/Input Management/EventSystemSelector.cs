@@ -112,9 +112,9 @@ public class EventSystemSelector : MonoBehaviour
     {
         if (context.performed)
         {
-            SettingsManagerNEW settingsManager = FindObjectOfType<SettingsManagerNEW>();
-            settingsManager.CloseCurrentMainMenu();
-            settingsManager.CloseCurrentSettingsMenu();
+            MenuManager menuManager = FindObjectOfType<MenuManager>();
+            menuManager.CloseCurrentMainMenu();
+            menuManager.CloseCurrentSettingsMenu();
         }
     }
 }
