@@ -1,9 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using VInspector;
 
@@ -44,6 +44,7 @@ public class MenuManager : MonoBehaviour
     [SerializeField] List<GameObject> settingsContents;
 
     [SerializeField] GameObject settingsHeader;
+    [SerializeField] InputAction switchMenuKey; // The key that switches between the settings categories/headers (e.g using Q and E to switch between "Game" and "Audio")
     
     [Foldout("Game")]
     [SerializeField] GameObject gameMenu;
@@ -117,6 +118,12 @@ public class MenuManager : MonoBehaviour
     void OnEnable()
     {
         creditsManager.onCreditsEnd.AddListener(CloseCredits);
+        switchMenuKey.Enable();
+    }
+
+    void OnDisable()
+    {
+        switchMenuKey.Disable();
     }
 
     void Start()
@@ -133,9 +140,10 @@ public class MenuManager : MonoBehaviour
         
         // Populate the settings menus, headers, and contents lists and disable it all.
         settingsMenus.AddRange(new List<GameObject> {gameMenu, audioMenu, videoMenu, gamepadMenu, keyboardMenu});
+        settingsMenus.ForEach(menu => menu.SetActive(false));
+        settingsTitle.gameObject.SetActive(false);
         settingsHeaders.AddRange(new List<Button> {gameHeader, audioHeader});
         settingsHeader.SetActive(false);
-        settingsTitle.gameObject.SetActive(false);
         settingsContents.AddRange(new List<GameObject> {gameContent});
         settingsContents.ForEach(content => content.SetActive(false));
         
@@ -143,9 +151,106 @@ public class MenuManager : MonoBehaviour
         settingsBackground.gameObject.SetActive(false);
     }
 
-    public void ScaleUpSlider() => screenshakeSlider.transform.parent.DOScale(1.05f, 0.1f).SetEase(Ease.OutBack);
+    public void ScaleUpSliderButton(Selectable parent) => parent.transform.DOScale(1.05f, 0.1f).SetEase(Ease.OutBack);
 
-    public void ScaleDownSlider() => screenshakeSlider.transform.parent.DOScale(1, 0.1f).SetEase(Ease.InBack);
+    public void ScaleDownSliderButton(Selectable parent) => parent.transform.DOScale(1, 0.1f).SetEase(Ease.InBack);
+
+    void Update()
+    {
+        ChangeHeaderColour();
+
+        var input = switchMenuKey.ReadValue<Vector2>();
+
+        if (switchMenuKey.triggered)
+        {
+            GameObject currentMenu = settingsMenus.Find(menu => menu.activeSelf);
+            GameObject newMenu;
+
+            switch (input.x > 0)
+            {
+                // Q to go left.
+                case false: {
+                    // Q to go left.
+                    if (input.x < 0)
+                    {
+                        currentMenu.SetActive(false);
+                        newMenu = settingsMenus[Mathf.Clamp(settingsMenus.IndexOf(currentMenu) - 1, 0, settingsMenus.Count - 1)];
+                        ToggleSettingsMenu(newMenu);
+
+                        switch (newMenu)
+                        {
+                            case not null when newMenu == gameMenu:
+                                gameHeader.Select();
+                                break;
+
+                            case not null when newMenu == audioMenu:
+                                audioHeader.Select();
+                                break;
+                        }
+                    }
+
+                    break;
+                }
+
+                // E to go right.
+                default:
+                    currentMenu.SetActive(false);
+                    newMenu = settingsMenus[Mathf.Clamp(settingsMenus.IndexOf(currentMenu) + 1, 0, settingsMenus.Count - 1)];
+                    ToggleSettingsMenu(newMenu);
+
+                    switch (newMenu)
+                    {
+                        case not null when newMenu == gameMenu:
+                            gameHeader.Select();
+                            break;
+
+                        case not null when newMenu == audioMenu:
+                            audioHeader.Select();
+                            break;
+                    }
+
+                    break;
+            }
+        }
+    }
+
+    void ChangeHeaderColour()
+    {
+        var currentMenu = settingsMenus.Find(menu => menu.activeSelf);
+        if (currentMenu == null) return;
+
+        if (currentMenu == gameMenu)
+        {
+            // Change the colour of the header to match the selected menu.
+            var color = gameHeader.GetComponent<Button>().colors;
+            color.normalColor                      = Color.red;
+            gameHeader.GetComponent<Button>().colors = color;
+        }
+        else
+        {
+            ResetHeaderColour(gameHeader);
+        }
+        
+        if (currentMenu == audioMenu)
+        {
+            // Change the colour of the header to match the selected menu.
+            var color = audioHeader.GetComponent<Button>().colors;
+            color.normalColor                       = Color.red;
+            audioHeader.GetComponent<Button>().colors = color;
+        }
+        else
+        {
+            ResetHeaderColour(audioHeader);
+        }
+    }
+
+     void ResetHeaderColour(Button header)
+    {
+        // Change the colour of the header to match the selected menu.
+        var color = header.colors;
+        color.normalColor = Color.white;
+        header.colors = color;
+    }
 
     public void ToggleSettings()
     {
@@ -153,15 +258,6 @@ public class MenuManager : MonoBehaviour
         settingsHeader.SetActive(!settingsHeader.activeSelf);
         
         ToggleGameMenu();
-    }
-
-    void ToggleMainMenu(GameObject menu)
-    {
-        bool isMenuActive = menu.activeSelf;
-
-        menu.SetActive(!isMenuActive);
-
-        if (menu == creditsMenu) { ToggleCredits(); }
     }
     
     void ToggleSettingsMenu(GameObject menu)
@@ -189,7 +285,7 @@ public class MenuManager : MonoBehaviour
             gameMenu.SetActive(true);
             gameHeader.gameObject.SetActive(true);
             gameContent.SetActive(true);
-            UIManager.SelectButtonByReference(gameHeader);
+            UIManager.SelectSelectableByReference(gameHeader);
         }
         
         if (menu == audioMenu)
@@ -198,7 +294,7 @@ public class MenuManager : MonoBehaviour
             settingsMenus.ForEach(m => m.SetActive(false));
             audioMenu.SetActive(true);
             //audioContent.SetActive(true);
-            UIManager.SelectButtonByReference(audioHeader);
+            UIManager.SelectSelectableByReference(audioHeader);
         }
         
         if (menu == videoMenu)
@@ -207,7 +303,7 @@ public class MenuManager : MonoBehaviour
             settingsMenus.ForEach(m => m.SetActive(false));
             videoMenu.SetActive(true);
             //videoContent.SetActive(true);
-            UIManager.SelectButtonByReference(audioHeader);
+            UIManager.SelectSelectableByReference(audioHeader);
         }
         
         if (menu == gamepadMenu)
@@ -216,7 +312,7 @@ public class MenuManager : MonoBehaviour
             settingsMenus.ForEach(m => m.SetActive(false));
             gamepadMenu.SetActive(true);
             //gamepadContent.SetActive(true);
-            UIManager.SelectButtonByReference(audioHeader);
+            UIManager.SelectSelectableByReference(audioHeader);
         }
         
         if (menu == keyboardMenu)
@@ -225,73 +321,47 @@ public class MenuManager : MonoBehaviour
             settingsMenus.ForEach(m => m.SetActive(false));
             keyboardMenu.SetActive(true);
             //keyboardContent.SetActive(true);
-            UIManager.SelectButtonByReference(audioHeader);
+            UIManager.SelectSelectableByReference(audioHeader);
         }
     }
 
-    public void ToggleCredits()
+    public void ShowCredits()
     {
         creditsManager.ResetCredits();
-        
-        // If the credits menu is inactive, fade it in,
-        if (!creditsMenu.activeSelf)
-        {
-            creditsButton.interactable = false;
-            
-            creditsMenu.SetActive(true);
-            creditsContent.SetActive(true);
 
-            creditsContent.GetComponent<CanvasGroup>().alpha = 0;
-        
-            Sequence sequence = DOTween.Sequence();
-            
-            // Fade in the background and scale Y from 0 to 1.
-            sequence.Append(creditsBackground.DOFade(isCreditsActive ? backgroundOpacity : 0, backgroundTweenDuration));
-            sequence.Join(creditsBackground.transform.DOScaleY(isCreditsActive ? 1 : 0, backgroundTweenDuration));
+        creditsButton.interactable = false;
 
-            // Fade in the texts
-            sequence.AppendInterval(backgroundTweenDuration);
-            sequence.Append(creditsContent.GetComponent<CanvasGroup>().DOFade(1, 0.5f));
-        
-            sequence.OnComplete
-            (() =>
-            {
-                // do something
-            });
-        }
-        // If it's active, fade it out.
-        else
+        creditsMenu.SetActive(true);
+        creditsContent.SetActive(true);
+
+        creditsContent.GetComponent<CanvasGroup>().alpha = 0;
+
+        Sequence sequence = DOTween.Sequence();
+
+        // Fade in the background and scale Y from 0 to 1.
+        sequence.Append(creditsBackground.DOFade(backgroundOpacity, backgroundTweenDuration));
+        sequence.Join(creditsBackground.transform.DOScaleY(1, backgroundTweenDuration));
+
+        // Fade in the canvas group
+        sequence.Append(creditsContent.GetComponent<CanvasGroup>().DOFade(1, backgroundTweenDuration));
+
+        sequence.OnComplete
+        (() =>
         {
-            Sequence sequence = DOTween.Sequence();
-        
-            // If the settings menu is active, fade it out and shrink Y from 1 to 0. If it's inactive, fade it in and scale Y from 0 to 1.
-            sequence.Append(creditsBackground.DOFade(isCreditsActive ? backgroundOpacity : 0, backgroundTweenDuration));
-            sequence.Join(creditsBackground.transform.DOScaleY(isCreditsActive ? 1 : 0, backgroundTweenDuration));
-        
-            sequence.OnComplete
-            (() =>
-            {
-                // Toggle the credits menu
-                creditsMenu.SetActive(false);
-                
-                creditsButton.interactable = true;
-                UIManager.SelectButtonByReference(creditsButton);
-            });
-        }
+            // do something
+        });
     }
 
     void CloseCredits()
     {
         Sequence sequence = DOTween.Sequence();
-
-        // Fade out the canvasgroup
+        
+        // Fade out the canvas group
         sequence.Append(creditsContent.GetComponent<CanvasGroup>().DOFade(0, 0.5f));
-        sequence.AppendInterval(1f);
         
         // Fade out the background and scale Y from 1 to 0.
         sequence.Append(creditsBackground.DOFade(0, backgroundTweenDuration));
         sequence.Join(creditsBackground.transform.DOScaleY(0, backgroundTweenDuration));
-        creditsButton.interactable = true;
 
         sequence.OnComplete
         (() =>
@@ -300,7 +370,7 @@ public class MenuManager : MonoBehaviour
             creditsMenu.SetActive(false);
 
             creditsButton.interactable = true;
-            UIManager.SelectButtonByReference(creditsButton);
+            UIManager.SelectSelectableByReference(creditsButton);
         });
     }
     
@@ -314,7 +384,7 @@ public class MenuManager : MonoBehaviour
         // The credits menu has a unique close method.
         if (currentMenu == creditsMenu)
         {
-            ToggleCredits();
+            CloseCredits();
             return;
         }
 
@@ -343,13 +413,6 @@ public class MenuManager : MonoBehaviour
         settingsBackground.gameObject.SetActive(false);
         
         // Select the "Settings" button.
-        UIManager.MainMenuButtons[1].Select();
+        mainMenuButtons[1].Select();
     }
-}
-
-public class Menu
-{
-    public GameObject MenuObject { get; set; }
-    public Button Header { get; set; }
-    public GameObject Content { get; set; }
 }

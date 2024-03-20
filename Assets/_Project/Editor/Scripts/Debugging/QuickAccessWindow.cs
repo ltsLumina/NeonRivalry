@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Lumina.Essentials.Editor.UI;
-using Lumina.Essentials.Modules;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -256,7 +255,8 @@ public class QuickAccessWindow : EditorWindow
             if (optionsFoldout)
             {
                 EditorSettings.enterPlayModeOptionsEnabled = EditorGUILayout.Toggle("Enter Playmode Options", EditorSettings.enterPlayModeOptionsEnabled);
-                Logger.DebugMode = EditorGUILayout.Toggle("Debug Mode", Logger.DebugMode);
+                Logger.DebugMode                           = EditorGUILayout.Toggle("Debug Mode", Logger.DebugMode);
+                Logger.ResetPersistentPlayers              = EditorGUILayout.Toggle("Reset Persistent Players", Logger.ResetPersistentPlayers);
             }
         }
     }

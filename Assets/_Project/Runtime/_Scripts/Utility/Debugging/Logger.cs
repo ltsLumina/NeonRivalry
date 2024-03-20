@@ -17,6 +17,9 @@ public static class Logger
     [Tooltip("Allows the developer to skip the loading screen, join a player into the game scene directly, among with some other minor QoL changes.")]
     public static bool DebugMode = true;
 
+    [Tooltip("Allows the developer to reset the persistent players when the game is restarted.")]
+    public static bool ResetPersistentPlayers;
+
     static Logger()
     {
         // Disable the debug mode if we are not in the editor.

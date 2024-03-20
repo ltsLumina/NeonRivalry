@@ -11,7 +11,10 @@ public class InputDeviceManager : MonoBehaviour
     [SerializeField] GameObject dorathyPrefab;
     
     readonly static Dictionary<InputDevice, int> persistentPlayerDevices = new (); // TODO: There is a chance that this doesn't work in builds.
-    readonly Dictionary<InputDevice, int> playerDevices = new();
+    public readonly Dictionary<InputDevice, int> playerDevices = new();
+    
+    public static InputDevice PlayerOneDevice => persistentPlayerDevices.FirstOrDefault().Key;
+    public static InputDevice PlayerTwoDevice => persistentPlayerDevices.LastOrDefault().Key;
     
     public delegate void PlayerJoin();
     public static event PlayerJoin OnPlayerJoin;
@@ -28,6 +31,8 @@ public class InputDeviceManager : MonoBehaviour
         // Clear the persistent devices if the scene is the Intro scene.
         // This is done to circumvent a bug where the persistent devices are not cleared when the game is restarted. (Due to Enter Playmode Options)
         if (SceneManagerExtended.ActiveScene is Intro) persistentPlayerDevices.Clear();
+        
+        if (Logger.ResetPersistentPlayers) persistentPlayerDevices.Clear();
     }
 
     void Start() =>
@@ -65,8 +70,8 @@ public class InputDeviceManager : MonoBehaviour
                     prefabToInstantiate = menuNavigator;
                     break;
             }
-
-            var player = PlayerInput.Instantiate(prefabToInstantiate, kvp.Value, controlScheme, -1, kvp.Key);
+            
+            var player   = PlayerInput.Instantiate(prefabToInstantiate, kvp.Value, controlScheme, -1, kvp.Key);
             Debug.Log($"Player {kvp.Value + 1} joined using {controlScheme} control scheme! \nThis player was loaded in from a previous scene or game restart.", player);
 
             OnPlayerJoin?.Invoke();
@@ -115,12 +120,12 @@ public class InputDeviceManager : MonoBehaviour
         bool isIntroOrMainMenu = activeSceneIndex < CharacterSelect;
         bool isCharSelect      = activeSceneIndex == CharacterSelect;
 
-        // 'Intro' or 'MainMenu' scenes where only one player can exist.
-        if (isIntroOrMainMenu && PlayerInputManager.instance.playerCount >= 1 && !playerDevices.ContainsKey(activeDevice))
-        {
-            Debug.LogWarning("Only one player can join in the Intro and Main Menu scenes.");
-            return false;
-        }
+        // // 'Intro' or 'MainMenu' scenes where only one player can exist.
+        // if (isIntroOrMainMenu && PlayerInputManager.instance.playerCount >= 1 && !playerDevices.ContainsKey(activeDevice))
+        // {
+        //     Debug.LogWarning("Only one player can join in the Intro and Main Menu scenes.");
+        //     return false;
+        // }
         
         // 'Character Select' scene where max of two players can exist.
         if (isCharSelect && PlayerInputManager.instance.playerCount >= 2)
@@ -140,8 +145,8 @@ public class InputDeviceManager : MonoBehaviour
         InputDevice device = GetActiveDevice();
         if (device == null || playerDevices.ContainsKey(device) || PlayerInputManager.instance.playerCount >= 2) return;
         
+        // Add the device to the playerDevices dictionary.
         playerDevices[device] = PlayerInputManager.instance.playerCount;
-        //playerDevices.Add(device, PlayerInputManager.instance.playerCount);
         // Also update the device to be persistent in next scenes
         persistentPlayerDevices.Add(device, PlayerInputManager.instance.playerCount);
 

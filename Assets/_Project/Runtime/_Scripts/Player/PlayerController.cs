@@ -254,7 +254,7 @@ public partial class PlayerController : MonoBehaviour
     void Death(PlayerController playerThatDied)
     {
         DisablePlayer(true);
-        GamepadExtensions.RumbleAll(this);
+        GamepadExtensions.RumbleAll(playerThatDied);
 
         // Get the Volume component
         var volume = FindObjectOfType<Volume>();

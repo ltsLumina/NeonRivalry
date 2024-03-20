@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
@@ -11,7 +10,7 @@ public class CreditsManager : MonoBehaviour
     [SerializeField] RectTransform scrollContent;
 
     // Settings
-    [SerializeField, Range(0, 10)]  float scrollDelay = 1.25f;
+    [SerializeField, Range(0, 10)] float scrollDelay = 1.25f;
     [Range(0, 0.5f)] public float scrollSpeed = 0.05f;
     [Range(1.1f, 15)] public float boostValue = 3f;
     [SerializeField] InputAction boostHotkey;
@@ -24,6 +23,7 @@ public class CreditsManager : MonoBehaviour
     void OnEnable()
     {
         StartScrolling();
+        boostHotkey.Enable();
     }
 
     void StartScrolling()
@@ -49,8 +49,8 @@ public class CreditsManager : MonoBehaviour
     {
         if (enableScrolling == false) return;
 
-        if (boostHotkey.IsInProgress()) { scrollHelper.value -= (scrollSpeed * boostValue) * Time.deltaTime; }
-        else { scrollHelper.value                            -= scrollSpeed                * Time.deltaTime; }
+        if (boostHotkey.IsInProgress()) scrollHelper.value -= scrollSpeed * boostValue * Time.deltaTime;
+        else scrollHelper.value                            -= scrollSpeed * Time.deltaTime;
 
         if (scrollHelper.value <= 0.005f && invokedEndEvents == false)
         {
@@ -69,7 +69,6 @@ public class CreditsManager : MonoBehaviour
     {
         // Reset the credits to the top.
         scrollContent.transform.localPosition = new (0, 0, 0);
-        
         
         StopCoroutine(nameof(StartTimer));
         enableScrolling    = false;

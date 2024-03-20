@@ -51,6 +51,11 @@ public class GameManager : MonoBehaviour
     void Awake()
     {
         Application.targetFrameRate = TARGET_FPS;
+
+        // Disable the cursor in a build
+#if !UNITY_EDITOR
+        Cursor.visible = false;
+#endif
         
         // Reset timescale if the game was paused when the scene was unloaded
         IsPaused = false;
