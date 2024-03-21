@@ -1,5 +1,6 @@
 ﻿using UnityEditor;
 using UnityEngine;
+using UnityEngine.UI;
 using Logger = Lumina.Debugging.Logger;
 
 [CustomEditor(typeof(HealthbarManager))]
@@ -73,7 +74,7 @@ public class HealthbarManagerEditor : Editor
         {
             if (GUILayout.Button($"Set Left to {value}"))
             {
-                if (playerOne != null) playerOne.Value = (int) value;
+                if (playerOne != null) playerOne.Health = (int) value;
                 else Debug.LogError("Player One Healthbar is null.");
             }
 
@@ -82,7 +83,7 @@ public class HealthbarManagerEditor : Editor
 
             if (GUILayout.Button($"Set Right to {value}"))
             {
-                if (playerTwo != null) playerTwo.Value = (int) value;
+                if (playerTwo != null) playerTwo.Health = (int) value;
                 else Debug.LogError("Player Two Healthbar is null.");
             }
         }
@@ -100,7 +101,10 @@ public class HealthbarManagerEditor : Editor
         if (healthbar != null)
         {
             EditorGUILayout.LabelField(label, EditorStyles.boldLabel);
-            healthbar.Value = EditorGUILayout.IntSlider(healthbar.Value, 0, 100);
+            healthbar.Health = EditorGUILayout.IntSlider(healthbar.Health, 0, 100);
+            
+            var comboTimer = healthbar.transform.GetChild(0).GetComponent<Slider>();
+            comboTimer.value = healthbar.Health;
         }
     }
 }

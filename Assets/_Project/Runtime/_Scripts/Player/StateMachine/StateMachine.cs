@@ -66,7 +66,7 @@ public class StateMachine : MonoBehaviour
         CurrentState = newState;
 
         //TODO: dont like this. find a better way to do this.
-        Player.idleTime = 0;
+        Player.IdleTime = 0;
         
         CurrentState?.OnEnter();
     }
@@ -199,7 +199,7 @@ public class StateMachineEditor : Editor
         {
             {"IsGrounded", player.IsGrounded()},
             {"IsMoving", player.IsMoving()},
-            {"IsJumping", player.IsJumping()}, // Bug: Returns an error as the rigidbody of the player is null outside of playmode.
+            {"IsJumping", player.IsJumping()},
             {"IsFalling", player.IsFalling()},
             {"IsAttacking", player.IsAttacking()},
             {"IsAirborneAttacking", player.IsAirborneAttacking()}

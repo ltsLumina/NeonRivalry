@@ -13,14 +13,13 @@ public class CharacterSelector : MonoBehaviour
     [SerializeField, ReadOnly] bool isCharacterSelected;
     [SerializeField, ReadOnly] bool allCharactersSelected;
     [SerializeField, ReadOnly] bool confirmSelection;
-
-
+    
     public static string GetSelectedCharacter(int playerIndex)
     {
         switch (playerIndex) //TODO: On the right track, but this is not done.
         {
             case 0 when SceneManagerExtended.ActiveScene == SceneManagerExtended.Game:
-                return "Shellby";
+                return "Shelby";
 
             case 1 when SceneManagerExtended.ActiveScene == SceneManagerExtended.Game:
                 return "Dorathy";

@@ -1,7 +1,9 @@
 #region
 using System;
 using System.Linq;
+using MelenitasDev.SoundsGood;
 using UnityEngine;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
 #endregion
 
@@ -50,12 +52,15 @@ public class GameManager : MonoBehaviour
     void Awake()
     {
         Application.targetFrameRate = TARGET_FPS;
+
+        // Disable the cursor in a build
+#if !UNITY_EDITOR
+        Cursor.visible = false;
+#endif
         
         // Reset timescale if the game was paused when the scene was unloaded
         IsPaused = false;
         if (IsPaused) Time.timeScale = 1;
-
-        InitializeStateByScene();
         
         OnGameStateChanged += HandleGameStateChanged;
     }
@@ -65,30 +70,52 @@ public class GameManager : MonoBehaviour
         // Not implemented yet.
         //Logger.Log("Game state changed to: " + state);
     }
-    
+
+    void Start()
+    {
+        InitializeStateByScene();
+    }
+
     static void InitializeStateByScene()
     {
-        switch (SceneManager.GetActiveScene().name)
+        switch (SceneManager.GetActiveScene().buildIndex)
         {
-            case "Intro":
+            case 0: // Intro
                 SetState(GameState.Intro);
+                MenuManager.LoadSettings();
+                AudioManager.StopAll();
                 break;
             
-            case "MainMenu":
+            case 1: // Main Menu
                 SetState(GameState.MainMenu);
+                MenuManager.LoadSettings();
+                AudioManager.StopAll();
+                
+                // Play Main Menu music
+                Music mainMenuMusic = new (Track.mainMenu);
+                mainMenuMusic.SetOutput(Output.Music).SetVolume(1f);
+                mainMenuMusic.Play();
                 break;
             
-            case "CharacterSelect":
+            case 2: // Character Select
                 SetState(GameState.CharSelect);
+                SettingsManager.LoadVolume();
+                AudioManager.StopAll(0.5f);
                 break;
             
-            case "Game":
+            case 3: // Game
                 SetState(GameState.Playing);
+                SettingsManager.LoadVolume();
+                AudioManager.StopAll();
+
+                // Play Game music
+                Music gameMusic = new (Track.LoveTheSubhumanSelf);
+                gameMusic.SetOutput(Output.Music).SetVolume(1f);
+                gameMusic.Play(2f);
                 break;
         }
     }
     
-
     // void OnEnable() => Healthbar.OnPlayerDeath += HandlePlayerDeath;
     // void OnDisable() => Healthbar.OnPlayerDeath -= HandlePlayerDeath;
     //
@@ -117,48 +144,52 @@ public class GameManager : MonoBehaviour
                 break;
 
             case GameState.Playing:
-                // Allow the player to pause the game
-                if (Input.GetKeyDown(KeyCode.Escape)) TogglePause();
                 break;
 
             case GameState.Paused:
-                // Allow the player to unpause the game
-                if (Input.GetKeyDown(KeyCode.Escape)) TogglePause();
                 break;
 
             case GameState.GameOver:
-
-                // DEBUG:
-                if (Input.GetKeyDown(KeyCode.Space)) SetState(GameState.Playing);
                 break;
 
             default:
                 throw new ArgumentOutOfRangeException();
         }
         
-        if (Input.GetKeyDown(KeyCode.Backspace))
+        if (Input.GetKeyDown(KeyCode.Backspace) && Application.isEditor)
         {
-            Debug.LogWarning("Reloaded Scene with a debug key! (Backspace)");
-            SceneManagerExtended.ReloadScene();
-        }
-        
-        // If the user is in a build, pressing the escape key will quit the game.
-        if (Input.GetKeyDown(KeyCode.Escape) && !Application.isEditor)
-        {
-            Application.Quit();
+            //Debug.LogWarning("Reloaded Scene with a debug key! (Backspace)");
+            //SceneManagerExtended.ReloadScene();
         }
     }
 
-    public static void TogglePause()
+    public static void TogglePause(PlayerController playerThatPaused)
     {
         IsPaused = !IsPaused;
         SetState(IsPaused ? GameState.Paused : GameState.Playing);
 
-        var player = FindObjectOfType<PlayerController>();
-        player.enabled = !IsPaused;
+        foreach (var player in PlayerManager.Players) { player.DisablePlayer(IsPaused); }
 
         var UIManager = FindObjectOfType<UIManager>();
         UIManager.PauseMenu.SetActive(IsPaused);
+
+        if (IsPaused)
+        {
+            PausingPlayer = playerThatPaused;
+            UIManager.PauseMenuTitle.text = $"Paused (Player {PausingPlayer.PlayerID})";
+
+            PausingPlayer.GetComponentInChildren<MultiplayerEventSystem>().SetSelectedGameObject(UIManager.PauseMenuButtons[0].gameObject);
+            var otherPlayer = PlayerManager.OtherPlayer(PausingPlayer);
+            if (otherPlayer != null) otherPlayer.PlayerInput.enabled = !IsPaused;
+        }
+        else
+        {
+            PausingPlayer.GetComponentInChildren<MultiplayerEventSystem>().SetSelectedGameObject(null);
+            var otherPlayer = PlayerManager.OtherPlayer(PausingPlayer);
+            if (otherPlayer != null) otherPlayer.PlayerInput.enabled = !IsPaused;
+
+            PausingPlayer = null;
+        }
     }
 
     public static bool IsCurrentState(params GameState[] states) => states.Contains(State);

@@ -30,7 +30,7 @@ public class AttackState : State
       // -- Constructor --
       public AttackState(PlayerController player, AttackStateData stateData) : base(player)
       {
-          animator = player.GetComponentInChildren<Animator>();
+          animator = player.Animator;
           moveset  = stateData.Moveset;
 
           Debug.Assert(moveset != null, "Moveset is null in the AttackStateData. Please assign it in the inspector.");
@@ -94,7 +94,7 @@ public class AttackState : State
     public override void OnExit()
     {
         // Cancel the attack animation by playing the idle animation.
-        animator.Play("Idle");
+        //animator.Play("Idle");
 
         if (player.IsGrounded() && player.InputManager.MoveInput.x != 0)
             // If the player is moving, transition to the walk state.

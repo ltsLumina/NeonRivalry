@@ -1,38 +1,59 @@
 ﻿#region
-using System;
-using Lumina.Essentials.Sequencer;
+using System.Collections;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using VInspector;
 #endregion
 
 public class HurtBox : MonoBehaviour
 {
-    [Tab("Locations")]
-    [Tooltip("Where to spawn the effect.")]
-    [SerializeField] Transform punchKickLocation;
-    [SerializeField] Transform blockLocation;
+    [Tab("Stats")]
+    [SerializeField] float blockDamageReductionPercentage = 0.5f;
+    [SerializeField] float totalBlockedDamage;
+    [SerializeField] float lastBlockTime;
+    [SerializeField] float blockFadeDuration = 3f; // Duration in seconds to fade the block
     
     [Tab("Effects")]
+    [Header("Punch/Kick Effect")]
     [SerializeField] GameObject punchKickEffect;
+    [Space(5)]
+    [Header("Block Effect")]
     [SerializeField] GameObject blockEffect;
-    
+    [SerializeField] Gradient blockStrainGradient;
+
     PlayerController player;
-    new Rigidbody rigidbody;
 
     public delegate void HurtBoxHit(HitBox hitBox);
     public event HurtBoxHit OnHurtBoxHit;
 
+    delegate void BlockHit();
+    event BlockHit OnBlockHit;
+
     void Awake()
     {
-        player    = GetComponentInParent<PlayerController>();
-        rigidbody = player.GetComponent<Rigidbody>();
+        player = GetComponentInParent<PlayerController>();
+        player.GetComponent<Rigidbody>();
     }
 
-    void OnEnable() => OnHurtBoxHit += OnTakeDamage;
+    void Update() // TODO: Remove Update and DEBUG method when finished debugging.
+    {
+        DEBUG_TryHitHurtBox();
+    }
 
-    //player.Healthbar.OnHealthChanged += healthbarValue => Debug.Log($"Healthbar value changed to {healthbarValue}!");
-    void OnDisable() => OnHurtBoxHit -= OnTakeDamage;
+    void OnEnable()
+    {
+        OnHurtBoxHit += TakeDamage; 
+        OnBlockHit   += () => PlayEffect(blockEffect);
+    }
+
+    void OnDisable() => OnHurtBoxHit -= TakeDamage;
+
+    void DEBUG_TryHitHurtBox()
+    {
+        if (!Input.GetKeyDown(KeyCode.H)) return;
+
+        var hitBox = FindObjectOfType<HitBox>();
+        if (hitBox != null) OnHurtBoxHit?.Invoke(hitBox);
+    }
 
     void OnTriggerEnter(Collider other)
     {
@@ -40,92 +61,178 @@ public class HurtBox : MonoBehaviour
         if (hitBox != null) OnHurtBoxHit?.Invoke(hitBox);
     }
     
-    void OnTakeDamage(HitBox hitBox)
+    void TakeDamage(HitBox hitBox)
     {
+        // Check if the player is invincible
+        if (player.IsInvincible) return;
+
+        // Create variable to represent the player's health
+        int health = player.Healthbar.Health;
+
         if (player.IsBlocking)
         {
-            Debug.Log("Player blocked the incoming attack!");
-            // Play block effect.
-            PlayEffect(blockEffect, blockLocation);
-
-            // Note: psuedo code for dash gauge
-            int dashGauge = 0;
-            dashGauge += hitBox.DamageAmount;
-            Debug.Log($"Dash gauge: {dashGauge}");
+            HandleBlock(hitBox);
             return;
         }
-
-        int health = player.Healthbar.Value;
-        Debug.Log($"HurtBox hit by {hitBox.name} and took {hitBox.DamageAmount} damage!");
-
-        PlayEffect(punchKickEffect, punchKickLocation);
         
-        // Take damage.
-        if (!player.Healthbar.Invincible) health -= hitBox.DamageAmount;
-        player.Healthbar.Value = health;
-
-        //TODO: Temporary for 25% Assignment (doesnt even work anymore lol)
-        #region Temporary for 25% Assignment
+        // -- Player was hit by another character --
         
-        // Flash player red.
-        var flash = new Sequence(this);
+        player.Animator.SetTrigger("Hitstun");
         
-        var meshRenderer  = player.GetComponentInChildren<SkinnedMeshRenderer>();
+        // Reduce health by the damage amount, and update the health bar.
+        health -= hitBox.DamageAmount;
+        player.Healthbar.Health = health;
+        
+        PlayEffect(punchKickEffect);
+        
+        // Plays effects over time such as flashing red and invincibility frames.
+        TakeDamageRoutine();
+    }
+    
+    void HandleBlock(HitBox hitBox)
+    {
+        OnBlockHit?.Invoke();
+        
+        // Freeze player for a short duration.
+        player.FreezePlayer(true);
+        
+        // Knockback slightly
+        player.Knockback(player.transform.forward, 12.5f);
 
-        int    emissionColorId  = Shader.PropertyToID("_EmissionColor");
-        var    originalColor    = meshRenderer.material.GetColor(emissionColorId);
-        Action setRedColor      = () => SetColor(emissionColorId, Color.red);
-        Action setOriginalColor = () => SetColor(emissionColorId, originalColor);
+        CalculateDamageTaken(out float strainPercentage);
 
-        flash.Execute(setRedColor).WaitThenExecute(0.15f, setOriginalColor);
+        // Apply the strain gradient to the block effect
+        BlockStrain(strainPercentage);
 
-        void SetColor(int colorId, Color color) => meshRenderer.material.SetColor(colorId, color);
+        // Play block effect.
+        PlayEffect(blockEffect);
 
-        // Temporary: Disable input for a short time.
-        Sequence         disableInput   = new(this);
-        PlayerController oppositePlayer = player.PlayerID == 1 ? PlayerManager.PlayerTwo : PlayerManager.PlayerOne;
-        disableInput.Execute(() => oppositePlayer.PlayerInput.enabled = false).WaitThenExecute(0.5f, () => oppositePlayer.PlayerInput.enabled = true);
-        #endregion
+        StartCoroutine(InvincibilityFrames());
 
-        if (health <= 0)
+        #region Local Functions
+        return;
+
+        void CalculateDamageTaken(out float _strainPercentage)
         {
-            Gamepad.current.Rumble(this);
-            
-            //RoundManager.player1WonRoundsText.text = $"Rounds won: \n{RoundManager.player1WonRounds}/2";
-            //RoundManager.player1WonRounds++;
-            //RoundManager.currentRounds++;
-            
-            Debug.Log("Player is dead!");
+            // Calculate the strain percentage
+            _strainPercentage = totalBlockedDamage / (totalBlockedDamage + hitBox.DamageAmount);
+
+            // Modify the blockDamageReductionPercentage based on the strainPercentage
+            float modifiedBlockDamageReductionPercentage = blockDamageReductionPercentage * (1 - _strainPercentage);
+            modifiedBlockDamageReductionPercentage = Mathf.Clamp(modifiedBlockDamageReductionPercentage, 0.35f, 1f);
+
+            int reducedDamage = Mathf.RoundToInt(hitBox.DamageAmount * modifiedBlockDamageReductionPercentage);
+            int finalDamage   = hitBox.DamageAmount - reducedDamage; // Subtract the reduced damage from the original damage
+            player.Healthbar.Health -= finalDamage;                   // Apply the final damage
+            Debug.Log($"Blocked and took {finalDamage} damage!");
+
+            // Add the blocked damage to the total
+            totalBlockedDamage += finalDamage;
+            lastBlockTime      =  Time.time;
+
+            // Start the coroutine to reset the total blocked damage
+            StartCoroutine(ResetTotalBlockedDamage());
         }
-        
-        // Knock player back
-        Knockback();
+
+        IEnumerator ResetTotalBlockedDamage()
+        {
+            // Wait for the block fade duration
+            yield return new WaitForSeconds(blockFadeDuration);
+
+            // If no new blocks have occurred during the wait time, reset the total blocked damage
+            if (Time.time >= lastBlockTime + blockFadeDuration) { totalBlockedDamage = 0f; }
+        }
+
+        // ReSharper disable once VariableHidesOuterVariable
+        void BlockStrain(float strainPercentage)
+        {
+            // Get the color from the gradient based on the strain percentage
+            Color strainColor = blockStrainGradient.Evaluate(strainPercentage);
+
+            // Apply the color to the block
+            blockEffect.GetComponent<SpriteRenderer>().material.color = strainColor;
+        }
+        #endregion
+    }
+    
+    void TakeDamageRoutine()
+    {
+        // Flash player red on take damage.
+        StartCoroutine(FlashRedOnDamage());
+
+        // Set player to invincible and start the invincibility frames coroutine
+        StartCoroutine(InvincibilityFrames());
     }
 
-    void PlayEffect(GameObject effect, Transform location)
+    IEnumerator FlashRedOnDamage(float duration = 0.15f)
     {
-        effect = Instantiate(effect, location.position, effect.transform.rotation);
-        
-        var destroyDelay = new Sequence(this);
-        GameObject o = effect;
-        destroyDelay.WaitThenExecute(0.5f, () => Destroy(o));
+        var meshRenderer = player.GetComponentInChildren<SkinnedMeshRenderer>();
+        if (!meshRenderer) yield break;
+
+        int baseColor       = Shader.PropertyToID("_BaseColor");
+        int firstShadeColor = Shader.PropertyToID("_1st_ShadeColor");
+
+        var baseOriginalColor       = meshRenderer.material.GetColor(baseColor);
+        var firstShadeOriginalColor = meshRenderer.material.GetColor(firstShadeColor);
+
+        // Set colors to red
+        var col = new Color(0.91f, 0.34f, 0.47f, 0.45f);
+        meshRenderer.material.SetColor(baseColor, col);
+        meshRenderer.material.SetColor(firstShadeColor, col);
+
+        // Fade out over 0.15 seconds
+        float elapsedTime = 0f;
+
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+            float t = elapsedTime / duration;
+
+            // Interpolate color
+            Color baseInterpolatedColor       = Color.Lerp(col, baseOriginalColor, t);
+            Color firstShadeInterpolatedColor = Color.Lerp(col, firstShadeOriginalColor, t);
+
+            // Apply interpolated color
+            meshRenderer.material.SetColor(baseColor, baseInterpolatedColor);
+            meshRenderer.material.SetColor(firstShadeColor, firstShadeInterpolatedColor);
+
+            yield return null;
+        }
+
+        // Wait for 0.05 seconds
+        yield return new WaitForSeconds(0.05f);
     }
 
-    void Knockback()
+    IEnumerator InvincibilityFrames(float duration = 0.35f)
     {
-        if (PlayerManager.PlayerTwo == null) return;
+        player.IsInvincible = true;
+        yield return new WaitForSeconds(duration);
+
+        // Set player back to vulnerable
+        player.IsInvincible = false;
+    }
+
+    void PlayEffect(GameObject effect)
+    {
+        // Enable the effect
+        effect.SetActive(true);
         
-        // Knockback the player based on the sign of the Y-rotation.
-        float knockbackForce     = 65f;
-        
-        // Knockback player away from the other player
-        Vector3 knockbackDirection;
-        var playerOne = PlayerManager.PlayerOne;
-        var playerTwo = PlayerManager.PlayerTwo;
-        
-        if (player.PlayerID == 1) knockbackDirection = playerTwo.transform.position - playerOne.transform.position;
-        else                      knockbackDirection = playerOne.transform.position - playerTwo.transform.position;
-        
-        rigidbody.AddForce(-knockbackDirection * knockbackForce);
+        // If the player is standing, play the standing block animation.
+        if (!player.IsCrouching)
+        {
+            player.Animator.SetTrigger("Blocked");
+        }
+
+        // Start the coroutine to disable the effect after the animation has finished
+        StartCoroutine(DisableEffectAfterAnimation(effect));
+    }
+
+    IEnumerator DisableEffectAfterAnimation(GameObject effect)
+    {
+        // Wait for the duration of the animation
+        yield return new WaitForSeconds(0.35f);
+
+        // Disable the effect
+        effect.SetActive(false);
     }
 }

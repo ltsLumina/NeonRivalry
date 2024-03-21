@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Lumina.Essentials.Editor.UI;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -16,16 +17,30 @@ namespace Lumina.Debugging
 public class QuickAccessWindow : EditorWindow
 {
     static Action activeMenu;
-    static bool windowsFoldout = true;
+    static bool windowsFoldout;
     static bool optionsFoldout = true;
     static bool addedScenesFoldout;
     static bool manageScenesFoldout = true;
     static bool otherToolsFoldout = true;
+    static bool commandsFoldout;
+    static bool commandsListFoldout = true;
     static string searchQuery = string.Empty;
+    static int maxPingedAssets = 20;
+    static bool isSettingMaxPingedAssets;
+    static string commandQuery = string.Empty;
+
+    readonly static Dictionary<string, string> commandDictionary = new ()
+    { { "help", "Shows the list of available commands." },
+      { "hitbox", "Increases the hitbox damage to 34." },
+      { "heal", "Heals all players to full health." },
+      { "kill", "Kills player one."}
+      };
 
     readonly static List<string> addedScenes = new ();
     
     static Vector2 scrollPosition;
+
+    static DateTime lastDebugLogTime = DateTime.MinValue;
 
     [MenuItem("Tools/Debugging/Quick Access")]
     public static void ShowWindow()
@@ -62,6 +77,7 @@ public class QuickAccessWindow : EditorWindow
 
             // Clear the search query.
             searchQuery = string.Empty;
+            commandQuery = string.Empty;
 
             // Remove the play mode state changed event.
             EditorApplication.playModeStateChanged -= PlayModeState;
@@ -205,9 +221,10 @@ public class QuickAccessWindow : EditorWindow
     
     static void DrawOtherTools()
     {
+        DrawSearchAndPingAssetMenu();
         DrawEditorWindowsMenu();
         DrawDebugOptionsMenu();
-        DrawSearchAndPingAssetMenu();
+        DrawConsoleCommandMenu();
     }
 
     static void DrawEditorWindowsMenu()
@@ -238,8 +255,8 @@ public class QuickAccessWindow : EditorWindow
             if (optionsFoldout)
             {
                 EditorSettings.enterPlayModeOptionsEnabled = EditorGUILayout.Toggle("Enter Playmode Options", EditorSettings.enterPlayModeOptionsEnabled);
-                Logger.DebugMode                       = EditorGUILayout.Toggle("Debug Mode", Logger.DebugMode);
-                Logger.DebugPlayers                    = EditorGUILayout.Toggle("Debug Players", Logger.DebugPlayers);
+                Logger.DebugMode                           = EditorGUILayout.Toggle("Debug Mode", Logger.DebugMode);
+                Logger.ResetPersistentPlayers              = EditorGUILayout.Toggle("Reset Persistent Players", Logger.ResetPersistentPlayers);
             }
         }
     }
@@ -247,30 +264,61 @@ public class QuickAccessWindow : EditorWindow
     static void DrawSearchAndPingAssetMenu()
     {
         Space(10);
-        
+
+        Label("Asset Search", EditorStyles.boldLabel);
+
         // Search bar
         using var scope = new HorizontalScope("box");
 
         Label("Search", Width(50));
         searchQuery = TextField(searchQuery, Height(25));
 
-        if (Button("Search"))
+        if (Button("Search", Width(100), Height(25)))
         {
+            if (string.IsNullOrEmpty(searchQuery))
+            {
+                Logger.Log("Search query is empty.", LogType.Warning);
+                return;
+            }
+
+            if (searchQuery.Equals("Help", StringComparison.OrdinalIgnoreCase))
+            {
+                Logger.Log($"Type a search query to find an asset. \nIf there are too many assets found, the editor will only ping the first {maxPingedAssets} assets.", LogType.Log);
+                Logger.Log(@"Type \\""\Settings\"" to change the maxPingedAssets.", LogType.Log);
+                searchQuery = string.Empty;
+                return;
+            }
+            
+            if (ChangeSettingsCommand) return;
+
             string[] guids = QueryGUIDs;
 
             switch (guids.Length)
             {
                 case 0:
-                    Debug.LogWarning("No assets found. \nPlease check your search query.");
+                    Logger.Log("No assets found. \nPlease check your search query.", LogType.Warning);
                     break;
 
                 case > 1:
                     // Show a warning popup if more than one asset is found and ask the user if they want to ping all assets or only the exact match (if found).
-                    bool pingExact = EditorUtility.DisplayDialog
-                        ("Multiple Assets Found", "More than one asset found. Would you like to ping all found assets or only the exact match (if found)?", "Exact Match", "All Assets");
+                    int pingExact = EditorUtility.DisplayDialogComplex
+                        ("Multiple Assets Found", "More than one asset found. Would you like to ping all found assets or only the exact match (if found)?", "Exact Match", "All Assets", "Cancel");
 
-                    if (pingExact) FindAndPingExactAsset(guids);
-                    else FindAndLogAllAssets(guids);
+                    switch (pingExact)
+                    {
+                        case 0:
+                            FindAndPingExactAsset(guids);
+                            break;
+
+                        case 1:
+                            FindAndLogAllAssets(guids);
+                            break;
+
+                        case 2:
+                            Logger.Log("Asset search cancelled.", LogType.Warning);
+                            searchQuery = string.Empty;
+                            return;
+                    }
 
                     break;
 
@@ -280,6 +328,190 @@ public class QuickAccessWindow : EditorWindow
             }
         }
     }
+    
+    static bool ChangeSettingsCommand
+    {
+        get
+        {
+            if (isSettingMaxPingedAssets)
+            {
+                if (int.TryParse(searchQuery, out int newMax))
+                {
+                    maxPingedAssets          = newMax;
+                    isSettingMaxPingedAssets = false;
+
+                    Logger.Log($"Max pinged assets set to {maxPingedAssets}.", LogType.Log);
+                    searchQuery = string.Empty;
+                    return true;
+                }
+
+                isSettingMaxPingedAssets = EditorUtility.DisplayDialog("Settings", "Enter a number to be the new maximum amount of pinged assets.", "OK", "Cancel");
+                if (!isSettingMaxPingedAssets) Logger.Log("Settings command cancelled.", LogType.Warning);
+                return true;
+            }
+            
+            if (searchQuery.Equals(@"\\Settings", StringComparison.OrdinalIgnoreCase))
+            {
+                isSettingMaxPingedAssets = EditorUtility.DisplayDialog("Settings", "Enter a number to be the new maximum amount of pinged assets.", "OK", "Cancel");
+
+                if (!isSettingMaxPingedAssets) Logger.Log("Settings command cancelled.", LogType.Warning);
+                else searchQuery = string.Empty;
+                return true;
+            }
+
+            return false;
+        }
+    }
+
+    static void DrawConsoleCommandMenu()
+    {
+        Space(10);
+        
+        using (new VerticalScope("box"))
+        {
+            Label("Console Commands", EditorStyles.boldLabel);
+
+            commandsFoldout = EditorGUILayout.Foldout(commandsFoldout, "Button Commands", true, EditorStyles.foldoutHeader);
+            
+            if (commandsFoldout)
+            {
+                CreateButtonWithAction("Increase Damage", () => HitboxCommand("Increased hitbox damage to 34."));
+                CreateButtonWithAction("Heal All Players", () => HealCommand("Healed all players to full health."));
+                CreateButtonWithAction("Kill Player One", () => KillCommand("Killed player one."));
+            }
+            
+            Space(10);
+            
+            Label("Custom Command", EditorStyles.boldLabel);
+
+            using (new HorizontalScope())
+            {
+                commandQuery = TextField(commandQuery, Height(25));
+                if (Button("Execute", Width(100), Height(25)) && CommandExecuted()) return;
+            }
+
+            commandsListFoldout = EditorGUILayout.Foldout(commandsListFoldout, "Console Commands", true, EditorStyles.foldoutHeader);
+
+            if (commandsListFoldout)
+            {
+                // Text for the commands.
+                foreach (var command in commandDictionary)
+                {
+                    Label($"{command.Key} - {command.Value}", EditorStyles.wordWrappedMiniLabel);
+                }
+            }
+        }
+
+        return;
+
+        bool CommandExecuted()
+        {
+            if (!string.IsNullOrEmpty(commandQuery))
+            {
+                ExecuteCommand();
+            }
+            else { Logger.Log("Command is empty.", LogType.Warning); }
+
+            return false;
+        }
+
+        void ExecuteCommandInPlayMode(PlayModeStateChange state)
+        {
+            if (state == PlayModeStateChange.EnteredPlayMode)
+            {
+                ExecuteCommand();
+                EditorApplication.playModeStateChanged -= ExecuteCommandInPlayMode;
+            }
+        }
+
+        void ExecuteCommand()
+        {
+            string cmd = commandDictionary.Keys.FirstOrDefault(key => key.Equals(commandQuery.ToLower()));
+
+            if (cmd == null)
+            {
+                Debug.LogWarning($"Command \"{commandQuery}\" not recognized." + "\n");
+                return;
+            }
+
+            string message = $"Executing command: \"{cmd}\"" + "\n" + commandDictionary[cmd];
+            bool canExecute = !Application.isPlaying && cmd != "help";
+            
+            if (canExecute)
+            {
+                const string msg = "Can't execute a command while not in play mode. \nWould you like to enter playmode and execute the command?:";
+
+                if (EditorUtility.DisplayDialog("Error", msg, "OK", "Cancel"))
+                {
+                    EditorApplication.EnterPlaymode();
+                    EditorApplication.playModeStateChanged += ExecuteCommandInPlayMode;
+                }
+            }
+            
+            switch (cmd.ToLower())
+            {
+                case var command when command.Contains("help"):
+                    HelpCommand();
+                    break;
+                
+                case var command when command.Contains("hitbox"):
+                    HitboxCommand(message);
+                    break;
+
+                case var command when command.Contains("heal"):
+                    HealCommand(message);
+                    break;
+                
+                case var command when command.Contains("kill"):
+                    KillCommand(message);
+                    break;
+
+                default:
+                    Debug.LogWarning($"Command + \"{commandQuery}\" not recognized.");
+                    break;
+            }
+
+            commandQuery = string.Empty;
+        }
+    }
+
+    #region Command Methods
+    static void KillCommand(string message)
+    {
+        PlayerController playerOne = PlayerManager.PlayerOne;
+        playerOne.Healthbar.Health = 0;
+                    
+        Debug.LogWarning(message);
+    }
+    static void HealCommand(string message)
+    {
+        foreach (var player in FindObjectsOfType<PlayerController>())
+        {
+            // Revive the player if they are dead.
+            if (player.Healthbar.Health <= 0) player.DisablePlayer(false);
+            player.Healthbar.Heal(player, 100); 
+        }
+        Debug.LogWarning(message);
+    }
+    static void HelpCommand()
+    {
+        if (!commandsListFoldout) commandsListFoldout = true;
+        else Logger.Log("Commands can be viewed from the commands list at the bottom of the" + nameof(QuickAccessWindow), LogType.Log);
+    }
+    static void HitboxCommand(string message)
+    {
+        const int newDamage      = 34;
+        HitBox    playerAffected = null;
+
+        foreach (var hitbox in FindObjectsOfType<HitBox>())
+        {
+            hitbox.DamageAmount = newDamage;
+            playerAffected      = hitbox;
+        }
+                    
+        Debug.LogWarning(message, playerAffected);
+    }
+    #endregion
     #endregion
     
     #region Utility
@@ -309,7 +541,7 @@ public class QuickAccessWindow : EditorWindow
 
     static void CreateButtonWithAction(string buttonText, Action action)
     {
-        if (Button(buttonText, Height(25))) action();
+        if (Button(buttonText, Height(30))) action();
     }
 
     static void LoadScene(int sceneIndex)
@@ -327,7 +559,12 @@ public class QuickAccessWindow : EditorWindow
         EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo();
         
         EditorSceneManager.OpenScene(path, OpenSceneMode.Single);
-        Debug.LogWarning("Opened a scene using the debug menu! \nThe scene might not behave as expected.");
+        
+        if ((DateTime.Now - lastDebugLogTime).TotalHours >= 2)
+        {
+            Debug.LogWarning("Opened a scene using the debug menu! \nThe scene might not behave as expected.");
+            lastDebugLogTime = DateTime.Now;
+        }
     }
 
     static void AddCustomScenes()
@@ -386,11 +623,11 @@ public class QuickAccessWindow : EditorWindow
         Debug.LogWarning($"No single asset with the exact name found for '{searchQuery}'. \nPlease check your search query.");
     }
 
-    static void FindAndLogAllAssets(IReadOnlyCollection<string> guids1)
+    static void FindAndLogAllAssets(IReadOnlyCollection<string> guids)
     {
-        foreach (string assetGUID in guids1)
+        foreach (string assetGUID in guids)
         {
-            if (guids1.Count > 10)
+            if (guids.Count > maxPingedAssets)
             {
                 Debug.LogWarning("Too many assets found. \nPlease narrow your search query. \nThis is done to prevent the editor from crashing.");
                 break;
@@ -398,7 +635,7 @@ public class QuickAccessWindow : EditorWindow
 
             string assetPath = AssetDatabase.GUIDToAssetPath(assetGUID);
             string assetName = Path.GetFileNameWithoutExtension(assetPath);
-            Debug.Log($"Pinging asset: {assetName}", AssetDatabase.LoadMainAssetAtPath(assetPath));
+            Debug.Log($"Pinging asset: {assetName}" +$"\n{assetPath}", AssetDatabase.LoadMainAssetAtPath(assetPath));
         }
     }
     #endregion

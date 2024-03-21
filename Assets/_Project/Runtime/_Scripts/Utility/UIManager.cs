@@ -1,24 +1,45 @@
+using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
+using VInspector;
 
 public class UIManager : MonoBehaviour
 {
+    [Tab("Main Menu")]
+    [SerializeField] List<Button> mainMenuButtons = new ();
+    
+    [Tab("Pause Menu")]
     [SerializeField] GameObject pauseMenu;
+    [SerializeField] TextMeshProUGUI pauseMenuTitle;
+    [SerializeField] List<Button> pauseMenuButtons = new ();
 
-    public GameObject PauseMenu
+    public GameObject PauseMenu => pauseMenu;
+    public TextMeshProUGUI PauseMenuTitle
     {
-        get => pauseMenu;
-        set => pauseMenu = value;
+        get => pauseMenuTitle;
+        set => pauseMenuTitle = value;
     }
+    public List<Button> PauseMenuButtons => pauseMenuButtons;
 
-    const int Intro = 0;
-    const int MainMenu = 1;
-    const int CharacterSelect = 2;
-    const int Game = 3;
+    /// <summary>
+    /// <para> 0: Play </para>
+    /// <para> 1: Settings </para>
+    /// <para> 2: Quit </para>
+    /// </summary>
+    public List<Button> MainMenuButtons => mainMenuButtons;
 
-    public void FindButtonByButtonName(string buttonName)
+    void Start()
     {
-        FindObjectOfType<EventSystemSelector>().FindButtonByButtonName(buttonName);
+        if (PauseMenu != null) PauseMenu.SetActive(false);
     }
     
-    
+    public void SelectButtonByName(string buttonName)
+    {
+        GameObject button    = GameObject.Find(buttonName);
+        Button     component = button.GetComponent<Button>();
+        component.Select();
+    }
+
+    public static void SelectSelectableByReference(Selectable selectable) => selectable.Select();
 }

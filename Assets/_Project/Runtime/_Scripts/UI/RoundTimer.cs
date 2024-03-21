@@ -18,9 +18,9 @@ public class RoundTimer : MonoBehaviour
     [Header("Reference"), Space(10), ReadOnly]
     [SerializeField] TextMeshProUGUI timerText;
     
-    [Header("Timer Settings"), ReadOnly]
-    [SerializeField] float currentTime;
-    [SerializeField] bool finished;
+    [Header("Timer Settings")]
+    [SerializeField, ReadOnly] float currentTime;
+    [SerializeField, ReadOnly] bool finished;
     [SerializeField] bool countdownMode;
     
     [Header("Limit Settings"), Tooltip("If true, the timer will have a time limit.")]
@@ -37,7 +37,10 @@ public class RoundTimer : MonoBehaviour
     [SerializeField, Tooltip("The value at which the timer will switch to a tenth decimal format.")]
     float hundredthsSwitchValue;
 
-    // Cached Values
+    public delegate void TimerEnded();
+    public static event TimerEnded OnTimerEnded;
+    
+    // Cached References
     readonly Dictionary<TimerFormat, string> timeFormats = new ();
     
     // -- Properties --
@@ -66,6 +69,17 @@ public class RoundTimer : MonoBehaviour
         }
     }
 
+    void Start() => Finished = false;
+
+    void OnEnable() => OnTimerEnded += TimerFinishedEvent;
+    void OnDisable() => OnTimerEnded -= TimerFinishedEvent;
+
+    void TimerFinishedEvent()
+    {
+        Finished = true;
+        Debug.Log("Timer has ended!");
+    }
+
     void Update()
     {
         if (timerText == null) return;
@@ -88,7 +102,7 @@ public class RoundTimer : MonoBehaviour
         timeFormats.Add(TimerFormat.HundredthsDecimal, "0.00");
     }
 
-    #region Count Airborne/Crouch Methods
+    #region Timer Methods
     void IncreaseTime(float delta)
     {
         CurrentTime += delta;
@@ -115,6 +129,9 @@ public class RoundTimer : MonoBehaviour
         // Set the timer text and color
         timerText.text  = CurrentTime.ToString(timeFormats[currentTimerFormat], CultureInfo.InvariantCulture);
         timerText.color = CurrentTime <= colorSwitchValue ? Color.red : new (0.86f, 0.86f, 0.86f);
+        
+        // If the timer has finished, invoke the OnTimerEnded event
+        if (CurrentTime <= 0.0f && !Finished) OnTimerEnded?.Invoke();
     }
 
     TimerFormat GetTimerFormat() => CurrentTime < hundredthsSwitchValue ? TimerFormat.HundredthsDecimal : CurrentTime < tenthSwitchValue ? TimerFormat.TenthDecimal : TimerFormat.Whole;

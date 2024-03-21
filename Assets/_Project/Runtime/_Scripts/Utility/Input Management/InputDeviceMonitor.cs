@@ -4,14 +4,14 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 #endregion
 
-public class InputDeviceMonitor : MonoBehaviour
+public class InputDeviceMonitor : MonoBehaviour //TODO: FINISH THIS
 {
     [SerializeField] GameObject pauseMenu;
     [SerializeField] Image deviceDisconnectImage;
     
-    // Start is called before the first frame update
-    void Start() => InputSystem.onDeviceChange += DeviceChangeListener;
-
+    void OnEnable() => InputSystem.onDeviceChange += DeviceChangeListener;
+    void OnDisable() => InputSystem.onDeviceChange -= DeviceChangeListener;
+    
     void DeviceChangeListener(InputDevice device, InputDeviceChange change)
     {
         if (change == InputDeviceChange.Disconnected)
@@ -20,10 +20,11 @@ public class InputDeviceMonitor : MonoBehaviour
             
             pauseMenu.SetActive(true);
             deviceDisconnectImage.enabled = true;
-            Time.timeScale = 0f;
+            
+            foreach (var player in PlayerManager.Players)
+            {
+                player.DisablePlayer(true);
+            } 
         }
     }
-
-    // make sure to unregister the event handler to prevent memory leaks
-    void OnDestroy() => InputSystem.onDeviceChange -= DeviceChangeListener;
 }

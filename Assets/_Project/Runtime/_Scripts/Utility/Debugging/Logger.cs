@@ -16,8 +16,9 @@ public static class Logger
 {
     [Tooltip("Allows the developer to skip the loading screen, join a player into the game scene directly, among with some other minor QoL changes.")]
     public static bool DebugMode = true;
-    [Tooltip("Joins an additional player into the game scene for debugging purposes and modifies the players, such as disabling knockback.")]
-    public static bool DebugPlayers = false;
+
+    [Tooltip("Allows the developer to reset the persistent players when the game is restarted.")]
+    public static bool ResetPersistentPlayers = true;
 
     static Logger()
     {
@@ -25,7 +26,7 @@ public static class Logger
         // It might seem as though this is redundant, but it does in fact execute during a build.
 #if !UNITY_EDITOR
         DebugMode = false;
-        DebugPlayers = false;
+        ResetPersistentPlayers = false;
 #endif
     }
     

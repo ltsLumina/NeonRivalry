@@ -53,7 +53,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d17e004f39cd0240b6118eb5da62b38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 0
   idleTimeThreshold: 2
   idleTime: 0
   raycastDistance: 0.05
@@ -61,6 +60,12 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   playerID: 0
+  moveSpeed: 3
+  backwardSpeedFactor: 0.3
+  acceleration: 8
+  deceleration: 10
+  velocityPower: 1.4
+  godMode: 0
   healthbar: {fileID: 0}
   animator: {fileID: 0}
 --- !u!114 &488312444501934667
@@ -579,8 +584,43 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: acf6443dba824d8ba06f29382a358ed8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  blockDamageReductionPercentage: 0.5
+  totalBlockedDamage: 0
+  lastBlockTime: 0
+  blockFadeDuration: 3
   punchKickEffect: {fileID: 9177604815036881431, guid: e46346c3cf8675645a38643d7338595a,
     type: 3}
+  blockEffect: {fileID: 0}
+  blockStrainGradient:
+    serializedVersion: 2
+    key0: {r: 1, g: 1, b: 1, a: 1}
+    key1: {r: 1, g: 1, b: 1, a: 1}
+    key2: {r: 0, g: 0, b: 0, a: 0}
+    key3: {r: 0, g: 0, b: 0, a: 0}
+    key4: {r: 0, g: 0, b: 0, a: 0}
+    key5: {r: 0, g: 0, b: 0, a: 0}
+    key6: {r: 0, g: 0, b: 0, a: 0}
+    key7: {r: 0, g: 0, b: 0, a: 0}
+    ctime0: 0
+    ctime1: 65535
+    ctime2: 0
+    ctime3: 0
+    ctime4: 0
+    ctime5: 0
+    ctime6: 0
+    ctime7: 0
+    atime0: 0
+    atime1: 65535
+    atime2: 0
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_ColorSpace: -1
+    m_NumColorKeys: 2
+    m_NumAlphaKeys: 2
 --- !u!1 &7042560009007167806
 GameObject:
   m_ObjectHideFlags: 0
@@ -978,6 +1018,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 0067ff0d-9489-4b44-960b-4fa1d7c75316
     m_ActionName: Player/New action
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 3139786390274206684}
+        m_TargetAssemblyTypeName: InputManager, _Project
+        m_MethodName: OnPause
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 7b749409-a87c-4ee7-8a13-705550b7e4f5
+    m_ActionName: Player/Pause[/Keyboard/escape,/XInputControllerWindows/start]
   m_NeverAutoSwitchControlSchemes: 1
   m_DefaultControlScheme: Gamepad
   m_DefaultActionMap: Player
@@ -1356,12 +1412,12 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 180fe3f8e7da8e6429c5e122ae840edb,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 1.22
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 180fe3f8e7da8e6429c5e122ae840edb,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -0.099
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 180fe3f8e7da8e6429c5e122ae840edb,
         type: 3}

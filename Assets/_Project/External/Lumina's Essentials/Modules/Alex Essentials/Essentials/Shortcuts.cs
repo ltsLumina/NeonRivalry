@@ -65,7 +65,7 @@ namespace Lumina.Essentials.Modules
 #endif
 
             // Wait for a little to give the reader time to read the warning message.
-            await Task.Delay(1500);
+            await Task.Delay(2500);
             
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             
@@ -73,12 +73,12 @@ namespace Lumina.Essentials.Modules
 
         // Warning method for when a shortcut is pressed.
 #if UNITY_EDITOR
-            static void ShortcutPressedWarning(string warningMessage, KeyCode shortcutKey, ShortcutModifiers shortcutModifier1, ShortcutModifiers shortcutModifiers2 = default)
+            static void ShortcutPressedWarning(string warningMessage, KeyCode shortcutKey, ShortcutModifiers shortcutModifier1, ShortcutModifiers shortcutModifier2 = default)
             {
                     var shortcutStr = $"{shortcutKey} pressed.";
 
                     if (!Equals(shortcutModifier1, default(ShortcutModifiers))) shortcutStr  = $"{shortcutModifier1} + "  + shortcutStr;
-                    if (!Equals(shortcutModifiers2, default(ShortcutModifiers))) shortcutStr = $"{shortcutModifiers2} + " + shortcutStr;
+                    if (!Equals(shortcutModifier2, default(ShortcutModifiers))) shortcutStr = $"{shortcutModifier2} + " + shortcutStr;
 
                     Debug.LogWarning(shortcutStr + "\n" + warningMessage);
             }

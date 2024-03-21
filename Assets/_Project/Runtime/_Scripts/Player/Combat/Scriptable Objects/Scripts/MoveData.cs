@@ -31,7 +31,7 @@ public class MoveData : ScriptableObject
     {
         Neutral,    // Example: 5P, 5K, 5S, 5U
         Forward, // Example: 6P, 6K, 6S, 6U or 4P, 4K, 4S, 4U
-        Crouch,     // Example: 2P, 2K, 2S, 2U
+        Down,     // Example: 2P, 2K, 2S, 2U
         Airborne,   // Example: 8P, 8K, 8S, 8U
     }
     

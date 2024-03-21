@@ -69,16 +69,16 @@ public partial class PlayerManager : MonoBehaviour
     /// A list of all PlayerInput instances.
     /// </summary>
     public static List<PlayerInput> PlayerInputs => new (PlayerInput.all);
-    
+
     /// <summary>
     /// Gets the first PlayerInput instance if it exists; otherwise returns null.
     /// </summary>
-    public static PlayerInput PlayerOneInput => PlayerInputs[0];
+    public static PlayerInput PlayerOneInput => PlayerOne.PlayerInput;
     
     /// <summary>
     /// Gets the second PlayerInput instance if it exists; otherwise returns null.
     /// </summary>
-    public static PlayerInput PlayerTwoInput => PlayerInputs[1];
+    public static PlayerInput PlayerTwoInput => PlayerTwo.PlayerInput;
     #endregion
     
     void Awake()
@@ -91,6 +91,13 @@ public partial class PlayerManager : MonoBehaviour
     }
 
     #region Utility
+    public static PlayerController OtherPlayer(PlayerController player)
+    {
+        if (player != null) return player == PlayerOne ? PlayerTwo : PlayerOne;
+        Debug.LogError("The player is null. Please assign a valid player.");
+        return null;
+    }
+
     public static void AddPlayer(PlayerController player) => Players.Add(player);
     public static void RemovePlayer(PlayerController player) => Players.Remove(player);
 

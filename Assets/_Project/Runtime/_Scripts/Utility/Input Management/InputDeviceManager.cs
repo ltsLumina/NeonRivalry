@@ -7,11 +7,18 @@ using Logger = Lumina.Debugging.Logger;
 public class InputDeviceManager : MonoBehaviour
 {
     [SerializeField] GameObject menuNavigator;
-    [SerializeField] GameObject shellbyPrefab;
+    [SerializeField] GameObject shelbyPrefab;
     [SerializeField] GameObject dorathyPrefab;
     
-    readonly static Dictionary<InputDevice, int> persistentPlayerDevices = new (); // TODO: There is a chance that this doesn't work in builds.
-    readonly Dictionary<InputDevice, int> playerDevices = new();
+    readonly static Dictionary<InputDevice, int> persistentPlayerDevices = new ();
+    public readonly Dictionary<InputDevice, int> playerDevices = new();
+    public static InputDevice GetDevice(PlayerInput player) => persistentPlayerDevices.FirstOrDefault(p => p.Value == player.playerIndex).Key;
+    
+    public static InputDevice PlayerOneDevice => persistentPlayerDevices.Count == 0 ? null : persistentPlayerDevices.FirstOrDefault().Key;
+    public static InputDevice PlayerTwoDevice => persistentPlayerDevices.Count < 2 ? null : persistentPlayerDevices.LastOrDefault().Key;
+
+    public delegate void PlayerJoin();
+    public static event PlayerJoin OnPlayerJoin;
     
     // -- Scenes --
     
@@ -26,6 +33,8 @@ public class InputDeviceManager : MonoBehaviour
         // Clear the persistent devices if the scene is the Intro scene.
         // This is done to circumvent a bug where the persistent devices are not cleared when the game is restarted. (Due to Enter Playmode Options)
         if (SceneManagerExtended.ActiveScene is Intro) persistentPlayerDevices.Clear();
+        
+        if (Logger.ResetPersistentPlayers) persistentPlayerDevices.Clear();
     }
 
     void Start() =>
@@ -38,7 +47,7 @@ public class InputDeviceManager : MonoBehaviour
     /// <para></para>
     /// <seealso cref="TryJoinPlayer"/>
     /// </summary>
-    void LoadPersistentPlayers()
+    void LoadPersistentPlayers() // Note: Which character is instantiated is currently a work in progress.
     {
         //Load the devices that were registered on previous scenes.
         foreach (KeyValuePair<InputDevice, int> kvp in persistentPlayerDevices)
@@ -51,8 +60,8 @@ public class InputDeviceManager : MonoBehaviour
 
             switch (CharacterSelector.GetSelectedCharacter(kvp.Value))
             {
-                case "Shellby":
-                    prefabToInstantiate = shellbyPrefab;
+                case "Shelby":
+                    prefabToInstantiate = shelbyPrefab;
                     break;
 
                 case "Dorathy":
@@ -63,9 +72,11 @@ public class InputDeviceManager : MonoBehaviour
                     prefabToInstantiate = menuNavigator;
                     break;
             }
-
-            var player = PlayerInput.Instantiate(prefabToInstantiate, kvp.Value, controlScheme, -1, kvp.Key);
+            
+            var player   = PlayerInput.Instantiate(prefabToInstantiate, kvp.Value, controlScheme, -1, kvp.Key);
             Debug.Log($"Player {kvp.Value + 1} joined using {controlScheme} control scheme! \nThis player was loaded in from a previous scene or game restart.", player);
+
+            OnPlayerJoin?.Invoke();
         }
     }
 
@@ -111,12 +122,12 @@ public class InputDeviceManager : MonoBehaviour
         bool isIntroOrMainMenu = activeSceneIndex < CharacterSelect;
         bool isCharSelect      = activeSceneIndex == CharacterSelect;
 
-        // 'Intro' or 'MainMenu' scenes where only one player can exist.
-        if (isIntroOrMainMenu && PlayerInputManager.instance.playerCount >= 1 && !playerDevices.ContainsKey(activeDevice))
-        {
-            Debug.LogWarning("Only one player can join in the Intro and Main Menu scenes.");
-            return false;
-        }
+        // // 'Intro' or 'MainMenu' scenes where only one player can exist.
+        // if (isIntroOrMainMenu && PlayerInputManager.instance.playerCount >= 1 && !playerDevices.ContainsKey(activeDevice))
+        // {
+        //     Debug.LogWarning("Only one player can join in the Intro and Main Menu scenes.");
+        //     return false;
+        // }
         
         // 'Character Select' scene where max of two players can exist.
         if (isCharSelect && PlayerInputManager.instance.playerCount >= 2)
@@ -136,23 +147,27 @@ public class InputDeviceManager : MonoBehaviour
         InputDevice device = GetActiveDevice();
         if (device == null || playerDevices.ContainsKey(device) || PlayerInputManager.instance.playerCount >= 2) return;
         
+        // Add the device to the playerDevices dictionary.
         playerDevices[device] = PlayerInputManager.instance.playerCount;
-        //playerDevices.Add(device, PlayerInputManager.instance.playerCount);
         // Also update the device to be persistent in next scenes
         persistentPlayerDevices.Add(device, PlayerInputManager.instance.playerCount);
 
         string controlScheme = device is Keyboard ? "Keyboard" : "Gamepad";
 
         // TODO: TEMPORARY
-        if (SceneManagerExtended.ActiveScene == Game) PlayerInput.Instantiate(shellbyPrefab, playerDevices[device], controlScheme, -1, device);
+        if (SceneManagerExtended.ActiveScene == Game) PlayerInput.Instantiate(shelbyPrefab, playerDevices[device], controlScheme, -1, device);
         
         // original
-        PlayerInput.Instantiate(menuNavigator, playerDevices[device], controlScheme, -1, device);
-
+        var player = PlayerInput.Instantiate(menuNavigator, playerDevices[device], controlScheme, -1, device);
+        Debug.Log($"Player {playerDevices[device] + 1} joined using {controlScheme} control scheme!" + "\n");
+        OnPlayerJoin?.Invoke();
+        
         // Uses the default (recommended) rumble amount and duration.
         if (device is Gamepad gamepad) gamepad.Rumble(this); // bug: The rumble might be too weak on some gamepads, making it nearly unnoticeable.
-
-        Debug.Log($"Player {playerDevices[device] + 1} joined using {controlScheme} control scheme!" + "\n");
+        
+        // Disable the second player in the main menu.
+        if (SceneManagerExtended.ActiveScene == MainMenu && PlayerInputManager.instance.playerCount == 2) 
+            player.gameObject.SetActive(false);
     }
 
     static InputDevice GetActiveDevice()

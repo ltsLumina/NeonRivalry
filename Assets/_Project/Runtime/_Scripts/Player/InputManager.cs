@@ -9,9 +9,11 @@ using UnityEngine.InputSystem;
 /// Handles all player input, such as movement, jumping, attacking, etc.
 /// Partial class, see StateChecks.cs for the input checks.
 /// </summary>
-[RequireComponent(typeof(PlayerInput))]
 public class InputManager : MonoBehaviour
 {
+    [Header("Read-Only Fields")]
+    [SerializeField, ReadOnly] Vector2 moveInput;
+    
     /// <summary>
     /// Enum for Attack Types.
     /// </summary>
@@ -29,13 +31,6 @@ public class InputManager : MonoBehaviour
     /// Gets or sets the last pressed attack type.
     /// </summary>
     public AttackType LastAttackPressed { get; set; } = AttackType.None;
-    
-    [Header("Read-Only Fields")]
-    [SerializeField, ReadOnly] Vector2 moveInput;
-
-    // Cached References
-    PlayerController player;
-    StateMachine stateMachine;
 
     /// <summary>
     /// Gets or sets the move input.
@@ -45,6 +40,15 @@ public class InputManager : MonoBehaviour
         get => moveInput;
         private set => moveInput = value;
     }
+    
+    /// <summary>
+    /// Whether the input manager is enabled.
+    /// </summary>
+    public bool Enabled { get; set; } = true;
+    
+    // Cached References
+    PlayerController player;
+    StateMachine stateMachine;
 
     /// <summary>
     /// Called when the script instance is being loaded.
@@ -54,7 +58,7 @@ public class InputManager : MonoBehaviour
         player       = GetComponentInParent<PlayerController>();
         stateMachine = player.GetComponent<StateMachine>();
     }
-    
+
     // -- Input Handling --
 
     /// <summary>
@@ -67,10 +71,36 @@ public class InputManager : MonoBehaviour
     public void OnMove(InputAction.CallbackContext context)
     {
         MoveInput = context.ReadValue<Vector2>();
+
+        // Handle single player blocking
+        if (PlayerManager.PlayerCount < 2)
+        {
+            player.IsBlocking = MoveInput.x < 0;
+            return;
+        }
+        
+        if (IsBlocking()) return;
+
+        // Transition to move state if the player is not crouching or blocking.
         TransitionTo(context, player.CanMove, State.StateType.Walk);
 
-        // If player is moving backwards, set the player to block.
-        if (player.IsGrounded()) player.IsBlocking = MoveInput.x < 0;
+        return;
+        bool IsBlocking()
+        {
+            // Get the direction to the other player
+            Vector3 toOtherPlayer = PlayerManager.OtherPlayer(player).transform.position - player.transform.position;
+            toOtherPlayer.Normalize();
+
+            // Get the direction of movement
+            Vector3 moveDirection = new Vector3(MoveInput.x, 0, MoveInput.y);
+            moveDirection.Normalize();
+
+            // Calculate the dot product
+            float dotProduct = Vector3.Dot(toOtherPlayer, moveDirection);
+
+            // If the dot product is less than 0, the player is blocking
+            return player.IsBlocking = dotProduct < 0;
+        }
     }
 
     /// <summary>
@@ -83,6 +113,7 @@ public class InputManager : MonoBehaviour
     /// </summary>
     void TransitionTo(InputAction.CallbackContext context, Func<bool> condition, State.StateType stateType)
     {
+        if (!player.enabled) return;
         if (context.performed && condition()) stateMachine.TransitionToState(stateType);
     }
 
@@ -108,12 +139,17 @@ public class InputManager : MonoBehaviour
     /// </summary>
     public void OnUnique(InputAction.CallbackContext context) => PerformAttack(context, AttackType.Unique);
 
+    public void OnPause(InputAction.CallbackContext context)
+    {
+        if (context.performed) GameManager.TogglePause(player);
+    }
+    
     /// <summary>
     /// Performs attack action.
     /// </summary>
     void PerformAttack(InputAction.CallbackContext context, AttackType attackType)
     {
-        if (context.performed)
+        if (context.performed && Enabled)
         {
             if (player.IsGrounded() && player.CanAttack())
             {

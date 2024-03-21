@@ -20,8 +20,8 @@ public class ResultScreen : MonoBehaviour
     {
         if (FindObjectOfType<RoundManager>() == null) { return; }
 
-        FindObjectOfType<RoundManager>().player1Victory = true;
-        winner.text = FindObjectOfType<RoundManager>().player1Victory ? "Player 1 Has Won" : "Player 2 Has Won";
+        //FindObjectOfType<RoundManager>().player1Victory = true;
+        //winner.text = FindObjectOfType<RoundManager>().player1Victory ? "Player 1 Has Won" : "Player 2 Has Won";
 
     }
 

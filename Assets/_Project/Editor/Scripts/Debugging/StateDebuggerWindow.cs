@@ -54,7 +54,6 @@ public class StateDebuggerWindow : EditorWindow
         
         Label("Debug Modes", EditorStyles.boldLabel);
         DebugMode = EditorGUILayout.Toggle("Debug Mode", DebugMode);
-        DebugPlayers = EditorGUILayout.Toggle("Debug Players", DebugPlayers);
     }
 }
 }
