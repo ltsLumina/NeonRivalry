@@ -18,6 +18,15 @@ public class RoundManager : MonoBehaviour
     public bool player1Victory;
 
 
+    private void Awake()
+    {
+        currentRounds = 1;
+        player1WonRounds = 0;
+        player2WonRounds = 0;
+        player1WonRoundsText.text = string.Empty;
+        player2WonRoundsText.text = string.Empty;
+    }
+
     void Start()
     {
         resultScreen = FindObjectOfType<ResultScreen>();
