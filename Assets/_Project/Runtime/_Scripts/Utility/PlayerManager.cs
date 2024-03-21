@@ -69,16 +69,16 @@ public partial class PlayerManager : MonoBehaviour
     /// A list of all PlayerInput instances.
     /// </summary>
     public static List<PlayerInput> PlayerInputs => new (PlayerInput.all);
-    
+
     /// <summary>
     /// Gets the first PlayerInput instance if it exists; otherwise returns null.
     /// </summary>
-    public static PlayerInput PlayerOneInput => PlayerInputs[0];
+    public static PlayerInput PlayerOneInput => PlayerOne.PlayerInput;
     
     /// <summary>
     /// Gets the second PlayerInput instance if it exists; otherwise returns null.
     /// </summary>
-    public static PlayerInput PlayerTwoInput => PlayerInputs[1];
+    public static PlayerInput PlayerTwoInput => PlayerTwo.PlayerInput;
     #endregion
     
     void Awake()

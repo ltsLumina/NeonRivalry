@@ -1,6 +1,7 @@
 #region
 #if UNITY_EDITOR
 #endif
+using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 using Lumina.Essentials.Attributes;
@@ -49,23 +50,21 @@ public partial class PlayerController : MonoBehaviour
     [SerializeField, ReadOnly] Animator animator;
     
     // Cached References
-    PlayerController player;
-    
-    // Cached Animation References
-    readonly static int Walk_Forward = Animator.StringToHash("Walk_Forward");
-    readonly static int Walk_Backward = Animator.StringToHash("Walk_Backward");
-    
+    readonly static int Speed = Animator.StringToHash("Speed");
+
     // -- Properties --
     
     public StateMachine StateMachine { get; private set; }
     public Rigidbody Rigidbody { get; private set; }
     public InputManager InputManager { get; private set; }
     public PlayerInput PlayerInput { get; private set; }
+    public InputDevice Device => InputDeviceManager.GetDevice(PlayerInput);
     public HitBox HitBox { get; set; }
     public HurtBox HurtBox { get; set; }
     public bool IsInvincible { get; set; }
 
     string ThisPlayer => $"Player {PlayerID}";
+    public bool IsCrouching => Animator.GetBool("IsCrouching") && Animator.GetInteger("Speed") == 0;
 
     // -- Serialized Properties --
 
@@ -91,7 +90,6 @@ public partial class PlayerController : MonoBehaviour
 
     void Awake()
     {
-        player       = GetComponent<PlayerController>();
         StateMachine = GetComponent<StateMachine>();
         Rigidbody    = GetComponent<Rigidbody>();
         InputManager = GetComponentInChildren<InputManager>();
@@ -109,7 +107,7 @@ public partial class PlayerController : MonoBehaviour
     // Rotate the player when spawning in to face in a direction that is more natural.
     void Start() => Initialize();
 
-    void Update()
+    void FixedUpdate()
     {
         CheckIdle();
         
@@ -124,12 +122,14 @@ public partial class PlayerController : MonoBehaviour
                 AirborneTime = 0;
                 
                 DEBUGMovement();
+
+                // Set player as crouching if the player is moving down and is grounded.
+                Animator.SetBool("IsCrouching", InputManager.MoveInput.y < 0);
             }
             else
             {
                 // If the player is airborne, we add to the airborne time.
                 AirborneTime += Time.deltaTime;
-                
             }
         }
     }
@@ -140,32 +140,34 @@ public partial class PlayerController : MonoBehaviour
         Vector2 moveInput = InputManager.MoveInput;
 
         // Fix rigidbody velocity issue (velocity is absurdly low when standing still)
-        if (moveInput == Vector2.zero) Rigidbody.velocity = new (0, Rigidbody.velocity.y);
-        
-        // Animating the player based on the move input.
-        Animator.SetBool(Walk_Forward, moveInput.x  > 0);
-        Animator.SetBool(Walk_Backward, moveInput.x < 0);
+        if (moveInput == Vector2.zero) Rigidbody.velocity = Vector3.zero;
 
+        // If crouching, reduce movement speed to zero.
+        if (IsCrouching) return;
+
+        // Animating the player based on the move input.
+        Animator.SetInteger(Speed, (int) moveInput.x);
+        
         // Determining the direction of the movement (left or right).
         int moveDirection = (int) moveInput.x;
-
+        
         // Calculating the target speed based on direction and move speed.
         // If moving backward, multiply the moveSpeed with the backwardSpeedFactor
         float targetSpeed = moveDirection * (moveInput.x < 0 ? moveSpeed * backwardSpeedFactor : moveSpeed);
 
         // Calculate difference between target speed and current velocity.
         float speedDifference = targetSpeed - Rigidbody.velocity.x;
-
+        
         // Determine the acceleration rate based on whether the target speed is greater than 0.01 or not.
         float accelRate = Mathf.Abs(targetSpeed) > 0.01f ? acceleration : deceleration;
-
+        
         // Calculate the final movement force to be applied on the player's rigidbody.
         float movement = Mathf.Pow(Mathf.Abs(speedDifference) * accelRate, velocityPower) * Mathf.Sign(speedDifference);
-
+        
         // Apply the force to the player's rigidbody.
         Rigidbody.AddForce(movement * Vector3.right);
     }
-    
+
     /// <summary>
     ///     Initialize the player to the correct state.
     ///     This includes setting the player's color and spawn point as well as the player's ID.
@@ -199,7 +201,7 @@ public partial class PlayerController : MonoBehaviour
 
     void RotateToFaceEnemy()
     {
-        if (PlayerManager.OtherPlayer(player) == null) return;
+        if (PlayerManager.OtherPlayer(this) == null) return;
         
         List<PlayerController> players        = PlayerManager.Players;
         PlayerController       oppositePlayer = players[PlayerID == 1 ? 1 : 0];
@@ -245,10 +247,28 @@ public partial class PlayerController : MonoBehaviour
 
     public void DisablePlayer(bool disabled)
     {
-        player.enabled       = !disabled;
+        this.enabled       = !disabled;
         InputManager.Enabled = !disabled;
         HitBox.enabled       = !disabled;
         HurtBox.enabled      = !disabled;
+    }
+    
+    public void FreezePlayer(bool frozen, float duration = 0.3f)
+    {
+        StartCoroutine(FreezePlayerRoutine());
+        
+        return; // Local function
+        IEnumerator FreezePlayerRoutine()
+        {
+            DisablePlayer(frozen);
+            yield return new WaitForSeconds(duration);
+            DisablePlayer(false);
+        }
+    }
+    
+    public void Knockback(Vector3 direction, float force)
+    {
+        Rigidbody.AddForce(direction * force, ForceMode.Impulse);
     }
 
     void Death(PlayerController playerThatDied)

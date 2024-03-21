@@ -193,7 +193,7 @@ public class EventSystemSelector : MonoBehaviour
                 return GameObject.Find("Play");
             
             case CharacterSelect: 
-                return GameObject.Find($"Shelby (Player {localPlayerID})");
+                return GameObject.Find($"Shelby (Player 1)");
 
             default:
                 return null;

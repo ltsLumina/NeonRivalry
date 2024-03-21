@@ -25,9 +25,8 @@ public class FallState : State
 
     public override void OnEnter()
     {
-        // Play the attack animation.
-        //Debug.Log("Entered Attack State");
-        IsFalling   = true;
+        IsFalling = true;
+        
         player.GetComponentInChildren<SpriteRenderer>().color = new (1f, 0.58f, 0f);
     }
 
@@ -46,6 +45,8 @@ public class FallState : State
         // Apply jump halt force
         if (player.Rigidbody.velocity.y > 0) 
             player.Rigidbody.AddForce(jumpHaltForce * Vector3.down);
+
+        player.Animator.SetBool("IsFalling", IsFalling);
     }
 
     public override void OnExit()
@@ -57,5 +58,6 @@ public class FallState : State
 
         // Play land animation.
         IsFalling = false;
+        player.Animator.SetBool("IsFalling", IsFalling);
     }
 }

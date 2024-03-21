@@ -50,6 +50,7 @@ public class JumpState : State
         {
             // pull them down
             player.StateMachine.TransitionToState(StateType.Fall);
+            
             OnExit();
             return;
         }

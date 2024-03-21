@@ -444,6 +444,8 @@ public class MenuManager : MonoBehaviour
 
             creditsButton.interactable = true;
             creditsButton.Select();
+
+            closeMenu.Play();
         });
     }
 
@@ -525,10 +527,11 @@ public class MenuManager : MonoBehaviour
         if (currentMenu == creditsMenu)
         {
             CloseCredits();
-            closeMenu.Play();
             return;
         }
 
+        closeMenu.Play();
+        
         // Close the active settings menu.
         currentMenu.SetActive(false);
     }

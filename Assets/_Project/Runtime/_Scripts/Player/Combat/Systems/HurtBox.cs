@@ -92,6 +92,12 @@ public class HurtBox : MonoBehaviour
     void HandleBlock(HitBox hitBox)
     {
         OnBlockHit?.Invoke();
+        
+        // Freeze player for a short duration.
+        player.FreezePlayer(true);
+        
+        // Knockback slightly
+        player.Knockback(player.transform.forward, 12.5f);
 
         CalculateDamageTaken(out float strainPercentage);
 
@@ -210,7 +216,12 @@ public class HurtBox : MonoBehaviour
     {
         // Enable the effect
         effect.SetActive(true);
-        player.Animator.SetTrigger("Blocked");
+        
+        // If the player is standing, play the standing block animation.
+        if (!player.IsCrouching)
+        {
+            player.Animator.SetTrigger("Blocked");
+        }
 
         // Start the coroutine to disable the effect after the animation has finished
         StartCoroutine(DisableEffectAfterAnimation(effect));

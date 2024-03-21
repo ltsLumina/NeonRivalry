@@ -71,7 +71,6 @@ public class InputManager : MonoBehaviour
     public void OnMove(InputAction.CallbackContext context)
     {
         MoveInput = context.ReadValue<Vector2>();
-        TransitionTo(context, player.CanMove, State.StateType.Walk);
 
         // Handle single player blocking
         if (PlayerManager.PlayerCount < 2)
@@ -80,19 +79,28 @@ public class InputManager : MonoBehaviour
             return;
         }
         
-        // Get the direction to the other player
-        Vector3 toOtherPlayer = PlayerManager.OtherPlayer(player).transform.position - player.transform.position;
-        toOtherPlayer.Normalize();
+        if (IsBlocking()) return;
 
-        // Get the direction of movement
-        Vector3 moveDirection = new Vector3(MoveInput.x, 0, MoveInput.y);
-        moveDirection.Normalize();
+        // Transition to move state if the player is not crouching or blocking.
+        TransitionTo(context, player.CanMove, State.StateType.Walk);
 
-        // Calculate the dot product
-        float dotProduct = Vector3.Dot(toOtherPlayer, moveDirection);
+        return;
+        bool IsBlocking()
+        {
+            // Get the direction to the other player
+            Vector3 toOtherPlayer = PlayerManager.OtherPlayer(player).transform.position - player.transform.position;
+            toOtherPlayer.Normalize();
 
-        // If the dot product is less than 0, the player is blocking
-        player.IsBlocking = dotProduct < 0;
+            // Get the direction of movement
+            Vector3 moveDirection = new Vector3(MoveInput.x, 0, MoveInput.y);
+            moveDirection.Normalize();
+
+            // Calculate the dot product
+            float dotProduct = Vector3.Dot(toOtherPlayer, moveDirection);
+
+            // If the dot product is less than 0, the player is blocking
+            return player.IsBlocking = dotProduct < 0;
+        }
     }
 
     /// <summary>

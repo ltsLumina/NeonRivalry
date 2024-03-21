@@ -378,7 +378,9 @@ namespace MelenitasDev.SoundsGood
             {
                 stopping = true;
                 ChangeState(SourceState.Stopping);
-                lerpVolumeCor = StartCoroutine(LerpVolume(0, fadeOutTime, () => Stop(0, onStop)));
+
+                if (this != null) lerpVolumeCor = StartCoroutine(LerpVolume(0, fadeOutTime, () => Stop(0, onStop)));
+
                 return;
             }
             

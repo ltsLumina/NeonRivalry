@@ -10,8 +10,9 @@ public class InputDeviceManager : MonoBehaviour
     [SerializeField] GameObject shelbyPrefab;
     [SerializeField] GameObject dorathyPrefab;
     
-    readonly static Dictionary<InputDevice, int> persistentPlayerDevices = new (); // TODO: There is a chance that this doesn't work in builds.
+    readonly static Dictionary<InputDevice, int> persistentPlayerDevices = new ();
     public readonly Dictionary<InputDevice, int> playerDevices = new();
+    public static InputDevice GetDevice(PlayerInput player) => persistentPlayerDevices.FirstOrDefault(p => p.Value == player.playerIndex).Key;
     
     public static InputDevice PlayerOneDevice => persistentPlayerDevices.Count == 0 ? null : persistentPlayerDevices.FirstOrDefault().Key;
     public static InputDevice PlayerTwoDevice => persistentPlayerDevices.Count < 2 ? null : persistentPlayerDevices.LastOrDefault().Key;

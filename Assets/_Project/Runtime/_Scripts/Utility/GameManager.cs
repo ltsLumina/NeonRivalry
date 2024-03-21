@@ -71,8 +71,11 @@ public class GameManager : MonoBehaviour
         //Logger.Log("Game state changed to: " + state);
     }
 
-    void Start() => InitializeStateByScene();
-    
+    void Start()
+    {
+        InitializeStateByScene();
+    }
+
     static void InitializeStateByScene()
     {
         switch (SceneManager.GetActiveScene().buildIndex)
