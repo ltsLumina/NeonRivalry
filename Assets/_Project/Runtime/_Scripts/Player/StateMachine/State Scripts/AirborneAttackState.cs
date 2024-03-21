@@ -108,7 +108,7 @@ public class AirborneAttackState : State
             // If the player lands, cancel the attack.
             else
             {
-                Logger.Debug("Airborne Attack cancelled!", LogType.Log, Type);
+                Logger.Debug("Airborne Attack cancelled!", LogType.Log, StateType.AirborneAttack);
                 OnExit();
             }
         }

@@ -34,7 +34,6 @@ public abstract class State
         Fall,
         Attack,
         AirborneAttack,
-        Dash,
         Block,
         HitStun,    // HitStun indicates that the player has been hit and is unable to move or attack for a short period of time.
         Knockdown,  // Knockdown indicates that the player has been knocked down and is unable to move or attack for a short period of time.
@@ -51,7 +50,6 @@ public abstract class State
       { Fall, 5 },
       { Attack, 6 },
       { AirborneAttack, 6 },
-      { Dash, 7 },
       { Block, 7 },
       { HitStun, 8 },
       { Knockdown, 10 },
