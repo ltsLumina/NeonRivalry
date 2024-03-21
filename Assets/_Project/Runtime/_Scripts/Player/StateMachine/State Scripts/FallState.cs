@@ -15,6 +15,7 @@ public class FallState : State
     // -- State Specific Variables --
     float fallGravityMultiplier;
     float jumpHaltForce;
+    float defaultGravity;
 
     // -- Constructor --
     public FallState(PlayerController player, FallStateData stateData) : base(player)
@@ -35,6 +36,8 @@ public class FallState : State
     {
         if (player.IsGrounded())
         {
+            player.GlobalGravity = player.defaultGravity;
+            player.gravityScale = 1;
             OnExit();
             return;
         }

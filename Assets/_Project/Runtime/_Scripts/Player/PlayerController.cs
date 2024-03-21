@@ -42,6 +42,7 @@ public partial class PlayerController : MonoBehaviour
     
     public float GlobalGravity = -35f;
     public float gravityScale = 1.0f;
+    public float defaultGravity;
 
     [Tab("Settings")]
     [Header("Player Components")]
@@ -92,6 +93,7 @@ public partial class PlayerController : MonoBehaviour
 
         Rigidbody = GetComponent<Rigidbody>();
         Rigidbody.useGravity = false;
+        defaultGravity = GlobalGravity;
     }
 
     void FixedUpdate()
