@@ -13,9 +13,9 @@ public class InputDeviceManager : MonoBehaviour
     readonly static Dictionary<InputDevice, int> persistentPlayerDevices = new (); // TODO: There is a chance that this doesn't work in builds.
     public readonly Dictionary<InputDevice, int> playerDevices = new();
     
-    public static InputDevice PlayerOneDevice => persistentPlayerDevices.FirstOrDefault().Key;
-    public static InputDevice PlayerTwoDevice => persistentPlayerDevices.LastOrDefault().Key;
-    
+    public static InputDevice PlayerOneDevice => persistentPlayerDevices.Count == 0 ? null : persistentPlayerDevices.FirstOrDefault().Key;
+    public static InputDevice PlayerTwoDevice => persistentPlayerDevices.Count < 2 ? null : persistentPlayerDevices.LastOrDefault().Key;
+
     public delegate void PlayerJoin();
     public static event PlayerJoin OnPlayerJoin;
     
@@ -156,13 +156,16 @@ public class InputDeviceManager : MonoBehaviour
         if (SceneManagerExtended.ActiveScene == Game) PlayerInput.Instantiate(shelbyPrefab, playerDevices[device], controlScheme, -1, device);
         
         // original
-        PlayerInput.Instantiate(menuNavigator, playerDevices[device], controlScheme, -1, device);
-
-        // Uses the default (recommended) rumble amount and duration.
-        if (device is Gamepad gamepad) gamepad.Rumble(this); // bug: The rumble might be too weak on some gamepads, making it nearly unnoticeable.
-
+        var player = PlayerInput.Instantiate(menuNavigator, playerDevices[device], controlScheme, -1, device);
         Debug.Log($"Player {playerDevices[device] + 1} joined using {controlScheme} control scheme!" + "\n");
         OnPlayerJoin?.Invoke();
+        
+        // Uses the default (recommended) rumble amount and duration.
+        if (device is Gamepad gamepad) gamepad.Rumble(this); // bug: The rumble might be too weak on some gamepads, making it nearly unnoticeable.
+        
+        // Disable the second player in the main menu.
+        if (SceneManagerExtended.ActiveScene == MainMenu && PlayerInputManager.instance.playerCount == 2) 
+            player.gameObject.SetActive(false);
     }
 
     static InputDevice GetActiveDevice()

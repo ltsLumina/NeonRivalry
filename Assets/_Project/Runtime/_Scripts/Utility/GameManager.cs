@@ -1,6 +1,7 @@
 #region
 using System;
 using System.Linq;
+using MelenitasDev.SoundsGood;
 using UnityEngine;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
@@ -60,8 +61,6 @@ public class GameManager : MonoBehaviour
         // Reset timescale if the game was paused when the scene was unloaded
         IsPaused = false;
         if (IsPaused) Time.timeScale = 1;
-
-        InitializeStateByScene();
         
         OnGameStateChanged += HandleGameStateChanged;
     }
@@ -71,30 +70,49 @@ public class GameManager : MonoBehaviour
         // Not implemented yet.
         //Logger.Log("Game state changed to: " + state);
     }
+
+    void Start() => InitializeStateByScene();
     
     static void InitializeStateByScene()
     {
-        switch (SceneManager.GetActiveScene().name)
+        switch (SceneManager.GetActiveScene().buildIndex)
         {
-            case "Intro":
+            case 0: // Intro
                 SetState(GameState.Intro);
+                MenuManager.LoadSettings();
+                AudioManager.StopAll();
                 break;
             
-            case "MainMenu":
+            case 1: // Main Menu
                 SetState(GameState.MainMenu);
+                MenuManager.LoadSettings();
+                AudioManager.StopAll();
+                
+                // Play Main Menu music
+                Music mainMenuMusic = new (Track.mainMenu);
+                mainMenuMusic.SetOutput(Output.Music).SetVolume(1f);
+                mainMenuMusic.Play();
                 break;
             
-            case "CharacterSelect":
+            case 2: // Character Select
                 SetState(GameState.CharSelect);
+                SettingsManager.LoadVolume();
+                AudioManager.StopAll(0.5f);
                 break;
             
-            case "Game":
+            case 3: // Game
                 SetState(GameState.Playing);
+                SettingsManager.LoadVolume();
+                AudioManager.StopAll();
+
+                // Play Game music
+                Music gameMusic = new (Track.LoveTheSubhumanSelf);
+                gameMusic.SetOutput(Output.Music).SetVolume(1f);
+                gameMusic.Play(2f);
                 break;
         }
     }
     
-
     // void OnEnable() => Healthbar.OnPlayerDeath += HandlePlayerDeath;
     // void OnDisable() => Healthbar.OnPlayerDeath -= HandlePlayerDeath;
     //

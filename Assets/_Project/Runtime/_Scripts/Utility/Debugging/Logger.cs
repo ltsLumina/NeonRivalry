@@ -18,7 +18,7 @@ public static class Logger
     public static bool DebugMode = true;
 
     [Tooltip("Allows the developer to reset the persistent players when the game is restarted.")]
-    public static bool ResetPersistentPlayers;
+    public static bool ResetPersistentPlayers = true;
 
     static Logger()
     {
@@ -26,6 +26,7 @@ public static class Logger
         // It might seem as though this is redundant, but it does in fact execute during a build.
 #if !UNITY_EDITOR
         DebugMode = false;
+        ResetPersistentPlayers = false;
 #endif
     }
     

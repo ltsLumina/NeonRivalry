@@ -1,5 +1,6 @@
 using System.Linq;
 using Lumina.Essentials.Attributes;
+using MelenitasDev.SoundsGood;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
@@ -12,6 +13,16 @@ public class EventSystemSelector : MonoBehaviour
     
     [SerializeField] PlayerInput playerInput;
     [SerializeField, ReadOnly] int localPlayerID;
+
+    Sound navigateUp;
+    Sound navigateDown;
+    Sound navigateLeft;
+    Sound navigateRight;
+    Sound acceptSFX;
+    Sound cancelSFX;
+    Sound closeMenu;
+    Sound CSNavigateLeft;
+    Sound CSNavigateRight;
     
     // -- Cached References --
     
@@ -39,10 +50,106 @@ public class EventSystemSelector : MonoBehaviour
 
     // In the case of the Menu Navigator game object, the PlayerInput is tied to this game object.
     // The Player's UI Navigator, however, is childed to the Player's game object.
-    void Awake() => playerInput = GetComponent<PlayerInput>();
+    void Awake()
+    {
+        playerInput = GetComponent<PlayerInput>();
 
+        if (playerInput == null) transform.parent.GetComponentInChildren<PlayerInput>();
+        eventSystem = GetComponent<MultiplayerEventSystem>();
+    }
+
+    public void OnMove(InputAction.CallbackContext context)
+    {
+        if (eventSystem.currentSelectedGameObject == null) return;
+
+        if (context.performed)
+        {
+            if (eventSystem.currentSelectedGameObject == null) return;
+            Vector2 input = context.ReadValue<Vector2>();
+
+            if (input.y > 0) navigateUp.Play();
+            if (input.y < 0) navigateDown.Play();
+            if (input.x < 0) navigateLeft.Play();
+            if (input.x > 0) navigateRight.Play();
+        }
+    }
+    
+    public void OnSubmit(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            acceptSFX.Play();
+        }
+    }
+
+    public void OnCancel(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            var menuManager = FindObjectOfType<MenuManager>();
+            if (menuManager == null) return;
+
+            if (menuManager.IsAnyMenuActive())
+            {
+                menuManager.CloseCurrentMainMenu();
+                menuManager.CloseCurrentSettingsMenu();
+                closeMenu.Play();
+            }
+            
+            cancelSFX.Play();
+        }
+    }
+    
+    public void OnSwitchSettingsMenu(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            var menuManager = FindObjectOfType<MenuManager>();
+            if (menuManager == null) return;
+
+            var input = context.ReadValue<Vector2>();
+
+            if (menuManager.IsAnyMenuActive())
+            {
+                if (input.x > 0) CSNavigateLeft.Play();
+                if (input.x < 0) CSNavigateRight.Play();
+            }
+        }
+    }
+    
     void Start()
     {
+        // Initialize the navigation sounds.
+        navigateUp    = new (SFX.NavigateUp);
+        navigateDown  = new (SFX.NavigateDown);
+        navigateLeft  = new (SFX.NavigateLeft);
+        navigateRight = new (SFX.NavigateRight);
+        
+        navigateUp.SetOutput(Output.SFX);
+        navigateDown.SetOutput(Output.SFX);
+        navigateLeft.SetOutput(Output.SFX);
+        navigateRight.SetOutput(Output.SFX);
+        
+        // Initialize the accept and cancel sounds.
+        acceptSFX = new (SFX.Accept);
+        cancelSFX = new (SFX.Cancel);
+        
+        acceptSFX.SetOutput(Output.SFX);
+        cancelSFX.SetOutput(Output.SFX);
+        
+        // Initialize the close menu sound.
+        closeMenu = new (SFX.MenuClose);
+        closeMenu.SetOutput(Output.SFX);
+        
+        // Initialize the switch menu navigation sounds.
+        CSNavigateLeft  = new (SFX.CSNavigateLeft);
+        CSNavigateRight = new (SFX.CSNavigateRight);
+        
+        CSNavigateLeft.SetOutput(Output.SFX);
+        CSNavigateRight.SetOutput(Output.SFX);
+        
+        // -- other --
+        
         string sceneName  = SceneManagerExtended.ActiveSceneName;
         int sceneIndex = SceneManagerExtended.ActiveScene;
 
@@ -96,7 +203,6 @@ public class EventSystemSelector : MonoBehaviour
     void ProcessButton(GameObject button)
     {
         firstSelected = button.GetComponent<Button>();
-        eventSystem = GetComponent<MultiplayerEventSystem>();
 
         if (firstSelected != null && eventSystem != null) 
             eventSystem.SetSelectedGameObject(firstSelected.gameObject);
@@ -106,15 +212,5 @@ public class EventSystemSelector : MonoBehaviour
     public void OnPressButton()
     {
         Debug.Log($"Player {localPlayerID} pressed a button using \"{playerInput.currentControlScheme}\" control scheme!");
-    }
-
-    public void OnCancel(InputAction.CallbackContext context)
-    {
-        if (context.performed)
-        {
-            MenuManager menuManager = FindObjectOfType<MenuManager>();
-            menuManager.CloseCurrentMainMenu();
-            menuManager.CloseCurrentSettingsMenu();
-        }
     }
 }

@@ -1,8 +1,11 @@
 using System.Collections;
+using MelenitasDev.SoundsGood;
 using TMPro;
 using TransitionsPlus;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
+
 #region Old Loading Screen Code
 #endregion
 
@@ -14,6 +17,8 @@ public class IntroPlayerInitializer : MonoBehaviour
 {
     [SerializeField] GameObject loadingScreen;
     [SerializeField] TMP_Text pressAnyButtonText;
+    
+    Sound intro;
 
     IEnumerator Start()
     {
@@ -24,7 +29,15 @@ public class IntroPlayerInitializer : MonoBehaviour
         // This might seem redundant, but it is necessary to prevent the game from loading the next scene before a player joins.
         yield return new WaitUntil(() => (player = FindObjectOfType<MultiplayerEventSystem>()) != null);
 
-        Debug.Log("Player joined! Loading next scene..." + "\n");
+        player.GetComponent<PlayerInput>().enabled = false;
+        
+        // Play the intro sound.
+        intro = new (SFX.Intro);
+        intro.SetOutput(Output.SFX).SetVolume(1f);
+        intro.Play();
+        
+        yield return new WaitForSeconds(.75f);
+        
         TransitionAnimator transition = FindObjectOfType<TransitionAnimator>();
         transition.enabled = true;
     }

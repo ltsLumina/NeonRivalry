@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
+using MelenitasDev.SoundsGood;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -36,6 +37,17 @@ public class MenuManager : MonoBehaviour
     [Tab(" Settings ")]
     [SerializeField] Image settingsBackground;
     [SerializeField] TextMeshProUGUI settingsTitle;
+    [SerializeField] TextMeshProUGUI settingsInfo;
+    
+    [Foldout("On-Screen Keys")]
+    [Header("On-Screen Keys")]
+    [SerializeField] Image QKeyIcon;
+    [SerializeField] Image EKeyIcon;
+    [SerializeField] GameObject keyboardBottomLeftIcons;
+    [SerializeField] Image LBKeyIcon;
+    [SerializeField] Image RBKeyIcon;
+    [SerializeField] GameObject gamepadBottomLeftIcons;
+    [EndFoldout]
     [Space]
     [SerializeField] List<GameObject> settingsMenus;
       [Tooltip(tooltip)]
@@ -44,7 +56,6 @@ public class MenuManager : MonoBehaviour
     [SerializeField] List<GameObject> settingsContents;
 
     [SerializeField] GameObject settingsHeader;
-    [SerializeField] InputAction switchMenuKey; // The key that switches between the settings categories/headers (e.g using Q and E to switch between "Game" and "Audio")
     
     [Foldout("Game")]
     [SerializeField] GameObject gameMenu;
@@ -52,21 +63,29 @@ public class MenuManager : MonoBehaviour
     
     [Header("Content")]
     [SerializeField] GameObject gameContent;
-    [SerializeField] Slider screenshakeSlider;
-    [SerializeField] Slider rumbleSlider;
+    [SerializeField] Slider player1RumbleSlider;
+    [SerializeField] Slider player2RumbleSlider;
     
     [Foldout("Audio")]
     [SerializeField] GameObject audioMenu;
     [SerializeField] Button audioHeader;
+
+    [Header("Content")]
+    [SerializeField] GameObject audioContent;
     [SerializeField] Slider masterVolumeSlider;
     [SerializeField] Slider musicVolumeSlider;
     [SerializeField] Slider sfxVolumeSlider;
     
     [Foldout("Video")]
     [SerializeField] GameObject videoMenu;
-    [SerializeField] Dropdown resolutionDropdown;
-    [SerializeField] Dropdown qualityDropdown;
+    [SerializeField] Button videoHeader;
+    
+    [Header("Content")]
+    [SerializeField] GameObject videoContent;
+    [SerializeField] TMP_Dropdown resolutionDropdown;
+    [SerializeField] TMP_Dropdown qualityDropdown;
     [SerializeField] Toggle fullscreenToggle;
+    [SerializeField] Toggle vSyncToggle;
     
     [Foldout("Gamepad")]
     [SerializeField] GameObject gamepadMenu;
@@ -82,14 +101,16 @@ public class MenuManager : MonoBehaviour
 
     // === === === ===  Cached References  === === === === \\
     
-    UIManager UIManager;
-    EventSystemSelector player;
     CreditsManager creditsManager;
     
     // === === === ===  Private Variables  === === === === \\
     
-    const string tooltip = "Populated by the Start() method. This list should not be populated manually.";
-    bool isCreditsActive => creditsMenu.activeSelf;
+    const string tooltip = "Populated at runtime. This list should not be populated manually.";
+    
+    List<string> resolutions;
+    Sound openMenu;
+    Sound closeMenu;
+    Music music;
 
     #region VInpector fix
 #pragma warning disable CS0414 // Field is assigned but its value is never used
@@ -111,23 +132,20 @@ public class MenuManager : MonoBehaviour
     void Awake()
     {
         // References
-        UIManager = FindObjectOfType<UIManager>();
         creditsManager = FindObjectOfType<CreditsManager>();
     }
 
     void OnEnable()
     {
         creditsManager.onCreditsEnd.AddListener(CloseCredits);
-        switchMenuKey.Enable();
-    }
-
-    void OnDisable()
-    {
-        switchMenuKey.Disable();
     }
 
     void Start()
     {
+        // Load PlayerPrefs settings.
+        SettingsManager.LoadRumble(player1RumbleSlider, player2RumbleSlider);
+        SettingsManager.LoadVolume(masterVolumeSlider, musicVolumeSlider, sfxVolumeSlider);
+        
         // Populate the main lists, disable all menus, and enable the main menu.
         mainMenus.AddRange(new List<GameObject> {mainMenu, creditsMenu});
         mainContents.AddRange(new List<GameObject> {mainContent, creditsContent});
@@ -142,75 +160,84 @@ public class MenuManager : MonoBehaviour
         settingsMenus.AddRange(new List<GameObject> {gameMenu, audioMenu, videoMenu, gamepadMenu, keyboardMenu});
         settingsMenus.ForEach(menu => menu.SetActive(false));
         settingsTitle.gameObject.SetActive(false);
-        settingsHeaders.AddRange(new List<Button> {gameHeader, audioHeader});
+        settingsInfo.gameObject.SetActive(false);
+        settingsHeaders.AddRange(new List<Button> {gameHeader, audioHeader, videoHeader});
         settingsHeader.SetActive(false);
-        settingsContents.AddRange(new List<GameObject> {gameContent});
+        settingsContents.AddRange(new List<GameObject> {gameContent, audioContent, videoContent});
         settingsContents.ForEach(content => content.SetActive(false));
         
         // Disable the settings background.
         settingsBackground.gameObject.SetActive(false);
+        
+        // update slider text
+        player1RumbleSlider.onValueChanged.AddListener(_ => UpdateSliderText(player1RumbleSlider));
+        player2RumbleSlider.onValueChanged.AddListener(_ => UpdateSliderText(player2RumbleSlider));
+        
+        // Initialize sounds
+        openMenu = new (SFX.MenuOpen);
+        closeMenu = new (SFX.MenuClose);
+
+        openMenu.SetOutput(Output.SFX);
+        closeMenu.SetOutput(Output.SFX);
+        
+        // Populate the resolution dropdown with the most common resolutions.
+        resolutions = new() { "3840x2160", "2560x1440", "1920x1080", "1366x768", "1280x720", };
+        resolutionDropdown.ClearOptions();
+        resolutionDropdown.AddOptions(resolutions);
+        
+        // Adjust the quality dropdown to match the current quality setting.
+        resolutionDropdown.value = resolutions.IndexOf($"{Screen.currentResolution.width}x{Screen.currentResolution.height}");
+        qualityDropdown.value    = PlayerPrefs.GetInt("Quality", 0);
+        fullscreenToggle.isOn    = PlayerPrefs.GetInt("Fullscreen", 1) == 1;
+        vSyncToggle.isOn         = PlayerPrefs.GetInt("VSync", 0)      == 1;
     }
 
     public void ScaleUpSliderButton(Selectable parent) => parent.transform.DOScale(1.05f, 0.1f).SetEase(Ease.OutBack);
-
     public void ScaleDownSliderButton(Selectable parent) => parent.transform.DOScale(1, 0.1f).SetEase(Ease.InBack);
+
+    static void UpdateSliderText(Slider slider)
+    {
+        // iterate over all the children with the TMP component
+        foreach (var text in slider.GetComponentsInChildren<TextMeshProUGUI>())
+        {
+            // Get the one with the "Current Value Text" tag.
+            if (text.CompareTag("Current Value Text"))
+            {
+                // Set the text to the slider's value.
+                text.text = slider.value.ToString("0.00");
+            }
+        }
+    }
 
     void Update()
     {
         ChangeHeaderColour();
 
-        var input = switchMenuKey.ReadValue<Vector2>();
+        // Get the player's playerinput
+        if (PlayerInput.all.Count == 0) return;
+        var action = PlayerInput.all[0].actions["SwitchSettingsMenu"];
+        var input       = action.ReadValue<Vector2>();
 
-        if (switchMenuKey.triggered)
+        if (!action.triggered) return;
+        
+        GameObject currentMenu = settingsMenus.Find(menu => menu.activeSelf);
+        GameObject newMenu;
+        
+        if (currentMenu == null) return;
+
+        // Q to go left.
+        if (input.x < 0)
         {
-            GameObject currentMenu = settingsMenus.Find(menu => menu.activeSelf);
-            GameObject newMenu;
-
-            switch (input.x > 0)
-            {
-                // Q to go left.
-                case false: {
-                    // Q to go left.
-                    if (input.x < 0)
-                    {
-                        currentMenu.SetActive(false);
-                        newMenu = settingsMenus[Mathf.Clamp(settingsMenus.IndexOf(currentMenu) - 1, 0, settingsMenus.Count - 1)];
-                        ToggleSettingsMenu(newMenu);
-
-                        switch (newMenu)
-                        {
-                            case not null when newMenu == gameMenu:
-                                gameHeader.Select();
-                                break;
-
-                            case not null when newMenu == audioMenu:
-                                audioHeader.Select();
-                                break;
-                        }
-                    }
-
-                    break;
-                }
-
-                // E to go right.
-                default:
-                    currentMenu.SetActive(false);
-                    newMenu = settingsMenus[Mathf.Clamp(settingsMenus.IndexOf(currentMenu) + 1, 0, settingsMenus.Count - 1)];
-                    ToggleSettingsMenu(newMenu);
-
-                    switch (newMenu)
-                    {
-                        case not null when newMenu == gameMenu:
-                            gameHeader.Select();
-                            break;
-
-                        case not null when newMenu == audioMenu:
-                            audioHeader.Select();
-                            break;
-                    }
-
-                    break;
-            }
+            currentMenu.SetActive(false);
+            newMenu = settingsMenus[Mathf.Clamp(settingsMenus.IndexOf(currentMenu) - 1, 0, settingsMenus.Count - 1)];
+            ToggleSettingsMenu(newMenu);
+        }
+        // E to go right.
+        else
+        {
+            currentMenu.SetActive(false);
+            newMenu = settingsMenus[Mathf.Clamp(settingsMenus.IndexOf(currentMenu) + 1, 0, settingsMenus.Count - 1)];
+            ToggleSettingsMenu(newMenu);
         }
     }
 
@@ -241,6 +268,18 @@ public class MenuManager : MonoBehaviour
         else
         {
             ResetHeaderColour(audioHeader);
+        }
+        
+        if (currentMenu == videoMenu)
+        {
+            // Change the colour of the header to match the selected menu.
+            var color = videoHeader.GetComponent<Button>().colors;
+            color.normalColor                       = Color.red;
+            videoHeader.GetComponent<Button>().colors = color;
+        }
+        else
+        {
+            ResetHeaderColour(videoHeader);
         }
     }
 
@@ -276,8 +315,32 @@ public class MenuManager : MonoBehaviour
         
         if (menu == gameMenu)
         {
+            switch (InputDeviceManager.PlayerOneDevice)
+            {
+                case Gamepad:
+                    LBKeyIcon.gameObject.SetActive(true);
+                    RBKeyIcon.gameObject.SetActive(true);
+                    gamepadBottomLeftIcons.SetActive(true);
+
+                    QKeyIcon.gameObject.SetActive(false);
+                    EKeyIcon.gameObject.SetActive(false);
+                    keyboardBottomLeftIcons.SetActive(false);
+                    break;
+
+                case Keyboard:
+                    QKeyIcon.gameObject.SetActive(true);
+                    EKeyIcon.gameObject.SetActive(true);
+                    keyboardBottomLeftIcons.SetActive(true);
+
+                    LBKeyIcon.gameObject.SetActive(false);
+                    RBKeyIcon.gameObject.SetActive(false);
+                    gamepadBottomLeftIcons.SetActive(false);
+                    break;
+            }
+            
             settingsBackground.gameObject.SetActive(true);
             settingsTitle.gameObject.SetActive(true);
+            settingsInfo.gameObject.SetActive(true);
             
             settingsHeaders.ForEach(header => header.gameObject.SetActive(true));
             settingsContents.ForEach(content => content.SetActive(false));
@@ -285,7 +348,9 @@ public class MenuManager : MonoBehaviour
             gameMenu.SetActive(true);
             gameHeader.gameObject.SetActive(true);
             gameContent.SetActive(true);
-            UIManager.SelectSelectableByReference(gameHeader);
+            
+            // Select the first thing in the gameContent
+            player1RumbleSlider.Select();
         }
         
         if (menu == audioMenu)
@@ -293,8 +358,10 @@ public class MenuManager : MonoBehaviour
             settingsContents.ForEach(content => content.SetActive(false));
             settingsMenus.ForEach(m => m.SetActive(false));
             audioMenu.SetActive(true);
-            //audioContent.SetActive(true);
-            UIManager.SelectSelectableByReference(audioHeader);
+            audioContent.SetActive(true);
+            
+            // Select the first thing in the audioContent
+            masterVolumeSlider.Select();
         }
         
         if (menu == videoMenu)
@@ -302,8 +369,10 @@ public class MenuManager : MonoBehaviour
             settingsContents.ForEach(content => content.SetActive(false));
             settingsMenus.ForEach(m => m.SetActive(false));
             videoMenu.SetActive(true);
-            //videoContent.SetActive(true);
-            UIManager.SelectSelectableByReference(audioHeader);
+            videoContent.SetActive(true);
+            
+            // Select the first thing in the videoContent
+            UIManager.SelectSelectableByReference(resolutionDropdown);
         }
         
         if (menu == gamepadMenu)
@@ -312,7 +381,9 @@ public class MenuManager : MonoBehaviour
             settingsMenus.ForEach(m => m.SetActive(false));
             gamepadMenu.SetActive(true);
             //gamepadContent.SetActive(true);
-            UIManager.SelectSelectableByReference(audioHeader);
+            
+            // Select the first thing in the gamepadContent
+            UIManager.SelectSelectableByReference(null);
         }
         
         if (menu == keyboardMenu)
@@ -321,7 +392,9 @@ public class MenuManager : MonoBehaviour
             settingsMenus.ForEach(m => m.SetActive(false));
             keyboardMenu.SetActive(true);
             //keyboardContent.SetActive(true);
-            UIManager.SelectSelectableByReference(audioHeader);
+            
+            // Select the first thing in the keyboardContent
+            UIManager.SelectSelectableByReference(null);
         }
     }
 
@@ -370,8 +443,75 @@ public class MenuManager : MonoBehaviour
             creditsMenu.SetActive(false);
 
             creditsButton.interactable = true;
-            UIManager.SelectSelectableByReference(creditsButton);
+            creditsButton.Select();
         });
+    }
+
+    public bool IsAnyMainMenuActive() => mainMenus.Any(menu => menu.activeSelf);
+    public bool IsAnySettingsMenuActive() => settingsMenus.Any(menu => menu.activeSelf);
+    public bool IsAnyMenuActive() => IsAnyMainMenuActive() || IsAnySettingsMenuActive();
+
+    public void SetResolution(int resolutionIndex)
+    {
+        // return if the resolution index equals the current resolution value
+        
+        string[] resolution = resolutionDropdown.options.ElementAt(resolutionIndex).text.Split('x');
+        Screen.SetResolution(int.Parse(resolution[0]), int.Parse(resolution[1]), Screen.fullScreenMode, new RefreshRate { numerator = 60, denominator = 1 });
+    }
+
+    public void SetQuality(int qualityIndex)
+    {
+        QualitySettings.SetQualityLevel(qualityIndex);
+        PlayerPrefs.SetInt("Quality", qualityIndex);
+    }
+
+    public void SetFullscreen(bool isFullscreen)
+    {
+        PlayerPrefs.SetInt("Fullscreen", isFullscreen ? 1 : 0);
+
+        // Set the resolution to 1920x1080 resolution if fullscreen is toggled.
+        if (isFullscreen)
+        {
+            Screen.SetResolution
+            (1920, 1080, FullScreenMode.FullScreenWindow, new RefreshRate
+             { numerator = 60, denominator = 1 });
+
+            resolutionDropdown.value = resolutions.IndexOf("1920x1080");
+        }
+        else
+        {
+            SetResolution(resolutionDropdown.value);
+            Screen.fullScreenMode = FullScreenMode.Windowed;
+        }
+
+        Screen.fullScreen = isFullscreen;
+    }
+
+    public void SetVSync(bool isVSync)
+    {
+        QualitySettings.vSyncCount = isVSync ? 1 : 0;
+        PlayerPrefs.SetInt("VSync", isVSync ? 1 : 0);
+    }
+
+    public void SetShadowQuality(int shadowQuality) => QualitySettings.shadows = (ShadowQuality) shadowQuality;
+    public void SetAntiAliasing(int antiAliasing) => QualitySettings.antiAliasing = antiAliasing;
+    public void SetTextureQuality(int textureQuality) => QualitySettings.globalTextureMipmapLimit = textureQuality;
+    public void SetAnisotropicFiltering(int anisotropicFiltering) => QualitySettings.anisotropicFiltering = (AnisotropicFiltering) anisotropicFiltering;
+
+    public static void LoadSettings()
+    {
+        // Load the volume
+        SettingsManager.LoadVolume();
+        
+        // Load the video settings
+        int  qualityIndex = PlayerPrefs.GetInt("Quality", 0);         // Default to 0 if not set
+        bool isFullscreen = PlayerPrefs.GetInt("Fullscreen", 1) == 1; // Default to true if not set
+        bool isVSync      = PlayerPrefs.GetInt("VSync", 0)      == 1; // Default to false if not set
+        
+        // Apply the settings
+        QualitySettings.SetQualityLevel(qualityIndex);
+        Screen.fullScreen          = isFullscreen;
+        QualitySettings.vSyncCount = isVSync ? 1 : 0;
     }
     
     public void CloseCurrentMainMenu()
@@ -385,6 +525,7 @@ public class MenuManager : MonoBehaviour
         if (currentMenu == creditsMenu)
         {
             CloseCredits();
+            closeMenu.Play();
             return;
         }
 
@@ -396,8 +537,9 @@ public class MenuManager : MonoBehaviour
     {
         // Find the active settings menu.
         GameObject currentMenu = settingsMenus.Find(menu => menu.activeSelf);
-        
         if (currentMenu == null) return;
+
+        closeMenu.Play();
         
         // Disable all settings menus
         settingsMenus.ForEach(menu => menu.SetActive(false));
@@ -405,6 +547,10 @@ public class MenuManager : MonoBehaviour
         // Disable the header and title
         settingsHeader.SetActive(false);
         settingsTitle.gameObject.SetActive(false);
+        settingsInfo.gameObject.SetActive(false);
+        
+        // Disable all on-screen keys
+        ToggleOnScreenKeysOff();
         
         // Enable the main menu
         mainMenu.SetActive(true);
@@ -414,5 +560,15 @@ public class MenuManager : MonoBehaviour
         
         // Select the "Settings" button.
         mainMenuButtons[1].Select();
+    }
+
+    void ToggleOnScreenKeysOff()
+    {
+        QKeyIcon.gameObject.SetActive(false);
+        EKeyIcon.gameObject.SetActive(false);
+        keyboardBottomLeftIcons.SetActive(false);
+        LBKeyIcon.gameObject.SetActive(false);
+        RBKeyIcon.gameObject.SetActive(false);
+        gamepadBottomLeftIcons.SetActive(false);
     }
 }

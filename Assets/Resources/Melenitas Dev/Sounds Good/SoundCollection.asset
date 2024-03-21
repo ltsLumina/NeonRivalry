@@ -1,0 +1,85 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0662f1fff191d644dbe6bb9c5c5a0e4a, type: 3}
+  m_Name: SoundCollection
+  m_EditorClassIdentifier: 
+  sounds:
+  - tag: NavigateUp
+    clips:
+    - {fileID: 8300000, guid: bf688fc022c67ae4bbae61e7c4037cb6, type: 3}
+    compressionPreset: 1
+    forceToMono: 1
+  - tag: NavigateDown
+    clips:
+    - {fileID: 8300000, guid: 33a9954016339ff4796b5d46a946204a, type: 3}
+    compressionPreset: 1
+    forceToMono: 1
+  - tag: NavigateLeft
+    clips:
+    - {fileID: 8300000, guid: e7e97bcc260f5724ebdb3e1dcbd6e848, type: 3}
+    compressionPreset: 1
+    forceToMono: 1
+  - tag: NavigateRight
+    clips:
+    - {fileID: 8300000, guid: 8c73e543f249ab84fba74d4eafe7cb8a, type: 3}
+    compressionPreset: 1
+    forceToMono: 1
+  - tag: MenuOpen
+    clips:
+    - {fileID: 8300000, guid: 9d00a789548de1f4390061769fbd31f6, type: 3}
+    compressionPreset: 1
+    forceToMono: 1
+  - tag: MenuClose
+    clips:
+    - {fileID: 8300000, guid: 8c8d605b244f86e40b98f1df0d3ca867, type: 3}
+    compressionPreset: 1
+    forceToMono: 1
+  - tag: Intro
+    clips:
+    - {fileID: 8300000, guid: a8bb1dd24c335894797d9b68cf202e1e, type: 3}
+    compressionPreset: 0
+    forceToMono: 0
+  - tag: Accept
+    clips:
+    - {fileID: 8300000, guid: 4ff040a693cbf8541a3b495d61eba61f, type: 3}
+    compressionPreset: 1
+    forceToMono: 1
+  - tag: Cancel
+    clips:
+    - {fileID: 8300000, guid: 50eb502d08dac8c48ab3b2df997e9088, type: 3}
+    compressionPreset: 1
+    forceToMono: 1
+  - tag: CSNavigateLeft
+    clips:
+    - {fileID: 8300000, guid: 7e01c2833ca914345b5241a678cc6020, type: 3}
+    compressionPreset: 1
+    forceToMono: 1
+  - tag: CSNavigateRight
+    clips:
+    - {fileID: 8300000, guid: e8b45e0f6c34d1a4e8f26b42fd1c5dfb, type: 3}
+    compressionPreset: 1
+    forceToMono: 1
+  - tag: CSChoose
+    clips:
+    - {fileID: 8300000, guid: 4235411b126b78d43afe84d59f219a6e, type: 3}
+    compressionPreset: 1
+    forceToMono: 1
+  - tag: CSCancel
+    clips:
+    - {fileID: 8300000, guid: af28844422ae28a4bab49a50b3e68162, type: 3}
+    compressionPreset: 1
+    forceToMono: 1
+  - tag: CSConfirm
+    clips:
+    - {fileID: 8300000, guid: f20f139f9d8adea4186c673a6ebd5e6a, type: 3}
+    compressionPreset: 1
+    forceToMono: 0
