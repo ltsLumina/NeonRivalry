@@ -63,8 +63,8 @@ public class HurtBox : MonoBehaviour
     
     void TakeDamage(HitBox hitBox)
     {
-        // Check if the player is invincible
-        if (player.IsInvincible) return;
+        // Check if the player is invincible or already dead.
+        if (player.IsInvincible || player.Healthbar.Health <= 0) return;
 
         // Create variable to represent the player's health
         int health = player.Healthbar.Health;
@@ -78,6 +78,12 @@ public class HurtBox : MonoBehaviour
         // -- Player was hit by another character --
         
         player.Animator.SetTrigger("Hitstun");
+
+        // Freeze player for a short duration.
+        player.FreezePlayer(true);
+
+        // Knockback slightly
+        player.Knockback(player.transform.forward, 8f);
         
         // Reduce health by the damage amount, and update the health bar.
         health -= hitBox.DamageAmount;
@@ -92,6 +98,12 @@ public class HurtBox : MonoBehaviour
     void HandleBlock(HitBox hitBox)
     {
         OnBlockHit?.Invoke();
+
+        // If the player is standing, play the standing block animation.
+        if (!player.IsCrouching)
+        {
+            player.Animator.SetTrigger("Blocked");
+        }
         
         // Freeze player for a short duration.
         player.FreezePlayer(true);
@@ -216,12 +228,6 @@ public class HurtBox : MonoBehaviour
     {
         // Enable the effect
         effect.SetActive(true);
-        
-        // If the player is standing, play the standing block animation.
-        if (!player.IsCrouching)
-        {
-            player.Animator.SetTrigger("Blocked");
-        }
 
         // Start the coroutine to disable the effect after the animation has finished
         StartCoroutine(DisableEffectAfterAnimation(effect));

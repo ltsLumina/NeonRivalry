@@ -93,11 +93,6 @@ public class MenuManager : MonoBehaviour
     [Foldout("Keyboard")]
     [SerializeField] GameObject keyboardMenu;
     [EndFoldout]
-    
-    [Tab("Tweening")]
-    [Space]
-    [SerializeField] float backgroundOpacity = 0.5f;
-    [SerializeField] float backgroundTweenDuration = 0.5f;
 
     // === === === ===  Cached References  === === === === \\
     
@@ -412,11 +407,11 @@ public class MenuManager : MonoBehaviour
         Sequence sequence = DOTween.Sequence();
 
         // Fade in the background and scale Y from 0 to 1.
-        sequence.Append(creditsBackground.DOFade(backgroundOpacity, backgroundTweenDuration));
-        sequence.Join(creditsBackground.transform.DOScaleY(1, backgroundTweenDuration));
+        sequence.Append(creditsBackground.DOFade(1, 0.5f));
+        sequence.Join(creditsBackground.transform.DOScaleY(1, 0.5f));
 
         // Fade in the canvas group
-        sequence.Append(creditsContent.GetComponent<CanvasGroup>().DOFade(1, backgroundTweenDuration));
+        sequence.Append(creditsContent.GetComponent<CanvasGroup>().DOFade(1, 0.5f));
 
         sequence.OnComplete
         (() =>
@@ -433,8 +428,8 @@ public class MenuManager : MonoBehaviour
         sequence.Append(creditsContent.GetComponent<CanvasGroup>().DOFade(0, 0.5f));
         
         // Fade out the background and scale Y from 1 to 0.
-        sequence.Append(creditsBackground.DOFade(0, backgroundTweenDuration));
-        sequence.Join(creditsBackground.transform.DOScaleY(0, backgroundTweenDuration));
+        sequence.Append(creditsBackground.DOFade(0, 0.5f));
+        sequence.Join(creditsBackground.transform.DOScaleY(0, 0.5f));
 
         sequence.OnComplete
         (() =>
