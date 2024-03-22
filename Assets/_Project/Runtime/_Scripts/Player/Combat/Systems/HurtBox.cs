@@ -66,9 +66,6 @@ public class HurtBox : MonoBehaviour
         // Check if the player is invincible or already dead.
         if (player.IsInvincible || player.Healthbar.Health <= 0) return;
 
-        // Create variable to represent the player's health
-        int health = player.Healthbar.Health;
-
         if (player.IsBlocking)
         {
             HandleBlock(hitBox);
@@ -86,6 +83,8 @@ public class HurtBox : MonoBehaviour
         player.Knockback(player.transform.forward, 8f);
         
         // Reduce health by the damage amount, and update the health bar.
+        // Create variable to represent the player's health
+        int health = player.Healthbar.Health;
         health -= hitBox.DamageAmount;
         player.Healthbar.Health = health;
         
