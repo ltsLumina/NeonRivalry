@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static SceneManagerExtended;
 using Logger = Lumina.Debugging.Logger;
 
 public class InputDeviceManager : MonoBehaviour
@@ -9,7 +10,10 @@ public class InputDeviceManager : MonoBehaviour
     [SerializeField] GameObject menuNavigator;
     [SerializeField] GameObject shelbyPrefab;
     [SerializeField] GameObject dorathyPrefab;
-    
+
+    /// <summary>
+    /// Key is the device, Value is the player index.
+    /// </summary>
     readonly static Dictionary<InputDevice, int> persistentPlayerDevices = new ();
     public readonly Dictionary<InputDevice, int> playerDevices = new();
     public static InputDevice GetDevice(PlayerInput player) => persistentPlayerDevices.FirstOrDefault(p => p.Value == player.playerIndex).Key;
@@ -19,22 +23,17 @@ public class InputDeviceManager : MonoBehaviour
 
     public delegate void PlayerJoin();
     public static event PlayerJoin OnPlayerJoin;
-    
-    // -- Scenes --
-    
-    const int Intro = 0;
-    const int MainMenu = 1;
-    const int CharacterSelect = 2;
-    const int Game = 3;
-    const int GameScene2 = 4;
 
     void Awake()
     {
         // Clear the persistent devices if the scene is the Intro scene.
         // This is done to circumvent a bug where the persistent devices are not cleared when the game is restarted. (Due to Enter Playmode Options)
-        if (SceneManagerExtended.ActiveScene is Intro) persistentPlayerDevices.Clear();
+        if (ActiveScene == Intro) persistentPlayerDevices.Clear();
         
         if (Logger.ResetPersistentPlayers) persistentPlayerDevices.Clear();
+        
+        // Clear the selected characters list if the scene is the Character Select scene.
+        if (ActiveScene == CharacterSelect) CharacterSelector.Reset();
     }
 
     void Start() =>
@@ -47,36 +46,39 @@ public class InputDeviceManager : MonoBehaviour
     /// <para></para>
     /// <seealso cref="TryJoinPlayer"/>
     /// </summary>
-    void LoadPersistentPlayers() // Note: Which character is instantiated is currently a work in progress.
+    void LoadPersistentPlayers()
     {
         //Load the devices that were registered on previous scenes.
-        foreach (KeyValuePair<InputDevice, int> kvp in persistentPlayerDevices)
+        foreach (KeyValuePair<InputDevice, int> deviceIndexPair in persistentPlayerDevices)
         {
             // Add the device to the playerDevices dictionary.
-            playerDevices[kvp.Key] = kvp.Value;
+            playerDevices[deviceIndexPair.Key] = deviceIndexPair.Value;
 
-            string     controlScheme = kvp.Key is Keyboard ? "Keyboard" : "Gamepad";
-            GameObject prefabToInstantiate;
-
-            switch (CharacterSelector.GetSelectedCharacter(kvp.Value))
-            {
-                case "Shelby":
-                    prefabToInstantiate = shelbyPrefab;
-                    break;
-
-                case "Dorathy":
-                    prefabToInstantiate = dorathyPrefab;
-                    break;
-
-                default:
-                    prefabToInstantiate = menuNavigator;
-                    break;
-            }
+            string controlScheme = deviceIndexPair.Key is Keyboard ? "Keyboard" : "Gamepad";
             
-            var player   = PlayerInput.Instantiate(prefabToInstantiate, kvp.Value, controlScheme, -1, kvp.Key);
-            Debug.Log($"Player {kvp.Value + 1} joined using {controlScheme} control scheme! \nThis player was loaded in from a previous scene or game restart.", player);
+            // Figure out which player to instantiate based on which character was selected.
+            // We must increment the player index by 1 because the player index is 0-based.
+            CharacterSelector.SelectedCharacters.TryGetValue(deviceIndexPair.Value + 1, out Character character);
+            
+            if (ActiveScene != Game)
+            {
+                PlayerInput player = PlayerInput.Instantiate(menuNavigator, deviceIndexPair.Value, controlScheme, -1, deviceIndexPair.Key);
+                player.gameObject.name = $"Player {deviceIndexPair.Value + 1}";
+                player.transform.SetParent(GameObject.FindWithTag("[Header] Players").transform);
+                Debug.Log($"Player {deviceIndexPair.Value + 1} joined using {controlScheme} control scheme! \nThis player was loaded in from a previous scene or game restart.", player);
 
-            OnPlayerJoin?.Invoke();
+                OnPlayerJoin?.Invoke();
+            }
+            else
+            {
+                // Instantiate the player based on the character that was selected.
+                PlayerInput player = PlayerInput.Instantiate(character?.CharacterPrefab, deviceIndexPair.Value, controlScheme, -1, deviceIndexPair.Key);
+                
+                // Update the playercontroller's stats with the selected character's stats.
+                PlayerController playerController = player.GetComponent<PlayerController>();
+                
+                playerController.Character = character;
+            }
         }
     }
 
@@ -112,13 +114,13 @@ public class InputDeviceManager : MonoBehaviour
         // Get the 'allowedScenes' list and check if the current scene allows player to join.
         List<int> allowedScenes = GetAllowedScenes();
 
-        if (!allowedScenes.Contains(SceneManagerExtended.ActiveScene)) return false;
+        if (!allowedScenes.Contains(ActiveScene)) return false;
 
         // Check if any control button was pressed this frame, if not then return false.
         if (!Keyboard.current.anyKey.wasPressedThisFrame && (Gamepad.current == null || !Gamepad.current.AnyButtonDown())) return false;
 
         // Scene-specific logic to control player join rules.
-        int  activeSceneIndex  = allowedScenes.IndexOf(SceneManagerExtended.ActiveScene);
+        int  activeSceneIndex  = allowedScenes.IndexOf(ActiveScene);
         bool isIntroOrMainMenu = activeSceneIndex < CharacterSelect;
         bool isCharSelect      = activeSceneIndex == CharacterSelect;
 
@@ -150,15 +152,20 @@ public class InputDeviceManager : MonoBehaviour
         // Add the device to the playerDevices dictionary.
         playerDevices[device] = PlayerInputManager.instance.playerCount;
         // Also update the device to be persistent in next scenes
-        persistentPlayerDevices.Add(device, PlayerInputManager.instance.playerCount);
+        persistentPlayerDevices[device] = PlayerInputManager.instance.playerCount;
 
         string controlScheme = device is Keyboard ? "Keyboard" : "Gamepad";
 
-        // TODO: TEMPORARY
-        if (SceneManagerExtended.ActiveScene == Game) PlayerInput.Instantiate(shelbyPrefab, playerDevices[device], controlScheme, -1, device);
+        // TODO: The line "ActiveScene == Game ? shelbyPrefab : menuNavigator" is temporary.
+        var player = PlayerInput.Instantiate(ActiveScene == Game ? shelbyPrefab : menuNavigator, playerDevices[device], controlScheme, -1, device);
+
+        if (ActiveScene != Game)
+        {
+            player.gameObject.name = $"Player {playerDevices[device] + 1}";
+            Transform parent = GameObject.FindWithTag("[Header] Players").transform;
+            player.transform.SetParent(parent);
+        }
         
-        // original
-        var player = PlayerInput.Instantiate(menuNavigator, playerDevices[device], controlScheme, -1, device);
         Debug.Log($"Player {playerDevices[device] + 1} joined using {controlScheme} control scheme!" + "\n");
         OnPlayerJoin?.Invoke();
         
@@ -166,7 +173,7 @@ public class InputDeviceManager : MonoBehaviour
         if (device is Gamepad gamepad) gamepad.Rumble(this); // bug: The rumble might be too weak on some gamepads, making it nearly unnoticeable.
         
         // Disable the second player in the main menu.
-        if (SceneManagerExtended.ActiveScene == MainMenu && PlayerInputManager.instance.playerCount == 2) 
+        if (ActiveScene == MainMenu && PlayerInputManager.instance.playerCount == 2) 
             player.gameObject.SetActive(false);
     }
 
@@ -205,7 +212,7 @@ public class InputDeviceManager : MonoBehaviour
         { Intro, MainMenu, CharacterSelect };
 
         // If debug mode is active, allow the player to join directly into the game scene as well.
-        if (Logger.DebugMode) allowedScenes.Add(Game); if (Logger.DebugMode) allowedScenes.Add(GameScene2);
+        if (Logger.DebugMode) allowedScenes.Add(Game);
         return allowedScenes;
     }
     #endregion

@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 /// The PlayerManager class is used to manage ALL players in the game including their settings, properties, and actions.
 /// <seealso cref="PlayerController"/>
 /// </summary>
-public partial class PlayerManager : MonoBehaviour
+public partial class PlayerManager : MonoBehaviour // TODO: Remake this to a static class.
 {
     public static PlayerManager Instance { get; private set; }
 

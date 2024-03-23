@@ -5,14 +5,19 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
+using static SceneManagerExtended;
 
+/// <summary>
+/// The <see cref="MenuNavigator"/> class is responsible for navigating through the UI in every scene.
+/// It is also responsible for selecting the first button in the scene upon a player joining.
+/// </summary>
 [RequireComponent(typeof(MultiplayerEventSystem))]
-public class EventSystemSelector : MonoBehaviour
+public class MenuNavigator : MonoBehaviour
 {
-    // -- Fields --
+    [SerializeField, ReadOnly] int playerID;
     
-    [SerializeField] PlayerInput playerInput;
-    [SerializeField, ReadOnly] int localPlayerID;
+    // -- Fields --
+    PlayerInput playerInput;
 
     Sound navigateUp;
     Sound navigateDown;
@@ -26,26 +31,7 @@ public class EventSystemSelector : MonoBehaviour
     // -- Cached References --
     
     MultiplayerEventSystem eventSystem;
-    Button firstSelected;
-
-    // -- Scenes --
-    
-    const int Intro = 0;
-    const int MainMenu = 1;
-    const int CharacterSelect = 2;
-    const int Game = 3;
-    
-    public GameObject CurrentSelectedGameObject
-    {
-        get
-        {
-            OnSelectionChange?.Invoke(eventSystem.currentSelectedGameObject);
-            return eventSystem.currentSelectedGameObject;
-        }
-    }
-
-    public delegate void SelectionChange(GameObject newSelectedGameObject);
-    public event SelectionChange OnSelectionChange;
+    GameObject previousSelectedGameObject;
 
     // In the case of the Menu Navigator game object, the PlayerInput is tied to this game object.
     // The Player's UI Navigator, however, is childed to the Player's game object.
@@ -56,51 +42,89 @@ public class EventSystemSelector : MonoBehaviour
         if (playerInput == null) transform.parent.GetComponentInChildren<PlayerInput>();
         eventSystem = GetComponent<MultiplayerEventSystem>();
     }
-
-    public void OnMove(InputAction.CallbackContext context)
+    
+    void Start()
     {
-        if (CurrentSelectedGameObject.name == $"Shelby {localPlayerID}")
-        {
-            GameObject P1Marker = GameObject.Find($"P{localPlayerID} Marker");
-            P1Marker.SetActive(true);
-            P1Marker.GetComponent<RectTransform>().anchoredPosition = new (-100, -325);
-        }
-        else if (CurrentSelectedGameObject.name == "Dorathy")
-        {
-            GameObject P1Marker = GameObject.Find($"P{localPlayerID} Marker");
-            P1Marker.SetActive(true);
-            P1Marker.GetComponent<RectTransform>().anchoredPosition = new (100, -325);
-        }
+        InitializeAudio();
+
+        // -- other --
         
-        if (eventSystem.currentSelectedGameObject == null) return;
+        string sceneName  = ActiveSceneName;
+        int sceneIndex = ActiveScene;
 
-        if (context.performed)
+        // If the scene is the Intro or Game scene, return, as we don't want to select a button in these scenes.
+        if (sceneIndex == Intro || sceneIndex == Game) return;
+
+        // Assign the localPlayerID based on the playerInput's playerIndex.
+        // Usually we would use player.PlayerID, but there is no "player" instance until the game scene.
+        playerID = playerInput.playerIndex + 1;
+
+        if (playerID == 2 && IsNotSupportedForPlayer2(sceneIndex))
         {
-            if (eventSystem.currentSelectedGameObject == null) return;
-            Vector2 input = context.ReadValue<Vector2>();
+            Debug.LogWarning($"Player 2 is not supported in the {sceneName} scene.");
+            return;
+        }
 
+        GameObject button = FindButtonBySceneIndex(sceneIndex);
+
+        if (button == null)
+        {
+            Debug.LogWarning("No button was found in this scene. (Scene index failed to return a button).");
+            return;
+        }
+
+        ProcessButton(button.GetComponent<Button>());
+    }
+    
+    public void OnNavigate(InputAction.CallbackContext context)
+    {
+        var input = context.ReadValue<Vector2>();
+        
+        if (ActiveScene == MainMenu)
+        {
             if (input.y > 0) navigateUp.Play();
-            if (input.y < 0) navigateDown.Play();
+            if (input.y < 0 ) navigateDown.Play();
             if (input.x < 0) navigateLeft.Play();
             if (input.x > 0) navigateRight.Play();
+        }
+        
+        if (ActiveScene == CharacterSelect)
+        {
+            GameObject marker = GameObject.Find($"P{playerID} Marker");
+            marker.SetActive(true);
+    
+            marker.GetComponent<RectTransform>().anchoredPosition = eventSystem.currentSelectedGameObject.name switch
+            { "Shelby"  => new (-100, -325),
+              "Dorathy" => new (100, -325),
+              _         => marker.GetComponent<RectTransform>().anchoredPosition };
+
+            // Audio
         }
     }
 
     public void OnCancel(InputAction.CallbackContext context)
     {
+        // cancelSFX.Play();
+        
         if (context.performed)
         {
-            var menuManager = FindObjectOfType<MenuManager>();
-            if (menuManager == null) return;
-
-            if (menuManager.IsAnyMenuActive())
+            if (ActiveScene == MainMenu)
             {
-                menuManager.CloseCurrentMainMenu();
-                menuManager.CloseCurrentSettingsMenu();
-                closeMenu.Play();
+                var menuManager = FindObjectOfType<MenuManager>();
+
+                if (menuManager.IsAnyMenuActive())
+                {
+                    menuManager.CloseCurrentMainMenu();
+                    menuManager.CloseCurrentSettingsMenu();
+                    closeMenu.Play();
+                }
             }
             
-            cancelSFX.Play();
+            if (ActiveScene == CharacterSelect)
+            {
+                eventSystem.currentSelectedGameObject.GetComponent<CharacterButton>().CharacterSelected = false;
+                CharacterSelector.DeselectCharacter(playerID, GameObject.Find($"Player {playerID}").transform.GetChild(0).GetComponent<Button>());
+            }
         }
     }
     
@@ -121,7 +145,7 @@ public class EventSystemSelector : MonoBehaviour
         }
     }
     
-    void Start()
+    void InitializeAudio()
     {
         // Initialize the navigation sounds.
         navigateUp    = new (SFX.NavigateUp);
@@ -148,34 +172,6 @@ public class EventSystemSelector : MonoBehaviour
         
         CSNavigateLeft.SetOutput(Output.SFX);
         CSNavigateRight.SetOutput(Output.SFX);
-        
-        // -- other --
-        
-        string sceneName  = SceneManagerExtended.ActiveSceneName;
-        int sceneIndex = SceneManagerExtended.ActiveScene;
-
-        // If the scene is the Intro or Game scene, return, as we don't want to select a button in these scenes.
-        if (sceneIndex is Intro or Game) return;
-
-        // Assign the localPlayerID based on the playerInput's playerIndex.
-        // Usually we would use player.PlayerID, but there is no "player" instance until the game scene.
-        localPlayerID = playerInput.playerIndex + 1;
-
-        if (localPlayerID == 2 && IsNotSupportedForPlayer2(sceneIndex))
-        {
-            Debug.LogWarning($"Player 2 is not supported in the {sceneName} scene.");
-            return;
-        }
-
-        GameObject button = FindButtonBySceneIndex(sceneIndex);
-
-        if (button == null)
-        {
-            Debug.LogWarning("No button was found in this scene. (Scene index failed to return a button).");
-            return;
-        }
-
-        ProcessButton(button.GetComponent<Button>());
     }
 
     static bool IsNotSupportedForPlayer2(int sceneIndex)
@@ -190,12 +186,12 @@ public class EventSystemSelector : MonoBehaviour
     {
         switch (sceneIndex)
         {
-            case MainMenu: 
+            case var _ when sceneIndex == MainMenu: 
                 return GameObject.Find("Play");
             
-            case CharacterSelect: 
-                //return GameObject.Find($"Shelby (Player {localPlayerID})");
-            return GameObject.Find($"Shelby {localPlayerID}").GetComponent<Button>().gameObject;
+            case var _ when sceneIndex == CharacterSelect:
+
+                return GameObject.Find($"Player {playerID}").transform.GetChild(0).gameObject;
 
             default:
                 return null;
@@ -226,6 +222,6 @@ public class EventSystemSelector : MonoBehaviour
     // Debug button.
     public void OnPressButton()
     {
-        Debug.Log($"Player {localPlayerID} pressed a button using \"{playerInput.currentControlScheme}\" control scheme!");
+        Debug.Log($"Player {playerID} pressed a button using \"{playerInput.currentControlScheme}\" control scheme!");
     }
 }

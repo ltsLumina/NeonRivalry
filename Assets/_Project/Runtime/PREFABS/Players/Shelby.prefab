@@ -147,6 +147,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d17e004f39cd0240b6118eb5da62b38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  character: {fileID: 11400000, guid: 6995fcc6cef5ce542842fbbb580eb8ca, type: 2}
   idleTimeThreshold: 2
   IdleTime: 0
   AirborneTime: 0
@@ -155,7 +156,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   playerID: 0
-  moveSpeed: 3.5
+  moveSpeed: 10
   backwardSpeedFactor: 0.8
   acceleration: 8
   deceleration: 7
@@ -556,8 +557,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 172315b7dfe5e874395369dd6337d786, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerInput: {fileID: 3093844162815890065}
-  localPlayerID: 0
+  playerID: 0
 --- !u!114 &199928001545563738
 MonoBehaviour:
   m_ObjectHideFlags: 0
