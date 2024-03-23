@@ -23,6 +23,7 @@ using static State;
 public partial class PlayerController : MonoBehaviour
 {
     [Tab("Player Stats")]
+    [SerializeField] Character character;
     [SerializeField] float idleTimeThreshold;
     [SerializeField, ReadOnly] public float IdleTime; //TODO: Make this private, but I should probably move it to a different script.
     [SerializeField, ReadOnly] public float AirborneTime;
@@ -67,6 +68,12 @@ public partial class PlayerController : MonoBehaviour
     public bool IsCrouching => Animator.GetBool("IsCrouching") && Animator.GetInteger("Speed") == 0;
 
     // -- Serialized Properties --
+
+    public Character Character
+    {
+        get => character;
+        set => character = value;
+    }
 
     public int PlayerID
     {
@@ -175,6 +182,18 @@ public partial class PlayerController : MonoBehaviour
     void Initialize()
     {
         PlayerManager.AddPlayer(this);
+
+        // The character is set when the player is loaded from a previous scene,
+        // meaning if the player was instantiated directly into the scene, the character will be null.
+        if (Character != null)
+        {
+            // Update all stats with the character's stats.
+            moveSpeed           = Character.moveSpeed;
+            backwardSpeedFactor = Character.backwardSpeedFactor;
+            acceleration        = Character.acceleration;
+            deceleration        = Character.deceleration;
+            velocityPower       = Character.velocityPower;
+        }
         
         PlayerID = PlayerInput.playerIndex + 1;
         gameObject.name = $"Player {PlayerID}";
@@ -182,17 +201,9 @@ public partial class PlayerController : MonoBehaviour
         // Parenting the player to the header is purely for organizational purposes.
         const string headerTag = "[Header] Players";
         Transform header = GameObject.FindGameObjectWithTag(headerTag).transform;
-
-        if (header == null)
-        {
-            Debug.LogError("Header not found. Please check if the tag is correct.");
-            return;
-        }
-
         transform.SetParent(header);
-
+        
         var playerManager = PlayerManager.Instance;
-
         playerManager.SetPlayerSpawnPoint(this, PlayerID);
         PlayerManager.AssignHealthbarToPlayer(this, PlayerID);
 

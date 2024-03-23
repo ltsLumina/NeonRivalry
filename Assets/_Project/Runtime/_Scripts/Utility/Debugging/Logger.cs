@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 #endregion
 
 // Lumina.Debugging namespace contains classes and methods related to debugging.
@@ -28,6 +29,14 @@ public static class Logger
         DebugMode = false;
         ResetPersistentPlayers = false;
 #endif
+        
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    // This method will be called whenever a scene is loaded
+    static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (ResetPersistentPlayers) UnityEngine.Debug.LogWarning("Persistent players have been reset.");
     }
     
     public enum Level

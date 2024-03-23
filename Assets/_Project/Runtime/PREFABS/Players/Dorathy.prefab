@@ -53,8 +53,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d17e004f39cd0240b6118eb5da62b38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  character: {fileID: 11400000, guid: 072b8a66d00a9484babccffe0979e253, type: 2}
   idleTimeThreshold: 2
-  idleTime: 0
+  IdleTime: 0
+  AirborneTime: 0
   raycastDistance: 0.05
   groundLayer:
     serializedVersion: 2
@@ -162,8 +164,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 172315b7dfe5e874395369dd6337d786, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerInput: {fileID: 3093844162815890065}
-  localPlayerID: 0
+  playerID: 0
 --- !u!114 &199928001545563738
 MonoBehaviour:
   m_ObjectHideFlags: 0
