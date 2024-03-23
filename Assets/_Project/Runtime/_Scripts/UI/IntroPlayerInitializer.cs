@@ -1,6 +1,7 @@
 using System.Collections;
+using System.Collections.Generic;
+using DG.Tweening;
 using MelenitasDev.SoundsGood;
-using TMPro;
 using TransitionsPlus;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -15,13 +16,18 @@ using UnityEngine.InputSystem.UI;
 /// </summary>
 public class IntroPlayerInitializer : MonoBehaviour
 {
-    [SerializeField] GameObject loadingScreen;
-    [SerializeField] TMP_Text pressAnyButtonText;
+    //[SerializeField] GameObject loadingScreen;
     
     Sound intro;
 
     IEnumerator Start()
     {
+        // Enable the button prompts.
+        var buttonPromptsManager = FindObjectOfType<ButtonPromptsManager>();
+        
+        // Default to gamepad prompts.
+        buttonPromptsManager.ShowGamepadPrompts(SceneManagerExtended.ActiveSceneName, true);
+        
         // ReSharper disable once NotAccessedVariable
         MultiplayerEventSystem player = null;
 
@@ -29,6 +35,22 @@ public class IntroPlayerInitializer : MonoBehaviour
         // This might seem redundant, but it is necessary to prevent the game from loading the next scene before a player joins.
         yield return new WaitUntil(() => (player = FindObjectOfType<MultiplayerEventSystem>()) != null);
 
+        // If the player joined using a keyboard, show the keyboard prompts.
+        if (player.GetComponent<PlayerInput>().currentControlScheme == "Keyboard")
+        {
+            buttonPromptsManager.HideGamepadPrompts();
+            buttonPromptsManager.ShowKeyboardPrompts(SceneManagerExtended.ActiveSceneName, true);
+        }
+
+        List<ButtonPrompt> currentPrompts = buttonPromptsManager.CurrentPrompts;
+        // Tween out the button prompts.
+        foreach (ButtonPrompt prompt in currentPrompts)
+        {
+            Sequence sequence = DOTween.Sequence();
+            sequence.Append(prompt.transform.DOScale(Vector3.one * 1.15f, 0.3f).SetEase(Ease.InCirc));
+            sequence.Append(prompt.transform.DOScale(Vector3.zero, 0.5f)).SetEase(Ease.InCirc);
+        }
+        
         player.GetComponent<PlayerInput>().enabled = false;
         
         // Play the intro sound.
@@ -36,7 +58,7 @@ public class IntroPlayerInitializer : MonoBehaviour
         intro.SetOutput(Output.SFX).SetVolume(1f);
         intro.Play();
         
-        yield return new WaitForSeconds(.75f);
+        yield return new WaitForSeconds(.85f);
         
         TransitionAnimator transition = FindObjectOfType<TransitionAnimator>();
         transition.enabled = true;

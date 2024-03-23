@@ -121,12 +121,12 @@ public class InputDeviceManager : MonoBehaviour
         bool isIntroOrMainMenu = activeSceneIndex < CharacterSelect;
         bool isCharSelect      = activeSceneIndex == CharacterSelect;
 
-        // // 'Intro' or 'MainMenu' scenes where only one player can exist.
-        // if (isIntroOrMainMenu && PlayerInputManager.instance.playerCount >= 1 && !playerDevices.ContainsKey(activeDevice))
-        // {
-        //     Debug.LogWarning("Only one player can join in the Intro and Main Menu scenes.");
-        //     return false;
-        // }
+        // 'Intro' or 'MainMenu' scenes where only one player can exist.
+        if (isIntroOrMainMenu && PlayerInputManager.instance.playerCount >= 1 && !playerDevices.ContainsKey(activeDevice))
+        {
+            Debug.LogWarning("Only one player can join in the Intro and Main Menu scenes.");
+            return false;
+        }
         
         // 'Character Select' scene where max of two players can exist.
         if (isCharSelect && PlayerInputManager.instance.playerCount >= 2)

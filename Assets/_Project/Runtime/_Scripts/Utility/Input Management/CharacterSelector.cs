@@ -37,8 +37,8 @@ public class CharacterSelector : MonoBehaviour
         var selectedButton = EventSystem.current.currentSelectedGameObject.GetComponent<Button>();
         
         // Toggle the checkmark.
-        var checkmark = selectedButton.gameObject.transform.GetComponentInChildren<RawImage>();
-        checkmark.enabled = isCharacterSelected;
+        // var checkmark = selectedButton.gameObject.transform.GetComponentInChildren<RawImage>();
+        // checkmark.enabled = isCharacterSelected;
         
         // Prevent the player from selecting multiple characters
         ToggleNavigationMode(selectedButton);
