@@ -18,7 +18,6 @@ public class EventSystemSelector : MonoBehaviour
     Sound navigateDown;
     Sound navigateLeft;
     Sound navigateRight;
-    Sound acceptSFX;
     Sound cancelSFX;
     Sound closeMenu;
     Sound CSNavigateLeft;
@@ -60,6 +59,19 @@ public class EventSystemSelector : MonoBehaviour
 
     public void OnMove(InputAction.CallbackContext context)
     {
+        if (CurrentSelectedGameObject.name == $"Shelby {localPlayerID}")
+        {
+            GameObject P1Marker = GameObject.Find($"P{localPlayerID} Marker");
+            P1Marker.SetActive(true);
+            P1Marker.GetComponent<RectTransform>().anchoredPosition = new (-100, -325);
+        }
+        else if (CurrentSelectedGameObject.name == "Dorathy")
+        {
+            GameObject P1Marker = GameObject.Find($"P{localPlayerID} Marker");
+            P1Marker.SetActive(true);
+            P1Marker.GetComponent<RectTransform>().anchoredPosition = new (100, -325);
+        }
+        
         if (eventSystem.currentSelectedGameObject == null) return;
 
         if (context.performed)
@@ -71,14 +83,6 @@ public class EventSystemSelector : MonoBehaviour
             if (input.y < 0) navigateDown.Play();
             if (input.x < 0) navigateLeft.Play();
             if (input.x > 0) navigateRight.Play();
-        }
-    }
-    
-    public void OnSubmit(InputAction.CallbackContext context)
-    {
-        if (context.performed)
-        {
-            acceptSFX.Play();
         }
     }
 
@@ -131,10 +135,7 @@ public class EventSystemSelector : MonoBehaviour
         navigateRight.SetOutput(Output.SFX);
         
         // Initialize the accept and cancel sounds.
-        acceptSFX = new (SFX.Accept);
         cancelSFX = new (SFX.Cancel);
-        
-        acceptSFX.SetOutput(Output.SFX);
         cancelSFX.SetOutput(Output.SFX);
         
         // Initialize the close menu sound.
@@ -174,7 +175,7 @@ public class EventSystemSelector : MonoBehaviour
             return;
         }
 
-        ProcessButton(button);
+        ProcessButton(button.GetComponent<Button>());
     }
 
     static bool IsNotSupportedForPlayer2(int sceneIndex)
@@ -193,19 +194,33 @@ public class EventSystemSelector : MonoBehaviour
                 return GameObject.Find("Play");
             
             case CharacterSelect: 
-                return GameObject.Find($"Shelby (Player 1)");
+                //return GameObject.Find($"Shelby (Player {localPlayerID})");
+            return GameObject.Find($"Shelby {localPlayerID}").GetComponent<Button>().gameObject;
 
             default:
                 return null;
         }
     }
 
-    void ProcessButton(GameObject button)
+    void ProcessButton(Button button)
     {
-        firstSelected = button.GetComponent<Button>();
+        if (button != null && eventSystem != null) 
+            eventSystem.SetSelectedGameObject(button.gameObject);
 
-        if (firstSelected != null && eventSystem != null) 
-            eventSystem.SetSelectedGameObject(firstSelected.gameObject);
+        //button.Select();
+        
+        // if (CurrentSelectedGameObject.name == "Shelby")
+        // {
+        //     GameObject P1Marker = GameObject.Find("P1 Marker");
+        //     P1Marker.SetActive(true);
+        //     P1Marker.GetComponent<RectTransform>().anchoredPosition = new (-100, -325);
+        // }
+        // else if (CurrentSelectedGameObject.name == "Dorathy")
+        // {
+        //     GameObject P1Marker = GameObject.Find("P1 Marker");
+        //     P1Marker.SetActive(true);
+        //     P1Marker.GetComponent<RectTransform>().anchoredPosition = new (100, -325);
+        // }
     }
     
     // Debug button.

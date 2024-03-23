@@ -63,7 +63,19 @@ public class SingletonPersistent<T> : MonoBehaviour
         if (instance == null)
         {
             instance = this as T;
-            DontDestroyOnLoad(transform.parent == null ? gameObject : transform.parent.gameObject);
+            //DontDestroyOnLoad(transform.parent == null ? gameObject : transform.parent.gameObject);
+            
+            // If the object is parented to another object, un-parent it before making it persistent.
+            // This is to ensure that the header object (often a "Managers" object in the hierarchy) is not made persistent.
+            if (gameObject.transform.parent == null)
+            {
+                DontDestroyOnLoad(gameObject);
+            }
+            else
+            {
+                gameObject.transform.parent = null;
+                DontDestroyOnLoad(gameObject);
+            }
         }
         else { Destroy(gameObject); }
     }
