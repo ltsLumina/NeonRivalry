@@ -11,7 +11,6 @@ namespace Lumina.Debugging
 /// <summary>
 /// Helper class for handling common debugging tasks such as logging.
 /// This class is specifically designed to be used within the Unity engine hence derives from MonoBehaviour.
-/// <remarks> FG stands for FightingGame. </remarks>
 /// </summary>
 public static class Logger
 {
