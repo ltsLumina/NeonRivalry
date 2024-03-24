@@ -112,6 +112,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 4062431423150835742}
+        m_TargetAssemblyTypeName: MenuNavigator, _Project
+        m_MethodName: OnPause
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: 6d8e6735-040e-4a49-b28a-0b6f52d6059f
     m_ActionName: UI/Cancel
   - m_PersistentCalls:
@@ -150,8 +162,24 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: c1c4b18b-56c6-4577-b319-2328d0622714
     m_ActionName: UI/SwitchSettingsMenu[/Keyboard/q,/Keyboard/e,/XInputControllerWindows1/leftShoulder,/XInputControllerWindows1/rightShoulder]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4062431423150835742}
+        m_TargetAssemblyTypeName: MenuNavigator, _Project
+        m_MethodName: OnMenu
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: f34a7fc1-a28c-4c13-aeae-799cd3d1f563
+    m_ActionName: UI/Menu[/XInputControllerWindows/start,/Keyboard/escape]
   m_NeverAutoSwitchControlSchemes: 1
-  m_DefaultControlScheme: Gamepad
+  m_DefaultControlScheme: 
   m_DefaultActionMap: UI
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}

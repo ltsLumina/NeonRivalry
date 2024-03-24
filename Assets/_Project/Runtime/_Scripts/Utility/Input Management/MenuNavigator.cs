@@ -88,18 +88,18 @@ public class MenuNavigator : MonoBehaviour
             if (input.x > 0) navigateRight.Play();
         }
         
-        if (ActiveScene == CharacterSelect)
-        {
-            GameObject marker = GameObject.Find($"P{playerID} Marker");
-            marker.SetActive(true);
-    
-            marker.GetComponent<RectTransform>().anchoredPosition = eventSystem.currentSelectedGameObject.name switch
-            { "Shelby"  => new (-100, -325),
-              "Dorathy" => new (100, -325),
-              _         => marker.GetComponent<RectTransform>().anchoredPosition };
-
-            // Audio
-        }
+        // if (ActiveScene == CharacterSelect)
+        // {
+        //     GameObject marker = GameObject.Find($"P{playerID} Marker");
+        //     marker.SetActive(true); // bug: this throws an error OnDestroy/OnDisable??
+        //
+        //     marker.GetComponent<RectTransform>().anchoredPosition = eventSystem.currentSelectedGameObject.name switch
+        //     { "Shelby"  => new (-100, -325),
+        //       "Dorathy" => new (100, -325),
+        //       _         => marker.GetComponent<RectTransform>().anchoredPosition };
+        //
+        //     // Audio
+        // }
     }
 
     public void OnCancel(InputAction.CallbackContext context)
@@ -120,11 +120,11 @@ public class MenuNavigator : MonoBehaviour
                 }
             }
             
-            if (ActiveScene == CharacterSelect)
-            {
-                eventSystem.currentSelectedGameObject.GetComponent<CharacterButton>().CharacterSelected = false;
-                CharacterSelector.DeselectCharacter(playerID, GameObject.Find($"Player {playerID}").transform.GetChild(0).GetComponent<Button>());
-            }
+            // if (ActiveScene == CharacterSelect)
+            // {
+            //     eventSystem.currentSelectedGameObject.GetComponent<CharacterButton>().CharacterSelected = false;
+            //     CharacterSelector.DeselectCharacter(playerID, GameObject.Find($"Player {playerID}").transform.GetChild(0).GetComponent<Button>());
+            // }
         }
     }
     
@@ -142,6 +142,16 @@ public class MenuNavigator : MonoBehaviour
                 if (input.x > 0) CSNavigateLeft.Play();
                 if (input.x < 0) CSNavigateRight.Play();
             }
+        }
+    }
+
+    public void OnMenu(InputAction.CallbackContext context)
+    {
+        Debug.Log("Menu button pressed!!");
+
+        if (ActiveScene == CharacterSelect)
+        {
+            FindObjectOfType<GridLayoutGroup>().transform.GetChild(0).GetComponentInChildren<Button>().Select();
         }
     }
     

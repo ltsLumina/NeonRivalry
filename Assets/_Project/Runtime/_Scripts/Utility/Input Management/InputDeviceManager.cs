@@ -75,7 +75,7 @@ public class InputDeviceManager : MonoBehaviour
                 PlayerInput player = PlayerInput.Instantiate(character?.CharacterPrefab, deviceIndexPair.Value, controlScheme, -1, deviceIndexPair.Key);
                 
                 // Update the playercontroller's stats with the selected character's stats.
-                PlayerController playerController = player.GetComponent<PlayerController>();
+                PlayerController playerController = player.GetComponentInParent<PlayerController>();
                 
                 playerController.Character = character;
             }
