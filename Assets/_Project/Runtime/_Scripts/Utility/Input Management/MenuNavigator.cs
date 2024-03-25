@@ -3,6 +3,7 @@ using Lumina.Essentials.Attributes;
 using MelenitasDev.SoundsGood;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Samples.RebindUI;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 using static SceneManagerExtended;
@@ -84,17 +85,30 @@ public class MenuNavigator : MonoBehaviour
         var input = context.ReadValue<Vector2>();
 
         // Check for selection
-        if (eventSystem.currentSelectedGameObject != previousSelectedGameObject)
-        {
-            int previousIndex = previousSelectedGameObject.transform.parent.GetSiblingIndex();
-            int currentIndex  = eventSystem.currentSelectedGameObject.transform.parent.GetSiblingIndex();
+        if (previousSelectedGameObject != null && eventSystem.currentSelectedGameObject != null)
+            if (eventSystem.currentSelectedGameObject != previousSelectedGameObject)
+            {
+                int previousIndex = previousSelectedGameObject.transform.parent.GetSiblingIndex();
+                int currentIndex  = eventSystem.currentSelectedGameObject.transform.parent.GetSiblingIndex();
 
-            if (currentIndex      < previousIndex) navigateUp.Play();
-            else if (currentIndex > previousIndex) navigateDown.Play();
+                if (MainMenuScene)
+                {
+                    previousIndex = previousSelectedGameObject.transform.GetSiblingIndex();
+                    currentIndex  = eventSystem.currentSelectedGameObject.transform.GetSiblingIndex();
 
-            OnSelectionChanged?.Invoke(previousSelectedGameObject, eventSystem.currentSelectedGameObject);
-            previousSelectedGameObject = eventSystem.currentSelectedGameObject;
-        }
+                    if (MenuManager.IsAnySettingsMenuActive())
+                    {
+                        previousIndex = previousSelectedGameObject.transform.parent.GetSiblingIndex();
+                        currentIndex  = eventSystem.currentSelectedGameObject.transform.parent.GetSiblingIndex();
+                    }
+                }
+
+                if (currentIndex      < previousIndex) navigateUp.Play();
+                else if (currentIndex > previousIndex) navigateDown.Play();
+
+                OnSelectionChanged?.Invoke(previousSelectedGameObject, eventSystem.currentSelectedGameObject);
+                previousSelectedGameObject = eventSystem.currentSelectedGameObject;
+            }
 
         if (MainMenuScene || CharacterSelectScene)
         {
@@ -163,22 +177,86 @@ public class MenuNavigator : MonoBehaviour
     {
         if (CharacterSelectScene)
         {
-            // TODO: I need to redo this, but this was too funny to remove.
-            var grids = FindObjectsOfType<GridLayoutGroup>();
-            var gridLeft = grids.FirstOrDefault(g => g.padding.left == 1);
-            var gridRight = grids.FirstOrDefault(g => g.padding.right == 1);
-
-            switch (playerID)
+            bool isMenuOpen = false;
+            
+            switch (playerID) 
             {
                 case 1:
-                    var buttonLeft = gridLeft?.transform.GetChild(0).GetComponentInChildren<Button>();
-                    eventSystem.SetSelectedGameObject(buttonLeft?.gameObject);
+                    GameObject player1Menu = FindObjectOfType<RebindSaveLoad>().transform.GetChild(0).gameObject;
+                    var        player1Diagram     = player1Menu.GetComponentInChildren<DiagramSelector>(true);
+                    player1Menu.SetActive(!player1Menu.activeSelf);
+                    isMenuOpen = player1Menu.activeSelf;
+
+                    switch (playerInput.currentControlScheme)
+                    {
+                        case "Gamepad": 
+                        {
+                            GameObject gamepad = player1Menu.GetComponentInChildren<GamepadIconsExample>(true).gameObject;
+                            gamepad.SetActive(!gamepad.activeSelf);
+                            
+                            // Enable the diagram
+                            player1Diagram.ShowDiagram();
+
+                            eventSystem.SetSelectedGameObject(gamepad.transform.GetChild(0)?.GetComponentInChildren<Button>().gameObject);
+                            break;
+                        }
+
+                        case "Keyboard": 
+                        {
+                            GameObject keyboard = player1Menu.GetComponentInChildren<KeyboardIconsExample>(true).gameObject;
+                            keyboard.SetActive(!keyboard.activeSelf);
+
+                            // Enable the diagram
+                            player1Diagram.ShowDiagram();
+
+                            eventSystem.SetSelectedGameObject(keyboard.transform.GetChild(0)?.GetComponentInChildren<Button>().gameObject);
+                            break;
+                        }
+                    }
                     break;
 
                 case 2:
-                    var buttonRight = gridRight?.transform.GetChild(0).GetComponentInChildren<Button>();
-                    eventSystem.SetSelectedGameObject(buttonRight?.gameObject);
+                    GameObject player2Menu    = FindObjectOfType<RebindSaveLoad>().transform.GetChild(1).gameObject;
+                    var        player2Diagram = player2Menu.GetComponentInChildren<DiagramSelector>(true);
+                    player2Menu.SetActive(!player2Menu.activeSelf);
+                    isMenuOpen = player2Menu.activeSelf;
+                    
+                    switch (playerInput.currentControlScheme)
+                    {
+                        case "Gamepad": 
+                        {
+                            GameObject gamepad = player2Menu.GetComponentInChildren<GamepadIconsExample>(true).gameObject;
+                            gamepad.SetActive(!gamepad.activeSelf);
+                            
+                            // Enable the diagram
+                            player2Diagram.ShowDiagram();
+
+                            eventSystem.SetSelectedGameObject(gamepad.transform.GetChild(0)?.GetComponentInChildren<Button>().gameObject);
+                            break;
+                        }
+
+                        case "Keyboard": 
+                        {
+                            GameObject keyboard = player2Menu.GetComponentInChildren<KeyboardIconsExample>(true).gameObject;
+                            keyboard.SetActive(!keyboard.activeSelf);
+                            
+                            // Enable the diagram
+                            player2Diagram.ShowDiagram();
+
+                            eventSystem.SetSelectedGameObject(keyboard.transform.GetChild(0)?.GetComponentInChildren<Button>().gameObject);
+                            break;
+                        }
+                    }
                     break;
+            }
+
+            if (!isMenuOpen)
+            {
+                closeMenu.Play();
+
+                // Set the selection back to the player's character button.
+                var characterButton = GameObject.Find($"Player {playerID}").transform.GetChild(0).gameObject.GetComponent<Button>();
+                eventSystem.SetSelectedGameObject(characterButton.gameObject);
             }
         }
     }

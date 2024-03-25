@@ -13,6 +13,7 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
     /// <summary>
     /// A reusable component with a self-contained UI for rebinding a single action.
     /// </summary>
+    [DisallowMultipleComponent]
     public class RebindActionUI : MonoBehaviour
     {
         /// <summary>
@@ -294,16 +295,34 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
             action.Disable();
 
             // Configure the rebind.
-            m_RebindOperation = action.PerformInteractiveRebinding(bindingIndex)
-                                      .WithCancelingThrough("<Keyboard>/escape")
-                                      .WithCancelingThrough("<Gamepad>/start")
-                                      .OnCancel
-            (operation =>
+            m_RebindOperation = action.PerformInteractiveRebinding(bindingIndex).OnMatchWaitForAnother(0.1f);
+
+            switch (transform.parent.name)
+            {
+                case "Keyboard":
+                    m_RebindOperation.WithCancelingThrough("<Keyboard>/escape");
+                    break;
+
+                case "Gamepad":
+                    m_RebindOperation.WithCancelingThrough("<Gamepad>/start");
+                    break;
+            }
+            // m_RebindOperation = action.PerformInteractiveRebinding(bindingIndex)
+            //                           .WithCancelingThrough("<Keyboard>/escape")
+            //                           .WithCancelingThrough("<Gamepad>/start")
+            //                           .OnMatchWaitForAnother(0.1f)
+            //                           .OnCancel
+            
+            m_RebindOperation.OnCancel(operation =>
             {
                 action.Enable(); // Re-enable the action.
                 
                 m_RebindStopEvent?.Invoke(this, operation);
                 m_RebindOverlay?.SetActive(false);
+
+                m_RebindOverlay?.GetComponentInChildren<RebindOverlayIcon>().HideIcon();
+                m_RebindText.text = "Press the key you would like to assign";
+                
                 UpdateBindingDisplay();
                 CleanUp();
             }).OnComplete
@@ -313,16 +332,23 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                 
                 m_RebindOverlay?.SetActive(false);
                 m_RebindStopEvent?.Invoke(this, operation);
-
+                
                 if (CheckDuplicateBindings(action, bindingIndex, out string disallowed, allCompositeParts))
                 {
                     m_RebindText.text = !string.IsNullOrEmpty(disallowed) ? "Binding is not allowed. Please try again." : "Duplicate binding found. Please try again.";
+
+                    // Append "Press      to cancel." to the rebind text.
+                    m_RebindText.text += "\nPress       to cancel";
+                    m_RebindOverlay?.GetComponentInChildren<RebindOverlayIcon>().ShowIcon(transform.parent.name == "Gamepad" ? Gamepad.current : Keyboard.current);
                     
                     action.RemoveBindingOverride(bindingIndex);
                     CleanUp();
                     PerformInteractiveRebind(action, bindingIndex, allCompositeParts);
                     return;
                 }
+               
+                m_RebindOverlay?.GetComponentInChildren<RebindOverlayIcon>().HideIcon();
+                m_RebindText.text = "Press the key you would like to assign";
                 
                 UpdateBindingDisplay();
                 CleanUp();
@@ -377,21 +403,7 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                     continue;
                 }
 
-                if (binding.effectivePath == newBinding.effectivePath)
-                {
-                    // If the new binding is from the Disallowed Bindings actions, we show a different warning.       
-                    var disallowedBindings = action.actionMap.FindAction("Disallowed Bindings");
-                    if (disallowedBindings != null && disallowedBindings.bindings.Any(b => b.effectivePath == newBinding.effectivePath))
-                    {
-                        Debug.LogWarning($"Duplicate binding found in Disallowed Bindings: {newBinding.path}");
-                        disallowed = newBinding.path;
-                        return true;
-                    }
-                    
-                    Debug.LogWarning($"Duplicate binding found: {newBinding.action} and {binding.action}");
-                    disallowed = string.Empty;
-                    return true;
-                }
+                if (CheckDisallowedBinding(action, out disallowed, binding, newBinding)) return true;
             }
 
             // Check for duplicates within the same action.
@@ -399,8 +411,8 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
             {
                 if (i == bindingIndex) { continue; }
 
-                if (action.bindings[i].effectivePath == newBinding.effectivePath)
-                {
+                if (action.bindings[i].effectivePath == newBinding.effectivePath) 
+                {   
                     Debug.LogWarning($"Duplicate binding found within the same action: {newBinding.effectivePath}");
                     disallowed = string.Empty;
                     return true;
@@ -424,6 +436,28 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
             return false;
         }
         
+        static bool CheckDisallowedBinding(InputAction action, out string disallowed, InputBinding binding, InputBinding newBinding)
+        {
+            if (binding.effectivePath == newBinding.effectivePath)
+            {
+                // If the new binding is from the Disallowed Bindings actions, we show a different warning.       
+                var disallowedBindings = action.actionMap.FindAction("Disallowed Bindings");
+                if (disallowedBindings != null && disallowedBindings.bindings.Any(b => b.effectivePath == newBinding.effectivePath))
+                {
+                    Debug.LogWarning($"Duplicate binding found in Disallowed Bindings: {newBinding.path} (Effective Path: {newBinding.effectivePath})");
+                    disallowed = newBinding.path;
+                    return true;
+                } 
+                
+                Debug.LogWarning($"Duplicate binding found: {newBinding.action} and {binding.action}");
+                disallowed = string.Empty;
+                return true;
+            }
+
+            disallowed = string.Empty;
+            return false;
+        }
+
         // Check if any binding is overridden, i.e, if the binding is not the default binding.
         public bool AreAnyBindingsOverridden()
         {
@@ -504,10 +538,10 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
 
         [Tooltip("Optional text label that will be updated with prompt for user input.")]
         [SerializeField]
-        private TextMeshProUGUI m_RebindText;
+        public TextMeshProUGUI m_RebindText;
 
         [Tooltip("Optional bool field which allows you to OVERRIDE the action label with your own text.")]
-        public bool m_OverRideActionLabel;
+        public bool m_OverrideActionLabel;
 
         [Tooltip("What text should be displayed for the action label?")]
         public string m_ActionLabelString;
@@ -552,7 +586,7 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
             {
                 var action = m_Action?.action;
 
-                if (m_OverRideActionLabel)
+                if (m_OverrideActionLabel)
                 {
                     m_ActionLabel.text = m_ActionLabelString;
                 }

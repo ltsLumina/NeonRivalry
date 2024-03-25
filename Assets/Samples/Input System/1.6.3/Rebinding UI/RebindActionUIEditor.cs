@@ -10,7 +10,7 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
     /// A custom inspector for <see cref="RebindActionUI"/> which provides a more convenient way for
     /// picking the binding which to rebind.
     /// </summary>
-    [CustomEditor(typeof(RebindActionUI))]
+    [CustomEditor(typeof(RebindActionUI))] 
     public class RebindActionUIEditor : UnityEditor.Editor
     {
         RebindActionUI m_RebindActionUI;
@@ -29,7 +29,7 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
             m_RebindStartEventProperty     = serializedObject.FindProperty("m_RebindStartEvent");
             m_RebindStopEventProperty      = serializedObject.FindProperty("m_RebindStopEvent");
             m_DisplayStringOptionsProperty = serializedObject.FindProperty("m_DisplayStringOptions");
-            m_actionOverRideProperty       = serializedObject.FindProperty("m_OverRideActionLabel");
+            m_actionOverrideProperty       = serializedObject.FindProperty("m_OverrideActionLabel");
             m_actionOverRideStringProperty = serializedObject.FindProperty("m_ActionLabelString");
 
             RefreshBindingOptions();
@@ -75,9 +75,9 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
             EditorGUILayout.LabelField(m_CustomizeUILabel, Styles.boldLabel);
             using (new EditorGUI.IndentLevelScope())
             {
-                EditorGUILayout.PropertyField(m_actionOverRideProperty);
+                EditorGUILayout.PropertyField(m_actionOverrideProperty);
                 
-                if (m_RebindActionUI.m_OverRideActionLabel)
+                if (m_RebindActionUI.m_OverrideActionLabel)
                 {
                     EditorGUILayout.PropertyField(m_actionOverRideStringProperty);
                 }
@@ -178,7 +178,7 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
         SerializedProperty m_RebindStopEventProperty;
         SerializedProperty m_UpdateBindingUIEventProperty;
         SerializedProperty m_DisplayStringOptionsProperty;
-        SerializedProperty m_actionOverRideProperty;
+        SerializedProperty m_actionOverrideProperty;
         SerializedProperty m_actionOverRideStringProperty;
 
         GUIContent m_BindingLabel = new ("Binding");

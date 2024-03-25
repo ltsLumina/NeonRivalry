@@ -174,7 +174,8 @@ public class MenuManager : MonoBehaviour
         settingsMenus.AddRange(new List<GameObject> {gameMenu, audioMenu, videoMenu, gamepadMenu, keyboardMenu});
         settingsMenus.ForEach(menu => menu.SetActive(false));
         settingsTitle.gameObject.SetActive(false);
-        settingsInfo.gameObject.SetActive(false);
+        settingsInfo.gameObject.SetActive(true);
+        settingsInfo.enabled = false; // Settings info is treated differently, as the text is dynamic.
         settingsHeaders.AddRange(new List<Button> {gameHeader, audioHeader, videoHeader});
         settingsHeader.SetActive(false);
         settingsContents.AddRange(new List<GameObject> {gameContent, audioContent, videoContent});
@@ -342,7 +343,7 @@ public class MenuManager : MonoBehaviour
         {
             settingsBackground.gameObject.SetActive(true);
             settingsTitle.gameObject.SetActive(true);
-            settingsInfo.gameObject.SetActive(true);
+            settingsInfo.enabled = true;
             
             settingsHeaders.ForEach(header => header.gameObject.SetActive(true));
             settingsContents.ForEach(content => content.SetActive(false));

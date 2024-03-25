@@ -143,20 +143,20 @@ public class ButtonPromptsManager : MonoBehaviour
                 switch (scene)
                 {
                     case var _ when scene == intro:
-                        KB_mainMenuPrompt.Toggle(show);
-                        KB_quitGamePrompt.Toggle(show);
+                        KB_mainMenuPrompt?.Toggle(show);
+                        KB_quitGamePrompt?.Toggle(show);
                         break;
 
                     case var _ when scene == mainMenu:
                         if (MenuManager.IsAnySettingsMenuActive())
                         {
                             // Show the settings prompts
-                            //KB_confirmPrompt.Toggle(show);
-                            KB_toggleMenuLeftPrompt.Toggle(show);
-                            KB_toggleMenuRightPrompt.Toggle(show);
-                            KB_resetDefaultsPrompt.Toggle(show);
-                            KB_movePrompt.SetActive(show);
-                            KB_cancelPrompt.Toggle(show);
+                            KB_confirmPrompt?.Toggle(show);
+                            KB_toggleMenuLeftPrompt?.Toggle(show);
+                            KB_toggleMenuRightPrompt?.Toggle(show);
+                            KB_resetDefaultsPrompt?.Toggle(show);
+                            KB_movePrompt?.SetActive(show);
+                            KB_cancelPrompt?.Toggle(show);
                         }
 
                         break;
@@ -176,20 +176,20 @@ public class ButtonPromptsManager : MonoBehaviour
                 switch (scene)
                 {
                     case var _ when scene == intro:
-                        GP_mainMenuPrompt.Toggle(show);
-                        GP_quitGamePrompt.Toggle(show);
+                        GP_mainMenuPrompt?.Toggle(show);
+                        GP_quitGamePrompt?.Toggle(show);
                         break;
 
                     case var _ when scene == mainMenu:
                         if (MenuManager.IsAnySettingsMenuActive())
                         {
                             // Show the settings prompts
-                            //GP_confirmPrompt.Toggle(show);
-                            GP_toggleMenuLeftPrompt.Toggle(show);
-                            GP_toggleMenuRightPrompt.Toggle(show);
-                            GP_resetDefaultsPrompt.Toggle(show);
-                            GP_movePrompt.Toggle(show);
-                            GP_cancelPrompt.Toggle(show);
+                            GP_confirmPrompt?.Toggle(show);
+                            GP_toggleMenuLeftPrompt?.Toggle(show);
+                            GP_toggleMenuRightPrompt?.Toggle(show);
+                            GP_resetDefaultsPrompt?.Toggle(show);
+                            GP_movePrompt?.Toggle(show);
+                            GP_cancelPrompt?.Toggle(show);
                         }
 
                         break;
