@@ -16,6 +16,12 @@ public static class SceneManagerExtended
     public static int PreviousScene => previousScene;
     public static string ActiveSceneName => SceneManager.GetActiveScene().name;
     public static int ActiveScene => SceneManager.GetActiveScene().buildIndex;
+    
+    public static bool IntroScene => SceneManager.GetActiveScene().buildIndex == Intro;
+    public static bool MainMenuScene => SceneManager.GetActiveScene().buildIndex == MainMenu;
+    public static bool CharacterSelectScene => SceneManager.GetActiveScene().buildIndex == CharacterSelect;
+    public static bool GameScene => SceneManager.GetActiveScene().buildIndex == Game;
+    
 
     /// <summary>
     ///     Loads the scene with the specified build index.

@@ -56,7 +56,7 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                 imageComponent.gameObject.SetActive(false);
             }
         }
-
+        
         [Serializable]
         public struct GamepadIcons
         {

@@ -28,12 +28,12 @@ public class InputDeviceManager : MonoBehaviour
     {
         // Clear the persistent devices if the scene is the Intro scene.
         // This is done to circumvent a bug where the persistent devices are not cleared when the game is restarted. (Due to Enter Playmode Options)
-        if (ActiveScene == Intro) persistentPlayerDevices.Clear();
+        if (IntroScene) persistentPlayerDevices.Clear();
         
         if (Logger.ResetPersistentPlayers) persistentPlayerDevices.Clear();
         
         // Clear the selected characters list if the scene is the Character Select scene.
-        if (ActiveScene == CharacterSelect) CharacterSelector.Reset();
+        if (CharacterSelectScene) CharacterSelector.Reset();
     }
 
     void Start() =>
@@ -60,7 +60,7 @@ public class InputDeviceManager : MonoBehaviour
             // We must increment the player index by 1 because the player index is 0-based.
             CharacterSelector.SelectedCharacters.TryGetValue(deviceIndexPair.Value + 1, out Character character);
             
-            if (ActiveScene != Game)
+            if (!GameScene)
             {
                 PlayerInput player = PlayerInput.Instantiate(menuNavigator, deviceIndexPair.Value, controlScheme, -1, deviceIndexPair.Key);
                 player.gameObject.name = $"Player {deviceIndexPair.Value + 1}";
@@ -157,9 +157,9 @@ public class InputDeviceManager : MonoBehaviour
         string controlScheme = device is Keyboard ? "Keyboard" : "Gamepad";
 
         // TODO: The line "ActiveScene == Game ? shelbyPrefab : menuNavigator" is temporary.
-        var player = PlayerInput.Instantiate(ActiveScene == Game ? shelbyPrefab : menuNavigator, playerDevices[device], controlScheme, -1, device);
+        var player = PlayerInput.Instantiate(GameScene ? shelbyPrefab : menuNavigator, playerDevices[device], controlScheme, -1, device);
 
-        if (ActiveScene != Game)
+        if (!GameScene)
         {
             player.gameObject.name = $"Player {playerDevices[device] + 1}";
             Transform parent = GameObject.FindWithTag("[Header] Players").transform;
@@ -173,7 +173,7 @@ public class InputDeviceManager : MonoBehaviour
         if (device is Gamepad gamepad) gamepad.Rumble(this); // bug: The rumble might be too weak on some gamepads, making it nearly unnoticeable.
         
         // Disable the second player in the main menu.
-        if (ActiveScene == MainMenu && PlayerInputManager.instance.playerCount == 2) 
+        if (MainMenuScene && PlayerInputManager.instance.playerCount == 2) 
             player.gameObject.SetActive(false);
     }
 

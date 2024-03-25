@@ -14,7 +14,7 @@ public class Character : ScriptableObject
         set => characterPrefab = value;
     }
 
-    public string characterName;
+    public string characterName => characterPrefab.name;
     public float moveSpeed;
     public float backwardSpeedFactor;
     public float acceleration;

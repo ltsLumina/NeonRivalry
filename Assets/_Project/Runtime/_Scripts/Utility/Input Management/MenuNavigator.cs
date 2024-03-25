@@ -96,13 +96,13 @@ public class MenuNavigator : MonoBehaviour
             previousSelectedGameObject = eventSystem.currentSelectedGameObject;
         }
 
-        if (ActiveScene == MainMenu || ActiveScene == CharacterSelect)
+        if (MainMenuScene || CharacterSelectScene)
         {
             if (input.x < 0) navigateLeft.Play();
             if (input.x > 0) navigateRight.Play();
         }
         
-        // if (ActiveScene == CharacterSelect)
+        // if (CharacterSelectScene)
         // {
         //     GameObject marker = GameObject.Find($"P{playerID} Marker");
         //     marker.SetActive(true); // bug: this throws an error OnDestroy/OnDisable??
@@ -122,7 +122,7 @@ public class MenuNavigator : MonoBehaviour
         
         if (context.performed)
         {
-            if (ActiveScene == MainMenu)
+            if (MainMenuScene)
             {
                 var menuManager = FindObjectOfType<MenuManager>();
 
@@ -134,7 +134,7 @@ public class MenuNavigator : MonoBehaviour
                 }
             }
             
-            // if (ActiveScene == CharacterSelect)
+            // if (CharacterSelectScene)
             // {
             //     eventSystem.currentSelectedGameObject.GetComponent<CharacterButton>().CharacterSelected = false;
             //     CharacterSelector.DeselectCharacter(playerID, GameObject.Find($"Player {playerID}").transform.GetChild(0).GetComponent<Button>());
@@ -161,9 +161,7 @@ public class MenuNavigator : MonoBehaviour
 
     public void OnMenu(InputAction.CallbackContext context)
     {
-        Debug.Log("Menu button pressed!!");
-
-        if (ActiveScene == CharacterSelect)
+        if (CharacterSelectScene)
         {
             // TODO: I need to redo this, but this was too funny to remove.
             var grids = FindObjectsOfType<GridLayoutGroup>();
@@ -174,12 +172,12 @@ public class MenuNavigator : MonoBehaviour
             {
                 case 1:
                     var buttonLeft = gridLeft?.transform.GetChild(0).GetComponentInChildren<Button>();
-                    eventSystem.SetSelectedGameObject(buttonLeft.gameObject);
+                    eventSystem.SetSelectedGameObject(buttonLeft?.gameObject);
                     break;
 
                 case 2:
                     var buttonRight = gridRight?.transform.GetChild(0).GetComponentInChildren<Button>();
-                    eventSystem.SetSelectedGameObject(buttonRight.gameObject);
+                    eventSystem.SetSelectedGameObject(buttonRight?.gameObject);
                     break;
             }
         }
