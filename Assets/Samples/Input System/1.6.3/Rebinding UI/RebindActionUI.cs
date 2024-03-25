@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine.Events;
 
@@ -248,8 +249,7 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
 
                 for (int i = 0; i < otherAction.bindings.Count; i++)
                 {
-                    var binding = otherAction.bindings[i];
-
+                    InputBinding binding = otherAction.bindings[i];
                     if (binding.overridePath == newBinding.path)
                     {
                         otherAction.ApplyBindingOverride(i, oldOverridePath);
@@ -314,8 +314,10 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                 m_RebindOverlay?.SetActive(false);
                 m_RebindStopEvent?.Invoke(this, operation);
 
-                if (CheckDuplicateBindings(action, bindingIndex, allCompositeParts))
+                if (CheckDuplicateBindings(action, bindingIndex, out string disallowed, allCompositeParts))
                 {
+                    m_RebindText.text = !string.IsNullOrEmpty(disallowed) ? "Binding is not allowed. Please try again." : "Duplicate binding found. Please try again.";
+                    
                     action.RemoveBindingOverride(bindingIndex);
                     CleanUp();
                     PerformInteractiveRebind(action, bindingIndex, allCompositeParts);
@@ -324,6 +326,9 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                 
                 UpdateBindingDisplay();
                 CleanUp();
+                
+                // Reset the rebind text to the default.
+                if (m_RebindText != null) m_RebindText.text = "Press the key you would like to assign"; 
 
                 // If there's more composite parts we should bind, initiate a rebind
                 // for the next part.
@@ -343,11 +348,15 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
 
             if (m_RebindText != null)
             {
-                string text = !string.IsNullOrEmpty(m_RebindOperation.expectedControlType) ? $"{partName}Waiting for {m_RebindOperation.expectedControlType} input..." : $"{partName}Waiting for input...";
+                // string s1   = $"{partName}Waiting for {m_RebindOperation.expectedControlType} input..."; // Typically says "Waiting for Button input..."
+                // string s2    = $"{partName}Waiting for input...";
+                // string text = !string.IsNullOrEmpty(m_RebindOperation.expectedControlType) ? s1 : s2;
+                
+                string text = m_RebindText.text;
                 m_RebindText.text = text;
             }
 
-            // If we have no rebind overlay and no callback but we have a binding text label,
+            // If we have no rebind overlay and no callback but, we have a binding text label,
             // temporarily set the binding text label to "<Waiting>".
             if (m_RebindOverlay == null && m_RebindText == null && m_RebindStartEvent == null && m_BindingText != null) m_BindingText.text = "<Waiting...>";
 
@@ -357,7 +366,7 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
             m_RebindOperation.Start();
         }
         
-        bool CheckDuplicateBindings(InputAction action, int bindingIndex, bool allCompositeParts = false)
+        bool CheckDuplicateBindings(InputAction action, int bindingIndex, out string disallowed, bool allCompositeParts = false)
         {
             InputBinding newBinding = action.bindings[bindingIndex];
 
@@ -370,7 +379,30 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
 
                 if (binding.effectivePath == newBinding.effectivePath)
                 {
+                    // If the new binding is from the Disallowed Bindings actions, we show a different warning.       
+                    var disallowedBindings = action.actionMap.FindAction("Disallowed Bindings");
+                    if (disallowedBindings != null && disallowedBindings.bindings.Any(b => b.effectivePath == newBinding.effectivePath))
+                    {
+                        Debug.LogWarning($"Duplicate binding found in Disallowed Bindings: {newBinding.path}");
+                        disallowed = newBinding.path;
+                        return true;
+                    }
+                    
                     Debug.LogWarning($"Duplicate binding found: {newBinding.action} and {binding.action}");
+                    disallowed = string.Empty;
+                    return true;
+                }
+            }
+
+            // Check for duplicates within the same action.
+            for (int i = 0; i < action.bindings.Count; i++)
+            {
+                if (i == bindingIndex) { continue; }
+
+                if (action.bindings[i].effectivePath == newBinding.effectivePath)
+                {
+                    Debug.LogWarning($"Duplicate binding found within the same action: {newBinding.effectivePath}");
+                    disallowed = string.Empty;
                     return true;
                 }
             }
@@ -382,12 +414,21 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                     if (action.bindings[i].effectivePath == newBinding.effectivePath)
                     {
                         Debug.LogWarning($"Duplicate binding found: {newBinding.effectivePath}");
+                        disallowed = string.Empty;
                         return true;
                     }
                 }
             }
 
+            disallowed = string.Empty;
             return false;
+        }
+        
+        // Check if any binding is overridden, i.e, if the binding is not the default binding.
+        public bool AreAnyBindingsOverridden()
+        {
+            InputActionMap actionMap = m_Action?.action?.actionMap;
+            return actionMap != null && actionMap.SelectMany(action => action.bindings).Any(binding => binding.overridePath != null);
         }
 
         protected void OnEnable()
@@ -489,19 +530,23 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
         private InputActionRebindingExtensions.RebindingOperation m_RebindOperation;
 
         private static List<RebindActionUI> s_RebindActionUIs;
+        
 
         // We want the label for the action name to update in edit mode, too, so
         // we kick that off from here.
         #if UNITY_EDITOR
         protected void OnValidate()
         {
-            UpdateActionLabel();
+            // Hide the action labels in the editor as they clutter the UI.
+            if (m_ActionLabel && !Application.isPlaying && Application.isEditor) m_ActionLabel.text = string.Empty;
+            else UpdateActionLabel();
+
             UpdateBindingDisplay();
         }
 
         #endif
 
-        private void UpdateActionLabel()
+        public void UpdateActionLabel()
         {
             if (m_ActionLabel != null)
             {
@@ -517,7 +562,7 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                     m_ActionLabelString = string.Empty;
                 }
                 
-                m_ActionLabel.text = action != null ? action.name : string.Empty;
+                //m_ActionLabel.text = action != null ? action.name : string.Empty;
             }
         }
 

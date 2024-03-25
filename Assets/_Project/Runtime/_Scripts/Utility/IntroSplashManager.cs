@@ -1,6 +1,4 @@
-using System.Collections;
 using DG.Tweening;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Logger = Lumina.Debugging.Logger;
@@ -14,19 +12,23 @@ public class IntroSplashManager : MonoBehaviour
     // -- Serialized Fields --
     [SerializeField] Image splashScreen;
     [SerializeField] float splashScreenDuration;
-    [SerializeField] TMP_Text pressAnyButtonText;
+
+    [SerializeField] GameObject keyboardPrompts;
+    [SerializeField] GameObject gamepadPrompts;
 
     // -- Cached References --
     IntroPlayerInitializer playerInitializer;
     InputDeviceManager deviceManager;
+    ButtonPromptsManager buttonPromptsManager;
     
     void Awake()
     {
         playerInitializer = FindObjectOfType<IntroPlayerInitializer>();
         deviceManager = FindObjectOfType<InputDeviceManager>();
+        buttonPromptsManager = FindObjectOfType<ButtonPromptsManager>();
     }
 
-    IEnumerator Start()
+    void Start()
     {
         GameManager.SetState(GameManager.GameState.Transitioning);
         
@@ -34,7 +36,9 @@ public class IntroSplashManager : MonoBehaviour
         if (Logger.DebugMode)
         {
             Destroy(splashScreen.gameObject);
-            yield break;
+            gamepadPrompts.transform.localScale = Vector3.one;
+            buttonPromptsManager.ShowGamepadPrompts(SceneManagerExtended.ActiveSceneName, true);
+            return;
         } 
 
         splashScreen.gameObject.SetActive(true);
@@ -43,27 +47,23 @@ public class IntroSplashManager : MonoBehaviour
         playerInitializer.enabled = false;
         deviceManager.enabled = false;
         
-        // Make the "Press any button" text invisible.
-        pressAnyButtonText.alpha = 0f;
+        // Default to showing the Gamepad prompts.
+        buttonPromptsManager.ShowGamepadPrompts(SceneManagerExtended.ActiveSceneName, true);
+        gamepadPrompts.transform.localScale = Vector3.zero;
         
-        yield return new WaitForSeconds(0.2f);
-        
-        splashScreen.DOFade(0f, splashScreenDuration).OnComplete(() =>
+        Sequence sequence = DOTween.Sequence();
+        sequence.Append(splashScreen.DOFade(0f, splashScreenDuration));
+        sequence.Append(gamepadPrompts.transform.DOScale(1.25f, 1f));
+        sequence.Append(gamepadPrompts.transform.DOScale(1f, 0.25f).SetEase(Ease.OutBack));
+        sequence.AppendInterval(0.5f);
+        sequence.OnComplete
+        (() =>
         {
             Destroy(splashScreen.gameObject);
-            FadeInText();
-        });
-    }
 
-    // Fades in the buttons and text once the splash screen is done fading.
-    void FadeInText() //TODO: DOTween makes this easier.
-    {
-        pressAnyButtonText.DOFade(1f, 1f).OnComplete(() =>
-        {
-            // Enable all input after the splash screen is done fading and the buttons and text are visible.
             playerInitializer.enabled = true;
-            deviceManager.enabled = true;
-            
+            deviceManager.enabled     = true;
+
             GameManager.SetState(GameManager.GameState.Intro);
         });
     }

@@ -60,6 +60,7 @@ public class ButtonPromptsManager : MonoBehaviour
     
     #region VInspector Data
     // Makes sure the inspector data is saved when recompiling. (Foldouts keep their open/close state)
+    // ReSharper disable once UnusedMember.Global
     public VInspectorData VInspectorData;
     #endregion
     
@@ -68,7 +69,7 @@ public class ButtonPromptsManager : MonoBehaviour
     string characterSelect;
     string game;
 
-    void Start()
+    void Awake()
     {
         intro           = SceneManager.GetSceneByBuildIndex(0).name;
         mainMenu        = SceneManager.GetSceneByBuildIndex(1).name;
@@ -126,41 +127,6 @@ public class ButtonPromptsManager : MonoBehaviour
         if (deviceType is Keyboard && KB_movePrompt != null) KB_movePrompt.SetActive(false);
     }
 
-    #region PERFORMANCE TEST
-    void HidePromptsWithoutReflection(InputDevice deviceType)
-    {
-        if (deviceType == null)
-        {
-            Debug.LogWarning("The device type is null. Please assign a valid device type.");
-            return;
-        }
-
-        if (deviceType is Keyboard)
-        {
-            if (KB_mainMenuPrompt        != null) KB_mainMenuPrompt.Toggle(false);
-            if (KB_quitGamePrompt        != null) KB_quitGamePrompt.Toggle(false);
-            if (KB_confirmPrompt         != null) KB_confirmPrompt.Toggle(false);
-            if (KB_toggleMenuLeftPrompt  != null) KB_toggleMenuLeftPrompt.Toggle(false);
-            if (KB_toggleMenuRightPrompt != null) KB_toggleMenuRightPrompt.Toggle(false);
-            if (KB_resetDefaultsPrompt   != null) KB_resetDefaultsPrompt.Toggle(false);
-            if (KB_movePrompt            != null) KB_movePrompt.SetActive(false);
-            if (KB_cancelPrompt          != null) KB_cancelPrompt.Toggle(false);
-        }
-
-        if (deviceType is Gamepad)
-        {
-            if (GP_mainMenuPrompt        != null) GP_mainMenuPrompt.Toggle(false);
-            if (GP_quitGamePrompt        != null) GP_quitGamePrompt.Toggle(false);
-            if (GP_confirmPrompt         != null) GP_confirmPrompt.Toggle(false);
-            if (GP_toggleMenuLeftPrompt  != null) GP_toggleMenuLeftPrompt.Toggle(false);
-            if (GP_toggleMenuRightPrompt != null) GP_toggleMenuRightPrompt.Toggle(false);
-            if (GP_resetDefaultsPrompt   != null) GP_resetDefaultsPrompt.Toggle(false);
-            if (GP_movePrompt            != null) GP_movePrompt.Toggle(false);
-            if (GP_cancelPrompt          != null) GP_cancelPrompt.Toggle(false);
-        }
-    }
-    #endregion
-
     public void ShowGamepadPrompts(string scene, bool show) => ShowByScene(Gamepad.current, scene, show);
     public void ShowKeyboardPrompts(string scene, bool show) => ShowByScene(Keyboard.current, scene, show);
     
@@ -169,12 +135,8 @@ public class ButtonPromptsManager : MonoBehaviour
 
     void ShowByScene(InputDevice deviceType, string scene, bool show)
     {
-        if (deviceType == null)
-        {
-            Debug.LogWarning("The device type is null. Please assign a valid device type.");
-            return;
-        }
-        
+        deviceType ??= Keyboard.current;
+
         switch (deviceType)
         {
             case Keyboard:

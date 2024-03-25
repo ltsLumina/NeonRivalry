@@ -196,6 +196,14 @@ public partial class PlayerController : MonoBehaviour
         }
         
         PlayerID = PlayerInput.playerIndex + 1;
+        
+        // TODO: Assign the player input actions asset to the player input.
+        RebindSaveLoad rebindSaveLoad = FindObjectOfType<RebindSaveLoad>();
+        PlayerInput.actions = PlayerID == 1 ? rebindSaveLoad.player1Actions : rebindSaveLoad.player2Actions;
+        PlayerInput.actions.Disable();
+        PlayerInput.SwitchCurrentActionMap($"Player {PlayerID}");
+        PlayerInput.actions.Enable();
+        
         gameObject.name = $"Player {PlayerID}";
         
         // Parenting the player to the header is purely for organizational purposes.

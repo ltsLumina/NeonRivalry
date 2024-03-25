@@ -76,7 +76,7 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
             using (new EditorGUI.IndentLevelScope())
             {
                 EditorGUILayout.PropertyField(m_actionOverRideProperty);
-
+                
                 if (m_RebindActionUI.m_OverRideActionLabel)
                 {
                     EditorGUILayout.PropertyField(m_actionOverRideStringProperty);

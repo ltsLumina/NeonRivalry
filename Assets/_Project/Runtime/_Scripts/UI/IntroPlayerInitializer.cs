@@ -16,17 +16,12 @@ using UnityEngine.InputSystem.UI;
 /// </summary>
 public class IntroPlayerInitializer : MonoBehaviour
 {
-    //[SerializeField] GameObject loadingScreen;
-    
     Sound intro;
 
     IEnumerator Start()
     {
         // Enable the button prompts.
         var buttonPromptsManager = FindObjectOfType<ButtonPromptsManager>();
-        
-        // Default to gamepad prompts.
-        buttonPromptsManager.ShowGamepadPrompts(SceneManagerExtended.ActiveSceneName, true);
         
         // ReSharper disable once NotAccessedVariable
         MultiplayerEventSystem player = null;

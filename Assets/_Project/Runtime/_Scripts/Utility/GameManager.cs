@@ -48,15 +48,20 @@ public class GameManager : MonoBehaviour
 
     /// <summary> Event that is invoked when the game STATE changes. </summary>
     public static event Action<GameState> OnGameStateChanged;
+
+#if !UNITY_EDITOR
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
+    static void DisableCursor()
+    {
+        // Disable the cursor in a build
+        Cursor.visible   = false;
+        Cursor.lockState = CursorLockMode.Locked;
+    }
+#endif
     
     void Awake()
     {
         Application.targetFrameRate = TARGET_FPS;
-
-        // Disable the cursor in a build
-#if !UNITY_EDITOR
-        Cursor.visible = false;
-#endif
         
         // Reset timescale if the game was paused when the scene was unloaded
         IsPaused = false;
@@ -88,6 +93,9 @@ public class GameManager : MonoBehaviour
             
             case 1: // Main Menu
                 SetState(GameState.MainMenu);
+#if !UNITY_EDITOR
+                DisableCursor();
+#endif
                 MenuManager.LoadSettings();
                 AudioManager.StopAll();
                 

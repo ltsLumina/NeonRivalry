@@ -33,7 +33,8 @@ public class QuickAccessWindow : EditorWindow
     { { "help", "Shows the list of available commands." },
       { "hitbox", "Increases the hitbox damage to 34." },
       { "heal", "Heals all players to full health." },
-      { "kill", "Kills player one."}
+      { "kill", "Kills player one."},
+      {"reset", "Resets all PlayerPrefs. Used for debugging."}
       };
 
     readonly static List<string> addedScenes = new ();
@@ -378,6 +379,7 @@ public class QuickAccessWindow : EditorWindow
                 CreateButtonWithAction("Increase Damage", () => HitboxCommand("Increased hitbox damage to 34."));
                 CreateButtonWithAction("Heal All Players", () => HealCommand("Healed all players to full health."));
                 CreateButtonWithAction("Kill Player One", () => KillCommand("Killed player one."));
+                CreateButtonWithAction("Reset PlayerPrefs", PlayerPrefs.DeleteAll);
             }
             
             Space(10);
@@ -464,6 +466,11 @@ public class QuickAccessWindow : EditorWindow
                 
                 case var command when command.Contains("kill"):
                     KillCommand(message);
+                    break;
+                
+                case var command when command.Contains("reset"):
+                    PlayerPrefs.DeleteAll();
+                    Debug.LogWarning("Reset PlayerPrefs.");
                     break;
 
                 default:

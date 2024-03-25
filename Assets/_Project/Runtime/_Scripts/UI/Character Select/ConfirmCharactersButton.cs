@@ -15,6 +15,11 @@ public class ConfirmCharactersButton : MonoBehaviour
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            ConfirmCharacters();
+        }
+        
         confirming = CharacterSelector.SelectedCharacters.Count == 2;
 
         if (confirming) ConfirmCharacters();

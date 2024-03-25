@@ -32,14 +32,15 @@ public class MenuNavigator : MonoBehaviour
     
     MultiplayerEventSystem eventSystem;
     GameObject previousSelectedGameObject;
+    
+    public delegate void SelectionChanged(GameObject previousSelectedGameObject, GameObject currentSelectedGameObject);
+    public static event SelectionChanged OnSelectionChanged;
 
     // In the case of the Menu Navigator game object, the PlayerInput is tied to this game object.
     // The Player's UI Navigator, however, is childed to the Player's game object.
     void Awake()
     {
         playerInput = GetComponent<PlayerInput>();
-
-        if (playerInput == null) transform.parent.GetComponentInChildren<PlayerInput>();
         eventSystem = GetComponent<MultiplayerEventSystem>();
     }
     
@@ -74,16 +75,29 @@ public class MenuNavigator : MonoBehaviour
         }
 
         ProcessButton(button.GetComponent<Button>());
+        
+        previousSelectedGameObject = eventSystem.currentSelectedGameObject;
     }
     
     public void OnNavigate(InputAction.CallbackContext context)
     {
         var input = context.ReadValue<Vector2>();
-        
-        if (ActiveScene == MainMenu)
+
+        // Check for selection
+        if (eventSystem.currentSelectedGameObject != previousSelectedGameObject)
         {
-            if (input.y > 0) navigateUp.Play();
-            if (input.y < 0 ) navigateDown.Play();
+            int previousIndex = previousSelectedGameObject.transform.parent.GetSiblingIndex();
+            int currentIndex  = eventSystem.currentSelectedGameObject.transform.parent.GetSiblingIndex();
+
+            if (currentIndex      < previousIndex) navigateUp.Play();
+            else if (currentIndex > previousIndex) navigateDown.Play();
+
+            OnSelectionChanged?.Invoke(previousSelectedGameObject, eventSystem.currentSelectedGameObject);
+            previousSelectedGameObject = eventSystem.currentSelectedGameObject;
+        }
+
+        if (ActiveScene == MainMenu || ActiveScene == CharacterSelect)
+        {
             if (input.x < 0) navigateLeft.Play();
             if (input.x > 0) navigateRight.Play();
         }
@@ -151,7 +165,23 @@ public class MenuNavigator : MonoBehaviour
 
         if (ActiveScene == CharacterSelect)
         {
-            FindObjectOfType<GridLayoutGroup>().transform.GetChild(0).GetComponentInChildren<Button>().Select();
+            // TODO: I need to redo this, but this was too funny to remove.
+            var grids = FindObjectsOfType<GridLayoutGroup>();
+            var gridLeft = grids.FirstOrDefault(g => g.padding.left == 1);
+            var gridRight = grids.FirstOrDefault(g => g.padding.right == 1);
+
+            switch (playerID)
+            {
+                case 1:
+                    var buttonLeft = gridLeft?.transform.GetChild(0).GetComponentInChildren<Button>();
+                    eventSystem.SetSelectedGameObject(buttonLeft.gameObject);
+                    break;
+
+                case 2:
+                    var buttonRight = gridRight?.transform.GetChild(0).GetComponentInChildren<Button>();
+                    eventSystem.SetSelectedGameObject(buttonRight.gameObject);
+                    break;
+            }
         }
     }
     
