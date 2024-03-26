@@ -88,7 +88,7 @@ public class InputManager : MonoBehaviour
         bool IsBlocking()
         {
             // Get the direction to the other player
-            Vector3 toOtherPlayer = PlayerManager.OtherPlayer(player).transform.position - player.transform.position;
+            Vector3 toOtherPlayer = PlayerManager.OtherPlayerController(player).transform.position - player.transform.position;
             toOtherPlayer.Normalize();
 
             // Get the direction of movement

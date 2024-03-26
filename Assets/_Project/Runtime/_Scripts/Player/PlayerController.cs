@@ -1,6 +1,7 @@
 #region
 #if UNITY_EDITOR
 #endif
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
@@ -210,20 +211,30 @@ public partial class PlayerController : MonoBehaviour
         const string headerTag = "[Header] Players";
         Transform header = GameObject.FindGameObjectWithTag(headerTag).transform;
         transform.SetParent(header);
-        
-        var playerManager = PlayerManager.Instance;
-        playerManager.SetPlayerSpawnPoint(this, PlayerID);
+
+        SetPlayerSpawnPoint();
         PlayerManager.AssignHealthbarToPlayer(this, PlayerID);
 
         Healthbar.OnPlayerDeath += Death;
+
+        return;
+        void SetPlayerSpawnPoint()
+        {
+            Action action = PlayerID switch
+            { 1 => () => transform.position = new Vector3(-4, 2),
+              2 => () => transform.position = new Vector3(4, 2),
+              _ => () => Debug.LogError($"Invalid PlayerID: {PlayerID}. Expected either 1 or 2."), };
+
+            action();
+        }
     }
 
     void RotateToFaceEnemy()
     {
-        if (PlayerManager.OtherPlayer(this) == null) return;
+        if (PlayerManager.OtherPlayerController(this) == null) return;
         
-        List<PlayerController> players        = PlayerManager.Players;
-        PlayerController       oppositePlayer = players[PlayerID == 1 ? 1 : 0];
+        List<Player> players        = PlayerManager.Players;
+        PlayerController       oppositePlayer = players[PlayerID == 1 ? 1 : 0].PlayerController;
         Transform              model          = transform.GetComponentInChildren<Animator>().transform;
 
         Quaternion targetRotation;

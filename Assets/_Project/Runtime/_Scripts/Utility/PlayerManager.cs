@@ -7,40 +7,35 @@ using UnityEngine.InputSystem;
 /// The PlayerManager class is used to manage ALL players in the game including their settings, properties, and actions.
 /// <seealso cref="PlayerController"/>
 /// </summary>
-public partial class PlayerManager : MonoBehaviour // TODO: Remake this to a static class.
+public static class PlayerManager
 {
-    public static PlayerManager Instance { get; private set; }
-
-    // -- Player Settings --
-    
-    [Header("Settings"), Space(5)]
-    [SerializeField] PlayerDetails playerDetails;
-
-    PlayerSpawnPoint PlayerSpawnPoints => playerDetails.playerSpawnPoints;
-
     #region Player List & Properties
     /// <summary>
     /// Maintains a list of all PlayerController instances.
     /// </summary>
-    public static List<PlayerController> Players { get; } = new ();
+    public static List<Player> Players { get; } = new ();
+    
+    //public static List<MenuNavigator> Players { get; } = new ();
 
     /// <summary>
     /// Gets the first player in the Players list if it exists; otherwise returns null.
     /// This property is often used when accessing the PlayerController component of the first player.
     /// </summary>
-    public static PlayerController PlayerOne => Players.Count >= 1 ? Players[0] : null;
-
+    //public static PlayerController PlayerOne => Players.Count >= 1 ? Players[0].PlayerController : null;
+    public static Player PlayerOne => Players.Count >= 1 ? new Player(playerController: Players[0].PlayerController, menuNavigator: Players[0].MenuNavigator) : null;
+    
     /// <summary>
     /// Gets the second player in the Players list if it exists; otherwise returns null.
     /// This property is often used when accessing the PlayerController component of the second player.
     /// </summary>
-    public static PlayerController PlayerTwo => Players.Count >= 2 ? Players[1] : null;
+    //public static PlayerController PlayerTwo => Players.Count >= 2 ? Players[1].PlayerController : null;
+    public static Player PlayerTwo => Players.Count >= 2 ? new Player(playerController: Players[1].PlayerController, menuNavigator: Players[1].MenuNavigator) : null;
 
     /// <summary>
     /// Gets the first player in the Players list if it exists; otherwise returns null.
     /// This property provides a quick reference to verify if there are any players active. Useful in scenarios such as determining if any player is currently taking damage.
     /// </summary>
-    public static PlayerController AnyPlayer => Players.Count > 0 ? Players[0] : null;
+    public static PlayerController AnyPlayer => Players.Count > 0 ? Players[0].PlayerController : null;
     
     /// <summary>
     /// Gets the player with the specified player ID if it exists.
@@ -48,7 +43,7 @@ public partial class PlayerManager : MonoBehaviour // TODO: Remake this to a sta
     /// </summary>
     /// <param name="playerID"> The player ID of the player to get. </param>
     /// <returns> The player with the specified player ID if it exists; otherwise returns null. </returns>
-    public static PlayerController GetPlayer(int playerID) => Players[playerID - 1];
+    public static PlayerController GetPlayer(int playerID) => Players[playerID - 1].PlayerController;
 
     /// <summary>
     /// Gets the number of players that are currently in the 'Players' list.
@@ -59,9 +54,9 @@ public partial class PlayerManager : MonoBehaviour // TODO: Remake this to a sta
 
     #region Hurtboxes
     /// <summary> <returns> The <see cref="HurtBox"/> component of Player One. </returns> </summary>
-    public static HurtBox PlayerOneHurtBox => PlayerOne.HurtBox;
+    public static HurtBox PlayerOneHurtBox => PlayerOne.PlayerController.HurtBox;
     /// <summary> <returns> The <see cref="HurtBox"/> component of Player Two. </returns> </summary>
-    public static HurtBox PlayerTwoHurtBox => PlayerTwo.HurtBox;
+    public static HurtBox PlayerTwoHurtBox => PlayerTwo.PlayerController.HurtBox;
     #endregion
 
     #region PlayerInput
@@ -73,43 +68,36 @@ public partial class PlayerManager : MonoBehaviour // TODO: Remake this to a sta
     /// <summary>
     /// Gets the first PlayerInput instance if it exists; otherwise returns null.
     /// </summary>
-    public static PlayerInput PlayerOneInput => PlayerOne.PlayerInput;
+    public static PlayerInput PlayerOneInput => PlayerOne.PlayerController.PlayerInput;
     
     /// <summary>
     /// Gets the second PlayerInput instance if it exists; otherwise returns null.
     /// </summary>
-    public static PlayerInput PlayerTwoInput => PlayerTwo.PlayerInput;
+    public static PlayerInput PlayerTwoInput => PlayerTwo.PlayerController.PlayerInput;
     #endregion
-    
-    void Awake()
-    {
-        Instance = this;
-        
-        // Clear the players list on awake to prevent duplicate players,
-        // as well as due to the nature of Enter Playmode Options not clearing static variables on restart.
-        Players.Clear();
-    }
 
     #region Utility
-    public static PlayerController OtherPlayer(PlayerController player)
+    public static PlayerController OtherPlayerController(PlayerController player)
     {
-        if (player != null) return player == PlayerOne ? PlayerTwo : PlayerOne;
+        if (player != null) return player == PlayerOne.PlayerController ? PlayerTwo.PlayerController : PlayerOne.PlayerController;
         Debug.LogError("The player is null. Please assign a valid player.");
         return null;
     }
 
-    public static void AddPlayer(PlayerController player) => Players.Add(player);
-    public static void RemovePlayer(PlayerController player) => Players.Remove(player);
-
-    public void SetPlayerSpawnPoint(PlayerController player, int PlayerID)
+    public static MenuNavigator OtherMenuNavigator(Player player)
     {
-        Action action = PlayerID switch
-        { 1 => () => player.transform.position = PlayerSpawnPoints.playerOneSpawnPoint,
-          2 => () => player.transform.position = PlayerSpawnPoints.playerTwoSpawnPoint,
-          _ => () => Debug.LogError($"Invalid PlayerID: {PlayerID}. Expected either 1 or 2."), };
-
-        action();
+        if (player != null) return player == PlayerOne ? PlayerTwo.MenuNavigator : PlayerOne.MenuNavigator;
+        Debug.LogError("The player is null. Please assign a valid player.");
+        return null;
     }
+
+    // AddPlayer, but allow both PlayerController and MenuNavigator class
+    public static void AddPlayer(PlayerController playerController = default, MenuNavigator menuNavigator = default)
+    {
+        Player player = new(playerController, menuNavigator);
+        Players.Add(player);
+    }
+    public static void RemovePlayer(Player player) => Players.Remove(player);
 
     public static void AssignHealthbarToPlayer(PlayerController player, int playerID)
     {
@@ -148,4 +136,16 @@ public partial class PlayerManager : MonoBehaviour // TODO: Remake this to a sta
         player.Healthbar.Initialize();
     }
     #endregion
+}
+
+public class Player
+{
+    public PlayerController PlayerController { get; set; }
+    public MenuNavigator MenuNavigator { get; set; }
+
+    public Player(PlayerController playerController, MenuNavigator menuNavigator)
+    {
+        PlayerController = playerController;
+        MenuNavigator    = menuNavigator;
+    }
 }

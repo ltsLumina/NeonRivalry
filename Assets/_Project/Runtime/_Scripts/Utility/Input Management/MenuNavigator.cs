@@ -16,6 +16,12 @@ using static SceneManagerExtended;
 public class MenuNavigator : MonoBehaviour
 {
     [SerializeField, ReadOnly] int playerID;
+
+    public int PlayerID
+    {
+        get => playerID;
+        set => playerID = value;
+    }
     
     // -- Fields --
     PlayerInput playerInput;
@@ -47,6 +53,8 @@ public class MenuNavigator : MonoBehaviour
     
     void Start()
     {
+        PlayerManager.AddPlayer(null, this);
+        
         InitializeAudio();
 
         // -- other --
@@ -61,7 +69,7 @@ public class MenuNavigator : MonoBehaviour
         // Usually we would use player.PlayerID, but there is no "player" instance until the game scene.
         playerID = playerInput.playerIndex + 1;
 
-        if (playerID == 2 && IsNotSupportedForPlayer2(sceneIndex))
+        if (playerID == 2 && SceneNotSupportedForPlayer2(sceneIndex))
         {
             Debug.LogWarning($"Player 2 is not supported in the {sceneName} scene.");
             return;
@@ -173,94 +181,8 @@ public class MenuNavigator : MonoBehaviour
         }
     }
 
-    public void OnMenu(InputAction.CallbackContext context)
-    {
-        if (CharacterSelectScene)
-        {
-            bool isMenuOpen = false;
-            
-            switch (playerID) 
-            {
-                case 1:
-                    GameObject player1Menu = FindObjectOfType<RebindSaveLoad>().transform.GetChild(0).gameObject;
-                    var        player1Diagram     = player1Menu.GetComponentInChildren<DiagramSelector>(true);
-                    player1Menu.SetActive(!player1Menu.activeSelf);
-                    isMenuOpen = player1Menu.activeSelf;
+    public void OnMenu(InputAction.CallbackContext context) => CharacterSelectManager.ToggleCharacterSettingsMenu(playerID, playerInput, eventSystem);
 
-                    switch (playerInput.currentControlScheme)
-                    {
-                        case "Gamepad": 
-                        {
-                            GameObject gamepad = player1Menu.GetComponentInChildren<GamepadIconsExample>(true).gameObject;
-                            gamepad.SetActive(!gamepad.activeSelf);
-                            
-                            // Enable the diagram
-                            player1Diagram.ShowDiagram();
-
-                            eventSystem.SetSelectedGameObject(gamepad.transform.GetChild(0)?.GetComponentInChildren<Button>().gameObject);
-                            break;
-                        }
-
-                        case "Keyboard": 
-                        {
-                            GameObject keyboard = player1Menu.GetComponentInChildren<KeyboardIconsExample>(true).gameObject;
-                            keyboard.SetActive(!keyboard.activeSelf);
-
-                            // Enable the diagram
-                            player1Diagram.ShowDiagram();
-
-                            eventSystem.SetSelectedGameObject(keyboard.transform.GetChild(0)?.GetComponentInChildren<Button>().gameObject);
-                            break;
-                        }
-                    }
-                    break;
-
-                case 2:
-                    GameObject player2Menu    = FindObjectOfType<RebindSaveLoad>().transform.GetChild(1).gameObject;
-                    var        player2Diagram = player2Menu.GetComponentInChildren<DiagramSelector>(true);
-                    player2Menu.SetActive(!player2Menu.activeSelf);
-                    isMenuOpen = player2Menu.activeSelf;
-                    
-                    switch (playerInput.currentControlScheme)
-                    {
-                        case "Gamepad": 
-                        {
-                            GameObject gamepad = player2Menu.GetComponentInChildren<GamepadIconsExample>(true).gameObject;
-                            gamepad.SetActive(!gamepad.activeSelf);
-                            
-                            // Enable the diagram
-                            player2Diagram.ShowDiagram();
-
-                            eventSystem.SetSelectedGameObject(gamepad.transform.GetChild(0)?.GetComponentInChildren<Button>().gameObject);
-                            break;
-                        }
-
-                        case "Keyboard": 
-                        {
-                            GameObject keyboard = player2Menu.GetComponentInChildren<KeyboardIconsExample>(true).gameObject;
-                            keyboard.SetActive(!keyboard.activeSelf);
-                            
-                            // Enable the diagram
-                            player2Diagram.ShowDiagram();
-
-                            eventSystem.SetSelectedGameObject(keyboard.transform.GetChild(0)?.GetComponentInChildren<Button>().gameObject);
-                            break;
-                        }
-                    }
-                    break;
-            }
-
-            if (!isMenuOpen)
-            {
-                closeMenu.Play();
-
-                // Set the selection back to the player's character button.
-                var characterButton = GameObject.Find($"Player {playerID}").transform.GetChild(0).gameObject.GetComponent<Button>();
-                eventSystem.SetSelectedGameObject(characterButton.gameObject);
-            }
-        }
-    }
-    
     void InitializeAudio()
     {
         // Initialize the navigation sounds.
@@ -290,7 +212,7 @@ public class MenuNavigator : MonoBehaviour
         CSNavigateRight.SetOutput(Output.SFX);
     }
 
-    static bool IsNotSupportedForPlayer2(int sceneIndex)
+    static bool SceneNotSupportedForPlayer2(int sceneIndex)
     {
         int[] nonSupportedSceneIndex =
         { Intro, MainMenu }; 

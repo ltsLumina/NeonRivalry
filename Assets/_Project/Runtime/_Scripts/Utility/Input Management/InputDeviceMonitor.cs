@@ -23,7 +23,7 @@ public class InputDeviceMonitor : MonoBehaviour //TODO: FINISH THIS
             
             foreach (var player in PlayerManager.Players)
             {
-                player.DisablePlayer(true);
+                player.PlayerController.DisablePlayer(true);
             } 
         }
     }

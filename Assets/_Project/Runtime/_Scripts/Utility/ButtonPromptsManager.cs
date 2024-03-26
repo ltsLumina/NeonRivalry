@@ -101,11 +101,8 @@ public class ButtonPromptsManager : MonoBehaviour
 
     void HidePrompts(InputDevice deviceType)
     {
-        if (deviceType == null)
-        {
-            Debug.LogWarning("The device type is null. Please assign a valid device type.");
-            return;
-        }
+        // This is null if a controller is not connected. Not an issue.
+        if (deviceType == null) return;
 
         // Get all fields of type ButtonPrompt
         var fields = GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance).Where(field => field.FieldType == typeof(ButtonPrompt));

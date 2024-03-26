@@ -60,7 +60,7 @@ public class RoundManager : MonoBehaviour
         currentRound++;
      
         // Increment the score of the player that didn't die.
-        if (playerThatDied == PlayerManager.PlayerOne)
+        if (playerThatDied == PlayerManager.PlayerOne.PlayerController)
         {
             playerScores["Player 2"]++;
             player1WonRounds++;

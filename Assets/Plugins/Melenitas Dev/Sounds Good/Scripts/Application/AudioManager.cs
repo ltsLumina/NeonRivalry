@@ -2,6 +2,7 @@
  * All rights to the Sounds Good plugin, © Created by Melenitas Dev, are reserved.
  * Distribution of the standalone asset is strictly prohibited.
  */
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MelenitasDev.SoundsGood.Domain;

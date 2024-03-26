@@ -61,6 +61,9 @@ public class GameManager : MonoBehaviour
     
     void Awake()
     {
+        // Needs to be reset due to EnterPlaymodeOptions
+        PlayerManager.Players.Clear();
+        
         Application.targetFrameRate = TARGET_FPS;
         
         // Reset timescale if the game was paused when the scene was unloaded
@@ -176,7 +179,7 @@ public class GameManager : MonoBehaviour
         IsPaused = !IsPaused;
         SetState(IsPaused ? GameState.Paused : GameState.Playing);
 
-        foreach (var player in PlayerManager.Players) { player.DisablePlayer(IsPaused); }
+        foreach (var player in PlayerManager.Players) { player.PlayerController.DisablePlayer(IsPaused); }
 
         var UIManager = FindObjectOfType<UIManager>();
         UIManager.PauseMenu.SetActive(IsPaused);
@@ -187,13 +190,13 @@ public class GameManager : MonoBehaviour
             UIManager.PauseMenuTitle.text = $"Paused (Player {PausingPlayer.PlayerID})";
 
             PausingPlayer.GetComponentInChildren<MultiplayerEventSystem>().SetSelectedGameObject(UIManager.PauseMenuButtons[0].gameObject);
-            var otherPlayer = PlayerManager.OtherPlayer(PausingPlayer);
+            var otherPlayer = PlayerManager.OtherPlayerController(PausingPlayer);
             if (otherPlayer != null) otherPlayer.PlayerInput.enabled = !IsPaused;
         }
         else
         {
             PausingPlayer.GetComponentInChildren<MultiplayerEventSystem>().SetSelectedGameObject(null);
-            var otherPlayer = PlayerManager.OtherPlayer(PausingPlayer);
+            var otherPlayer = PlayerManager.OtherPlayerController(PausingPlayer);
             if (otherPlayer != null) otherPlayer.PlayerInput.enabled = !IsPaused;
 
             PausingPlayer = null;
