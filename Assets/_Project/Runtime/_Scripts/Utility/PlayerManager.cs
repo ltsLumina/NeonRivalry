@@ -1,17 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 /// <summary>
-/// The PlayerManager class is used to manage ALL players in the game including their settings, properties, and actions.
+/// The PlayerManager class is used to manage all players in the game.
+/// Contains useful methods and properties for managing players.
 /// <seealso cref="PlayerController"/>
 /// </summary>
 public static class PlayerManager
 {
+    public enum PlayerID
+    {
+        PlayerOne = 1,
+        PlayerTwo = 2
+    }
+    
     #region Player List & Properties
     /// <summary>
-    /// Maintains a list of all PlayerController instances.
+    /// Maintains a list of all Player instances.
     /// </summary>
     public static List<Player> Players { get; } = new ();
     
@@ -28,28 +35,30 @@ public static class PlayerManager
     /// Gets the second player in the Players list if it exists; otherwise returns null.
     /// This property is often used when accessing the PlayerController component of the second player.
     /// </summary>
-    //public static PlayerController PlayerTwo => Players.Count >= 2 ? Players[1].PlayerController : null;
     public static Player PlayerTwo => Players.Count >= 2 ? new Player(playerController: Players[1].PlayerController, menuNavigator: Players[1].MenuNavigator) : null;
+
+    /// <summary>
+    /// Gets the player with the specified player ID if it exists.
+    /// </summary>
+    /// <param name="playerID"></param>
+    /// <returns></returns>
+    public static Player GetPlayer(PlayerID playerID) => playerID switch
+    { PlayerID.PlayerOne => PlayerOne,
+      PlayerID.PlayerTwo => PlayerTwo,
+      _                  => null };
 
     /// <summary>
     /// Gets the first player in the Players list if it exists; otherwise returns null.
     /// This property provides a quick reference to verify if there are any players active. Useful in scenarios such as determining if any player is currently taking damage.
     /// </summary>
-    public static PlayerController AnyPlayer => Players.Count > 0 ? Players[0].PlayerController : null;
-    
-    /// <summary>
-    /// Gets the player with the specified player ID if it exists.
-    /// <para> Use ID 1 for Player One and ID 2 for Player Two. </para>
-    /// </summary>
-    /// <param name="playerID"> The player ID of the player to get. </param>
-    /// <returns> The player with the specified player ID if it exists; otherwise returns null. </returns>
-    public static PlayerController GetPlayer(int playerID) => Players[playerID - 1].PlayerController;
+    public static PlayerController AnyPlayer => Players.Count >= 1 ? Players[0].PlayerController : null;
 
     /// <summary>
-    /// Gets the number of players that are currently in the 'Players' list.
-    /// Does not reflect the number of players that are currently in the game.
+    /// Gets the number of players that are currently in the 'Players' list as PlayerControllers.
     /// </summary>
-    public static int PlayerCount => Players.Count;
+    public static int PlayerControllerCount => Players.Count(p => p.PlayerController);
+    
+    public static int MenuNavigatorCount => Players.Count(p => p.MenuNavigator);
     #endregion
 
     #region Hurtboxes
@@ -63,7 +72,7 @@ public static class PlayerManager
     /// <summary>
     /// A list of all PlayerInput instances.
     /// </summary>
-    public static List<PlayerInput> PlayerInputs => new (PlayerInput.all);
+    public static IEnumerable<PlayerInput> PlayerInputs => Players.ConvertAll(player => player.PlayerController.PlayerInput);
 
     /// <summary>
     /// Gets the first PlayerInput instance if it exists; otherwise returns null.
@@ -108,10 +117,10 @@ public static class PlayerManager
           { 2, ("[Healthbar] Right", "Healthbar (Player 2) (Right)") } };
 
         // If the player's ID is not in the dictionary, return.
-        if (!idMapping.ContainsKey(playerID)) return;
+        if (!idMapping.TryGetValue(playerID, out (string tag, string name) key)) return;
 
         // Get the tag and name of the healthbar.
-        (string tag, string name) = idMapping[playerID];
+        (string tag, string name) = key;
 
         // Set the player's healthbar depending on the player's ID. Player 1 is on the left, Player 2 is on the right.
         var healthbar = GameObject.FindGameObjectWithTag(tag).GetComponent<Healthbar>();
@@ -140,8 +149,8 @@ public static class PlayerManager
 
 public class Player
 {
-    public PlayerController PlayerController { get; set; }
-    public MenuNavigator MenuNavigator { get; set; }
+    public PlayerController PlayerController { get; }
+    public MenuNavigator MenuNavigator { get; }
 
     public Player(PlayerController playerController, MenuNavigator menuNavigator)
     {

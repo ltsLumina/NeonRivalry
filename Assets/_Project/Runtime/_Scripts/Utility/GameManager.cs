@@ -179,7 +179,11 @@ public class GameManager : MonoBehaviour
         IsPaused = !IsPaused;
         SetState(IsPaused ? GameState.Paused : GameState.Playing);
 
-        foreach (var player in PlayerManager.Players) { player.PlayerController.DisablePlayer(IsPaused); }
+        foreach (var player in PlayerManager.Players)
+        {
+            if (player.PlayerController == null) continue;
+            player.PlayerController.DisablePlayer(IsPaused);
+        }
 
         var UIManager = FindObjectOfType<UIManager>();
         UIManager.PauseMenu.SetActive(IsPaused);

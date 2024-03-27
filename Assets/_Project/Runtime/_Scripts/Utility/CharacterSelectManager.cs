@@ -1,17 +1,19 @@
 #region
+using System;
 using MelenitasDev.SoundsGood;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Samples.RebindUI;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
+using VInspector;
 using static SceneManagerExtended;
 #endregion
 
 public class CharacterSelectManager : MonoBehaviour
 {
     static Sound closeMenu;
-    
+
     void Start()
     {
         closeMenu = new (SFX.MenuClose);
@@ -36,14 +38,14 @@ public class CharacterSelectManager : MonoBehaviour
             bool isMenuOpen = playerMenu.activeSelf;
 
             // Show the appropriate menu.
-            GameObject controlSchemeObject = ShowDeviceMenu(playerInput.currentControlScheme, playerMenu);
-            controlSchemeObject.SetActive(!controlSchemeObject.activeSelf);
+            GameObject deviceMenu = ShowDeviceMenu(playerInput.currentControlScheme, playerMenu);
+            deviceMenu.SetActive(!deviceMenu.activeSelf);
 
             // Enable the diagram
             playerDiagram.ShowDiagram();
 
             // Select the first button in the control scheme object.
-            eventSystem.SetSelectedGameObject(controlSchemeObject.transform.GetChild(0)?.GetComponentInChildren<Button>().gameObject);
+            eventSystem.SetSelectedGameObject(deviceMenu.transform.GetChild(0)?.GetComponentInChildren<Button>().gameObject);
 
             if (!isMenuOpen)
             {

@@ -73,7 +73,7 @@ public class InputManager : MonoBehaviour
         MoveInput = context.ReadValue<Vector2>();
 
         // Handle single player blocking
-        if (PlayerManager.PlayerCount < 2)
+        if (PlayerManager.PlayerControllerCount < 2)
         {
             player.IsBlocking = MoveInput.x < 0;
             return;
