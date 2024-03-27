@@ -1,5 +1,4 @@
 ﻿#region
-using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -32,6 +31,7 @@ public class InputDeviceMonitor : MonoBehaviour //TODO: FINISH THIS
             
             foreach (var player in PlayerManager.Players)
             {
+                if (player.PlayerController == null) continue;
                 player.PlayerController.DisablePlayer(true);
             } 
         }
