@@ -224,7 +224,7 @@ public class MenuNavigator : MonoBehaviour
         }
     }
 
-    public void OnMenu(InputAction.CallbackContext context) => CharacterSelectManager.ToggleCharacterSettingsMenu(playerID, playerInput, eventSystem);
+    public void OnMenu(InputAction.CallbackContext context) => CharacterSelectManager.ToggleCharacterSettingsMenu(playerID);
 
     void InitializeAudio()
     {

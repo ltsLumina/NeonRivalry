@@ -42,9 +42,9 @@ public static class PlayerManager
     /// </summary>
     /// <param name="playerID"></param>
     /// <returns></returns>
-    public static Player GetPlayer(PlayerID playerID) => playerID switch
-    { PlayerID.PlayerOne => PlayerOne,
-      PlayerID.PlayerTwo => PlayerTwo,
+    public static Player GetPlayer(int playerID) => playerID switch
+    { 1 => PlayerOne,
+      2 => PlayerTwo,
       _                  => null };
 
     /// <summary>

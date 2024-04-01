@@ -5,13 +5,15 @@ using UnityEngine.Audio;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using VInspector;
+using static SceneManagerExtended;
 
 public class SettingsManager : MonoBehaviour
 {
     [Tab("Rumble")]
-    [Header("Rumble")]
-    [SerializeField] Slider player1RumbleStrength;
-    [SerializeField] Slider player2RumbleStrength;
+    [Header("Rumble")] [HideIf(nameof(isSceneMainMenu))]
+    [SerializeField] Slider player1RumbleSlider;
+    [SerializeField] Slider player2RumbleSlider;
+    [EndIf]
     
     [Tab("Volume")]
     [Header("Volume")]
@@ -20,9 +22,9 @@ public class SettingsManager : MonoBehaviour
     [SerializeField] Slider sfxVolume;
 
     AudioMixer mixer;
-    
-    // resolutions
     Resolution[] resolutions;
+    
+    bool isSceneMainMenu => ActiveScene is 0;
 
     public static bool ShowEffects => PlayerPrefs.GetInt("ShowEffects", 1) == 1;
     public static bool ShowParticles => PlayerPrefs.GetInt("ShowParticles", 1) == 1;
@@ -35,20 +37,26 @@ public class SettingsManager : MonoBehaviour
 
     void Start()
     {
-        LoadRumble(player1RumbleStrength, player2RumbleStrength);
+        LoadRumble(player1RumbleSlider, player2RumbleSlider);
 
         const string mixerPath = "Melenitas Dev/Sounds Good/Outputs/Master";
         mixer = Resources.Load<AudioMixer>(mixerPath);
 
         // If intro scene, return.
-        if (SceneManagerExtended.ActiveScene is 0) return;
+        if (ActiveScene == Intro) return;
 
-        player1RumbleStrength.onValueChanged.AddListener(SetPlayer1RumbleStrength);
-        player2RumbleStrength.onValueChanged.AddListener(SetPlayer2RumbleStrength);
-
-        masterVolume.onValueChanged.AddListener(SetMasterVolume);
-        musicVolume.onValueChanged.AddListener(SetMusicVolume);
-        sfxVolume.onValueChanged.AddListener(SetSFXVolume);
+        if (ActiveScene == MainMenu)
+        {
+            masterVolume.onValueChanged.AddListener(SetMasterVolume);
+            musicVolume.onValueChanged.AddListener(SetMusicVolume);
+            sfxVolume.onValueChanged.AddListener(SetSFXVolume);
+        }
+        
+        if (ActiveScene == CharacterSelect)
+        {
+            player1RumbleSlider.onValueChanged.AddListener(SetPlayer1RumbleStrength);
+            player2RumbleSlider.onValueChanged.AddListener(SetPlayer2RumbleStrength);
+        }
     }
 
     static void SetPlayer1RumbleStrength(float value) => PlayerPrefs.SetFloat("Player1_RumbleStrength", value);
@@ -83,6 +91,8 @@ public class SettingsManager : MonoBehaviour
 
     public void OnVolumeChanged()
     {
+        if (!masterVolume.isActiveAndEnabled || !musicVolume.isActiveAndEnabled || !sfxVolume.isActiveAndEnabled) return;
+        
         Sound sound = new Sound(SFX.Accept);
         sound.SetOutput(Output.SFX);
         sound.Play();

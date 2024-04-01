@@ -2,6 +2,7 @@
 using System;
 using DG.Tweening;
 using MelenitasDev.SoundsGood;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Samples.RebindUI;
@@ -12,6 +13,9 @@ using static SceneManagerExtended;
 
 public class CharacterSelectManager : MonoBehaviour
 {
+    [SerializeField] Slider p1RumbleSlider;
+    [SerializeField] Slider p2RumbleSlider;
+    
     static Sound menuClose;
     static bool isTweening;
     
@@ -20,29 +24,52 @@ public class CharacterSelectManager : MonoBehaviour
         // Classic EnterPlaymodeOptions fix
         isTweening = false;
 
-        if (ActiveScene == CharacterSelect) return;
-        Destroy(gameObject);
-        Debug.LogException(new InvalidOperationException("CharacterSelectManager should only exist in the Character Select scene."));
+        if (ActiveScene != CharacterSelect)
+        {
+            Destroy(gameObject);
+            Debug.LogException(new InvalidOperationException("CharacterSelectManager should only exist in the Character Select scene."));
+        }
     }
 
     void Start()
     {
         menuClose = new (SFX.MenuClose);
         menuClose.SetOutput(Output.SFX);
+
+        // Load rumble settings
+        SettingsManager.LoadRumble(p1RumbleSlider, p2RumbleSlider);
+        
+        // update slider text
+        p1RumbleSlider.onValueChanged.AddListener(_ => UpdateSliderText(p1RumbleSlider));
+        p2RumbleSlider.onValueChanged.AddListener(_ => UpdateSliderText(p2RumbleSlider));
+    }
+
+    static void UpdateSliderText(Slider slider)
+    {
+        // iterate over all the children with the TMP component
+        foreach (var text in slider.GetComponentsInChildren<TextMeshProUGUI>())
+        {
+            // Get the one with the "Current Value Text" tag.
+            if (text.CompareTag("Current Value Text"))
+            {
+                // Set the text to the slider's value.
+                text.text = slider.value.ToString("0.00");
+            }
+        }
     }
 
     /// <summary>
     /// Shows/Hides the character settings menu for the player.
     /// </summary>
     /// <param name="playerID"></param>
-    /// <param name="playerInput"></param>
-    /// <param name="eventSystem"></param>
     /// <remarks>This method is highly volatile and should be modified with caution.</remarks>
-    public static void ToggleCharacterSettingsMenu(int playerID, PlayerInput playerInput, MultiplayerEventSystem eventSystem)
+    public static void ToggleCharacterSettingsMenu(int playerID)
     {
         if (ActiveScene != CharacterSelect) return;
         
-        GameObject playerMenu = GetPlayerMenu(playerID);
+        GameObject             playerMenu  = GetPlayerMenu(playerID);
+        PlayerInput            playerInput = PlayerManager.GetPlayer(playerID).MenuNavigator.GetComponent<PlayerInput>();
+        MultiplayerEventSystem eventSystem = PlayerManager.GetPlayer(playerID).MenuNavigator.GetComponent<MultiplayerEventSystem>();
 
         // Check if the menu is currently active
         bool isMenuActive = playerMenu.activeSelf;
@@ -86,7 +113,7 @@ public class CharacterSelectManager : MonoBehaviour
         });
     }
 
-    static void CloseCharacterSettingsMenu(int playerID, MultiplayerEventSystem eventSystem)
+    public static void CloseCharacterSettingsMenu(int playerID, MultiplayerEventSystem eventSystem)
     {
         if (isTweening) return;
 
@@ -112,40 +139,6 @@ public class CharacterSelectManager : MonoBehaviour
             var characterButton = GameObject.Find($"Player {playerID}").transform.GetChild(0).gameObject.GetComponent<Button>();
             eventSystem.SetSelectedGameObject(characterButton.gameObject);
         });
-    }
-
-    public void OnSelection()
-    {
-        Sound navigateUp   = new (SFX.NavigateUp);
-        Sound navigateDown = new (SFX.NavigateDown);
-        
-        var eventSystem = FindObjectOfType<MenuNavigator>().GetComponent<MultiplayerEventSystem>();
-        
-        // Get the currently selected GameObject
-        GameObject currentSelected = eventSystem.currentSelectedGameObject;
-
-        // Get the previously selected GameObject
-        GameObject previousSelected = FindObjectOfType<MenuNavigator>().PreviousSelectedGameObject;
-
-        // Check if both GameObjects are not null
-        if (currentSelected != null && previousSelected != null)
-        {
-            // Get the sibling index of both GameObjects
-            int currentIndex  = currentSelected.transform.parent.GetSiblingIndex();
-            int previousIndex = previousSelected.transform.parent.GetSiblingIndex();
-
-            // Compare the sibling indices to determine the direction of navigation
-            if (currentIndex > previousIndex)
-            {
-                // The current GameObject is below the previous one in the hierarchy, play the navigateDown sound
-                navigateDown.Play();
-            }
-            else if (currentIndex < previousIndex)
-            {
-                // The current GameObject is above the previous one in the hierarchy, play the navigateUp sound
-                navigateUp.Play();
-            }
-        }
     }
 
     #region Menu Utility Functions

@@ -70,8 +70,8 @@ public class MenuManager : MonoBehaviour
     
     [Header("Content")]
     [SerializeField] GameObject gameContent;
-    [SerializeField] Slider player1RumbleSlider;
-    [SerializeField] Slider player2RumbleSlider;
+    [SerializeField] Toggle showEffectsToggle;
+    [SerializeField] Toggle showParticlesToggle;
     
     [Foldout("Audio")]
     [SerializeField] GameObject audioMenu;
@@ -157,7 +157,6 @@ public class MenuManager : MonoBehaviour
     void Start()
     {
         // Load PlayerPrefs settings.
-        SettingsManager.LoadRumble(player1RumbleSlider, player2RumbleSlider);
         SettingsManager.LoadVolume(masterVolumeSlider, musicVolumeSlider, sfxVolumeSlider);
         
         // Populate the main lists, disable all menus, and enable the main menu.
@@ -184,10 +183,6 @@ public class MenuManager : MonoBehaviour
         // Disable the settings background.
         settingsBackground.gameObject.SetActive(false);
         
-        // update slider text
-        player1RumbleSlider.onValueChanged.AddListener(_ => UpdateSliderText(player1RumbleSlider));
-        player2RumbleSlider.onValueChanged.AddListener(_ => UpdateSliderText(player2RumbleSlider));
-        
         // Initialize sounds
         openMenu = new (SFX.MenuOpen);
         closeMenu = new (SFX.MenuClose);
@@ -213,20 +208,6 @@ public class MenuManager : MonoBehaviour
     public void ScaleDownSliderButton(Selectable parent) => parent.transform.DOScale(1, 0.1f).SetEase(Ease.InBack);
 
     public void SubmitSFX() => acceptSFX.Play();
-    
-    static void UpdateSliderText(Slider slider)
-    {
-        // iterate over all the children with the TMP component
-        foreach (var text in slider.GetComponentsInChildren<TextMeshProUGUI>())
-        {
-            // Get the one with the "Current Value Text" tag.
-            if (text.CompareTag("Current Value Text"))
-            {
-                // Set the text to the slider's value.
-                text.text = slider.value.ToString("0.00");
-            }
-        }
-    }
 
     void Update()
     {
@@ -353,7 +334,7 @@ public class MenuManager : MonoBehaviour
             gameContent.SetActive(true);
             
             // Select the first thing in the gameContent
-            player1RumbleSlider.Select();
+            showEffectsToggle.Select();
         }
         
         if (menu == audioMenu)
