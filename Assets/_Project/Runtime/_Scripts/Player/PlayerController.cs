@@ -1,6 +1,4 @@
 #region
-#if UNITY_EDITOR
-#endif
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -20,7 +18,7 @@ using static State;
 /// On the other hand, the PlayerManager is used to manage all players in the game including their settings, properties, and actions.
 /// <seealso cref="PlayerManager"/>
 /// </summary>
-[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Rigidbody)), HelpURL("https://www.youtube.com/watch?v=wJWksPWDKOc")]
 public partial class PlayerController : MonoBehaviour
 {
     [Tab("Player Stats")]

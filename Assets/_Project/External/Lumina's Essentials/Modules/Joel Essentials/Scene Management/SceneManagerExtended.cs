@@ -10,10 +10,8 @@ public static class SceneManagerExtended
     public static int MainMenu => 1;
     public static int CharacterSelect => 2;
     public static int Game => 3;
-    
-    static int previousScene;
 
-    public static int PreviousScene => previousScene;
+    public static int PreviousScene { get; private set; }
     public static string ActiveSceneName => SceneManager.GetActiveScene().name;
     public static int ActiveScene => SceneManager.GetActiveScene().buildIndex;
     
@@ -29,7 +27,7 @@ public static class SceneManagerExtended
     /// <param name="buildIndex"></param>
     public static void LoadScene(int buildIndex)
     {
-        previousScene = SceneManager.GetActiveScene().buildIndex;
+        PreviousScene = SceneManager.GetActiveScene().buildIndex;
 
         SceneManager.LoadScene(ClampBuildIndex(buildIndex));
     }
@@ -65,7 +63,7 @@ public static class SceneManagerExtended
     /// </summary>
     public static void LoadNextScene()
     {
-        previousScene = SceneManager.GetActiveScene().buildIndex;
+        PreviousScene = SceneManager.GetActiveScene().buildIndex;
         SceneManager.LoadScene(ClampBuildIndex(SceneManager.GetActiveScene().buildIndex + 1));
     }
 
@@ -92,7 +90,7 @@ public static class SceneManagerExtended
     /// <summary>
     ///     Loads the previously loaded scene.
     /// </summary>
-    public static void LoadPreviousScene() => SceneManager.LoadScene(ClampBuildIndex(previousScene));
+    public static void LoadPreviousScene() => SceneManager.LoadScene(ClampBuildIndex(PreviousScene));
 
     /// <summary>
     ///     Asynchronously loads the scene with the specified build index.

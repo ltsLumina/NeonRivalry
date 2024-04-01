@@ -88,24 +88,22 @@ public static class PlayerManager
     #region Utility
     public static PlayerController OtherPlayerController(PlayerController player)
     {
-        if (player != null) return player == PlayerOne.PlayerController ? PlayerTwo.PlayerController : PlayerOne.PlayerController;
-        Debug.LogError("The player is null. Please assign a valid player.");
+        if (player && PlayerTwo != null) return player == PlayerOne.PlayerController ? PlayerTwo.PlayerController : PlayerOne.PlayerController;
         return null;
     }
 
     public static MenuNavigator OtherMenuNavigator(Player player)
     {
-        if (player != null) return player == PlayerOne ? PlayerTwo.MenuNavigator : PlayerOne.MenuNavigator;
-        Debug.LogError("The player is null. Please assign a valid player.");
+        if (player != null && PlayerTwo != null) return player == PlayerOne ? PlayerTwo.MenuNavigator : PlayerOne.MenuNavigator;
         return null;
     }
-
-    // AddPlayer, but allow both PlayerController and MenuNavigator class
+    
     public static void AddPlayer(PlayerController playerController = default, MenuNavigator menuNavigator = default)
     {
         Player player = new(playerController, menuNavigator);
         Players.Add(player);
     }
+    
     public static void RemovePlayer(Player player) => Players.Remove(player);
 
     public static void AssignHealthbarToPlayer(PlayerController player, int playerID)

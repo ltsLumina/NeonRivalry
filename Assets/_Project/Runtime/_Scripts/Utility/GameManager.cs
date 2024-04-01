@@ -5,6 +5,7 @@ using MelenitasDev.SoundsGood;
 using UnityEngine;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
+using static SceneManagerExtended;
 #endregion
 
 /*--------------------------------------
@@ -61,6 +62,10 @@ public class GameManager : MonoBehaviour
     
     void Awake()
     {
+#if !UNITY_EDITOR
+        DisableCursor();
+#endif
+        
         // Needs to be reset due to EnterPlaymodeOptions
         PlayerManager.Players.Clear();
         
@@ -86,21 +91,19 @@ public class GameManager : MonoBehaviour
 
     static void InitializeStateByScene()
     {
+        // Things to do when any scene is loaded:
+        MenuManager.LoadSettings(); // Also loads audio.
+        AudioManager.StopAll();
+        
+        
         switch (SceneManager.GetActiveScene().buildIndex)
         {
-            case 0: // Intro
+            case var index when index == Intro:
                 SetState(GameState.Intro);
-                MenuManager.LoadSettings();
-                AudioManager.StopAll();
                 break;
-            
-            case 1: // Main Menu
+
+            case var mainMenu when mainMenu == MainMenu:
                 SetState(GameState.MainMenu);
-#if !UNITY_EDITOR
-                DisableCursor();
-#endif
-                MenuManager.LoadSettings();
-                AudioManager.StopAll();
                 
                 // Play Main Menu music
                 Music mainMenuMusic = new (Track.mainMenu);
@@ -108,29 +111,23 @@ public class GameManager : MonoBehaviour
                 mainMenuMusic.Play();
                 break;
             
-            case 2: // Character Select
+            case var charSelect when charSelect == CharacterSelect:
                 SetState(GameState.CharSelect);
-                SettingsManager.LoadVolume();
-                AudioManager.StopAll(0.5f);
                 break;
             
-            case 3: // Game
+            case var game when game == Game:
                 SetState(GameState.Playing);
-                SettingsManager.LoadVolume();
-                AudioManager.StopAll();
 
                 // Play Game music
                 Music gameMusic = new (Track.LoveTheSubhumanSelf);
                 gameMusic.SetOutput(Output.Music).SetVolume(1f);
                 gameMusic.Play(2f);
+
+                // Play timeline.
+                TimelinePlayer.Play();
                 break;
         }
     }
-    
-    // void OnEnable() => Healthbar.OnPlayerDeath += HandlePlayerDeath;
-    // void OnDisable() => Healthbar.OnPlayerDeath -= HandlePlayerDeath;
-    //
-    // static void HandlePlayerDeath(PlayerController player = default) => SetState(GameState.GameOver);
 
     public static void SetState(GameState state)
     {
@@ -140,6 +137,15 @@ public class GameManager : MonoBehaviour
     
     void Update()
     {
+        // Things to do regardless of state:
+        
+        // Enable/show the mouse if the developer console pops up (due to an error being thrown in a build)
+        if (Debug.developerConsoleVisible)
+        {
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+        }
+        
         switch (State)
         {
             case GameState.Transitioning:

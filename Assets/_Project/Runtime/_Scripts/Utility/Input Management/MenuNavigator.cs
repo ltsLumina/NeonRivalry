@@ -2,8 +2,8 @@ using System.Linq;
 using Lumina.Essentials.Attributes;
 using MelenitasDev.SoundsGood;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Samples.RebindUI;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 using static SceneManagerExtended;
@@ -39,7 +39,13 @@ public class MenuNavigator : MonoBehaviour
     
     MultiplayerEventSystem eventSystem;
     GameObject previousSelectedGameObject;
-    
+
+    public GameObject PreviousSelectedGameObject
+    {
+        get => previousSelectedGameObject;
+        set => previousSelectedGameObject = value;
+    }
+
     public delegate void SelectionChanged(GameObject previousSelectedGameObject, GameObject currentSelectedGameObject);
     public static event SelectionChanged OnSelectionChanged;
 
@@ -50,7 +56,43 @@ public class MenuNavigator : MonoBehaviour
         playerInput = GetComponent<PlayerInput>();
         eventSystem = GetComponent<MultiplayerEventSystem>();
     }
-    
+
+    void OnEnable()
+    {
+        // Get all EventTrigger components in the scene
+        EventTrigger[] eventTriggers = FindObjectsOfType<EventTrigger>(true);
+
+        foreach (EventTrigger eventTrigger in eventTriggers)
+        {
+            // Check if the OnSelect event trigger already exists
+            bool onSelectExists = eventTrigger.triggers.Any(entry => entry.eventID == EventTriggerType.Select);
+
+            // If the OnSelect event trigger does not exist, add it
+            if (!onSelectExists)
+            {
+                // Create a new EventTrigger.Entry
+                EventTrigger.Entry entry = new EventTrigger.Entry();
+
+                // Set the event type
+                entry.eventID = EventTriggerType.Select;
+
+                // Set the callback function
+                entry.callback.AddListener
+                (_ =>
+                {
+                    int previousIndex = previousSelectedGameObject.transform.parent.GetSiblingIndex();
+                    int currentIndex  = eventSystem.currentSelectedGameObject.transform.parent.GetSiblingIndex();
+
+                    if (currentIndex      < previousIndex) navigateUp.Play();
+                    else if (currentIndex > previousIndex) navigateDown.Play();
+                });
+
+                // Add the entry to the triggers list
+                eventTrigger.triggers.Add(entry);
+            }
+        }
+    }
+
     void Start()
     {
         PlayerManager.AddPlayer(null, this);
@@ -87,41 +129,42 @@ public class MenuNavigator : MonoBehaviour
         
         previousSelectedGameObject = eventSystem.currentSelectedGameObject;
     }
-    
+
     public void OnNavigate(InputAction.CallbackContext context)
     {
         var input = context.ReadValue<Vector2>();
 
-        // Check for selection
+        // Checks the current selected game object and the previous selected game object.
+        // If the current selected game object is not the same as the previous selected game object,
+        // then play the navigation sound.
         if (previousSelectedGameObject != null && eventSystem.currentSelectedGameObject != null)
             if (eventSystem.currentSelectedGameObject != previousSelectedGameObject)
             {
-                int previousIndex = previousSelectedGameObject.transform.parent.GetSiblingIndex();
-                int currentIndex  = eventSystem.currentSelectedGameObject.transform.parent.GetSiblingIndex();
-
                 if (MainMenuScene)
                 {
-                    previousIndex = previousSelectedGameObject.transform.GetSiblingIndex();
-                    currentIndex  = eventSystem.currentSelectedGameObject.transform.GetSiblingIndex();
+                    int previousIndex = previousSelectedGameObject.transform.GetSiblingIndex();
+                    int currentIndex  = eventSystem.currentSelectedGameObject.transform.GetSiblingIndex();
 
                     if (MenuManager.IsAnySettingsMenuActive())
                     {
                         previousIndex = previousSelectedGameObject.transform.parent.GetSiblingIndex();
                         currentIndex  = eventSystem.currentSelectedGameObject.transform.parent.GetSiblingIndex();
                     }
-                }
 
-                if (currentIndex      < previousIndex) navigateUp.Play();
-                else if (currentIndex > previousIndex) navigateDown.Play();
+                    if (currentIndex      < previousIndex) navigateUp.Play();
+                    else if (currentIndex > previousIndex) navigateDown.Play();
+                }
 
                 OnSelectionChanged?.Invoke(previousSelectedGameObject, eventSystem.currentSelectedGameObject);
                 previousSelectedGameObject = eventSystem.currentSelectedGameObject;
             }
 
-        if (MainMenuScene || CharacterSelectScene)
+        if (CharacterSelectScene)
         {
-            if (input.x < 0) navigateLeft.Play();
-            if (input.x > 0) navigateRight.Play();
+            
+            
+            // if (input.x < 0) navigateLeft.Play();
+            // if (input.x > 0) navigateRight.Play();
         }
         
         // if (CharacterSelectScene)

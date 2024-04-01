@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using MelenitasDev.SoundsGood;
+using UnityEngine;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 
@@ -15,11 +16,6 @@ public class ConfirmCharactersButton : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            ConfirmCharacters();
-        }
-        
         confirming = CharacterSelector.SelectedCharacters.Count == 2;
 
         if (confirming) ConfirmCharacters();
@@ -39,5 +35,12 @@ public class ConfirmCharactersButton : MonoBehaviour
             var eventSystem = player.GetComponent<MultiplayerEventSystem>();
             eventSystem.SetSelectedGameObject(confirmationButton.gameObject);
         }
+    }
+
+    public void PlayConfirmSound()
+    {
+        Sound CSConfirm = new (SFX.CSConfirm);
+        CSConfirm.SetOutput(Output.SFX);
+        CSConfirm.Play();
     }
 }

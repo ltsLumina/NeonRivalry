@@ -1,4 +1,5 @@
 using System.Collections;
+using MelenitasDev.SoundsGood;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.InputSystem;
@@ -22,30 +23,33 @@ public class SettingsManager : MonoBehaviour
     
     // resolutions
     Resolution[] resolutions;
-    
-    void Start()
-    {
-        LoadRumble(player1RumbleStrength, player2RumbleStrength);
-        
-        mixer = Resources.Load<AudioMixer>("Melenitas Dev/Sounds Good/Outputs/Master");
-        
-        // If intro scene, return.
-        if (SceneManagerExtended.ActiveScene is 0) return;
-        
-        player1RumbleStrength.onValueChanged.AddListener(SetPlayer1RumbleStrength);
-        player2RumbleStrength.onValueChanged.AddListener(SetPlayer2RumbleStrength);
-        
-        masterVolume.onValueChanged.AddListener(SetMasterVolume);
-        musicVolume.onValueChanged.AddListener(SetMusicVolume);
-        sfxVolume.onValueChanged.AddListener(SetSFXVolume);
-    }
 
+    public static bool ShowEffects => PlayerPrefs.GetInt("ShowEffects", 1) == 1;
+    public static bool ShowParticles => PlayerPrefs.GetInt("ShowParticles", 1) == 1;
     public static float Player1RumbleStrength => PlayerPrefs.GetFloat("Player1_RumbleStrength", 1);
     public static float Player2RumbleStrength => PlayerPrefs.GetFloat("Player2_RumbleStrength", 1);
     
     public static float MasterVolume => PlayerPrefs.GetFloat("Master", 1);
     public static float MusicVolume  => PlayerPrefs.GetFloat("Music", 1);
     public static float SFXVolume    => PlayerPrefs.GetFloat("SFX", 1);
+
+    void Start()
+    {
+        LoadRumble(player1RumbleStrength, player2RumbleStrength);
+
+        const string mixerPath = "Melenitas Dev/Sounds Good/Outputs/Master";
+        mixer = Resources.Load<AudioMixer>(mixerPath);
+
+        // If intro scene, return.
+        if (SceneManagerExtended.ActiveScene is 0) return;
+
+        player1RumbleStrength.onValueChanged.AddListener(SetPlayer1RumbleStrength);
+        player2RumbleStrength.onValueChanged.AddListener(SetPlayer2RumbleStrength);
+
+        masterVolume.onValueChanged.AddListener(SetMasterVolume);
+        musicVolume.onValueChanged.AddListener(SetMusicVolume);
+        sfxVolume.onValueChanged.AddListener(SetSFXVolume);
+    }
 
     static void SetPlayer1RumbleStrength(float value) => PlayerPrefs.SetFloat("Player1_RumbleStrength", value);
 
@@ -75,6 +79,13 @@ public class SettingsManager : MonoBehaviour
     {
         mixer.SetFloat("SFX", Mathf.Log10(value) * 40);
         PlayerPrefs.SetFloat("SFX", value);
+    }
+
+    public void OnVolumeChanged()
+    {
+        Sound sound = new Sound(SFX.Accept);
+        sound.SetOutput(Output.SFX);
+        sound.Play();
     }
     
     /// <summary>

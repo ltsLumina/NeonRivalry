@@ -115,10 +115,9 @@ namespace MelenitasDev.SoundsGood
             source.minDistance = hearDistance.x;
             source.maxDistance = hearDistance.y;
             
-            if (currentState == SourceState.Paused || currentState == SourceState.Stopping ||
-                currentState == SourceState.ChangingTrack)
+            if (currentState is SourceState.Paused or SourceState.Stopping or SourceState.ChangingTrack)
             {
-                Debug.LogWarning($"There's a volume fade out taking place at this moment, " +
+                Debug.LogWarning("There's a volume fade out taking place at this moment, " +
                                  "so volume won't change right now, but on the next fade in it will go " +
                                  $"up until the new volume of {volume}");
                 return this;
