@@ -56,7 +56,7 @@ public class StateMachine : MonoBehaviour
         
         // Checks if the current state is null, or if the new state has a higher priority than the current state.
         // If the new state has a lower or equal priority, the current state is entered like normal.
-        if (CurrentState != null && newState.Priority > CurrentState.Priority)
+        if (CurrentState != null)
         {
             // If the current state can be interrupted, we exit the current state.
             CurrentState?.OnExit();

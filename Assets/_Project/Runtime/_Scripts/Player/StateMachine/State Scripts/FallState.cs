@@ -49,7 +49,7 @@ public class FallState : State
         if (player.Rigidbody.velocity.y > 0) 
             player.Rigidbody.AddForce(jumpHaltForce * Vector3.down);
 
-        player.Animator.SetBool("IsFalling", IsFalling);
+        player.Animator.SetBool("IsFalling", true);
     }
 
     public override void OnExit()
@@ -61,7 +61,8 @@ public class FallState : State
 
         // Play land animation.
         IsFalling = false;
-        player.Animator.SetBool("IsFalling", IsFalling);
-        player.Animator.SetTrigger("Land");
+        player.Animator.SetBool("IsFalling", false);
+
+        if (player.IsGrounded()) player.Animator.SetTrigger("Land");
     }
 }

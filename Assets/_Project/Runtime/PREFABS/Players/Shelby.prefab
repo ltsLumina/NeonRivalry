@@ -148,6 +148,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   character: {fileID: 11400000, guid: 6995fcc6cef5ce542842fbbb580eb8ca, type: 2}
+  playerID: 0
   idleTimeThreshold: 0.15
   IdleTime: 0
   AirborneTime: 0
@@ -155,15 +156,9 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
-  playerID: 0
-  moveSpeed: 10
-  backwardSpeedFactor: 0.8
-  acceleration: 8
-  deceleration: 10
-  velocityPower: 1.4
   GlobalGravity: -35
-  gravityScale: 1
-  defaultGravity: 0
+  GravityScale: 1
+  DefaultGravity: 0
   godMode: 0
   healthbar: {fileID: 0}
   animator: {fileID: 0}

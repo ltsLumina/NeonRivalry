@@ -45,7 +45,6 @@ public class AirborneAttackState : State
     readonly float fallGravityMultiplier;
     readonly float jumpHaltForce;
 
-
     #region State Methods
     public override void OnEnter()
     {
@@ -93,22 +92,19 @@ public class AirborneAttackState : State
                 // Stop the player once they attack in the air.
                 player.Rigidbody.velocity = new Vector2(player.Rigidbody.velocity.x, 0);
 
-                if (player.IsGrounded())
-                {
-                    OnExit();
-                    return;
-                }
+                // Apply gravity
+                if (player.Rigidbody.velocity.y < 0) player.Rigidbody.AddForce(fallGravityMultiplier * Vector3.down, ForceMode.Acceleration);
 
-                // Applies gravity to the player to make them fall faster.
-                if (player.Rigidbody.velocity.y < 0) player.Rigidbody.AddForce(fallGravityMultiplier * Vector3.down);
-                    
-                // Applies a halt force to the player's upward momentum to smooth out the jump.
+                // Apply jump halt force
                 if (player.Rigidbody.velocity.y > 0) player.Rigidbody.AddForce(jumpHaltForce * Vector3.down);
+
+                player.Animator.SetBool("IsFalling", true);
             }
             // If the player lands, cancel the attack.
             else
             {
-                Logger.Debug("Airborne Attack cancelled!", LogType.Log, Type);
+                player.GlobalGravity = player.DefaultGravity;
+                player.GravityScale  = 1;
                 OnExit();
             }
         }
@@ -126,12 +122,17 @@ public class AirborneAttackState : State
 
         player.StateMachine.TransitionToState(player.IsGrounded() ? StateType.Idle : StateType.Fall);
 
-        if (player.InputManager.MoveInput.x != 0 && player.IsGrounded())
-            // If the player is moving, transition to the walk state.
-            player.StateMachine.TransitionToState(StateType.Walk);
-        
-        else // If the player is not moving, transition to the idle state. 
-            player.StateMachine.TransitionToState(StateType.Idle);
+        if (player.IsGrounded() && player.InputManager.MoveInput.x != 0) player.StateMachine.TransitionToState(StateType.Walk);
+        else if (player.IsGrounded()) player.StateMachine.TransitionToState(StateType.Idle);
+
+        // Play land animation.
+        IsAirborneAttacking = false;
+        player.Animator.SetBool("IsFalling", false);
+
+        if (player.IsGrounded())
+        {
+            player.Animator.SetTrigger("Land");
+        }
     }
     #endregion
 
