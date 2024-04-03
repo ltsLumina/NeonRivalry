@@ -35,8 +35,8 @@ public class FallState : State
     {
         if (player.IsGrounded())
         {
-            player.GlobalGravity = player.defaultGravity;
-            player.gravityScale = 1;
+            player.GlobalGravity = player.DefaultGravity;
+            player.GravityScale = 1;
             OnExit();
             return;
         }

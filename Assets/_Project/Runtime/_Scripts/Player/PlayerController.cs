@@ -1,4 +1,7 @@
 #region
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -22,28 +25,25 @@ using static State;
 public partial class PlayerController : MonoBehaviour
 {
     [Tab("Player Stats")]
+    [Header("Player Info")]
     [SerializeField] Character character;
+    [SerializeField, ReadOnly] int playerID;
     [SerializeField] float idleTimeThreshold;
-    [SerializeField, ReadOnly] public float IdleTime; //TODO: Make this private, but I should probably move it to a different script.
+    [SerializeField, ReadOnly] float IdleTime; //TODO: Make this private, but I should probably move it to a different script.
     [SerializeField, ReadOnly] public float AirborneTime;
 
+    [Space]
+    
     [Header("Ground Check"), Tooltip("The minimum distance the ray-cast must be from the ground.")]
-    [SerializeField] float raycastDistance = 1.022f;
+    [SerializeField] float raycastDistance;
     [SerializeField] LayerMask groundLayer;
-
-    [Header("Player ID"), Tooltip("The player's ID. \"1\"refers to player 1, \"2\" refers to player 2.")]
-    [SerializeField, ReadOnly] int playerID;
     
-    [Tab("Movement")]
-    [SerializeField] float moveSpeed = 3f;
-    [SerializeField] float backwardSpeedFactor = 0.5f;
-    [SerializeField] float acceleration = 8f;
-    [SerializeField] float deceleration = 10f;
-    [SerializeField] float velocityPower = 1.4f;
-    
+    [HideInInspector]
     public float GlobalGravity = -35f;
-    public float gravityScale = 1.0f;
-    public float defaultGravity;
+    [HideInInspector]
+    public float GravityScale = 1.0f;
+    [HideInInspector]
+    public float DefaultGravity;
 
     [Tab("Settings")]
     [Header("Debug")]
@@ -55,10 +55,14 @@ public partial class PlayerController : MonoBehaviour
     
     // Cached References
     readonly static int Speed = Animator.StringToHash("Speed");
-    
+
+    float moveSpeed = 3f;
+    float backwardSpeedFactor = 0.5f;
+    float acceleration = 8f;
+    float deceleration = 10f;
+    float velocityPower = 1.4f;
     
     // -- Properties --  
-    public float GravityScale { get; private set; }
     public Rigidbody Rigidbody { get; private set; }
     public StateMachine StateMachine { get; private set; }
     public InputManager InputManager { get; private set; }
@@ -69,7 +73,7 @@ public partial class PlayerController : MonoBehaviour
     public bool IsInvincible { get; set; }
 
     string ThisPlayer => $"Player {PlayerID}";
-    public bool IsCrouching => Animator.GetBool("IsCrouching") && Animator.GetInteger("Speed") == 0;
+    public bool IsCrouching => Animator.GetBool("IsCrouching");
 
     // -- Serialized Properties --
 
@@ -112,21 +116,20 @@ public partial class PlayerController : MonoBehaviour
 
         Rigidbody            = GetComponent<Rigidbody>();
         Rigidbody.useGravity = false;
-        defaultGravity       = GlobalGravity;
+        DefaultGravity       = GlobalGravity;
     }
 
     void OnDestroy() => Healthbar.OnPlayerDeath -= Death;
-
-    // Rotate the player when spawning in to face in a direction that is more natural.
+    
     void Start() => Initialize();
 
     void FixedUpdate()
     {
-        Vector3 gravity = GlobalGravity * gravityScale * Vector3.up;
+        Vector3 gravity = GlobalGravity * GravityScale * Vector3.up;
         Rigidbody.AddForce(gravity, ForceMode.Acceleration);
-        
+
         CheckIdle();
-        
+
         RotateToFaceEnemy();
 
         //TODO: Temporary fix to test new state machine.
@@ -136,7 +139,7 @@ public partial class PlayerController : MonoBehaviour
             {
                 // Reset the airborne time if the player is grounded.
                 AirborneTime = 0;
-                
+
                 DEBUGMovement();
 
                 // Set player as crouching if the player is moving down and is grounded.
@@ -191,10 +194,16 @@ public partial class PlayerController : MonoBehaviour
         
         StateMachine.TransitionToState(StateType.Idle);
 
+        // Update the player's ID.
+        PlayerID = PlayerInput.playerIndex + 1;
+
         // The character is set when the player is loaded from a previous scene,
         // meaning if the player was instantiated directly into the scene, the character will be null.
         if (Character != null)
         {
+            // Set the name of the player to "Player 1" or "Player 2".
+            gameObject.name = $"Player {PlayerID}" + $" ({Character.characterName})";
+            
             // Update all stats with the character's stats.
             moveSpeed           = Character.moveSpeed;
             backwardSpeedFactor = Character.backwardSpeedFactor;
@@ -202,9 +211,11 @@ public partial class PlayerController : MonoBehaviour
             deceleration        = Character.deceleration;
             velocityPower       = Character.velocityPower;
         }
-        
-        // Update the player's ID.
-        PlayerID = PlayerInput.playerIndex + 1;
+        else
+        {
+            gameObject.name = $"Player {PlayerID}";
+            Debug.LogWarning("Character is null. Please assign a character to the player.");
+        }
 
         var playerInput = PlayerInput;
         playerInput.defaultControlScheme = Device is Keyboard ? "Keyboard" : "Gamepad";
@@ -222,9 +233,6 @@ public partial class PlayerController : MonoBehaviour
         
         // Switch the UI input module to the UI input actions.
         PlayerInput.uiInputModule.actionsAsset = playerInput.actions;
-        
-        // Set the name of the player to "Player 1" or "Player 2".
-        gameObject.name = $"Player {PlayerID}";
 
         SetPlayerSpawnPoint();
         PlayerManager.AssignHealthbarToPlayer(this, PlayerID);
@@ -311,7 +319,6 @@ public partial class PlayerController : MonoBehaviour
 
     public void DisablePlayer(bool disabled)
     {
-        this.enabled       = !disabled;
         InputManager.Enabled = !disabled;
         HitBox.enabled       = !disabled;
         HurtBox.enabled      = !disabled;
@@ -373,23 +380,41 @@ public partial class PlayerController : MonoBehaviour
             sequence.Play();
         }
     }
+
+#if UNITY_EDITOR
+    public void ValidateMovementVariables(Character character)
+    {
+        if (character == null) return;
+
+        moveSpeed           = character.moveSpeed;
+        backwardSpeedFactor = character.backwardSpeedFactor;
+        acceleration        = character.acceleration;
+        deceleration        = character.deceleration;
+        velocityPower       = character.velocityPower;
+    }
+#endif
 }
 
-// #if UNITY_EDITOR
-// [CustomEditor(typeof(PlayerController))]
-// public class PlayerControllerInspector : Editor
-// {
-//     public override void OnInspectorGUI()
-//     {
-//         base.OnInspectorGUI();
-//         
-//         var player = (PlayerController) target;
-//         var healthbar = player.Healthbar;
-//         if (player == null || healthbar == null) return;
-//
-//         // Replace the health variable in the inspector with the healthbar's value
-//         // so that the healthbar's value can be changed in the inspector.
-//         player.health = healthbar.Value;
-//     }
-// }
-// #endif
+#if UNITY_EDITOR
+[CustomEditor(typeof(PlayerController))]
+public class PlayerControllerEditor : Editor
+{
+    PlayerController player;
+    bool showCharacterInspector;
+
+    public override void OnInspectorGUI()
+    {
+        player = (PlayerController) target;
+
+        string label = showCharacterInspector ? "Hide Character Inspector" : "Show Character Inspector";
+        showCharacterInspector = GUILayout.Toggle(showCharacterInspector, label, EditorStyles.toolbarButton);
+
+        if (showCharacterInspector)
+        {
+            Editor editor = CreateEditor(player.Character);
+            editor.OnInspectorGUI();
+        }
+        else { base.OnInspectorGUI(); }
+    }
+}
+#endif

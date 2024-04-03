@@ -43,8 +43,8 @@ public class JumpState : State
 
         if (!hasJumped)
         {
-            player.gravityScale = gravityScale;
-            float jumpForce = Mathf.Sqrt(jumpHeight * (player.GlobalGravity * player.gravityScale) * -2) * player.Rigidbody.mass;
+            player.GravityScale = gravityScale;
+            float jumpForce = Mathf.Sqrt(jumpHeight * (player.GlobalGravity * player.GravityScale) * -2) * player.Rigidbody.mass;
 
             //float jumpForce = Mathf.Sqrt((-2 * jumpHeight) * Physics.gravity.y);
             player.Rigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);

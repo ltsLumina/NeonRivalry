@@ -20,4 +20,12 @@ public class Character : ScriptableObject
     public float acceleration;
     public float deceleration;
     public float velocityPower;
+
+    void OnValidate() // Used to update movement variables in runtime.
+    {
+        var player = FindObjectOfType<PlayerController>();
+        if (player == null) return;
+        
+        player.ValidateMovementVariables(this);
+    }
 }

@@ -64,9 +64,6 @@ public class StateMachine : MonoBehaviour
         
         // Set the new state and enter it.
         CurrentState = newState;
-
-        //TODO: dont like this. find a better way to do this.
-        Player.IdleTime = 0;
         
         CurrentState?.OnEnter();
     }
