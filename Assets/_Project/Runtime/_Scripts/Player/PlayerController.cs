@@ -40,6 +40,10 @@ public partial class PlayerController : MonoBehaviour
     [SerializeField] float acceleration = 8f;
     [SerializeField] float deceleration = 10f;
     [SerializeField] float velocityPower = 1.4f;
+    
+    public float GlobalGravity = -35f;
+    public float gravityScale = 1.0f;
+    public float defaultGravity;
 
     [Tab("Settings")]
     [Header("Debug")]
@@ -51,11 +55,12 @@ public partial class PlayerController : MonoBehaviour
     
     // Cached References
     readonly static int Speed = Animator.StringToHash("Speed");
-
-    // -- Properties --
     
-    public StateMachine StateMachine { get; private set; }
+    
+    // -- Properties --  
+    public float GravityScale { get; private set; }
     public Rigidbody Rigidbody { get; private set; }
+    public StateMachine StateMachine { get; private set; }
     public InputManager InputManager { get; private set; }
     public PlayerInput PlayerInput { get; private set; }
     public InputDevice Device => InputDeviceManager.GetDevice(PlayerInput);
@@ -96,6 +101,7 @@ public partial class PlayerController : MonoBehaviour
 
     void Awake()
     {
+        Rigidbody    = GetComponent<Rigidbody>();
         StateMachine = GetComponent<StateMachine>();
         Rigidbody    = GetComponent<Rigidbody>();
         InputManager = GetComponentInChildren<InputManager>();
@@ -103,9 +109,10 @@ public partial class PlayerController : MonoBehaviour
         HitBox       = GetComponentInChildren<HitBox>();
         HurtBox      = GetComponentInChildren<HurtBox>();
         Animator     = GetComponentInChildren<Animator>();
-        
-        // Enable the player input.
-        DisablePlayer(false);
+
+        Rigidbody            = GetComponent<Rigidbody>();
+        Rigidbody.useGravity = false;
+        defaultGravity       = GlobalGravity;
     }
 
     void OnDestroy() => Healthbar.OnPlayerDeath -= Death;
@@ -115,6 +122,9 @@ public partial class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
+        Vector3 gravity = GlobalGravity * gravityScale * Vector3.up;
+        Rigidbody.AddForce(gravity, ForceMode.Acceleration);
+        
         CheckIdle();
         
         RotateToFaceEnemy();

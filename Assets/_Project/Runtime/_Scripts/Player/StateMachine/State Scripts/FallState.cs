@@ -15,6 +15,7 @@ public class FallState : State
     // -- State Specific Variables --
     float fallGravityMultiplier;
     float jumpHaltForce;
+    float defaultGravity;
 
     // -- Constructor --
     public FallState(PlayerController player, FallStateData stateData) : base(player)
@@ -34,13 +35,15 @@ public class FallState : State
     {
         if (player.IsGrounded())
         {
+            player.GlobalGravity = player.defaultGravity;
+            player.gravityScale = 1;
             OnExit();
             return;
         }
 
         // Apply gravity
         if (player.Rigidbody.velocity.y < 0) 
-            player.Rigidbody.AddForce(fallGravityMultiplier * Vector3.down);
+            player.Rigidbody.AddForce(fallGravityMultiplier * Vector3.down, ForceMode.Acceleration);
 
         // Apply jump halt force
         if (player.Rigidbody.velocity.y > 0) 
