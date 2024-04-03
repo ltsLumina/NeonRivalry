@@ -17,6 +17,21 @@ public class ResetDeviceBindings : MonoBehaviour
             OnResetBindings?.Invoke();
         }
     }
+    
+    public static void DEBUG_ResetAllBindings()
+    {
+        // Load all input action assets
+        var inputActions = Resources.FindObjectsOfTypeAll<InputActionAsset>();
+        foreach (var asset in inputActions)
+        {
+            Debug.Log($"Resetting all bindings in {asset.name}");
+            
+            foreach (var map in asset.actionMaps)
+            {
+                map.RemoveAllBindingOverrides();
+            }
+        }
+    }
 
     public void ResetControlSchemeBinding()
     {

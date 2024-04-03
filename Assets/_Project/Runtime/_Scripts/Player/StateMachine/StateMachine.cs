@@ -127,10 +127,12 @@ public class StateMachine : MonoBehaviour
             case Dead:
                 break;
 
-            case Block:
+            case HitStun:
+                SetState(new NoneState(Player));
                 break;
 
-            case HitStun:
+            case Block:
+                SetState(new NoneState(Player));
                 break;
 
             // -- Default State --

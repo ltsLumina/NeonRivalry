@@ -59,5 +59,6 @@ public class FallState : State
         // Play land animation.
         IsFalling = false;
         player.Animator.SetBool("IsFalling", IsFalling);
+        player.Animator.SetTrigger("Land");
     }
 }

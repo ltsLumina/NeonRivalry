@@ -24,7 +24,7 @@ public class GameManager : MonoBehaviour
         Intro,
         MainMenu,
         CharSelect,
-        Playing,
+        Game,
         Paused,
         GameOver
     }
@@ -116,7 +116,7 @@ public class GameManager : MonoBehaviour
                 break;
             
             case var game when game == Game:
-                SetState(GameState.Playing);
+                SetState(GameState.Game);
 
                 // Play Game music
                 Music gameMusic = new (Track.LoveTheSubhumanSelf);
@@ -124,7 +124,7 @@ public class GameManager : MonoBehaviour
                 gameMusic.Play(2f);
 
                 // Play timeline.
-                TimelinePlayer.Play();
+                //TimelinePlayer.Play();
                 break;
         }
     }
@@ -160,7 +160,7 @@ public class GameManager : MonoBehaviour
             case GameState.CharSelect:
                 break;
 
-            case GameState.Playing:
+            case GameState.Game:
                 break;
 
             case GameState.Paused:
@@ -183,7 +183,7 @@ public class GameManager : MonoBehaviour
     public static void TogglePause(PlayerController playerThatPaused)
     {
         IsPaused = !IsPaused;
-        SetState(IsPaused ? GameState.Paused : GameState.Playing);
+        SetState(IsPaused ? GameState.Paused : GameState.Game);
 
         foreach (var player in PlayerManager.Players)
         {

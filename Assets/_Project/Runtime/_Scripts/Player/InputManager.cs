@@ -72,6 +72,9 @@ public class InputManager : MonoBehaviour
     {
         MoveInput = context.ReadValue<Vector2>();
 
+        // Transition to move state if the player is not crouching or blocking.
+        TransitionTo(context, player.CanMove, State.StateType.Walk);
+
         // Handle single player blocking
         if (PlayerManager.PlayerControllerCount < 2)
         {
@@ -80,9 +83,6 @@ public class InputManager : MonoBehaviour
         }
         
         if (IsBlocking()) return;
-
-        // Transition to move state if the player is not crouching or blocking.
-        TransitionTo(context, player.CanMove, State.StateType.Walk);
 
         return;
         bool IsBlocking()

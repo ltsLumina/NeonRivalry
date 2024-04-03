@@ -47,6 +47,14 @@ public static class PlayerManager
       2 => PlayerTwo,
       _                  => null };
 
+
+    /// <summary>
+    /// Retrieves a player based on the input device they are using.
+    /// </summary>
+    /// <param name="device">The input device (keyboard, gamepad etc.) used by the player.</param>
+    /// <returns>The player using the specified input device, or null if no such player exists.</returns>
+    public static Player GetPlayer(InputDevice device) => Players.Find(player => player.PlayerController.PlayerInput.devices.Contains(device));
+
     /// <summary>
     /// Gets the first player in the Players list if it exists; otherwise returns null.
     /// This property provides a quick reference to verify if there are any players active. Useful in scenarios such as determining if any player is currently taking damage.

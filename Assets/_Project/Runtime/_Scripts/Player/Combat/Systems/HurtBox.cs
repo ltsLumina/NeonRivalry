@@ -25,8 +25,8 @@ public class HurtBox : MonoBehaviour
     public delegate void HurtBoxHit(HitBox hitBox);
     public event HurtBoxHit OnHurtBoxHit;
 
-    delegate void BlockHit();
-    event BlockHit OnBlockHit;
+    public delegate void BlockHit();
+    public event BlockHit OnBlockHit;
 
     void Awake()
     {
@@ -42,7 +42,6 @@ public class HurtBox : MonoBehaviour
     void OnEnable()
     {
         OnHurtBoxHit += TakeDamage; 
-        OnBlockHit   += () => PlayEffect(blockEffect);
     }
 
     void OnDisable() => OnHurtBoxHit -= TakeDamage;
@@ -65,7 +64,7 @@ public class HurtBox : MonoBehaviour
     {
         // Check if the player is invincible or already dead.
         if (player.IsInvincible || player.Healthbar.Health <= 0) return;
-
+        
         if (player.IsBlocking)
         {
             HandleBlock(hitBox);
@@ -75,6 +74,9 @@ public class HurtBox : MonoBehaviour
         // -- Player was hit by another character --
         
         player.Animator.SetTrigger("Hitstun");
+
+        // Update the state of the player.
+        player.StateMachine.TransitionToState(State.StateType.HitStun);
 
         // Freeze player for a short duration.
         player.FreezePlayer(true);
@@ -97,6 +99,9 @@ public class HurtBox : MonoBehaviour
     void HandleBlock(HitBox hitBox)
     {
         OnBlockHit?.Invoke();
+
+        // Update the state of the player.
+        player.StateMachine.TransitionToState(State.StateType.Block);
 
         // If the player is standing, play the standing block animation.
         if (!player.IsCrouching)
@@ -225,12 +230,25 @@ public class HurtBox : MonoBehaviour
 
     void PlayEffect(GameObject effect)
     {
+        if (!SettingsManager.ShowEffects) return;
+        
         // Enable the effect
         effect.SetActive(true);
 
         // Start the coroutine to disable the effect after the animation has finished
         StartCoroutine(DisableEffectAfterAnimation(effect));
     }
+    
+    // void PlayParticles(GameObject particles)
+    // {
+    //     if (!SettingsManager.ShowParticles) return;
+    //     
+    //     // Enable the particles
+    //     particles.SetActive(true);
+    //
+    //     // Start the coroutine to disable the particles after the animation has finished
+    //     StartCoroutine(DisableEffectAfterAnimation(particles));
+    // }
 
     IEnumerator DisableEffectAfterAnimation(GameObject effect)
     {

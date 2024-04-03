@@ -34,7 +34,8 @@ public class QuickAccessWindow : EditorWindow
       { "hitbox", "Increases the hitbox damage to 34." },
       { "heal", "Heals all players to full health." },
       { "kill", "Kills player one."},
-      {"reset", "Resets all PlayerPrefs. Used for debugging."}
+      {"reset", "Resets all PlayerPrefs. Used for debugging."},
+      {"audio", "Sets volume for all audio sliders to zero." },
       };
 
     readonly static List<string> addedScenes = new ();
@@ -470,7 +471,12 @@ public class QuickAccessWindow : EditorWindow
                 
                 case var command when command.Contains("reset"):
                     PlayerPrefs.DeleteAll();
+                    ResetDeviceBindings.DEBUG_ResetAllBindings();
                     Debug.LogWarning("Reset PlayerPrefs.");
+                    break;
+                
+                case var command when command.Contains("audio"):
+                    SettingsManager.DEBUG_SetVolume(0, 0, 0);
                     break;
 
                 default:

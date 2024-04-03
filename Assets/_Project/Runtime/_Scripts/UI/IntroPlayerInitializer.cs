@@ -5,7 +5,6 @@ using MelenitasDev.SoundsGood;
 using TransitionsPlus;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.UI;
 
 #region Old Loading Screen Code
 #endregion
@@ -24,11 +23,11 @@ public class IntroPlayerInitializer : MonoBehaviour
         var buttonPromptsManager = FindObjectOfType<ButtonPromptsManager>();
         
         // ReSharper disable once NotAccessedVariable
-        MultiplayerEventSystem player = null;
+        MenuNavigator player = null;
 
         // Wait until a player joins.
         // This might seem redundant, but it is necessary to prevent the game from loading the next scene before a player joins.
-        yield return new WaitUntil(() => (player = FindObjectOfType<MultiplayerEventSystem>()) != null);
+        yield return new WaitUntil(() => (player = FindObjectOfType<MenuNavigator>()) != null);
 
         // If the player joined using a keyboard, show the keyboard prompts.
         if (player.GetComponent<PlayerInput>().currentControlScheme == "Keyboard")
@@ -46,11 +45,9 @@ public class IntroPlayerInitializer : MonoBehaviour
             sequence.Append(prompt.transform.DOScale(Vector3.zero, 0.5f)).SetEase(Ease.InCirc);
         }
         
-        player.GetComponent<PlayerInput>().enabled = false;
-        
         // Play the intro sound.
         intro = new (SFX.Intro);
-        intro.SetOutput(Output.SFX).SetVolume(1f);
+        intro.SetVolume(1f);
         intro.Play();
         
         yield return new WaitForSeconds(.85f);

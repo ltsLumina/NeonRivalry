@@ -54,7 +54,7 @@ public class MoveState : State
         // player.Rigidbody.AddForce(movement * Vector3.right);
         //
         // // Call the OnExit function after the force has been applied.
-        // OnExit();
+        OnExit();
     }
 
     public override void OnExit()

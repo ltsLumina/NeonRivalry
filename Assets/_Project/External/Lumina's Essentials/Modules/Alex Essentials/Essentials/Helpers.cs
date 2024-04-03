@@ -45,6 +45,9 @@ namespace Lumina.Essentials.Modules
         #endregion
 
         #region Miscellaneous
+        // Get the sibling game object of the given game object.
+        public static Transform GetSibling(this Transform gameObject, int siblingIndex) => gameObject.transform.parent.GetChild(siblingIndex);
+        
         /// <summary>
         ///     Destroys all children of the given transform.
         ///     Can be used as extension method.

@@ -14,7 +14,7 @@ public sealed class SettingsInfoText : MonoBehaviour
     void OnEnable() => InputDeviceManager.OnPlayerJoin += OnPlayerJoin;
     void OnDisable() => InputDeviceManager.OnPlayerJoin -= OnPlayerJoin;
 
-    void OnPlayerJoin()
+    void OnPlayerJoin(PlayerInput player, int playerID)
     {
         string key     = playerOneDevice is Keyboard ? "Escape" : "Start";
         string message = string.Format(messageTemplate, key);

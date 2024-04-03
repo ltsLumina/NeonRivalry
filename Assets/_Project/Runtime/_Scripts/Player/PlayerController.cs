@@ -147,12 +147,12 @@ public partial class PlayerController : MonoBehaviour
 
         // Fix rigidbody velocity issue (velocity is absurdly low when standing still)
         if (moveInput == Vector2.zero) Rigidbody.velocity = Vector3.zero;
+        
+        // Set the animator based on the player's movement.
+        Animator.SetInteger(Speed, (int) moveInput.x);
 
         // If crouching, reduce movement speed to zero.
         if (IsCrouching) return;
-
-        // Animating the player based on the move input.
-        Animator.SetInteger(Speed, (int) moveInput.x);
         
         // Determining the direction of the movement (left or right).
         int moveDirection = (int) moveInput.x;
@@ -160,18 +160,15 @@ public partial class PlayerController : MonoBehaviour
         // Calculating the target speed based on direction and move speed.
         // If moving backward, multiply the moveSpeed with the backwardSpeedFactor
         float targetSpeed = moveDirection * (moveInput.x < 0 ? moveSpeed * backwardSpeedFactor : moveSpeed);
-
-        // Calculate difference between target speed and current velocity.
         float speedDifference = targetSpeed - Rigidbody.velocity.x;
-        
-        // Determine the acceleration rate based on whether the target speed is greater than 0.01 or not.
         float accelRate = Mathf.Abs(targetSpeed) > 0.01f ? acceleration : deceleration;
-        
-        // Calculate the final movement force to be applied on the player's rigidbody.
         float movement = Mathf.Pow(Mathf.Abs(speedDifference) * accelRate, velocityPower) * Mathf.Sign(speedDifference);
         
-        // Apply the force to the player's rigidbody.
+        // Apply force.
         Rigidbody.AddForce(movement * Vector3.right);
+        
+        // TODO: ????????????????????
+        StateMachine.CurrentState.OnExit();
     }
 
     /// <summary>
@@ -181,6 +178,8 @@ public partial class PlayerController : MonoBehaviour
     void Initialize()
     {
         PlayerManager.AddPlayer(this);
+        
+        StateMachine.TransitionToState(StateType.Idle);
 
         // The character is set when the player is loaded from a previous scene,
         // meaning if the player was instantiated directly into the scene, the character will be null.
@@ -194,21 +193,28 @@ public partial class PlayerController : MonoBehaviour
             velocityPower       = Character.velocityPower;
         }
         
+        // Update the player's ID.
         PlayerID = PlayerInput.playerIndex + 1;
+
+        var playerInput = PlayerInput;
+        playerInput.defaultControlScheme = Device is Keyboard ? "Keyboard" : "Gamepad";
+        playerInput.defaultActionMap = $"Player {PlayerID}";
         
-        // TODO: Assign the player input actions asset to the player input.
-        RebindSaveLoad rebindSaveLoad = FindObjectOfType<RebindSaveLoad>();
-        PlayerInput.actions = PlayerID == 1 ? rebindSaveLoad.player1Actions : rebindSaveLoad.player2Actions;
-        PlayerInput.actions.Disable();
-        PlayerInput.SwitchCurrentActionMap($"Player {PlayerID}");
-        PlayerInput.actions.Enable();
+        // Assign the player input actions asset to the player input.
+        playerInput.actions = PlayerID == 1 
+            ? Resources.Load<InputActionAsset>("Input Management/Player 1 Input Actions") 
+            : Resources.Load<InputActionAsset>("Input Management/Player 2 Input Actions");
         
+        // Switch the player's action map to the correct player.
+        playerInput.actions.Disable();
+        playerInput.SwitchCurrentActionMap($"Player {PlayerID}");
+        playerInput.actions.Enable();
+        
+        // Switch the UI input module to the UI input actions.
+        PlayerInput.uiInputModule.actionsAsset = playerInput.actions;
+        
+        // Set the name of the player to "Player 1" or "Player 2".
         gameObject.name = $"Player {PlayerID}";
-        
-        // Parenting the player to the header is purely for organizational purposes.
-        const string headerTag = "[Header] Players";
-        Transform header = GameObject.FindGameObjectWithTag(headerTag).transform;
-        transform.SetParent(header);
 
         SetPlayerSpawnPoint();
         PlayerManager.AssignHealthbarToPlayer(this, PlayerID);
@@ -258,19 +264,39 @@ public partial class PlayerController : MonoBehaviour
 
     void CheckIdle()
     {
-        // Check if the player is idle.
-        if (IsIdle())
+        if (StateMachine.CurrentState is IdleState)
         {
-            // If the player is idle, we add to the idle time.
             IdleTime += Time.deltaTime;
 
-            // If the idle time is greater than the threshold, we transition to the idle state.
             if (IdleTime >= idleTimeThreshold)
             {
-                StateMachine.TransitionToState(StateType.Idle);
+                Animator.SetBool("Idle", true);
             }
         }
-        else { IdleTime = 0; }
+        else
+        {
+            IdleTime = 0;
+            Animator.SetBool("Idle", false);
+        }
+        
+        // // Check if the player is idle.
+        // if (IsIdle())
+        // {
+        //     // If the player is idle, we add to the idle time.
+        //     IdleTime += Time.deltaTime;
+        //
+        //     // If the idle time is greater than the threshold, we transition to the idle state.
+        //     if (IdleTime >= idleTimeThreshold)
+        //     {
+        //         StateMachine.TransitionToState(StateType.Idle);
+        //         Animator.SetBool("Idle", true);
+        //     }
+        // }
+        // else
+        // {
+        //     IdleTime = 0; 
+        //     Animator.SetBool("Idle", false);
+        // }
     }
 
     public void DisablePlayer(bool disabled)

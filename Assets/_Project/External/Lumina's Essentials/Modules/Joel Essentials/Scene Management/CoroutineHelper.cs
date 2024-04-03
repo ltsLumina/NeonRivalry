@@ -31,6 +31,8 @@ public class CoroutineHelper : MonoBehaviour
             return instance;
         }
     }
+    
+    public static MonoBehaviour GetHost() => Instance;
 
     new public static void StartCoroutine(IEnumerator coroutine)
     {

@@ -118,7 +118,7 @@ public class AirborneAttackState : State
     public override void OnExit()
     {
         // Cancel the attack animation by starting the idle animation.
-        animator.Play("Idle");
+        //animator.Play("Idle");
         
         IsAirborneAttacking = false;
         IsAirborne          = false;

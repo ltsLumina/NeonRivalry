@@ -15,7 +15,7 @@ public class TimelinePlayer : MonoBehaviour
         var timelines = GetComponents<PlayableDirector>();
         if (timelines.Length > 1)
         {
-            Debug.LogError("Multiple timelines were found in this scene. Please assign a timeline to this script.");
+            Debug.LogError("Multiple timelines were found in this scene. Please assign a timeline to this script." + "\n");
             return;
         }
             
@@ -30,7 +30,7 @@ public class TimelinePlayer : MonoBehaviour
     {
         if (timeline == null)
         {
-            Debug.LogWarning("No timeline was found. Please assign a timeline to this script.");
+            Debug.LogWarning("No timeline was found. Please assign a timeline to this script." + "\n");
             return;
         }
         

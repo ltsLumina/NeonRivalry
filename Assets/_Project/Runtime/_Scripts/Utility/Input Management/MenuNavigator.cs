@@ -1,5 +1,6 @@
 using System.Linq;
 using Lumina.Essentials.Attributes;
+using Lumina.Essentials.Modules;
 using MelenitasDev.SoundsGood;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -96,20 +97,17 @@ public class MenuNavigator : MonoBehaviour
     void Start()
     {
         PlayerManager.AddPlayer(null, this);
-        
+
+        Initialize();
         InitializeAudio();
 
         // -- other --
         
         string sceneName  = ActiveSceneName;
         int sceneIndex = ActiveScene;
-
+        
         // If the scene is the Intro or Game scene, return, as we don't want to select a button in these scenes.
         if (sceneIndex == Intro || sceneIndex == Game) return;
-
-        // Assign the localPlayerID based on the playerInput's playerIndex.
-        // Usually we would use player.PlayerID, but there is no "player" instance until the game scene.
-        playerID = playerInput.playerIndex + 1;
 
         if (playerID == 2 && SceneNotSupportedForPlayer2(sceneIndex))
         {
@@ -128,6 +126,35 @@ public class MenuNavigator : MonoBehaviour
         ProcessButton(button.GetComponent<Button>());
         
         previousSelectedGameObject = eventSystem.currentSelectedGameObject;
+    }
+    
+    void Initialize()
+    {
+        if (!GameScene)
+        {
+            // Update the player's ID.
+            PlayerID = playerInput.playerIndex + 1;
+        
+            // Set the player's default control scheme and action map.
+            playerInput.defaultControlScheme = InputDeviceManager.GetDevice(playerInput) is Keyboard ? "Keyboard" : "Gamepad";
+            playerInput.defaultActionMap     = "UI";
+
+            // Switch the player's action map to the correct player.
+            playerInput.actions.Disable();
+            playerInput.SwitchCurrentActionMap("UI");
+            playerInput.actions.Enable();
+        }
+        else // (Game-scene specific):
+        {
+            // The PlayerInput component is in a different game object on the Player prefab.
+            if (!playerInput) playerInput = transform.GetSibling(0).GetComponent<PlayerInput>();
+
+            // Update the player's ID.
+            PlayerID = playerInput.playerIndex + 1;
+        }
+        
+        // If intro scene, disable the player.
+        if (IntroScene) playerInput.enabled = false;
     }
 
     public void OnNavigate(InputAction.CallbackContext context)

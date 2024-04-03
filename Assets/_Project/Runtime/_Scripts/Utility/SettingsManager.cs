@@ -10,7 +10,7 @@ using static SceneManagerExtended;
 public class SettingsManager : MonoBehaviour
 {
     [Tab("Rumble")]
-    [Header("Rumble")] [HideIf(nameof(isSceneMainMenu))]
+    [Header("Rumble")] [HideIf(nameof(isSceneMainMenu))] //TODO does this even work?
     [SerializeField] Slider player1RumbleSlider;
     [SerializeField] Slider player2RumbleSlider;
     [EndIf]
@@ -21,7 +21,7 @@ public class SettingsManager : MonoBehaviour
     [SerializeField] Slider musicVolume;
     [SerializeField] Slider sfxVolume;
 
-    AudioMixer mixer;
+    static AudioMixer mixer;
     Resolution[] resolutions;
     
     bool isSceneMainMenu => ActiveScene is 0;
@@ -70,20 +70,20 @@ public class SettingsManager : MonoBehaviour
         player1_Slider.value = Player1RumbleStrength;
         player2_Slider.value = Player2RumbleStrength;
     }
-    
-    void SetMasterVolume(float value)
+
+    static void SetMasterVolume(float value)
     {
         mixer.SetFloat("Master", Mathf.Log10(value) * 40);
         PlayerPrefs.SetFloat("Master", value);
     }
-    
-    void SetMusicVolume(float value)
+
+    static void SetMusicVolume(float value)
     {
         mixer.SetFloat("Music", Mathf.Log10(value) * 40);
         PlayerPrefs.SetFloat("Music", value);
     }
-    
-    void SetSFXVolume(float value)
+
+    static void SetSFXVolume(float value)
     {
         mixer.SetFloat("SFX", Mathf.Log10(value) * 40);
         PlayerPrefs.SetFloat("SFX", value);
@@ -96,6 +96,13 @@ public class SettingsManager : MonoBehaviour
         Sound sound = new Sound(SFX.Accept);
         sound.SetOutput(Output.SFX);
         sound.Play();
+    }
+    
+    public static void DEBUG_SetVolume(float master, float music, float sfx)
+    {
+        SetMasterVolume(master);
+        SetMusicVolume(music);
+        SetSFXVolume(sfx);
     }
     
     /// <summary>

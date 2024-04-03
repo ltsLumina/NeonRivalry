@@ -7,33 +7,37 @@ using Logger = Lumina.Debugging.Logger;
 
 public class InputDeviceManager : MonoBehaviour
 {
-    [SerializeField] GameObject menuNavigator;
-    [SerializeField] GameObject shelbyPrefab;
-    [SerializeField] GameObject dorathyPrefab;
+    [Header("Prefabs")]
+    [SerializeField] MenuNavigator menuNavigator;
+    [SerializeField] PlayerController player;
 
     /// <summary>
     /// Key is the device, Value is the player index.
     /// </summary>
     readonly static Dictionary<InputDevice, int> persistentPlayerDevices = new ();
     public readonly Dictionary<InputDevice, int> playerDevices = new();
-    public static InputDevice GetDevice(PlayerInput player) => persistentPlayerDevices.FirstOrDefault(p => p.Value == player.playerIndex).Key;
     
+    public static InputDevice GetDevice(PlayerInput player) => persistentPlayerDevices.FirstOrDefault(p => p.Value == player.playerIndex).Key;
     public static InputDevice PlayerOneDevice => persistentPlayerDevices.Count < 1 ? null : persistentPlayerDevices.FirstOrDefault().Key;
     public static InputDevice PlayerTwoDevice => persistentPlayerDevices.Count < 2 ? null : persistentPlayerDevices.Last().Key;
-
-    public delegate void PlayerJoin();
-    public static event PlayerJoin OnPlayerJoin;
+    
+    public delegate void PlayerJoin<in T1, in T2>(T1 player, T2 playerID);
+    public static event PlayerJoin<PlayerInput, int> OnPlayerJoin;
 
     void Awake()
     {
-        // Clear the persistent devices if the scene is the Intro scene.
-        // This is done to circumvent a bug where the persistent devices are not cleared when the game is restarted. (Due to Enter Playmode Options)
-        if (IntroScene) persistentPlayerDevices.Clear();
-        
+        switch (ActiveScene)
+        {
+            case var scene when scene == Intro:
+                persistentPlayerDevices.Clear();
+                break;
+
+            case var scene when scene == CharacterSelect:
+                CharacterSelector.Reset();
+                break;
+        }
+
         if (Logger.ResetPersistentPlayers) persistentPlayerDevices.Clear();
-        
-        // Clear the selected characters list if the scene is the Character Select scene.
-        if (CharacterSelectScene) CharacterSelector.Reset();
     }
 
     void Start() =>
@@ -54,28 +58,38 @@ public class InputDeviceManager : MonoBehaviour
             // Add the device to the playerDevices dictionary.
             playerDevices[deviceIndexPair.Key] = deviceIndexPair.Value;
 
+            // Increment the player index by 1 because the player index is 0-based.
+            int playerID = deviceIndexPair.Value + 1;
+            // The index is 0-based, so we must subtract 1 to get the correct index.
+            int playerIndex = playerID - 1;
+
+            // Set the control scheme based on the device type.
             string controlScheme = deviceIndexPair.Key is Keyboard ? "Keyboard" : "Gamepad";
             
             // Figure out which player to instantiate based on which character was selected.
             // We must increment the player index by 1 because the player index is 0-based.
-            CharacterSelector.SelectedCharacters.TryGetValue(deviceIndexPair.Value + 1, out Character character);
-            
+            CharacterSelector.SelectedCharacters.TryGetValue(playerID, out Character character);
+
             if (!GameScene)
             {
-                PlayerInput player = PlayerInput.Instantiate(menuNavigator, deviceIndexPair.Value, controlScheme, -1, deviceIndexPair.Key);
-                player.gameObject.name = $"Player {deviceIndexPair.Value + 1}";
-                player.transform.SetParent(GameObject.FindWithTag("[Header] Players").transform);
-                Debug.Log($"Player {deviceIndexPair.Value + 1} joined using {controlScheme} control scheme! \nThis player was loaded in from a previous scene or game restart.", player);
+                PlayerInput loadedMenuNavigator = PlayerInput.Instantiate(menuNavigator.gameObject, playerIndex, controlScheme, -1, deviceIndexPair.Key);
+                loadedMenuNavigator.gameObject.name = $"Player {playerID}";
+                loadedMenuNavigator.transform.SetParent(GameObject.FindWithTag("[Header] Players").transform);
+                Debug.Log($"Player {deviceIndexPair.Value + 1} joined using {controlScheme} control scheme! \nThis player was loaded in from a previous scene or game restart.", loadedMenuNavigator);
 
-                OnPlayerJoin?.Invoke();
+                OnPlayerJoin?.Invoke(loadedMenuNavigator, playerID);
             }
-            else
+            else // Scene is Game.
             {
                 // Instantiate the player based on the character that was selected.
-                PlayerInput player = PlayerInput.Instantiate(character?.CharacterPrefab, deviceIndexPair.Value, controlScheme, -1, deviceIndexPair.Key);
+                if (!character) return;
+                PlayerInput loadedPlayer = PlayerInput.Instantiate(character.CharacterPrefab, playerIndex, controlScheme, -1, deviceIndexPair.Key);
+                
+                // Child the player to the Players object in the scene.
+                loadedPlayer.transform.root.SetParent(GameObject.FindWithTag("[Header] Players").transform);
                 
                 // Update the playercontroller's stats with the selected character's stats.
-                PlayerController playerController = player.GetComponentInParent<PlayerController>();
+                PlayerController playerController = loadedPlayer.GetComponentInParent<PlayerController>();
                 
                 playerController.Character = character;
             }
@@ -101,7 +115,7 @@ public class InputDeviceManager : MonoBehaviour
         if (!CheckCanJoin()) return;
 
         // If all checks pass, instantiate the player.
-        InstantiatePlayer();
+        InstantiateNewPlayer();
     }
 
     /// <summary>
@@ -144,37 +158,40 @@ public class InputDeviceManager : MonoBehaviour
     /// <summary>
     ///    Instantiates a Menu Navigator or Player.
     /// </summary>
-    void InstantiatePlayer()
+    void InstantiateNewPlayer()
     {
+        // Get the most recently updated device.
         InputDevice device = GetActiveDevice();
+
         if (device == null || playerDevices.ContainsKey(device) || PlayerInputManager.instance.playerCount >= 2) return;
-        
+
         // Add the device to the playerDevices dictionary.
         playerDevices[device] = PlayerInputManager.instance.playerCount;
+
         // Also update the device to be persistent in next scenes
         persistentPlayerDevices[device] = PlayerInputManager.instance.playerCount;
 
+        // Set the control scheme based on the device type.
         string controlScheme = device is Keyboard ? "Keyboard" : "Gamepad";
 
-        // TODO: The line "ActiveScene == Game ? shelbyPrefab : menuNavigator" is temporary.
-        var player = PlayerInput.Instantiate(GameScene ? shelbyPrefab : menuNavigator, playerDevices[device], controlScheme, -1, device);
+        // Set the player ID to the player devices' ID.
+        int playerID = PlayerInputManager.instance.playerCount + 1;
 
-        if (!GameScene)
-        {
-            player.gameObject.name = $"Player {playerDevices[device] + 1}";
-            Transform parent = GameObject.FindWithTag("[Header] Players").transform;
-            player.transform.SetParent(parent);
-        }
+        // TODO: The line "ActiveScene == Game ? shelbyPrefab : menuNavigator" is temporary.
+        var newPlayer = PlayerInput.Instantiate(GameScene ? player.gameObject : menuNavigator.gameObject, playerID - 1, controlScheme, -1, device);
+
+        // Child the player to the Players object in the scene.
+        newPlayer.gameObject.transform.root.name = $"Player {playerID}";
+        newPlayer.transform.root.SetParent(GameObject.FindWithTag("[Header] Players").transform);
         
-        Debug.Log($"Player {playerDevices[device] + 1} joined using {controlScheme} control scheme!" + "\n");
-        OnPlayerJoin?.Invoke();
-        
+        Debug.Log($"Player {playerID} joined using {controlScheme} control scheme!" + "\n");
+        OnPlayerJoin?.Invoke(newPlayer, playerID);
+
         // Uses the default (recommended) rumble amount and duration.
-        if (device is Gamepad gamepad) gamepad.Rumble(this); // bug: The rumble might be too weak on some gamepads, making it nearly unnoticeable.
-        
+        if (device is Gamepad gamepad) gamepad.Rumble(); // bug: The rumble might be too weak on some gamepads, making it nearly unnoticeable.
+
         // Disable the second player in the main menu.
-        if (MainMenuScene && PlayerInputManager.instance.playerCount == 2) 
-            player.gameObject.SetActive(false);
+        if (MainMenuScene && PlayerInputManager.instance.playerCount == 2) newPlayer.gameObject.SetActive(false);
     }
 
     static InputDevice GetActiveDevice()

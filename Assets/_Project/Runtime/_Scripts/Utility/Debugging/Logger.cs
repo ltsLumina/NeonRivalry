@@ -1,6 +1,7 @@
 ﻿#region
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 #endregion
@@ -14,11 +15,42 @@ namespace Lumina.Debugging
 /// </summary>
 public static class Logger
 {
-    [Tooltip("Allows the developer to skip the loading screen, join a player into the game scene directly, among with some other minor QoL changes.")]
-    public static bool DebugMode = true;
+    // "Allows the developer to skip the loading screen, join a player into the game scene directly, among with some other minor QoL changes
+    public static bool DebugMode
+    {
+        get
+        {
+#if UNITY_EDITOR
+            return EditorPrefs.GetBool("DebugMode", false);
+#else
+        return false;
+#endif
+        }
+        set
+        {
+#if UNITY_EDITOR
+            EditorPrefs.SetBool("DebugMode", value);
+#endif
+        }
+    }
 
-    [Tooltip("Allows the developer to reset the persistent players when the game is restarted.")]
-    public static bool ResetPersistentPlayers = true;
+    public static bool ResetPersistentPlayers
+    {
+        get
+        {
+#if UNITY_EDITOR
+            return EditorPrefs.GetBool("ResetPersistentPlayers", false);
+#else
+        return false;
+#endif
+        }
+        set
+        {
+#if UNITY_EDITOR
+            EditorPrefs.SetBool("ResetPersistentPlayers", value);
+#endif
+        }
+    }
 
     static Logger()
     {
