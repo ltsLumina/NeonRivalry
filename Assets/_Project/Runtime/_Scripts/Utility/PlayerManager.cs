@@ -10,12 +10,6 @@ using UnityEngine.InputSystem;
 /// </summary>
 public static class PlayerManager
 {
-    public enum PlayerID
-    {
-        PlayerOne = 1,
-        PlayerTwo = 2
-    }
-    
     #region Player List & Properties
     /// <summary>
     /// Maintains a list of all Player instances.
