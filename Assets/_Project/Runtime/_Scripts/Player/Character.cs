@@ -21,6 +21,7 @@ public class Character : ScriptableObject
     public float deceleration;
     public float velocityPower;
 
+#if UNITY_EDITOR
     void OnValidate() // Used to update movement variables in runtime.
     {
         var player = FindObjectOfType<PlayerController>();
@@ -28,4 +29,5 @@ public class Character : ScriptableObject
         
         player.ValidateMovementVariables(this);
     }
+#endif
 }
