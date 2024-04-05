@@ -1,4 +1,3 @@
-#define DISABLED    // this line was added by VUtils.ToggleDefineDisabledInScript
 #if UNITY_EDITOR
 using System.Linq;
 using System.Reflection;

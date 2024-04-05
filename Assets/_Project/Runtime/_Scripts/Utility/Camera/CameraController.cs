@@ -22,19 +22,20 @@ public class CameraController : MonoBehaviour
     [SerializeField] float maxZPosition = -5f;
 
     [Tooltip("The speed at which the camera zooms in and out.")]
-    [SerializeField] float zoomSpeed = 50f; 
+    [SerializeField] float zoomSpeed = 50f;
 
     [Tab("Settings")]
     [SerializeField, ReadOnly] Transform target1;
     [SerializeField, ReadOnly] Transform target2;
 
     // -- Cached References -- \\
-    
+
     CinemachineVirtualCamera vCam;
 
-    void Awake() => vCam = GetComponent<CinemachineVirtualCamera>();
+    void Awake() => vCam = GetComponentInChildren<CinemachineVirtualCamera>();
 
     void OnEnable() => InputDeviceManager.OnPlayerJoin += OnPlayerJoined;
+
     void OnDisable() => InputDeviceManager.OnPlayerJoin -= OnPlayerJoined;
 
     void OnPlayerJoined(PlayerInput playerInput, int playerID)
@@ -70,8 +71,8 @@ public class CameraController : MonoBehaviour
         Vector3 currentPosition = vCam.transform.position;
 
         // Calculate the midpoint between the two targets.
-        const float half = 2;
-        Vector3 midpoint = (target1.position + target2.position) / half;
+        const float half     = 2;
+        Vector3     midpoint = (target1.position + target2.position) / half;
 
         // Calculate the new z-position of the camera. This is a linear interpolation between the current z-position and the desired z-position,
         // with the interpolation parameter being the product of the time delta and the zoom speed.
