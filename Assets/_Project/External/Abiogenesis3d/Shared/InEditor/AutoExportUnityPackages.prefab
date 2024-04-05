@@ -1,0 +1,86 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8710135452026036430
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1417939924395698196}
+  - component: {fileID: 4512596481238989722}
+  m_Layer: 0
+  m_Name: AutoExportUnityPackages
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1417939924395698196
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8710135452026036430}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4512596481238989722
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8710135452026036430}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4ec4094863426843a48970d7a51393b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  export: 0
+  commonPaths: []
+  packages:
+  - export: 1
+    name: UPixelator
+    version: 3.1.0
+    paths:
+    - Assets/Abiogenesis3d/UPixelator
+    - Assets/Abiogenesis3d/MultiCameraEvents
+    - Assets/Abiogenesis3d/Shared
+    - Assets/Abiogenesis3d/Campfire
+    - Assets/Abiogenesis3d/UnityTechnologies
+  - export: 1
+    name: PixelArtEdgeHighlights
+    version: 1.5.1
+    paths:
+    - Assets/Abiogenesis3d/PixelArtEdgeHighlights
+    - Assets/Abiogenesis3d/Shared
+  - export: 0
+    name: MultiCameraEvents
+    version: 1.3.0
+    paths:
+    - Assets/Abiogenesis3d/MultiCameraEvents
+    - Assets/Abiogenesis3d/Shared
+  - export: 1
+    name: Campfire
+    version: 1.0.0
+    paths:
+    - Assets/Abiogenesis3d/Campfire
+    - Assets/Abiogenesis3d/Shared/Shared.asmdef
+    - Assets/Abiogenesis3d/Shared/Camera/TopDownAudioListener.cs
+    - Assets/Abiogenesis3d/Shared/InEditor/AutoImportUnityPackage.cs
+    - Assets/Abiogenesis3d/UnityTechnologies/SpaceRobotKyle
+  - export: 1
+    name: FakeStopMotion
+    version: 1.0.0
+    paths:
+    - Assets/Abiogenesis3d/FakeStopMotion
+    - Assets/Abiogenesis3d/UnityTechnologies/3DGameKit
+    - Assets/Abiogenesis3d/Shared

@@ -1,3 +1,4 @@
+#define DISABLED    // this line was added by VUtils.ToggleDefineDisabledInScript
 // exact copy of VIScriptComponentEditor.cs except for lines 22, 24 and 495
 
 #if UNITY_EDITOR

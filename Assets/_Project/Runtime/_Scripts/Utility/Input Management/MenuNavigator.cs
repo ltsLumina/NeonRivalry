@@ -155,6 +155,10 @@ public class MenuNavigator : MonoBehaviour
         
         // If intro scene, disable the player.
         if (IntroScene) playerInput.enabled = false;
+
+        // Player has been fully initialized.
+        // Invoke the OnPlayerJoin event from the InputDeviceManager.
+        InputDeviceManager.TriggerPlayerJoin(playerInput, PlayerID);
     }
 
     public void OnNavigate(InputAction.CallbackContext context)

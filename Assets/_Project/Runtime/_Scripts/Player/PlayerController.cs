@@ -239,6 +239,10 @@ public partial class PlayerController : MonoBehaviour
 
         Healthbar.OnPlayerDeath += Death;
 
+        // Player has been fully initialized.
+        // Invoke the OnPlayerJoin event from the InputDeviceManager.
+        InputDeviceManager.TriggerPlayerJoin(PlayerInput, PlayerID);
+        
         return;
         void SetPlayerSpawnPoint()
         {

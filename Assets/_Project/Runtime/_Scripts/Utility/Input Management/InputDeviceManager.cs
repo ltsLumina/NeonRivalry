@@ -24,6 +24,9 @@ public class InputDeviceManager : MonoBehaviour
     public delegate void PlayerJoin<in T1, in T2>(T1 player, T2 playerID);
     public static event PlayerJoin<PlayerInput, int> OnPlayerJoin;
 
+    // This method can be called by external code to safely invoke the event
+    public static void TriggerPlayerJoin(PlayerInput playerInput, int playerID) => OnPlayerJoin?.Invoke(playerInput, playerID);
+
     void Awake()
     {
         switch (ActiveScene)
@@ -179,7 +182,7 @@ public class InputDeviceManager : MonoBehaviour
 
         // TODO: The line "ActiveScene == Game ? shelbyPrefab : menuNavigator" is temporary.
         var newPlayer = PlayerInput.Instantiate(GameScene ? player.gameObject : menuNavigator.gameObject, playerID - 1, controlScheme, -1, device);
-
+        
         // Child the player to the Players object in the scene.
         newPlayer.gameObject.transform.root.name = $"Player {playerID}";
         newPlayer.transform.root.SetParent(GameObject.FindWithTag("[Header] Players").transform);
