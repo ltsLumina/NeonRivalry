@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 /// <summary>
@@ -13,7 +14,6 @@ public class MoveData : ScriptableObject
         Punch,
         Kick,
         Slash,
-        Unique
     }
 
     /// <summary>
@@ -68,19 +68,16 @@ public class MoveData : ScriptableObject
     public string description;
     
     [Tooltip("Damage caused by the move.")]
-    public float damage;
+    public int damage;
 
-    [Tooltip("Number of frames between inputting an attack and when the attack becomes active. Includes first active frame.")]
-    public float startup;
+    [Tooltip("The amount of force applied to the enemy when hit by the move.")]
+    public Vector2 knockbackForce;
+    
+    [Tooltip("The direction the enemy is knocked back when hit by the move.")]
+    public Vector2 knockbackDir;
 
-    [Tooltip("Number of frames for which a move has hitboxes. Occurs after Startup.")]
-    public float active;
-
-    [Tooltip("Number of frames after a move's active frames during which the character cannot act assuming the move is not canceled.")]
-    public float recovery;
-
-    [Tooltip("Block advantage/disadvantage.")]
-    public float blockstun;
+    // [Tooltip("Block advantage/disadvantage.")]
+    // public float blockstun;
 
     [Space(15)]
     [Header("Move Properties")]
@@ -104,7 +101,90 @@ public class MoveData : ScriptableObject
     public bool isGuardBreak;
     
     [Space(15)]
-    [Header("Move Effects"), Tooltip("Effects that are applied to a player when the move is performed. For instance, a move could apply a stun effect to the enemy.")]
+    [Header("Effects"), Tooltip("Effects that are applied to a player when the move is performed. For instance, a move could apply a stun effect to the enemy.")]
     public List<MoveEffect> moveEffects;
 
+#if UNITY_EDITOR
+    #region Editor-Only
+    [HideInInspector]
+    public bool showWarning;
+    [HideInInspector]
+    public Vector2 wrongDir;
+    [HideInInspector]
+    public Vector2 wrongForce;
+    
+    void OnValidate()
+    {
+        knockbackDir.x = Mathf.Clamp(knockbackDir.x, -1, 1);
+        knockbackDir.y = Mathf.Clamp(knockbackDir.y, -1, 1);
+        
+        knockbackForce.x = Mathf.Clamp(knockbackForce.x, -5, 5);
+        knockbackForce.y = Mathf.Clamp(knockbackForce.y, -15, 15);
+
+        // If the dir is non-zero on an axis and a force is zero on that axis, or vice versa, warn the user
+        if ((knockbackDir.x != 0 && knockbackForce.x == 0) || (knockbackDir.y != 0 && knockbackForce.y == 0) || (knockbackDir.x == 0 && knockbackForce.x != 0) || (knockbackDir.y == 0 && knockbackForce.y != 0))
+        {
+            showWarning = true;
+            wrongDir    = knockbackDir;
+            wrongForce  = knockbackForce;
+        }
+        else { showWarning = false; }
+    }
+    #endregion
+#endif
 }
+
+#if UNITY_EDITOR
+[CustomEditor(typeof(MoveData))]
+public class MoveDataEditor : Editor
+{
+    MoveData moveData;
+    bool leftPlayerGraph;
+
+    void OnEnable() => moveData = (MoveData) target;
+
+    public override void OnInspectorGUI()
+    {
+        // Draw default inspector
+        DrawDefaultInspector();
+
+        GUILayout.Space(15);
+        
+        if (moveData.showWarning)
+        {
+            var wrongDir   = moveData.wrongDir;
+            var wrongForce = moveData.wrongForce;
+
+            string warning = "The knockback direction and force are not aligned. " + "\n" + $"Direction: ({wrongDir.x}, {wrongDir.y})" + "\n" + $"Force: ({wrongForce.x}, {wrongForce.y})" + "\n" +
+                             "You are either trying to apply a force to a direction that is zero, or the force is zero when the direction is not.";
+            EditorGUILayout.HelpBox(warning, MessageType.Warning);
+        }
+
+        GUILayout.Space(15);
+        GUILayout.Label("", GUI.skin.horizontalSlider);
+        GUILayout.Space(15);
+
+        // Draw graph
+        string label   = leftPlayerGraph ? "Right Player" : "Left Player";
+        var    content = new GUIContent(label, $"The direction the {label} is knocked back when hit by the move.");
+        leftPlayerGraph = GUILayout.Toggle(leftPlayerGraph, content, EditorStyles.toolbarButton);
+        EditorGUILayout.LabelField("Knockback Direction and Force Graph");
+
+        GUILayout.Space(15);
+
+        Rect rect = GUILayoutUtility.GetRect(150, 150);
+        Handles.DrawSolidRectangleWithOutline(rect, new (0.22f, 0.22f, 0.22f), new (0.22f, 0.22f, 0.22f));
+        Vector2 center = rect.center;
+
+        // Scale the knockback direction by the magnitude of the knockback force
+        // Flip the X direction if leftPlayerGraph is true
+        Vector2 knockbackDir = moveData.knockbackDir;
+        knockbackDir.x = leftPlayerGraph ? -knockbackDir.x : knockbackDir.x;
+        Vector2 end = center + new Vector2(knockbackDir.x * moveData.knockbackForce.x, -knockbackDir.y * moveData.knockbackForce.y) * 4.5f; // 4.5f is the scale factor to fit the graph in the rect
+        Handles.DrawLine(center, end);
+        Handles.CircleHandleCap(0, end, Quaternion.identity, 2, EventType.Repaint);
+    }
+
+    
+}
+#endif

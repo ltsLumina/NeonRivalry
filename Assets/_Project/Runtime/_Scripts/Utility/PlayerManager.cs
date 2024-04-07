@@ -88,22 +88,37 @@ public static class PlayerManager
     #endregion
 
     #region Utility
-    public static PlayerController OtherPlayerController(PlayerController player)
+    public static T OtherPlayer<T>(T player)
+        where T : class => player switch
+    { PlayerController playerController => OtherPlayerController(playerController) as T,
+      MenuNavigator navigator           => OtherMenuNavigator(navigator) as T,
+      _                               => null };
+
+    static PlayerController OtherPlayerController(PlayerController player)
     {
         if (player && PlayerTwo != null) return player == PlayerOne.PlayerController ? PlayerTwo.PlayerController : PlayerOne.PlayerController;
         return null;
     }
 
-    public static MenuNavigator OtherMenuNavigator(Player player)
+    static MenuNavigator OtherMenuNavigator(MenuNavigator navigator)
     {
-        if (player != null && PlayerTwo != null) return player == PlayerOne ? PlayerTwo.MenuNavigator : PlayerOne.MenuNavigator;
+        if (navigator != null && PlayerTwo != null) return navigator == PlayerOne.MenuNavigator ? PlayerTwo.MenuNavigator : PlayerOne.MenuNavigator;
         return null;
     }
-    
-    public static void AddPlayer(PlayerController playerController = default, MenuNavigator menuNavigator = default)
+
+    public static void AddPlayer<T>(T player)
+        where T : class
     {
-        Player player = new(playerController, menuNavigator);
-        Players.Add(player);
+        switch (player)
+        {
+            case PlayerController playerController:
+                Players.Add(new (playerController, null));
+                break;
+
+            case MenuNavigator menuNavigator:
+                Players.Add(new (null, menuNavigator));
+                break;
+        }
     }
     
     public static void RemovePlayer(Player player) => Players.Remove(player);

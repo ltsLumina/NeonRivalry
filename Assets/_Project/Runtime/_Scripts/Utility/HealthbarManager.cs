@@ -4,8 +4,8 @@ using UnityEngine;
 public class HealthbarManager : MonoBehaviour
 {
     public delegate void PlayerDeath(PlayerController player);
-    public static event PlayerDeath OnPlayerDeath; // Checks if any player has died. Globally accessible. 
-
+    public static event PlayerDeath OnAnyPlayerDeath; // Checks if any player has died. Globally accessible. 
+    
     public static void Initialize()
     {
         foreach (Healthbar healthbar in Healthbars) { healthbar.OnPlayerDeath += SubscribeHealthbars; }
@@ -16,7 +16,7 @@ public class HealthbarManager : MonoBehaviour
         foreach (Healthbar healthbar in Healthbars) { healthbar.OnPlayerDeath -= SubscribeHealthbars; }
     }
 
-    static void SubscribeHealthbars(PlayerController player) => OnPlayerDeath?.Invoke(player);
+    static void SubscribeHealthbars(PlayerController player) => OnAnyPlayerDeath?.Invoke(player);
     
     // -- Properties --
 

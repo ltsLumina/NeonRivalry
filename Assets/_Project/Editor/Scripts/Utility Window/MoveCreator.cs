@@ -26,7 +26,7 @@ public static class MoveCreator
 
     static string name;
     static string description;
-    static float damage;
+    static int damage;
     static float startup;
     static float active;
     static float recovery;
@@ -203,7 +203,7 @@ public static class MoveCreator
 
                 name        = EditorGUILayout.TextField(nameContent, name);
                 description = EditorGUILayout.TextField(descriptionContent, description);
-                damage      = EditorGUILayout.FloatField(damageContent, damage);
+                damage      = EditorGUILayout.IntField(damageContent, damage);
                 startup     = EditorGUILayout.FloatField(startupContent, startup);
                 active      = EditorGUILayout.FloatField(activeContent, active);
                 recovery    = EditorGUILayout.FloatField(recoveryContent, recovery);
@@ -276,10 +276,7 @@ public static class MoveCreator
                 currentMove.name        = name;
                 currentMove.description = description;
                 currentMove.damage      = damage;
-                currentMove.startup     = startup;
-                currentMove.active      = active;
-                currentMove.recovery    = recovery;
-                currentMove.blockstun   = blockstun;
+                //currentMove.blockstun   = blockstun;
 
                 currentMove.animation = animation;
                 currentMove.audioClip = audioClip;

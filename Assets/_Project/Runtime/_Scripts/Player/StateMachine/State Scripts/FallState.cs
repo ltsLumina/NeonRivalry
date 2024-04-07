@@ -33,6 +33,8 @@ public class FallState : State
 
     public override void UpdateState()
     {
+        // Player cannot block while jumping or falling.
+
         if (player.IsGrounded())
         {
             player.GlobalGravity = player.DefaultGravity;

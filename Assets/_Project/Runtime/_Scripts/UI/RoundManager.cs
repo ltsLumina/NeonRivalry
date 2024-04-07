@@ -51,8 +51,8 @@ public class RoundManager : MonoBehaviour
         }
     }
 
-    void OnEnable() => HealthbarManager.OnPlayerDeath += IncrementRound;
-    void OnDisable() => HealthbarManager.OnPlayerDeath -= IncrementRound;
+    void OnEnable() => HealthbarManager.OnAnyPlayerDeath += IncrementRound;
+    void OnDisable() => HealthbarManager.OnAnyPlayerDeath -= IncrementRound;
 
     void IncrementRound(PlayerController playerThatDied)
     {

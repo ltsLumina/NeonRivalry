@@ -7,9 +7,8 @@ public class Moveset : ScriptableObject
     public List<MoveData> PunchMoves = new ();
     public List<MoveData> KickMoves = new ();
     public List<MoveData> SlashMoves = new ();
-    public List<MoveData> UniqueMoves = new ();
     public List<MoveData> AirborneMoves = new (); // List of moves that can be performed while airborne. Will only ever be one.
 
     public List<List<MoveData>> Moves => new ()
-    { PunchMoves, KickMoves, SlashMoves, UniqueMoves, AirborneMoves };
+    { PunchMoves, KickMoves, SlashMoves, AirborneMoves };
 }

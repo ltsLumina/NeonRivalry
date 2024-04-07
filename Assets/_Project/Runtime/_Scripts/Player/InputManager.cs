@@ -74,34 +74,6 @@ public class InputManager : MonoBehaviour
 
         // Transition to move state if the player is not crouching or blocking.
         TransitionTo(context, player.CanMove, State.StateType.Walk);
-
-        // Handle single player blocking
-        if (PlayerManager.PlayerControllerCount < 2)
-        {
-            player.IsBlocking = MoveInput.x < 0;
-            return;
-        }
-        
-        if (IsBlocking()) return;
-
-        return;
-        bool IsBlocking()
-        {
-            // Get the direction to the other player
-            if (PlayerManager.OtherPlayerController(player) == null) return false;
-            Vector3 dirOtherPlayer = PlayerManager.OtherPlayerController(player).transform.position - player.transform.position;
-            dirOtherPlayer.Normalize();
-
-            // Get the direction of movement
-            Vector3 moveDirection = new Vector3(MoveInput.x, 0, MoveInput.y);
-            moveDirection.Normalize();
-
-            // Calculate the dot product
-            float dotProduct = Vector3.Dot(dirOtherPlayer, moveDirection);
-
-            // If the dot product is less than 0, the player is blocking
-            return player.IsBlocking = dotProduct < 0;
-        }
     }
 
     /// <summary>

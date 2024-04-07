@@ -36,9 +36,11 @@ public class JumpState : State
 
     public override void UpdateState()
     {
+        // Player cannot block while jumping or falling.
+
         if (player.Rigidbody.velocity.y > 0)
         {
-            player.Rigidbody.velocity = new Vector3(player.Rigidbody.velocity.x, player.Rigidbody.velocity.y * 0.98f, player.Rigidbody.velocity.z);
+            player.Rigidbody.velocity = new (player.Rigidbody.velocity.x, player.Rigidbody.velocity.y * 0.98f, player.Rigidbody.velocity.z);
         }
 
         if (!hasJumped)

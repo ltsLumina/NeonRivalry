@@ -22,7 +22,7 @@ public class HurtBox : MonoBehaviour
 
     PlayerController player;
 
-    public delegate void HurtBoxHit(HitBox hitBox);
+    public delegate void HurtBoxHit(HitBox hitBox, MoveData moveData);
     public event HurtBoxHit OnHurtBoxHit;
 
     public delegate void BlockHit();
@@ -39,11 +39,7 @@ public class HurtBox : MonoBehaviour
         DEBUG_TryHitHurtBox();
     }
 
-    void OnEnable()
-    {
-        OnHurtBoxHit += TakeDamage; 
-    }
-
+    void OnEnable() => OnHurtBoxHit += TakeDamage;
     void OnDisable() => OnHurtBoxHit -= TakeDamage;
 
     void DEBUG_TryHitHurtBox()
@@ -51,52 +47,76 @@ public class HurtBox : MonoBehaviour
         if (!Input.GetKeyDown(KeyCode.H)) return;
 
         var hitBox = FindObjectOfType<HitBox>();
-        if (hitBox != null) OnHurtBoxHit?.Invoke(hitBox);
+        var debugMoveData = Resources.Load<MoveData>("ScriptableObjects/Debug Attack");
+        
+        if (hitBox != null) OnHurtBoxHit?.Invoke(hitBox, debugMoveData);
     }
 
     void OnTriggerEnter(Collider other)
     {
         var hitBox = other.GetComponent<HitBox>();
-        if (hitBox != null) OnHurtBoxHit?.Invoke(hitBox);
+        if (hitBox != null) OnHurtBoxHit?.Invoke(hitBox, hitBox.MoveData);
     }
     
-    void TakeDamage(HitBox hitBox)
+    void TakeDamage(HitBox hitBox, MoveData moveData)
     {
         // Check if the player is invincible or already dead.
         if (player.IsInvincible || player.Healthbar.Health <= 0) return;
         
-        if (player.IsBlocking)
+        // -- Any logic that needs to happen regardless if the player is blocking or not --
+        
+        player.FreezePlayer(true, .3f, true);
+
+        if (moveData.isArmor)
         {
-            HandleBlock(hitBox);
+            HandleHit(moveData);
+            return;
+        } 
+        
+        // -- Blocking Logic --
+        
+        if (player.IsBlocking())
+        {
+            if (moveData.isOverhead || moveData.isGuardBreak)
+            {
+                HandleHit(moveData);
+                return;
+            }
+
+            HandleBlock(hitBox, moveData);
             return;
         }
         
-        // -- Player was hit by another character --
+        // -- Player was hit by another character and was not blocking --
         
-        player.Animator.SetTrigger("Hitstun");
+        HandleHit(moveData);
+    }
+    
+    void HandleHit(MoveData moveData)
+    {
+        if (!player.IsArmored)
+        {
+            player.Animator.SetTrigger("Hitstun");
+            player.StateMachine.TransitionToState(State.StateType.HitStun);
 
-        // Update the state of the player.
-        player.StateMachine.TransitionToState(State.StateType.HitStun);
-
-        // Freeze player for a short duration.
-        player.FreezePlayer(true);
-
-        // Knockback slightly
-        player.Knockback(player.transform.forward, 8f);
+            PlayEffect(punchKickEffect);
+            
+            // Apply knockback
+            Knockback(moveData);
+        }
+        else { player.IsArmored = false; }
         
         // Reduce health by the damage amount, and update the health bar.
         // Create variable to represent the player's health
         int health = player.Healthbar.Health;
-        health -= hitBox.DamageAmount;
-        player.Healthbar.Health = health;
-        
-        PlayEffect(punchKickEffect);
+        health                  -= moveData.damage;
+        player.Healthbar.Health =  health;
         
         // Plays effects over time such as flashing red and invincibility frames.
         TakeDamageRoutine();
     }
-    
-    void HandleBlock(HitBox hitBox)
+
+    void HandleBlock(HitBox hitBox, MoveData moveData)
     {
         OnBlockHit?.Invoke();
 
@@ -104,20 +124,10 @@ public class HurtBox : MonoBehaviour
         player.StateMachine.TransitionToState(State.StateType.Block);
 
         // If the player is standing, play the standing block animation.
-        if (!player.IsCrouching)
-        {
-            player.Animator.SetTrigger("Blocked");
-        }
-        
-        // Freeze player for a short duration.
-        player.FreezePlayer(true);
-        
-        // Knockback slightly
-        player.Knockback(player.transform.forward, 12.5f);
+        if (!player.IsCrouching) player.Animator.SetTrigger("Blocked");
 
-        CalculateDamageTaken(out float strainPercentage);
-
-        // Apply the strain gradient to the block effect
+        // Calculate the damage taken and the strain percentage.
+        CalculateDamageTaken(moveData, out float strainPercentage);
         BlockStrain(strainPercentage);
 
         // Play block effect.
@@ -128,17 +138,17 @@ public class HurtBox : MonoBehaviour
         #region Local Functions
         return;
 
-        void CalculateDamageTaken(out float _strainPercentage)
+        void CalculateDamageTaken(MoveData moveData, out float _strainPercentage)
         {
             // Calculate the strain percentage
-            _strainPercentage = totalBlockedDamage / (totalBlockedDamage + hitBox.DamageAmount);
+            _strainPercentage = totalBlockedDamage / (totalBlockedDamage + moveData.damage);
 
             // Modify the blockDamageReductionPercentage based on the strainPercentage
             float modifiedBlockDamageReductionPercentage = blockDamageReductionPercentage * (1 - _strainPercentage);
             modifiedBlockDamageReductionPercentage = Mathf.Clamp(modifiedBlockDamageReductionPercentage, 0.35f, 1f);
 
-            int reducedDamage = Mathf.RoundToInt(hitBox.DamageAmount * modifiedBlockDamageReductionPercentage);
-            int finalDamage   = hitBox.DamageAmount - reducedDamage; // Subtract the reduced damage from the original damage
+            int reducedDamage = Mathf.RoundToInt(moveData.damage * modifiedBlockDamageReductionPercentage);
+            int finalDamage   = moveData.damage - reducedDamage; // Subtract the reduced damage from the original damage
             player.Healthbar.Health -= finalDamage;                   // Apply the final damage
             Debug.Log($"Blocked and took {finalDamage} damage!");
 
@@ -169,6 +179,27 @@ public class HurtBox : MonoBehaviour
             blockEffect.GetComponent<SpriteRenderer>().material.color = strainColor;
         }
         #endregion
+    }
+
+    void Knockback(MoveData moveData)
+    {
+        Vector2 knockbackDir   = moveData.knockbackDir;
+        Vector3 knockbackForce = moveData.knockbackForce;
+        
+        var otherPlayer = PlayerManager.OtherPlayer(player);
+        if (otherPlayer != null) // Two-player knockback
+        {
+            // If the player is on the right side of the other player, reverse the knockback direction, and vice versa
+            Vector3 playerPos = player.transform.position;
+            Vector3 otherPlayerPos = otherPlayer.transform.position;
+            if (playerPos.x > otherPlayerPos.x) knockbackDir.x *= -1;
+        }
+        
+        // Calculate the knockback force using the direction and force values
+        var force = new Vector3(knockbackDir.x * knockbackForce.x, knockbackForce.y, knockbackDir.y * knockbackForce.z);
+    
+        // Apply the knockback force
+        player.Rigidbody.AddForce(force, ForceMode.Impulse);
     }
     
     void TakeDamageRoutine()
@@ -235,6 +266,9 @@ public class HurtBox : MonoBehaviour
         // Enable the effect
         effect.SetActive(true);
 
+        // e.g. freeze game for a short duration for juice
+        Sleep(0.075f);
+
         // Start the coroutine to disable the effect after the animation has finished
         StartCoroutine(DisableEffectAfterAnimation(effect));
     }
@@ -258,4 +292,23 @@ public class HurtBox : MonoBehaviour
         // Disable the effect
         effect.SetActive(false);
     }
+    
+    public static void Sleep(float duration = 0.1f)
+    {
+        CoroutineHelper.StartCoroutine(PerformSleep(duration));
+        //StartCoroutine(PerformSleep(duration));
+    }
+    
+    /// <summary>
+    /// Freezes the game for a very short duration to give a sense of impact on each hit.
+    /// </summary>
+    /// <returns></returns>
+    static IEnumerator PerformSleep(float duration = 0.1f)
+    {
+        // Freeze the game for a short duration
+        Time.timeScale = 0.1f;
+        yield return new WaitForSecondsRealtime(duration);
+        Time.timeScale = 1f;
+    }
+    
 }

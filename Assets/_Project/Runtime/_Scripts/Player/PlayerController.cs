@@ -68,12 +68,19 @@ public partial class PlayerController : MonoBehaviour
     public InputManager InputManager { get; private set; }
     public PlayerInput PlayerInput { get; private set; }
     public InputDevice Device => InputDeviceManager.GetDevice(PlayerInput);
-    public HitBox HitBox { get; set; }
-    public HurtBox HurtBox { get; set; }
+    public HitBox HitBox { get; private set; }
+    public HurtBox HurtBox { get; private set; }
     public bool IsInvincible { get; set; }
 
     string ThisPlayer => $"Player {PlayerID}";
     public bool IsCrouching => Animator.GetBool("IsCrouching");
+    public Vector2 FacingDirection => UpdateFacingDirection();
+
+    Vector2 UpdateFacingDirection()
+    {
+        if (PlayerManager.OtherPlayer(this) == null) return Vector2.zero;
+        return PlayerManager.OtherPlayer(this).transform.position.x > transform.position.x ? Vector2.right : Vector2.left;
+    }
 
     // -- Serialized Properties --
 
@@ -125,8 +132,10 @@ public partial class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
+        #region Gravity
         Vector3 gravity = GlobalGravity * GravityScale * Vector3.up;
         Rigidbody.AddForce(gravity, ForceMode.Acceleration);
+        #endregion
 
         CheckIdle();
 
@@ -137,10 +146,12 @@ public partial class PlayerController : MonoBehaviour
         {
             if (IsGrounded())
             {
+                if (!InputManager.Enabled) return;
+
                 // Reset the airborne time if the player is grounded.
                 AirborneTime = 0;
 
-                DEBUGMovement();
+                Movement();
 
                 // Set player as crouching if the player is moving down and is grounded.
                 Animator.SetBool("IsCrouching", InputManager.MoveInput.y < 0);
@@ -153,7 +164,7 @@ public partial class PlayerController : MonoBehaviour
         }
     }
 
-    void DEBUGMovement()
+    void Movement()
     {
         // Getting the move input from the player's input manager.
         Vector2 moveInput = InputManager.MoveInput;
@@ -181,6 +192,7 @@ public partial class PlayerController : MonoBehaviour
         Rigidbody.AddForce(movement * Vector3.right);
         
         // TODO: ????????????????????
+        // I think this is a fix to transition to move/idle. Refer to the OnExit method in just about any state.
         StateMachine.CurrentState.OnExit();
     }
 
@@ -257,10 +269,10 @@ public partial class PlayerController : MonoBehaviour
 
     void RotateToFaceEnemy()
     {
-        if (PlayerManager.OtherPlayerController(this) == null) return;
+        if (PlayerManager.OtherPlayer(this) == null) return;
         
         List<Player> players        = PlayerManager.Players;
-        PlayerController       oppositePlayer = players[PlayerID == 1 ? 1 : 0].PlayerController;
+        PlayerController       oppositePlayer = PlayerManager.OtherPlayer(this);
         Transform              model          = transform.GetComponentInChildren<Animator>().transform;
 
         Quaternion targetRotation;
@@ -320,15 +332,8 @@ public partial class PlayerController : MonoBehaviour
         //     Animator.SetBool("Idle", false);
         // }
     }
-
-    public void DisablePlayer(bool disabled)
-    {
-        InputManager.Enabled = !disabled;
-        HitBox.enabled       = !disabled;
-        HurtBox.enabled      = !disabled;
-    }
     
-    public void FreezePlayer(bool frozen, float duration = 0.3f)
+    public void FreezePlayer(bool frozen, float duration = 0.3f, bool resetVelocity = false)
     {
         StartCoroutine(FreezePlayerRoutine());
         
@@ -336,18 +341,27 @@ public partial class PlayerController : MonoBehaviour
         IEnumerator FreezePlayerRoutine()
         {
             DisablePlayer(frozen);
+            Rigidbody.velocity = resetVelocity ? Vector3.zero : Rigidbody.velocity;
             yield return new WaitForSeconds(duration);
             DisablePlayer(false);
         }
     }
     
-    public void Knockback(Vector3 direction, float force)
+
+    public void DisablePlayer(bool disabled)
     {
-        Rigidbody.AddForce(direction * force, ForceMode.Impulse);
+        InputManager.Enabled = !disabled;
+        HitBox.enabled       = !disabled;
+        HurtBox.enabled      = !disabled;
     }
 
     void Death(PlayerController playerThatDied)
     {
+        Debug.LogWarning("Player's would be dead here.");
+        return;
+        
+        // ReSharper disable once HeuristicUnreachableCode
+#pragma warning disable CS0162 // Unreachable code detected
         DisablePlayer(true);
         GamepadExtensions.RumbleAll(playerThatDied);
 
@@ -364,6 +378,7 @@ public partial class PlayerController : MonoBehaviour
         Debug.Log($"{ThisPlayer} is dead!");
 
         return;
+#pragma warning restore CS0162 // Unreachable code detected
         void DeathEffect()
         {
             // Try to get the ChromaticAberration effect

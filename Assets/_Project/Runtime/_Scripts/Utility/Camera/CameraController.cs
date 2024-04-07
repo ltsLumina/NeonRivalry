@@ -35,7 +35,6 @@ public class CameraController : MonoBehaviour
     void Awake() => vCam = GetComponentInChildren<CinemachineVirtualCamera>();
 
     void OnEnable() => InputDeviceManager.OnPlayerJoin += OnPlayerJoined;
-
     void OnDisable() => InputDeviceManager.OnPlayerJoin -= OnPlayerJoined;
 
     void OnPlayerJoined(PlayerInput playerInput, int playerID)

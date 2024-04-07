@@ -99,6 +99,9 @@ public class AttackHandler
             Logger.Log("Returned out of an attack early. \nThis means the player might behave unexpectedly.", LogType.Warning);
             return false;
         }
+        
+        // Tell the hitbox which attack is being performed.
+        player.HitBox.SetAttack(selectedAttack);
 
         // Get the animation index based on the direction to perform.
         // The airborne attack only has one animation, so the animation index is always 0.
@@ -185,9 +188,6 @@ public class AttackHandler
 
             case InputManager.AttackType.Airborne:
                 return moveset.AirborneMoves;
-
-            case InputManager.AttackType.Unique:
-                return moveset.UniqueMoves;
 
             case InputManager.AttackType.None:
             default:

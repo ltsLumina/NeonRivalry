@@ -200,13 +200,13 @@ public class GameManager : MonoBehaviour
             UIManager.PauseMenuTitle.text = $"Paused (Player {PausingPlayer.PlayerID})";
 
             PausingPlayer.GetComponentInChildren<MultiplayerEventSystem>().SetSelectedGameObject(UIManager.PauseMenuButtons[0].gameObject);
-            var otherPlayer = PlayerManager.OtherPlayerController(PausingPlayer);
+            var otherPlayer = PlayerManager.OtherPlayer(PausingPlayer);
             if (otherPlayer != null) otherPlayer.PlayerInput.enabled = !IsPaused;
         }
         else
         {
             PausingPlayer.GetComponentInChildren<MultiplayerEventSystem>().SetSelectedGameObject(null);
-            var otherPlayer = PlayerManager.OtherPlayerController(PausingPlayer);
+            var otherPlayer = PlayerManager.OtherPlayer(PausingPlayer);
             if (otherPlayer != null) otherPlayer.PlayerInput.enabled = !IsPaused;
 
             PausingPlayer = null;

@@ -32,6 +32,39 @@ public class MoveState : State
 
     public override void UpdateState()
     {
+        // // Handle single player blocking
+        // if (PlayerManager.PlayerControllerCount == 1)
+        // {
+        //     Vector2 moveInput = player.InputManager.MoveInput;
+        //     return;
+        // }
+        //
+        // if (IsBlocking()) return;
+        //
+        // return;
+        //
+        // bool IsBlocking()
+        // {
+        //     // Player must be grounded to block.
+        //     if (!player.IsGrounded()) return false;
+        //
+        //     // Get the direction to the other player
+        //     if (PlayerManager.OtherPlayer(player) == null) return false;
+        //     Vector3 dirOtherPlayer = PlayerManager.OtherPlayer(player).transform.position - player.transform.position;
+        //     dirOtherPlayer.Normalize();
+        //
+        //     // Get the direction of movement
+        //     Vector2 moveInput     = player.InputManager.MoveInput;
+        //     Vector3 moveDirection = new Vector3(moveInput.x, 0, moveInput.y);
+        //     moveDirection.Normalize();
+        //
+        //     // Calculate the dot product
+        //     float dotProduct = Vector3.Dot(dirOtherPlayer, moveDirection);
+        //
+        //     // If the dot product is less than 0, the player is blocking
+        //     return dotProduct < 0;
+        // }
+        
         // // Getting the move input from the player's input manager.
         // Vector3 moveInput = player.InputManager.MoveInput;
         //
@@ -54,7 +87,6 @@ public class MoveState : State
         // player.Rigidbody.AddForce(movement * Vector3.right);
         //
         // // Call the OnExit function after the force has been applied.
-        OnExit();
     }
 
     public override void OnExit()

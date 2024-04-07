@@ -11,7 +11,29 @@ public partial class PlayerController // StateChecks.cs
 {
     // -- State Checks --
 
-    public bool IsBlocking { get; set; }
+    public bool IsArmored { get; set; }
+    
+    public bool IsBlocking()
+    {
+        if (Rigidbody.velocity.y is > 0 or < 0) return false;
+        
+        // Single-player check
+        if (PlayerManager.PlayerControllerCount == 1) return InputManager.MoveInput.x < 0 && IsGrounded();
+
+        // Multiplayer check
+        if (PlayerManager.OtherPlayer(this) == null) return false;
+        Vector3 dirOtherPlayer = PlayerManager.OtherPlayer(this).transform.position - transform.position;
+        dirOtherPlayer.Normalize();
+
+        Vector2 moveInput     = InputManager.MoveInput;
+        Vector3 moveDirection = new (moveInput.x, 0, moveInput.y);
+        moveDirection.Normalize();
+
+        bool isBlocking = Vector3.Dot(dirOtherPlayer, moveDirection) > 0.5f;
+        
+        Logger.Trace($"IsBlocking2() is {isBlocking}", State.StateType.Block);
+        return isBlocking;
+    } 
 
     public bool IsGrounded()
     {

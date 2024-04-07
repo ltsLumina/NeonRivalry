@@ -155,10 +155,6 @@ public static class MovesetCreator
             case MoveData.Type.Slash:
                 currentMoveset.SlashMoves.Add(moveData);
                 break;
-
-            case MoveData.Type.Unique:
-                currentMoveset.UniqueMoves.Add(moveData);
-                break;
         }
     }
     #endregion

@@ -21,10 +21,8 @@ MonoBehaviour:
   name: High Punch
   description: A punch that hits high.
   damage: 5
-  startup: 0
-  active: 0
-  recovery: 0
-  blockstun: 0
+  knockbackForce: {x: 0, y: 8}
+  knockbackDir: {x: 0, y: 1}
   isAirborne: 0
   isSweep: 0
   isOverhead: 0
@@ -32,3 +30,6 @@ MonoBehaviour:
   isInvincible: 0
   isGuardBreak: 0
   moveEffects: []
+  showWarning: 0
+  wrongDir: {x: -1, y: 1}
+  wrongForce: {x: 0, y: 8}
