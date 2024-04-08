@@ -4,12 +4,12 @@
 [CreateAssetMenu(fileName = "Teleport", menuName = "Move Effects/Teleport", order = 0)]
 public class Teleport : MoveEffect
 {
-    float distance;
-
-    //TODO: PlayerController class will be swapped with the attack system class which will include
-    //      the "PerformMove()" method. It runs the animation, plays the sound, and applies the effect.
-    public override void ApplyEffect(PlayerAbilities abilities, PlayerController target)
+    [SerializeField] Vector2 distance;
+    
+    
+    
+    public override void ApplyEffect(PlayerController target)
     {
-        abilities.Teleport(-distance, null);
+        PlayerAbilities.Teleport(distance, target);
     }
 }

@@ -12,28 +12,40 @@ public partial class PlayerController // StateChecks.cs
     // -- State Checks --
 
     public bool IsArmored { get; set; }
+
+    public bool IsBlocking { get; set; }
     
-    public bool IsBlocking()
+    public bool Blocking()
     {
-        if (Rigidbody.velocity.y is > 0 or < 0) return false;
-        
+        // If the player is not grounded, they cannot block
+        if (!IsGrounded()) return false;
+
         // Single-player check
-        if (PlayerManager.PlayerControllerCount == 1) return InputManager.MoveInput.x < 0 && IsGrounded();
+        if (PlayerManager.PlayerControllerCount == 1)
+        {
+            // The player blocks by walking backwards
+            return InputManager.MoveInput.x < 0;
+        }
 
         // Multiplayer check
-        if (PlayerManager.OtherPlayer(this) == null) return false;
-        Vector3 dirOtherPlayer = PlayerManager.OtherPlayer(this).transform.position - transform.position;
+        var otherPlayer = PlayerManager.OtherPlayer(this);
+        if (otherPlayer == null) return false;
+
+        Vector3 dirOtherPlayer = otherPlayer.transform.position - transform.position;
         dirOtherPlayer.Normalize();
 
         Vector2 moveInput     = InputManager.MoveInput;
         Vector3 moveDirection = new (moveInput.x, 0, moveInput.y);
         moveDirection.Normalize();
 
-        bool isBlocking = Vector3.Dot(dirOtherPlayer, moveDirection) > 0.5f;
-        
-        Logger.Trace($"IsBlocking2() is {isBlocking}", State.StateType.Block);
+        // The players block by walking away from each other
+        bool isBlocking = Vector3.Dot(dirOtherPlayer, moveDirection) < -0.5f;
+
+        Logger.Trace($"IsBlocking() is {isBlocking}", State.StateType.Block);
         return isBlocking;
-    } 
+    }
+
+    public bool IsCrouchBlocking() => IsBlocking && IsCrouching;
 
     public bool IsGrounded()
     {

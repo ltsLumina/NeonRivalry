@@ -120,18 +120,33 @@ public partial class PlayerController : MonoBehaviour
         HitBox       = GetComponentInChildren<HitBox>();
         HurtBox      = GetComponentInChildren<HurtBox>();
         Animator     = GetComponentInChildren<Animator>();
-
-        Rigidbody            = GetComponent<Rigidbody>();
+        
         Rigidbody.useGravity = false;
         DefaultGravity       = GlobalGravity;
     }
+
+    // [Pure]
+    // public HitBox CreateHitBox()
+    // {
+    //     GameObject hitBox = new GameObject("HitBox");
+    //     hitBox.transform.localPosition = transform.position + new Vector3(2, 1, 0);
+    //     hitBox.transform.localRotation = Quaternion.identity;
+    //     hitBox.AddComponent<BoxCollider>();
+    //     return hitBox.AddComponent<HitBox>();
+    // }
 
     void OnDestroy() => Healthbar.OnPlayerDeath -= Death;
     
     void Start() => Initialize();
 
+#if UNITY_EDITOR
+    void OnValidate() => GetMovementValues();
+#endif
+
     void FixedUpdate()
     {
+        if (Rigidbody.velocity.y > 0 || Rigidbody.velocity.y < 0) IsBlocking = false;
+        
         #region Gravity
         Vector3 gravity = GlobalGravity * GravityScale * Vector3.up;
         Rigidbody.AddForce(gravity, ForceMode.Acceleration);
@@ -139,7 +154,7 @@ public partial class PlayerController : MonoBehaviour
 
         CheckIdle();
 
-        RotateToFaceEnemy();
+        //RotateToFaceEnemy();
 
         //TODO: Temporary fix to test new state machine.
         if (StateMachine.CurrentState is not AttackState or AirborneAttackState)
@@ -150,7 +165,7 @@ public partial class PlayerController : MonoBehaviour
 
                 // Reset the airborne time if the player is grounded.
                 AirborneTime = 0;
-
+                
                 Movement();
 
                 // Set player as crouching if the player is moving down and is grounded.
@@ -164,6 +179,17 @@ public partial class PlayerController : MonoBehaviour
         }
     }
 
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            Vector3 direction = transform.position - collision.transform.position;
+            direction.Normalize();
+
+            Rigidbody.AddForce(direction * 10, ForceMode.Acceleration);
+        }
+    }
+
     void Movement()
     {
         // Getting the move input from the player's input manager.
@@ -174,6 +200,7 @@ public partial class PlayerController : MonoBehaviour
         
         // Set the animator based on the player's movement.
         Animator.SetInteger(Speed, (int) moveInput.x);
+        IsBlocking = Blocking();
 
         // If crouching, reduce movement speed to zero.
         if (IsCrouching) return;
@@ -183,14 +210,14 @@ public partial class PlayerController : MonoBehaviour
         
         // Calculating the target speed based on direction and move speed.
         // If moving backward, multiply the moveSpeed with the backwardSpeedFactor
-        float targetSpeed = moveDirection * (moveInput.x < 0 ? moveSpeed * backwardSpeedFactor : moveSpeed);
+        float targetSpeed     = moveDirection * (moveInput.x < 0 ? moveSpeed * backwardSpeedFactor : moveSpeed);
         float speedDifference = targetSpeed - Rigidbody.velocity.x;
-        float accelRate = Mathf.Abs(targetSpeed) > 0.01f ? acceleration : deceleration;
-        float movement = Mathf.Pow(Mathf.Abs(speedDifference) * accelRate, velocityPower) * Mathf.Sign(speedDifference);
-        
+        float accelRate       = Mathf.Abs(targetSpeed) > 0.01f ? acceleration : deceleration;
+        float movement        = Mathf.Pow(Mathf.Abs(speedDifference) * accelRate, velocityPower) * Mathf.Sign(speedDifference);
+
         // Apply force.
         Rigidbody.AddForce(movement * Vector3.right);
-        
+
         // TODO: ????????????????????
         // I think this is a fix to transition to move/idle. Refer to the OnExit method in just about any state.
         StateMachine.CurrentState.OnExit();
@@ -217,11 +244,7 @@ public partial class PlayerController : MonoBehaviour
             gameObject.name = $"Player {PlayerID}" + $" ({Character.characterName})";
             
             // Update all stats with the character's stats.
-            moveSpeed           = Character.moveSpeed;
-            backwardSpeedFactor = Character.backwardSpeedFactor;
-            acceleration        = Character.acceleration;
-            deceleration        = Character.deceleration;
-            velocityPower       = Character.velocityPower;
+            GetMovementValues();
         }
         else
         {
@@ -245,26 +268,34 @@ public partial class PlayerController : MonoBehaviour
         
         // Switch the UI input module to the UI input actions.
         PlayerInput.uiInputModule.actionsAsset = playerInput.actions;
-
-        SetPlayerSpawnPoint();
+        
+        // -- Healthbar stuff -- \\
+        
         PlayerManager.AssignHealthbarToPlayer(this, PlayerID);
-
         Healthbar.OnPlayerDeath += Death;
 
         // Player has been fully initialized.
         // Invoke the OnPlayerJoin event from the InputDeviceManager.
         InputDeviceManager.TriggerPlayerJoin(PlayerInput, PlayerID);
-        
-        return;
-        void SetPlayerSpawnPoint()
-        {
-            Action action = PlayerID switch
-            { 1 => () => transform.position = new Vector3(-4, 2),
-              2 => () => transform.position = new Vector3(4, 2),
-              _ => () => Debug.LogError($"Invalid PlayerID: {PlayerID}. Expected either 1 or 2."), };
 
-            action();
-        }
+        Action action = playerID switch
+        { 1 => () => transform.position = new (-4, 1),
+          2 => () => transform.position = new (4, 1),
+          _ => () => Debug.LogError($"Invalid PlayerID: {playerID}. Expected either 1 or 2.") };
+
+        action();
+        
+        gameObject.SetActive(false);
+        gameObject.SetActive(true);
+    }
+    
+    void GetMovementValues()
+    {
+        moveSpeed           = Character.moveSpeed;
+        backwardSpeedFactor = Character.backwardSpeedFactor;
+        acceleration        = Character.acceleration;
+        deceleration        = Character.deceleration;
+        velocityPower       = Character.velocityPower;
     }
 
     void RotateToFaceEnemy()
@@ -273,7 +304,7 @@ public partial class PlayerController : MonoBehaviour
         
         List<Player> players        = PlayerManager.Players;
         PlayerController       oppositePlayer = PlayerManager.OtherPlayer(this);
-        Transform              model          = transform.GetComponentInChildren<Animator>().transform;
+        Transform              model          = transform.GetComponentInChildren<Animator>().transform.parent;
 
         Quaternion targetRotation;
 
@@ -292,9 +323,6 @@ public partial class PlayerController : MonoBehaviour
         const float rotationSpeed = 0.75f; // Adjust this value to change the speed of rotation
         model.rotation = Quaternion.Lerp(model.rotation, targetRotation, Time.deltaTime * rotationSpeed);
     }
-
-    // -- State Checks --
-    // Related: StateChecks.cs
 
     void CheckIdle()
     {
@@ -351,17 +379,13 @@ public partial class PlayerController : MonoBehaviour
     public void DisablePlayer(bool disabled)
     {
         InputManager.Enabled = !disabled;
+        InputManager.gameObject.SetActive(!disabled);
         HitBox.enabled       = !disabled;
         HurtBox.enabled      = !disabled;
     }
 
     void Death(PlayerController playerThatDied)
     {
-        Debug.LogWarning("Player's would be dead here.");
-        return;
-        
-        // ReSharper disable once HeuristicUnreachableCode
-#pragma warning disable CS0162 // Unreachable code detected
         DisablePlayer(true);
         GamepadExtensions.RumbleAll(playerThatDied);
 
@@ -378,7 +402,6 @@ public partial class PlayerController : MonoBehaviour
         Debug.Log($"{ThisPlayer} is dead!");
 
         return;
-#pragma warning restore CS0162 // Unreachable code detected
         void DeathEffect()
         {
             // Try to get the ChromaticAberration effect

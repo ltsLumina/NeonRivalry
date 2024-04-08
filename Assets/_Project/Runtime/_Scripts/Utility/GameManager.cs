@@ -74,20 +74,9 @@ public class GameManager : MonoBehaviour
         // Reset timescale if the game was paused when the scene was unloaded
         IsPaused = false;
         if (IsPaused) Time.timeScale = 1;
-        
-        OnGameStateChanged += HandleGameStateChanged;
     }
 
-    void HandleGameStateChanged(GameState state)
-    {
-        // Not implemented yet.
-        //Logger.Log("Game state changed to: " + state);
-    }
-
-    void Start()
-    {
-        InitializeStateByScene();
-    }
+    void Start() => InitializeStateByScene();
 
     static void InitializeStateByScene()
     {

@@ -28,11 +28,7 @@ public class HurtBox : MonoBehaviour
     public delegate void BlockHit();
     public event BlockHit OnBlockHit;
 
-    void Awake()
-    {
-        player = GetComponentInParent<PlayerController>();
-        player.GetComponent<Rigidbody>();
-    }
+    void Awake() => player = GetComponentInParent<PlayerController>();
 
     void Update() // TODO: Remove Update and DEBUG method when finished debugging.
     {
@@ -67,6 +63,19 @@ public class HurtBox : MonoBehaviour
         
         player.FreezePlayer(true, .3f, true);
 
+        // Check for move effects
+        foreach (var effect in moveData.moveEffects)
+        {
+            effect.ApplyEffect(player);
+        }
+        
+        if (moveData.isSweep && !player.IsCrouching)
+        {
+            Debug.Log("Sweep!");
+            HandleHit(moveData);
+            return;
+        }
+        
         if (moveData.isArmor)
         {
             HandleHit(moveData);
@@ -75,10 +84,17 @@ public class HurtBox : MonoBehaviour
         
         // -- Blocking Logic --
         
-        if (player.IsBlocking())
+        if (player.IsBlocking)
         {
-            if (moveData.isOverhead || moveData.isGuardBreak)
+            if (moveData.isOverhead && player.IsCrouching)
             {
+                HandleHit(moveData);
+                return;
+            }
+            
+            if (moveData.isGuardBreak)
+            {
+                Debug.Log("Guard break!");
                 HandleHit(moveData);
                 return;
             }

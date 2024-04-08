@@ -21,10 +21,8 @@ MonoBehaviour:
   name: Forward Punch
   description: A forward facing punch.
   damage: 0
-  startup: 0
-  active: 0
-  recovery: 0
-  blockstun: 0
+  knockbackForce: {x: 5, y: 10}
+  knockbackDir: {x: 1, y: 1}
   isAirborne: 0
   isSweep: 0
   isOverhead: 0
@@ -32,3 +30,6 @@ MonoBehaviour:
   isInvincible: 0
   isGuardBreak: 0
   moveEffects: []
+  showWarning: 0
+  wrongDir: {x: -1, y: 1}
+  wrongForce: {x: 5, y: 0}

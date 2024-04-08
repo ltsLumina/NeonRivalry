@@ -10,21 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4c19459cfa9a40a0827e607c77b07abf, type: 3}
-  m_Name: 6K
+  m_Name: 2K
   m_EditorClassIdentifier: 
-  type: 0
+  type: 1
   direction: 0
-  guard: 0
+  guard: 2
   animation: {fileID: 0}
   audioClip: {fileID: 0}
   sprite: {fileID: 0}
-  name: 6K
+  name: 2K
   description: 
   damage: 0
-  startup: 0
-  active: 0
-  recovery: 0
-  blockstun: 0
+  knockbackForce: {x: 0, y: 0}
+  knockbackDir: {x: 0, y: 0}
   isAirborne: 0
   isSweep: 0
   isOverhead: 0
@@ -32,3 +30,6 @@ MonoBehaviour:
   isInvincible: 0
   isGuardBreak: 0
   moveEffects: []
+  showWarning: 0
+  wrongDir: {x: 0, y: 0}
+  wrongForce: {x: 0, y: 0}

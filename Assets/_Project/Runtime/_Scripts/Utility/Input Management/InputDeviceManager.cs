@@ -184,8 +184,9 @@ public class InputDeviceManager : MonoBehaviour
         var newPlayer = PlayerInput.Instantiate(GameScene ? player.gameObject : menuNavigator.gameObject, playerID - 1, controlScheme, -1, device);
         
         // Child the player to the Players object in the scene.
-        newPlayer.gameObject.transform.root.name = $"Player {playerID}";
-        newPlayer.transform.root.SetParent(GameObject.FindWithTag("[Header] Players").transform);
+        var playerObject = newPlayer.gameObject.transform.root;
+        playerObject.name = $"Player {playerID}";
+        playerObject.SetParent(GameObject.FindWithTag("[Header] Players").transform);
         
         Debug.Log($"Player {playerID} joined using {controlScheme} control scheme!" + "\n");
         OnPlayerJoin?.Invoke(newPlayer, playerID);

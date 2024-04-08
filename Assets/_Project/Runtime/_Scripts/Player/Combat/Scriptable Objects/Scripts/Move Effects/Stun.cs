@@ -4,9 +4,11 @@
 public class Stun : MoveEffect
 {
     public float duration;
+    
+    PlayerAbilities abilities = new ();
 
-    public override void ApplyEffect(PlayerAbilities abilities, PlayerController target)
+    public override void ApplyEffect(PlayerController target)
     {
-        abilities.Stun(duration, target);
+        PlayerAbilities.Stun(duration, target);
     }
 }

@@ -95,13 +95,20 @@ public class AttackHandler
     {
         if (selectedAttack == null)
         {
-            Logger.Log("There is no move that corresponds to the direction that the player is pressing. \nPlease assign a move in the moveset.", LogType.Warning);
+            Logger.Log($"There is no move that corresponds to the direction: {directionToPerform} {type} \nPlease assign a move in the moveset.", LogType.Warning);
             Logger.Log("Returned out of an attack early. \nThis means the player might behave unexpectedly.", LogType.Warning);
             return false;
         }
         
         // Tell the hitbox which attack is being performed.
         player.HitBox.SetAttack(selectedAttack);
+
+        // Check for move effects
+        foreach (var effect in selectedAttack.moveEffects)
+        {
+            Debug.Log($"Applying effect {effect} to player {player}!");
+            effect.ApplyEffect(player);
+        }
 
         // Get the animation index based on the direction to perform.
         // The airborne attack only has one animation, so the animation index is always 0.
