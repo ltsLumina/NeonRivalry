@@ -96,7 +96,7 @@ public class MenuNavigator : MonoBehaviour
 
     void Start()
     {
-        //PlayerManager.AddPlayer(this);
+        PlayerManager.AddPlayer(this);
 
         Initialize();
         InitializeAudio();
