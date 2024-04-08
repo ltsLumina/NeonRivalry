@@ -97,7 +97,11 @@ public class SettingsManager : MonoBehaviour
         sound.SetOutput(Output.SFX);
         sound.Play();
     }
-    
+
+    public void ShowEffectsToggle(bool value) => Debug.Log("ShowEffects: " + value);
+
+    public void ShowParticlesToggle(bool value) => PlayerPrefs.SetInt("ShowParticles", value ? 1 : 0);
+
     public static void DEBUG_SetVolume(float master, float music, float sfx)
     {
         SetMasterVolume(master);

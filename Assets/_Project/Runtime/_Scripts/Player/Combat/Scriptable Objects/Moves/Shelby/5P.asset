@@ -10,25 +10,26 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4c19459cfa9a40a0827e607c77b07abf, type: 3}
-  m_Name: Reaping Slash
+  m_Name: 5P
   m_EditorClassIdentifier: 
-  type: 2
+  type: 0
   direction: 0
-  guard: 0
-  animation: {fileID: 0}
+  guard: 2
+  animation: {fileID: 7400000, guid: 23c58b8c7d326eb4784ea5f18e67679e, type: 2}
   audioClip: {fileID: 0}
   sprite: {fileID: 0}
-  name: Reaping Slash
-  description: 
-  damage: 25
-  startup: 5
-  active: 0
-  recovery: 0
-  blockstun: 0
+  name: Light Punch
+  description: This is a light punch.
+  damage: 5
+  knockbackForce: {x: 2, y: 8}
+  knockbackDir: {x: -1, y: 1}
   isAirborne: 0
   isSweep: 0
-  isOverhead: 1
+  isOverhead: 0
   isArmor: 0
   isInvincible: 0
   isGuardBreak: 0
   moveEffects: []
+  showWarning: 0
+  wrongDir: {x: 0, y: 0}
+  wrongForce: {x: 0, y: 0}

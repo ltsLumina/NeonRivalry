@@ -93,13 +93,6 @@ public class MenuManager : MonoBehaviour
     [SerializeField] TMP_Dropdown qualityDropdown;
     [SerializeField] Toggle fullscreenToggle;
     [SerializeField] Toggle vSyncToggle;
-    
-    [Foldout("Gamepad")]
-    [SerializeField] GameObject gamepadMenu;
-    
-    [Foldout("Keyboard")]
-    [SerializeField] GameObject keyboardMenu;
-    [EndFoldout]
 
     // === === === ===  Cached References  === === === === \\
     
@@ -129,8 +122,6 @@ public class MenuManager : MonoBehaviour
     public void ToggleGameMenu() => ToggleSettingsMenu(gameMenu);
     public void ToggleAudioMenu() => ToggleSettingsMenu(audioMenu);
     public void ToggleVideoMenu() => ToggleSettingsMenu(videoMenu);
-    public void ToggleGamepadMenu() => ToggleSettingsMenu(gamepadMenu);
-    public void ToggleKeyboardMenu() => ToggleSettingsMenu(keyboardMenu);
     #endregion
 
     void Awake()
@@ -170,7 +161,7 @@ public class MenuManager : MonoBehaviour
         mainMenuButtons.ForEach(button => button.gameObject.SetActive(true));
         
         // Populate the settings menus, headers, and contents lists and disable it all.
-        settingsMenus.AddRange(new List<GameObject> {gameMenu, audioMenu, videoMenu, gamepadMenu, keyboardMenu});
+        settingsMenus.AddRange(new List<GameObject> {gameMenu, audioMenu, videoMenu});
         settingsMenus.ForEach(menu => menu.SetActive(false));
         settingsTitle.gameObject.SetActive(false);
         settingsInfo.gameObject.SetActive(true);
@@ -357,28 +348,6 @@ public class MenuManager : MonoBehaviour
             
             // Select the first thing in the videoContent
             UIManager.SelectSelectableByReference(resolutionDropdown);
-        }
-        
-        if (menu == gamepadMenu)
-        {
-            settingsContents.ForEach(content => content.SetActive(false));
-            settingsMenus.ForEach(m => m.SetActive(false));
-            gamepadMenu.SetActive(true);
-            //gamepadContent.SetActive(true);
-            
-            // Select the first thing in the gamepadContent
-            UIManager.SelectSelectableByReference(null);
-        }
-        
-        if (menu == keyboardMenu)
-        {
-            settingsContents.ForEach(content => content.SetActive(false));
-            settingsMenus.ForEach(m => m.SetActive(false));
-            keyboardMenu.SetActive(true);
-            //keyboardContent.SetActive(true);
-            
-            // Select the first thing in the keyboardContent
-            UIManager.SelectSelectableByReference(null);
         }
 
         switch (InputDeviceManager.PlayerOneDevice)

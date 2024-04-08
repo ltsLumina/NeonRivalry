@@ -139,7 +139,7 @@ public class MoveData : ScriptableObject
 public class MoveDataEditor : Editor
 {
     MoveData moveData;
-    bool leftPlayerGraph;
+    bool leftPlayerGraph = true;
 
     void OnEnable() => moveData = (MoveData) target;
 
