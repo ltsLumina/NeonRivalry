@@ -68,8 +68,8 @@ public class CharacterSelectManager : MonoBehaviour
         if (ActiveScene != CharacterSelect) return;
         
         GameObject             playerMenu  = GetPlayerMenu(playerID);
-        PlayerInput            playerInput = PlayerManager.GetPlayer(playerID).MenuNavigator.GetComponent<PlayerInput>();
-        MultiplayerEventSystem eventSystem = PlayerManager.GetPlayer(playerID).MenuNavigator.GetComponent<MultiplayerEventSystem>();
+        PlayerInput            playerInput = PlayerManager.GetMenuNavigator(playerID).GetComponent<PlayerInput>();
+        MultiplayerEventSystem eventSystem = PlayerManager.GetMenuNavigator(playerID).GetComponent<MultiplayerEventSystem>();
 
         // Check if the menu is currently active
         bool isMenuActive = playerMenu.activeSelf;

@@ -4,7 +4,6 @@ using UnityEditor;
 #endif
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using DG.Tweening;
 using Lumina.Essentials.Attributes;
 using UnityEngine;
@@ -74,13 +73,7 @@ public partial class PlayerController : MonoBehaviour
 
     string ThisPlayer => $"Player {PlayerID}";
     public bool IsCrouching => Animator.GetBool("IsCrouching");
-    public Vector2 FacingDirection => UpdateFacingDirection();
-
-    Vector2 UpdateFacingDirection()
-    {
-        if (PlayerManager.OtherPlayer(this) == null) return Vector2.zero;
-        return PlayerManager.OtherPlayer(this).transform.position.x > transform.position.x ? Vector2.right : Vector2.left;
-    }
+    public int FacingDirection => (int) transform.GetChild(0).localScale.x;
 
     // -- Serialized Properties --
 
@@ -107,9 +100,9 @@ public partial class PlayerController : MonoBehaviour
     public Animator Animator
     {
         get => animator;
-        set => animator = value;
+        private set => animator = value;
     }
-
+    
     void Awake()
     {
         Rigidbody    = GetComponent<Rigidbody>();
@@ -122,30 +115,28 @@ public partial class PlayerController : MonoBehaviour
         Animator     = GetComponentInChildren<Animator>();
         
         Rigidbody.useGravity = false;
-        DefaultGravity       = GlobalGravity;
+        DefaultGravity = GlobalGravity;
     }
 
-    // [Pure]
-    // public HitBox CreateHitBox()
-    // {
-    //     GameObject hitBox = new GameObject("HitBox");
-    //     hitBox.transform.localPosition = transform.position + new Vector3(2, 1, 0);
-    //     hitBox.transform.localRotation = Quaternion.identity;
-    //     hitBox.AddComponent<BoxCollider>();
-    //     return hitBox.AddComponent<HitBox>();
-    // }
-
     void OnDestroy() => Healthbar.OnPlayerDeath -= Death;
-    
+
     void Start() => Initialize();
 
 #if UNITY_EDITOR
     void OnValidate() => GetMovementValues();
 #endif
 
+    Vector3 thisPosition;
+    Vector3 otherPosition;
+    
     void FixedUpdate()
     {
+        // Player cannot block while airborne.
         if (Rigidbody.velocity.y > 0 || Rigidbody.velocity.y < 0) IsBlocking = false;
+        
+        // Animation bug: If the player attacks and jumps on the same frame, the player will be stuck in the jump animation.
+        // Exit the jump animation if the player is grounded.
+        if (IsGrounded() && Animator.GetCurrentAnimatorStateInfo(0).IsName("Jump")) Animator.SetTrigger("Land");
         
         #region Gravity
         Vector3 gravity = GlobalGravity * GravityScale * Vector3.up;
@@ -154,7 +145,17 @@ public partial class PlayerController : MonoBehaviour
 
         CheckIdle();
 
-        //RotateToFaceEnemy();
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            FlipModel();
+        }
+
+        // Get the other player's position
+        var otherPlayer = PlayerManager.OtherPlayer(this);
+        if (otherPlayer != null)
+        {
+            FlipModel();
+        }
 
         //TODO: Temporary fix to test new state machine.
         if (StateMachine.CurrentState is not AttackState or AirborneAttackState)
@@ -178,7 +179,7 @@ public partial class PlayerController : MonoBehaviour
             }
         }
     }
-
+    
     void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Player"))
@@ -194,30 +195,43 @@ public partial class PlayerController : MonoBehaviour
     {
         // Getting the move input from the player's input manager.
         Vector2 moveInput = InputManager.MoveInput;
-
+    
         // Fix rigidbody velocity issue (velocity is absurdly low when standing still)
         if (moveInput == Vector2.zero) Rigidbody.velocity = Vector3.zero;
         
-        // Set the animator based on the player's movement.
-        Animator.SetInteger(Speed, (int) moveInput.x);
+        // Set the animator based on the player's facing direction.
+        Animator.SetInteger(Speed, (int) moveInput.x * FacingDirection);
+        
+        // Check if the player is blocking.
         IsBlocking = Blocking();
-
+    
         // If crouching, reduce movement speed to zero.
         if (IsCrouching) return;
-        
-        // Determining the direction of the movement (left or right).
-        int moveDirection = (int) moveInput.x;
-        
-        // Calculating the target speed based on direction and move speed.
-        // If moving backward, multiply the moveSpeed with the backwardSpeedFactor
-        float targetSpeed     = moveDirection * (moveInput.x < 0 ? moveSpeed * backwardSpeedFactor : moveSpeed);
+
+        // Get the other player's position
+        var otherPlayer = PlayerManager.OtherPlayer(this);
+
+        bool movingAway;
+        if (otherPlayer != null)
+        {
+            // Check if the player is moving away from the other player
+            movingAway = (otherPlayer.transform.position.x > transform.position.x && moveInput.x < 0) || (otherPlayer.transform.position.x < transform.position.x && moveInput.x > 0);
+        }
+        else
+        {
+            // If there is only one player, moving left is considered as moving away
+            movingAway = moveInput.x < 0;
+        }
+
+        int   moveDirection   = (int) moveInput.x;
+        float targetSpeed     = moveDirection * (movingAway ? moveSpeed * backwardSpeedFactor : moveSpeed);
         float speedDifference = targetSpeed - Rigidbody.velocity.x;
         float accelRate       = Mathf.Abs(targetSpeed) > 0.01f ? acceleration : deceleration;
         float movement        = Mathf.Pow(Mathf.Abs(speedDifference) * accelRate, velocityPower) * Mathf.Sign(speedDifference);
-
+    
         // Apply force.
         Rigidbody.AddForce(movement * Vector3.right);
-
+    
         // TODO: ????????????????????
         // I think this is a fix to transition to move/idle. Refer to the OnExit method in just about any state.
         StateMachine.CurrentState.OnExit();
@@ -269,6 +283,11 @@ public partial class PlayerController : MonoBehaviour
         // Switch the UI input module to the UI input actions.
         PlayerInput.uiInputModule.actionsAsset = playerInput.actions;
         
+        // -- Player Light fix -- \\
+        // Must disable the player light if there are two players.
+        var playerLight = gameObject.GetComponentInChildren<Light>();
+        if (PlayerManager.PlayerCount == 2) playerLight.gameObject.SetActive(false);
+        
         // -- Healthbar stuff -- \\
         
         PlayerManager.AssignHealthbarToPlayer(this, PlayerID);
@@ -298,30 +317,91 @@ public partial class PlayerController : MonoBehaviour
         velocityPower       = Character.velocityPower;
     }
 
-    void RotateToFaceEnemy()
+    // void FlipModel()
+    // {
+    //     var otherPlayer = PlayerManager.OtherPlayer(this);
+    //     if (otherPlayer == null || !IsGrounded()) return;
+    //
+    //     Transform thisModel  = transform.GetChild(0);
+    //     Transform otherModel = otherPlayer.transform.GetChild(0);
+    //
+    //     float thisTargetScaleX  = otherPlayer.transform.position.x > transform.position.x ? 1 : -1;
+    //     float otherTargetScaleX = transform.position.x             > otherPlayer.transform.position.x ? 1 : -1;
+    //
+    //     //float duration = 0.2f; // duration of the flip animation
+    //
+    //     // flip players
+    //     if (IsGrounded()) thisModel.localScale  = new (thisTargetScaleX, 1, 1);
+    //     if (otherPlayer.IsGrounded()) otherModel.localScale = new (otherTargetScaleX, 1, 1);
+    //
+    //     // dont worky
+    //     // // Flip Animation for this player
+    //     // Sequence thisSequence = DOTween.Sequence();
+    //     //
+    //     // if (Mathf.Approximately(thisModel.localScale.x, thisTargetScaleX))
+    //     // {
+    //     //     thisSequence.Append(thisModel.DOScaleX(thisTargetScaleX, duration));
+    //     //     thisSequence.Join(thisModel.DOScaleZ(0f, duration  / 3)); // scale Z to 0 in the first half of the duration
+    //     //     thisSequence.Append(thisModel.DOScaleZ(1, duration / 2)); // scale Z back to 1 in the second half of the duration
+    //     // }
+    //     //
+    //     // // Flip Animation for the other player
+    //     // Sequence otherSequence = DOTween.Sequence();
+    //     //
+    //     // if (otherModel.localScale.x != otherTargetScaleX)
+    //     // {
+    //     //     otherSequence.Append(otherModel.DOScaleX(otherTargetScaleX, duration));
+    //     //     otherSequence.Join(otherModel.DOScaleZ(0f, duration  / 3)); // scale Z to 0 in the first half of the duration
+    //     //     otherSequence.Append(otherModel.DOScaleZ(1, duration / 2)); // scale Z back to 1 in the second half of the duration
+    //     // }
+    // }
+
+    bool wasGroundedLastFrame;
+
+    void Update()
     {
-        if (PlayerManager.OtherPlayer(this) == null) return;
-        
-        List<Player> players        = PlayerManager.Players;
-        PlayerController       oppositePlayer = PlayerManager.OtherPlayer(this);
-        Transform              model          = transform.GetComponentInChildren<Animator>().transform.parent;
-
-        Quaternion targetRotation;
-
-        if (oppositePlayer.transform.position.x > transform.position.x)
+        // Check if the player's grounded state has changed
+        if (IsGrounded() != wasGroundedLastFrame)
         {
-            model.localScale = new (1, 1, 1);
-            targetRotation   = Quaternion.Euler(0, 70, 0);
+            // If the player has just landed, flip the model
+            if (IsGrounded()) { FlipModel(); }
+
+            wasGroundedLastFrame = IsGrounded();
         }
-        else
+    }
+
+    void FlipModel()
+    {
+        var otherPlayer = PlayerManager.OtherPlayer(this);
+        if (otherPlayer == null) return;
+
+        Transform thisModel  = transform.GetChild(0);
+        Transform otherModel = otherPlayer.transform.GetChild(0);
+
+        float thisTargetScaleX  = otherPlayer.transform.position.x > transform.position.x ? 1 : -1;
+        float otherTargetScaleX = transform.position.x             > otherPlayer.transform.position.x ? 1 : -1;
+
+        float duration = 0.1f; // duration of the flip animation
+
+        // flip this player if it's grounded and the X scale changes
+        if (IsGrounded() && Math.Abs(thisModel.localScale.x - thisTargetScaleX) > 0.001f)
         {
-            model.localScale = new (-1, 1, 1);
-            targetRotation   = Quaternion.Euler(0, -70, 0);
+            // Flip Animation for this player
+            Sequence thisSequence = DOTween.Sequence();
+            thisSequence.Append(thisModel.DOScaleX(thisTargetScaleX, duration));
+            thisSequence.Join(thisModel.DOScaleZ(0f, duration  / 3)); // scale Z to 0 in the first half of the duration
+            thisSequence.Append(thisModel.DOScaleZ(1, duration / 3)); // scale Z back to 1 in the second half of the duration
         }
 
-        // Lerp rotation over time
-        const float rotationSpeed = 0.75f; // Adjust this value to change the speed of rotation
-        model.rotation = Quaternion.Lerp(model.rotation, targetRotation, Time.deltaTime * rotationSpeed);
+        // flip other player if it's grounded and the X scale changes
+        if (otherPlayer.IsGrounded() && Math.Abs(otherModel.localScale.x - otherTargetScaleX) > 0.001f)
+        {
+            // Flip Animation for the other player
+            Sequence otherSequence = DOTween.Sequence();
+            otherSequence.Append(otherModel.DOScaleX(otherTargetScaleX, duration));
+            otherSequence.Join(otherModel.DOScaleZ(0f, duration  / 3)); // scale Z to 0 in the first half of the duration
+            otherSequence.Append(otherModel.DOScaleZ(1, duration / 3)); // scale Z back to 1 in the second half of the duration
+        }
     }
 
     void CheckIdle()

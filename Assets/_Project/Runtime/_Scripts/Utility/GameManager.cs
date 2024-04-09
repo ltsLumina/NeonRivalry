@@ -176,8 +176,8 @@ public class GameManager : MonoBehaviour
 
         foreach (var player in PlayerManager.Players)
         {
-            if (player.PlayerController == null) continue;
-            player.PlayerController.DisablePlayer(IsPaused);
+            if (player == null) continue;
+            player.DisablePlayer(IsPaused);
         }
 
         var UIManager = FindObjectOfType<UIManager>();

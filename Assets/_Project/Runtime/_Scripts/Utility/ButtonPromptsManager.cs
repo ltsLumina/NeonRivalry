@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using VInspector;
-using Debug = UnityEngine.Debug;
 
 /// <summary>
 /// This class is a singleton that keeps track of which button prompts should be shown when and where.
@@ -44,13 +43,9 @@ public class ButtonPromptsManager : MonoBehaviour
     [SerializeField] GameObject KB_movePrompt;
     [SerializeField] ButtonPrompt KB_cancelPrompt;
     
-    public List<ButtonPrompt> currentPrompts = new();
+    // Mostly just used for the intro scene.
 
-    public List<ButtonPrompt> CurrentPrompts
-    {
-        get => currentPrompts;
-        set => currentPrompts = value;
-    }
+    public List<ButtonPrompt> CurrentPrompts { get; set; } = new ();
 
     #region VInspector Fix
 #pragma warning disable CS0414 // Field is assigned but its value is never used
@@ -209,7 +204,7 @@ public class ButtonPromptsManager : MonoBehaviour
         void UpdateCurrentPrompts()
         {
             // Clear the currentPrompts list
-            currentPrompts.Clear();
+            CurrentPrompts.Clear();
 
             // Get all fields of type ButtonPrompt
             var fields = GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance).Where(field => field.FieldType == typeof(ButtonPrompt));
@@ -218,7 +213,7 @@ public class ButtonPromptsManager : MonoBehaviour
             foreach (var field in fields)
             {
                 var prompt = field.GetValue(this) as ButtonPrompt;
-                if (prompt != null && prompt.gameObject.activeSelf) { currentPrompts.Add(prompt); }
+                if (prompt != null && prompt.gameObject.activeSelf) { CurrentPrompts.Add(prompt); }
             }
         }
     }

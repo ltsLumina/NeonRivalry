@@ -164,7 +164,7 @@ public class MenuManager : MonoBehaviour
         settingsMenus.AddRange(new List<GameObject> {gameMenu, audioMenu, videoMenu});
         settingsMenus.ForEach(menu => menu.SetActive(false));
         settingsTitle.gameObject.SetActive(false);
-        settingsInfo.gameObject.SetActive(true);
+        settingsInfo.gameObject.SetActive(false);
         settingsInfo.enabled = false; // Settings info is treated differently, as the text is dynamic.
         settingsHeaders.AddRange(new List<Button> {gameHeader, audioHeader, videoHeader});
         settingsHeader.SetActive(false);
@@ -241,43 +241,27 @@ public class MenuManager : MonoBehaviour
 
     void ChangeHeaderColour()
     {
-        var currentMenu = settingsMenus.Find(menu => menu.activeSelf);
-        if (currentMenu == null) return;
+        // Define the new color for the active header
+        var newColor = new Color(0.4f, 0.65f, 0.86f);
 
-        if (currentMenu == gameMenu)
+        // Iterate over all settings menus and headers
+        for (int i = 0; i < settingsMenus.Count; i++)
         {
-            // Change the colour of the header to match the selected menu.
-            var color = gameHeader.GetComponent<Button>().colors;
-            color.normalColor = Color.red;
-            gameHeader.GetComponent<Button>().colors = color;
-        }
-        else
-        {
-            ResetHeaderColour(gameHeader);
-        }
-        
-        if (currentMenu == audioMenu)
-        {
-            // Change the colour of the header to match the selected menu.
-            var color = audioHeader.GetComponent<Button>().colors;
-            color.normalColor                       = Color.red;
-            audioHeader.GetComponent<Button>().colors = color;
-        }
-        else
-        {
-            ResetHeaderColour(audioHeader);
-        }
-        
-        if (currentMenu == videoMenu)
-        {
-            // Change the colour of the header to match the selected menu.
-            var color = videoHeader.GetComponent<Button>().colors;
-            color.normalColor                       = Color.red;
-            videoHeader.GetComponent<Button>().colors = color;
-        }
-        else
-        {
-            ResetHeaderColour(videoHeader);
+            var currentMenu   = settingsMenus[i];
+            var currentHeader = settingsHeaders[i];
+
+            // If the current menu is active, change the header color
+            if (currentMenu.activeSelf)
+            {
+                var headerColor = currentHeader.colors;
+                headerColor.normalColor = newColor;
+                currentHeader.colors    = headerColor;
+            }
+            else
+            {
+                // If the current menu is not active, reset the header color
+                ResetHeaderColour(currentHeader);
+            }
         }
     }
 
@@ -315,6 +299,7 @@ public class MenuManager : MonoBehaviour
         {
             settingsBackground.gameObject.SetActive(true);
             settingsTitle.gameObject.SetActive(true);
+            settingsInfo.gameObject.SetActive(true);
             settingsInfo.enabled = true;
             
             settingsHeaders.ForEach(header => header.gameObject.SetActive(true));
@@ -491,10 +476,9 @@ public class MenuManager : MonoBehaviour
         if (currentMenu == creditsMenu)
         {
             CloseCredits();
+            closeMenu.Play();
             return;
         }
-
-        closeMenu.Play();
         
         // Close the active settings menu.
         currentMenu.SetActive(false);

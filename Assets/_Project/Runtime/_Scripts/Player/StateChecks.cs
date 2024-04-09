@@ -21,7 +21,7 @@ public partial class PlayerController // StateChecks.cs
         if (!IsGrounded()) return false;
 
         // Single-player check
-        if (PlayerManager.PlayerControllerCount == 1)
+        if (PlayerManager.PlayerCount == 1)
         {
             // The player blocks by walking backwards
             return InputManager.MoveInput.x < 0;

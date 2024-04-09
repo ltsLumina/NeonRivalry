@@ -19,20 +19,20 @@ public class InputDeviceMonitor : MonoBehaviour //TODO: FINISH THIS
             Debug.LogWarning($"Device lost: {device.name}");
 
             // Get the other player's device
-            Player otherPlayer = PlayerManager.Players.Find(player => player.PlayerController.Device != device);
-            if (!otherPlayer.PlayerController) // if a device is not found, default to the keyboard.
-                otherPlayer = PlayerManager.Players.Find(player => player.PlayerController.Device is Keyboard);
+            PlayerController otherPlayer = PlayerManager.Players.Find(player => player.Device != device);
+            if (!otherPlayer) // if a device is not found, default to the keyboard.
+                otherPlayer = PlayerManager.Players.Find(player => player.Device is Keyboard);
             
-            Debug.Log($"Other player's device: {otherPlayer.PlayerController.Device.name}");
+            Debug.Log($"Other player's device: {otherPlayer.Device.name}");
 
-            GameManager.TogglePause(otherPlayer.PlayerController);
+            GameManager.TogglePause(otherPlayer);
             
             deviceDisconnectImage.enabled = true;
             
             foreach (var player in PlayerManager.Players)
             {
-                if (player.PlayerController == null) continue;
-                player.PlayerController.DisablePlayer(true);
+                if (player == null) continue;
+                player.DisablePlayer(true);
             } 
         }
     }

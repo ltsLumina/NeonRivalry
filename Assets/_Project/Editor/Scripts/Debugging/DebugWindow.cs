@@ -499,7 +499,7 @@ public class DebugWindow : EditorWindow
     #region Command Methods
     static void KillCommand(string message)
     {
-        PlayerController playerOne = PlayerManager.PlayerOne.PlayerController;
+        PlayerController playerOne = PlayerManager.PlayerOne;
         playerOne.Healthbar.Health = 0;
                     
         Debug.LogWarning(message);

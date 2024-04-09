@@ -96,7 +96,7 @@ public class MenuNavigator : MonoBehaviour
 
     void Start()
     {
-        PlayerManager.AddPlayer(this);
+        PlayerManager.AddMenuNavigator(this);
 
         Initialize();
         InitializeAudio();
@@ -224,9 +224,7 @@ public class MenuNavigator : MonoBehaviour
 
                 if (menuManager.IsAnyMenuActive())
                 {
-                    menuManager.CloseCurrentMainMenu();
-                    menuManager.CloseCurrentSettingsMenu();
-                    closeMenu.Play();
+                    menuManager.CloseCurrentMainMenu(); // Only closes the credits menu.
                 }
             }
             
@@ -255,7 +253,15 @@ public class MenuNavigator : MonoBehaviour
         }
     }
 
-    public void OnMenu(InputAction.CallbackContext context) => CharacterSelectManager.ToggleCharacterSettingsMenu(playerID);
+    public void OnMenu(InputAction.CallbackContext context)
+    {
+        var menuManager = FindObjectOfType<MenuManager>();
+        if (menuManager == null) return;
+        
+        menuManager.CloseCurrentSettingsMenu();
+        
+        CharacterSelectManager.ToggleCharacterSettingsMenu(playerID);
+    }
 
     void InitializeAudio()
     {
