@@ -6,11 +6,21 @@ using VInspector;
 [RequireComponent(typeof(Button))]
 public class CharacterButton : MonoBehaviour
 {
+    [Header("Show On Left/Right")]
+    [SerializeField] Button leftButton;
+    [SerializeField] Button rightButton;
+    
+    [Space(10)]
+    
     [SerializeField] int playerIndex;
     [ShowIf("dorathy", null)]
     [SerializeField] Character shelby;
     [ShowIf("shelby", null)]
     [SerializeField] Character dorathy;
+    [EndIf]
+
+    public Button LeftButton => leftButton;
+    public Button RightButton => rightButton;
 
     // -- Properties --
     
@@ -55,19 +65,17 @@ public class CharacterButton : MonoBehaviour
 
     void OnButtonClick()
     {
-        if (!CharacterSelected)
+        if (CharacterSelector.SelectCharacter(button))
         {
-            CharacterSelector.SelectCharacter(button);
-            CharacterSelected = true;
-            
             acceptSFX.Play();
         }
-        else
-        {
-            CharacterSelector.DeselectCharacter(playerIndex, button);
-            CharacterSelected = false;
-
-            cancelSFX.Play();
-        }
+        
+        // else
+        // {
+        //     CharacterSelector.DeselectCharacter(playerIndex, button);
+        //     CharacterSelected = false;
+        //
+        //     cancelSFX.Play();
+        // }
     }
 }

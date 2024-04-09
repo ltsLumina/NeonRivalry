@@ -41,12 +41,6 @@ public class MenuNavigator : MonoBehaviour
     MultiplayerEventSystem eventSystem;
     GameObject previousSelectedGameObject;
 
-    public GameObject PreviousSelectedGameObject
-    {
-        get => previousSelectedGameObject;
-        set => previousSelectedGameObject = value;
-    }
-
     public delegate void SelectionChanged(GameObject previousSelectedGameObject, GameObject currentSelectedGameObject);
     public static event SelectionChanged OnSelectionChanged;
 
@@ -58,7 +52,7 @@ public class MenuNavigator : MonoBehaviour
         eventSystem = GetComponent<MultiplayerEventSystem>();
     }
 
-    void OnEnable()
+    void AddTriggers()
     {
         // Get all EventTrigger components in the scene
         EventTrigger[] eventTriggers = FindObjectsOfType<EventTrigger>(true);
@@ -161,60 +155,41 @@ public class MenuNavigator : MonoBehaviour
         InputDeviceManager.TriggerPlayerJoin(playerInput, PlayerID);
     }
 
+    public bool PlayNavigationSounds { get; set; } = true;
+    
     public void OnNavigate(InputAction.CallbackContext context)
     {
         var input = context.ReadValue<Vector2>();
 
+        #region Audio
+        if (!PlayNavigationSounds) return;
+
         // Checks the current selected game object and the previous selected game object.
         // If the current selected game object is not the same as the previous selected game object,
         // then play the navigation sound.
-        if (previousSelectedGameObject != null && eventSystem.currentSelectedGameObject != null)
-            if (eventSystem.currentSelectedGameObject != previousSelectedGameObject)
-            {
-                if (MainMenuScene)
-                {
-                    int previousIndex = previousSelectedGameObject.transform.GetSiblingIndex();
-                    int currentIndex  = eventSystem.currentSelectedGameObject.transform.GetSiblingIndex();
+        if (previousSelectedGameObject == null || eventSystem.currentSelectedGameObject == null) return;
+        if (eventSystem.currentSelectedGameObject == previousSelectedGameObject) return;
 
-                    if (MenuManager.IsAnySettingsMenuActive())
-                    {
-                        previousIndex = previousSelectedGameObject.transform.parent.GetSiblingIndex();
-                        currentIndex  = eventSystem.currentSelectedGameObject.transform.parent.GetSiblingIndex();
-                    }
+        int previousIndex = previousSelectedGameObject.transform.GetSiblingIndex();
+        int currentIndex  = eventSystem.currentSelectedGameObject.transform.GetSiblingIndex();
 
-                    if (currentIndex      < previousIndex) navigateUp.Play();
-                    else if (currentIndex > previousIndex) navigateDown.Play();
-                }
-
-                OnSelectionChanged?.Invoke(previousSelectedGameObject, eventSystem.currentSelectedGameObject);
-                previousSelectedGameObject = eventSystem.currentSelectedGameObject;
-            }
-
-        if (CharacterSelectScene)
+        if (MenuManager.IsAnySettingsMenuActive() || CharacterSelectScene)
         {
-            
-            
-            // if (input.x < 0) navigateLeft.Play();
-            // if (input.x > 0) navigateRight.Play();
+            previousIndex = previousSelectedGameObject.transform.parent.GetSiblingIndex();
+            currentIndex  = eventSystem.currentSelectedGameObject.transform.parent.GetSiblingIndex();
         }
-        
-        // if (CharacterSelectScene)
-        // {
-        //     GameObject marker = GameObject.Find($"P{playerID} Marker");
-        //     marker.SetActive(true); // bug: this throws an error OnDestroy/OnDisable??
-        //
-        //     marker.GetComponent<RectTransform>().anchoredPosition = eventSystem.currentSelectedGameObject.name switch
-        //     { "Shelby"  => new (-100, -325),
-        //       "Dorathy" => new (100, -325),
-        //       _         => marker.GetComponent<RectTransform>().anchoredPosition };
-        //
-        //     // Audio
-        // }
+
+        if (currentIndex      < previousIndex) navigateUp.Play();
+        else if (currentIndex > previousIndex) navigateDown.Play();
+
+        OnSelectionChanged?.Invoke(previousSelectedGameObject, eventSystem.currentSelectedGameObject);
+        previousSelectedGameObject = eventSystem.currentSelectedGameObject;
+        #endregion
     }
 
     public void OnCancel(InputAction.CallbackContext context)
     {
-        // cancelSFX.Play();
+        PlayNavigationSounds = true;
         
         if (context.performed)
         {
@@ -228,11 +203,50 @@ public class MenuNavigator : MonoBehaviour
                 }
             }
             
-            // if (CharacterSelectScene)
-            // {
-            //     eventSystem.currentSelectedGameObject.GetComponent<CharacterButton>().CharacterSelected = false;
-            //     CharacterSelector.DeselectCharacter(playerID, GameObject.Find($"Player {playerID}").transform.GetChild(0).GetComponent<Button>());
-            // }
+            if (CharacterSelectScene)
+            {
+                if (CharacterSelectManager.IsAnyMenuActive()) return;
+
+                #region Deselect Character
+                // Deselect the current character.
+                var characterButton = GameObject.Find($"Player {playerID}").transform.GetChild(0).GetComponent<CharacterButton>();
+                
+                // If there is a character selected, deselect it.
+                if (CharacterSelector.DeselectCharacter(characterButton.PlayerIndex, characterButton))
+                {
+                    cancelSFX.Play();
+
+                    // Check if the confirmation button is showing.
+                    // If it is, hide it.
+                    var    confirmCharacters       = FindObjectOfType<ConfirmCharactersButton>();
+                    Button confirmCharactersButton = confirmCharacters.transform.GetChild(0).GetComponent<Button>();
+
+                    if (confirmCharacters != null && confirmCharactersButton.gameObject.activeSelf)
+                    {
+                        // Hide the button.
+                        confirmCharactersButton.gameObject.SetActive(false);
+
+                        // Play the cancel sound.
+                        cancelSFX.Play();
+
+                        foreach (var player in PlayerManager.MenuNavigators)
+                        {
+                            // Deselect the confirmation button, and reselect the character button.
+                            var buttonToReturnTo = GameObject.Find($"Player {player.playerID}").transform.GetChild(0).gameObject;
+                            player.eventSystem.SetSelectedGameObject(buttonToReturnTo);
+                        }
+                    }
+                }
+                #endregion
+
+                #region Stop Selecting Map
+                var mapSelector = FindObjectOfType<MapSelector>();
+                if (mapSelector.IsSelecting())
+                {
+                    mapSelector.gameObject.SetActive(false);
+                }
+                #endregion
+            }
         }
     }
     
@@ -255,12 +269,15 @@ public class MenuNavigator : MonoBehaviour
 
     public void OnMenu(InputAction.CallbackContext context)
     {
-        var menuManager = FindObjectOfType<MenuManager>();
-        if (menuManager == null) return;
+        if (MainMenuScene)
+        {
+            var menuManager = FindObjectOfType<MenuManager>();
+            if (menuManager == null) return;
         
-        menuManager.CloseCurrentSettingsMenu();
-        
-        CharacterSelectManager.ToggleCharacterSettingsMenu(playerID);
+            menuManager.CloseCurrentSettingsMenu();
+        }
+
+        if (CharacterSelectScene) CharacterSelectManager.ToggleCharacterSettingsMenu(playerID);
     }
 
     void InitializeAudio()

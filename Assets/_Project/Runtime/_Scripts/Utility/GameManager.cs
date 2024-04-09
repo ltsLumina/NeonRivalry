@@ -68,6 +68,7 @@ public class GameManager : MonoBehaviour
         
         // Needs to be reset due to EnterPlaymodeOptions
         PlayerManager.Players.Clear();
+        PlayerManager.MenuNavigators.Clear();
         
         Application.targetFrameRate = TARGET_FPS;
         
@@ -76,7 +77,10 @@ public class GameManager : MonoBehaviour
         if (IsPaused) Time.timeScale = 1;
     }
 
-    void Start() => InitializeStateByScene();
+    void Start()
+    {
+        InitializeStateByScene();
+    }
 
     static void InitializeStateByScene()
     {

@@ -13,18 +13,19 @@ public static class CharacterSelector
 
     readonly static Dictionary<int, Character> selectedCharacters = new ();
 
-    static Button previousNavigation;
-    static Navigation previousNavigationMode;
-
     public static void Reset() => selectedCharacters.Clear();
 
-    public static void SelectCharacter(Button button)
+    public static bool SelectCharacter(Button button)
     {
+        if (button == null) return false;
         var characterButton = button.GetComponent<CharacterButton>();
-        
+
         // Get the player index from the button.
         int playerIndex = characterButton.PlayerIndex;
-        
+
+        // Check if a character is already selected for this player index.
+        if (selectedCharacters.ContainsKey(playerIndex)) return false;
+
         // Get the character from the button.
         Character character = characterButton.GetCharacter();
 
@@ -35,37 +36,41 @@ public static class CharacterSelector
 
         // -- Disable navigation -- \\
 
-        // Store the previous navigation.
-        previousNavigationMode.selectOnLeft = button.navigation.selectOnLeft;
-        previousNavigationMode.selectOnRight = button.navigation.selectOnRight;
-        
         // Disable the navigation.
-        button.navigation  = new() { mode = Navigation.Mode.None };
+        button.navigation = new ()
+        { mode = Navigation.Mode.None };
+
+        return true;
     }
     
-    public static void DeselectCharacter(int playerIndex, Button button)
+    public static bool DeselectCharacter(int playerIndex, CharacterButton button)
     {
-        Character previousCharacter = selectedCharacters[playerIndex];
-        
-        // Remove the character from the dictionary.
-        selectedCharacters.Remove(playerIndex);
+        // return if there is no character to deselect
+        if (!selectedCharacters.Remove(playerIndex, out Character previousCharacter)) return false;
 
-        LogSelectedCharacters(playerIndex, "deselected", previousCharacter);
+        LogSelectedCharacters(playerIndex, "deselected", previousCharacter); 
         
         // -- Enable navigation -- \\
         
+        ResetNavigation(button.GetComponent<Button>());
+
+        return true;
+    }
+    
+    public static void ResetNavigation(Button button)
+    {
         button.navigation = new() { mode = Navigation.Mode.Explicit };
         
         // Restore the previous navigation.
         Navigation navigation = button.navigation;
-        navigation.selectOnLeft = previousNavigationMode.selectOnLeft;
+        navigation.selectOnLeft = button.GetComponent<CharacterButton>().LeftButton;
         button.navigation       = navigation;
         
         Navigation buttonNavigation = button.navigation;
-        buttonNavigation.selectOnRight = previousNavigationMode.selectOnRight;
+        buttonNavigation.selectOnRight = button.GetComponent<CharacterButton>().RightButton;
         button.navigation              = buttonNavigation;
     }
-    
+
     /// <summary>
     /// Logs the selected characters along with the action performed on them (selected or deselected).
     /// </summary>

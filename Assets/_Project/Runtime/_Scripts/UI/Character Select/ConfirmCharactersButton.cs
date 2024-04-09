@@ -1,7 +1,9 @@
-﻿using MelenitasDev.SoundsGood;
+﻿#region
+using MelenitasDev.SoundsGood;
 using UnityEngine;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
+#endregion
 
 public class ConfirmCharactersButton : MonoBehaviour
 {
@@ -17,8 +19,8 @@ public class ConfirmCharactersButton : MonoBehaviour
     void Update()
     {
         confirming = CharacterSelector.SelectedCharacters.Count == 2;
-
-        if (confirming) ConfirmCharacters();
+    
+        if (confirming) ChooseMap();
         else confirmationButton.gameObject.SetActive(false);
     }
 
@@ -26,7 +28,13 @@ public class ConfirmCharactersButton : MonoBehaviour
     /// Once both players have selected their characters, confirm the selected characters
     /// and proceed to the game scene.
     /// </summary>
-    void ConfirmCharacters()
+    public void ChooseMap()
+    {
+        var mapSelector = FindObjectOfType<MapSelector>(true);
+        mapSelector.gameObject.SetActive(true);
+    }
+
+    public void Confirm()
     {
         confirmationButton.gameObject.SetActive(true);
 
@@ -35,6 +43,11 @@ public class ConfirmCharactersButton : MonoBehaviour
             var eventSystem = player.GetComponent<MultiplayerEventSystem>();
             eventSystem.SetSelectedGameObject(confirmationButton.gameObject);
         }
+        
+        MapSelector mapSelector = FindObjectOfType<MapSelector>();
+        if (mapSelector == null) return;
+        
+        mapSelector.LoadMap();
     }
 
     public void PlayConfirmSound()

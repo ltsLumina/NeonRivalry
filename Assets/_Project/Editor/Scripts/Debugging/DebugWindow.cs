@@ -197,7 +197,8 @@ public class DebugWindow : EditorWindow
         if (Button("Intro", Height(30))) sceneAction(0);
         if (Button("Main Menu", Height(30))) sceneAction(1);
         if (Button("Character Select", Height(30))) sceneAction(2);
-        if (Button("Game", Height(30))) sceneAction(3);
+        if (Button("Bar", Height(30))) sceneAction(3);
+        if (Button("Street", Height(30))) sceneAction(4);
     }
     
     static void DrawMidBanner()

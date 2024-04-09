@@ -14,7 +14,7 @@ public static class PlayerManager
     /// <summary>
     /// Maintains a list of all Player instances.
     /// </summary>
-    public static List<PlayerController> Players { get; } = new ();
+    public static List<PlayerController> Players { get; } = new (); 
     public static List<MenuNavigator> MenuNavigators { get; } = new ();
     
     public static int PlayerCount => Players.Count;
@@ -25,14 +25,14 @@ public static class PlayerManager
     /// </summary>
     //public static PlayerController PlayerOne => Players.Count >= 1 ? Players[0].PlayerController : null;
     public static PlayerController PlayerOne => Players.Count >= 1 ? Players[0] : null;
-    public static MenuNavigator MenuNavigatorOne => Players.Count >= 1 ? MenuNavigators[0] : null;
+    public static MenuNavigator MenuNavigatorOne => MenuNavigators.Count >= 1 ? MenuNavigators[0] : null;
     
     /// <summary>
     /// Gets the second player in the Players list if it exists; otherwise returns null.
     /// This property is often used when accessing the PlayerController component of the second player.
     /// </summary>
     public static PlayerController PlayerTwo => Players.Count >= 2 ? Players[1] : null;
-    public static MenuNavigator MenuNavigatorTwo => Players.Count >= 2 ? MenuNavigators[1] : null;
+    public static MenuNavigator MenuNavigatorTwo => MenuNavigators.Count >= 2 ? MenuNavigators[1] : null;
 
     /// <summary>
     /// Gets the player with the specified player ID if it exists.

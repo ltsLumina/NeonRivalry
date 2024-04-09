@@ -1,5 +1,4 @@
 #region
-using System;
 using DG.Tweening;
 using MelenitasDev.SoundsGood;
 using TMPro;
@@ -24,11 +23,7 @@ public class CharacterSelectManager : MonoBehaviour
         // Classic EnterPlaymodeOptions fix
         isTweening = false;
 
-        if (ActiveScene != CharacterSelect)
-        {
-            Destroy(gameObject);
-            Debug.LogException(new InvalidOperationException("CharacterSelectManager should only exist in the Character Select scene."));
-        }
+        Debug.Assert(ActiveScene == CharacterSelect, "CharacterSelectManager should only exist in the Character Select scene.");
     }
 
     void Start()
@@ -58,6 +53,9 @@ public class CharacterSelectManager : MonoBehaviour
         }
     }
 
+    public static bool IsMenuActive(int playerID) => GetPlayerMenu(playerID).activeSelf;
+    public static bool IsAnyMenuActive() => GetPlayerMenu(1).activeSelf || GetPlayerMenu(2).activeSelf;
+    
     /// <summary>
     /// Shows/Hides the character settings menu for the player.
     /// </summary>
