@@ -233,7 +233,13 @@ public class InputDeviceManager : MonoBehaviour
         { Intro, MainMenu, CharacterSelect };
 
         // If debug mode is active, allow the player to join directly into the game scene as well.
-        if (Logger.DebugMode) allowedScenes.Add(Game);
+        if (Logger.DebugMode)
+        {
+            allowedScenes.Add(Game);
+            allowedScenes.Add(Bar);
+            allowedScenes.Add(Street);
+        }
+
         return allowedScenes;
     }
     #endregion

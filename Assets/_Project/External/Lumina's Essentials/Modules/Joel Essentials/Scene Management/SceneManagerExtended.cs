@@ -11,6 +11,9 @@ public static class SceneManagerExtended
     public static int CharacterSelect => 2;
     public static int Game => 3;
 
+    public static int Bar => 3;
+    public static int Street => 4;
+
     public static int PreviousScene { get; private set; }
     public static string ActiveSceneName => SceneManager.GetActiveScene().name;
     public static int ActiveScene => SceneManager.GetActiveScene().buildIndex;
@@ -18,7 +21,7 @@ public static class SceneManagerExtended
     public static bool IntroScene => SceneManager.GetActiveScene().buildIndex == Intro;
     public static bool MainMenuScene => SceneManager.GetActiveScene().buildIndex == MainMenu;
     public static bool CharacterSelectScene => SceneManager.GetActiveScene().buildIndex == CharacterSelect;
-    public static bool GameScene => SceneManager.GetActiveScene().buildIndex == Game;
+    public static bool GameScene => SceneManager.GetActiveScene().buildIndex == Game || SceneManager.GetActiveScene().buildIndex == Bar || SceneManager.GetActiveScene().buildIndex == Street;
     
 
     /// <summary>

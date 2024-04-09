@@ -54,31 +54,38 @@ public class HurtBox : MonoBehaviour
         if (hitBox != null) OnHurtBoxHit?.Invoke(hitBox, hitBox.MoveData);
     }
     
-    void TakeDamage(HitBox hitBox, MoveData moveData)
+    void TakeDamage(HitBox hitBox, MoveData incomingAttack)
     {
         // Check if the player is invincible or already dead.
         if (player.IsInvincible || player.Healthbar.Health <= 0) return;
+
+        if (incomingAttack.isOverhead && player.IsCrouching)
+        {
+            Debug.Log("Overhead!");
+            return;
+        }
         
         // -- Any logic that needs to happen regardless if the player is blocking or not --
         
         player.FreezePlayer(true, .3f, true);
 
         // Check for move effects
-        foreach (var effect in moveData.moveEffects)
+        foreach (var effect in incomingAttack.moveEffects)
         {
             effect.ApplyEffect(player);
         }
         
-        if (moveData.isSweep && !player.IsCrouching)
+        if (incomingAttack.isSweep && !player.IsCrouching)
         {
             Debug.Log("Sweep!");
-            HandleHit(moveData);
+            HandleHit(incomingAttack);
             return;
         }
         
-        if (moveData.isArmor)
+        if (incomingAttack.isArmor)
         {
-            HandleHit(moveData);
+            Debug.Log("Armor!");
+            HandleHit(incomingAttack);
             return;
         } 
         
@@ -86,26 +93,20 @@ public class HurtBox : MonoBehaviour
         
         if (player.IsBlocking)
         {
-            if (moveData.isOverhead && player.IsCrouching)
-            {
-                HandleHit(moveData);
-                return;
-            }
-            
-            if (moveData.isGuardBreak)
+            if (incomingAttack.isGuardBreak)
             {
                 Debug.Log("Guard break!");
-                HandleHit(moveData);
+                HandleHit(incomingAttack);
                 return;
             }
 
-            HandleBlock(hitBox, moveData);
+            HandleBlock(hitBox, incomingAttack);
             return;
         }
         
         // -- Player was hit by another character and was not blocking --
         
-        HandleHit(moveData);
+        HandleHit(incomingAttack);
     }
     
     void HandleHit(MoveData moveData)

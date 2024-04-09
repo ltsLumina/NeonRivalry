@@ -115,6 +115,9 @@ public class MoveData : ScriptableObject
     
     void OnValidate()
     {
+        damage = Mathf.Clamp(damage, 1, 100);
+        
+        #region Knockback
         knockbackDir.x = Mathf.Clamp(knockbackDir.x, -1, 1);
         knockbackDir.y = Mathf.Clamp(knockbackDir.y, -1, 1);
         
@@ -129,6 +132,7 @@ public class MoveData : ScriptableObject
             wrongForce  = knockbackForce;
         }
         else { showWarning = false; }
+        #endregion
     }
     #endregion
 #endif

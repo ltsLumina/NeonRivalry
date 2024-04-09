@@ -101,7 +101,7 @@ public class MenuNavigator : MonoBehaviour
         int sceneIndex = ActiveScene;
         
         // If the scene is the Intro or Game scene, return, as we don't want to select a button in these scenes.
-        if (sceneIndex == Intro || sceneIndex == Game) return;
+        if (sceneIndex == Intro || sceneIndex == Game || sceneIndex == Bar || sceneIndex == Street) return;
 
         if (playerID == 2 && SceneNotSupportedForPlayer2(sceneIndex))
         {

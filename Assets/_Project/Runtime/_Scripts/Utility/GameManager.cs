@@ -108,7 +108,7 @@ public class GameManager : MonoBehaviour
                 SetState(GameState.CharSelect);
                 break;
             
-            case var game when game == Game:
+            case var game when game == Game || game == Bar || game == Street:
                 SetState(GameState.Game);
 
                 // Play Game music

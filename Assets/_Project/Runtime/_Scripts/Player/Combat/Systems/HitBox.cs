@@ -1,4 +1,5 @@
 ﻿#region
+using System.Collections;
 using Lumina.Essentials.Attributes;
 using UnityEngine;
 #endregion
@@ -22,6 +23,13 @@ public class HitBox : MonoBehaviour
         {
             player.IsArmored = true;
             Debug.Log("Player is armored!");
+            StartCoroutine(ResetArmor());
         }
+    }
+    
+    IEnumerator ResetArmor()
+    {
+        yield return new WaitForSeconds(0.2f);
+        player.IsArmored = false;
     }
 }
