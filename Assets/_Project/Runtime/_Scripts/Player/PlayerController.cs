@@ -297,17 +297,27 @@ public partial class PlayerController : MonoBehaviour
         // Invoke the OnPlayerJoin event from the InputDeviceManager.
         InputDeviceManager.TriggerPlayerJoin(PlayerInput, PlayerID);
 
-        Action action = playerID switch
-        { 1 => () => transform.position = new (-4, 1),
-          2 => () => transform.position = new (4, 1),
-          _ => () => Debug.LogError($"Invalid PlayerID: {playerID}. Expected either 1 or 2.") };
+        SetSpawnPosition();
 
-        action();
-        
         gameObject.SetActive(false);
         gameObject.SetActive(true);
     }
     
+    void SetSpawnPosition()
+    {
+        const float player1X = -4;
+        const float player1Z = -1.5f;
+        const float player2X = 4;
+        const float player2Z = -1.5f;
+        
+        Action action = playerID switch
+        { 1 => () => transform.position = new (player1X, 1, player1Z),
+          2 => () => transform.position = new (player2X, 1, player2Z),
+          _ => () => Debug.LogError($"Invalid PlayerID: {playerID}. Expected either 1 or 2.") };
+
+        action();
+    }
+
     void GetMovementValues()
     {
         moveSpeed           = Character.moveSpeed;
@@ -317,45 +327,6 @@ public partial class PlayerController : MonoBehaviour
         velocityPower       = Character.velocityPower;
     }
 
-    // void FlipModel()
-    // {
-    //     var otherPlayer = PlayerManager.OtherPlayer(this);
-    //     if (otherPlayer == null || !IsGrounded()) return;
-    //
-    //     Transform thisModel  = transform.GetChild(0);
-    //     Transform otherModel = otherPlayer.transform.GetChild(0);
-    //
-    //     float thisTargetScaleX  = otherPlayer.transform.position.x > transform.position.x ? 1 : -1;
-    //     float otherTargetScaleX = transform.position.x             > otherPlayer.transform.position.x ? 1 : -1;
-    //
-    //     //float duration = 0.2f; // duration of the flip animation
-    //
-    //     // flip players
-    //     if (IsGrounded()) thisModel.localScale  = new (thisTargetScaleX, 1, 1);
-    //     if (otherPlayer.IsGrounded()) otherModel.localScale = new (otherTargetScaleX, 1, 1);
-    //
-    //     // dont worky
-    //     // // Flip Animation for this player
-    //     // Sequence thisSequence = DOTween.Sequence();
-    //     //
-    //     // if (Mathf.Approximately(thisModel.localScale.x, thisTargetScaleX))
-    //     // {
-    //     //     thisSequence.Append(thisModel.DOScaleX(thisTargetScaleX, duration));
-    //     //     thisSequence.Join(thisModel.DOScaleZ(0f, duration  / 3)); // scale Z to 0 in the first half of the duration
-    //     //     thisSequence.Append(thisModel.DOScaleZ(1, duration / 2)); // scale Z back to 1 in the second half of the duration
-    //     // }
-    //     //
-    //     // // Flip Animation for the other player
-    //     // Sequence otherSequence = DOTween.Sequence();
-    //     //
-    //     // if (otherModel.localScale.x != otherTargetScaleX)
-    //     // {
-    //     //     otherSequence.Append(otherModel.DOScaleX(otherTargetScaleX, duration));
-    //     //     otherSequence.Join(otherModel.DOScaleZ(0f, duration  / 3)); // scale Z to 0 in the first half of the duration
-    //     //     otherSequence.Append(otherModel.DOScaleZ(1, duration / 2)); // scale Z back to 1 in the second half of the duration
-    //     // }
-    // }
-
     bool wasGroundedLastFrame;
 
     void Update()
@@ -364,7 +335,7 @@ public partial class PlayerController : MonoBehaviour
         if (IsGrounded() != wasGroundedLastFrame)
         {
             // If the player has just landed, flip the model
-            if (IsGrounded()) { FlipModel(); }
+            if (IsGrounded()) FlipModel();
 
             wasGroundedLastFrame = IsGrounded();
         }
