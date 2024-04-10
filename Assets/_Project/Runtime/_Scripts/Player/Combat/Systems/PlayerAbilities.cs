@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using DG.Tweening;
 using UnityEngine;
 
 //TODO: Psuedo-code for a class that holds all the possible player abilities.
@@ -32,6 +34,24 @@ public class PlayerAbilities
         targetRB.constraints = constraintsBeforeStun;
         
         // Player is back to normal.
+    }
+    
+    public static void Fade(PlayerController target)
+    {
+        Transform thisModel  = target.transform.GetChild(0);
+
+        float thisTargetScaleX  = thisModel.localScale.x * -1; // target scale X
+
+        float duration = 0.75f; // duration of the flip animation
+
+        // flip this player if it's grounded and the X scale changes
+        if (target.IsGrounded() && Math.Abs(thisModel.localScale.x - thisTargetScaleX) > 0.001f)
+        {
+            // Flip Animation for this player
+            Sequence thisSequence = DOTween.Sequence();
+            thisSequence.Join(thisModel.DOScaleZ(0f, duration  / 3)); // scale Z to 0 in the first half of the duration
+            thisSequence.Append(thisModel.DOScaleZ(1, duration / 3)); // scale Z back to 1 in the second half of the duration
+        }
     }
 
     public static void Heal(int amount)

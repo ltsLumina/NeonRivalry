@@ -13,14 +13,14 @@ MonoBehaviour:
   m_Name: 2K
   m_EditorClassIdentifier: 
   type: 1
-  direction: 0
+  direction: 1
   guard: 2
   animation: {fileID: 0}
   audioClip: {fileID: 0}
   sprite: {fileID: 0}
   name: 2K
   description: 
-  damage: 0
+  damage: 1
   knockbackForce: {x: 0, y: 0}
   knockbackDir: {x: 0, y: 0}
   isAirborne: 0
@@ -29,7 +29,8 @@ MonoBehaviour:
   isArmor: 0
   isInvincible: 0
   isGuardBreak: 0
-  moveEffects: []
+  moveEffects:
+  - {fileID: 11400000, guid: 614525e2851799744b1245027facabab, type: 2}
   showWarning: 0
   wrongDir: {x: 0, y: 0}
   wrongForce: {x: 0, y: 0}
