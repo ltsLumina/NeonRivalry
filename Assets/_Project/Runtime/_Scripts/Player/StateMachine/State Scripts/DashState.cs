@@ -66,7 +66,6 @@ public class DashState : State
         if (dashing)
         {
                 player.Rigidbody.velocity = dashDir * dashSpeed * Vector3.right;
-                Debug.LogWarning("Should be Dashing");
         }
     }
 
@@ -81,15 +80,12 @@ public class DashState : State
 
     IEnumerator HandleDashing()
     {
-        Debug.LogWarning("Entered dash routine");
         yield return new WaitForSeconds(dashSleepTime);
-        Debug.LogWarning("Dashsleep is over");
         dashTimer = dashDuration;
-        Debug.LogWarning("Setting dash timer");
+        player.ActivateTrail = true;
         yield return new WaitForSeconds(dashTimer);
         player.Rigidbody.velocity *= 0f;
         player.GlobalGravity = dashEndGravity;
-        //player.Rigidbody.useGravity = true;
         dashed = true;
 
         OnExit();
