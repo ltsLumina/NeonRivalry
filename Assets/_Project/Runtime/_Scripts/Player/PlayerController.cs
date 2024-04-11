@@ -44,6 +44,11 @@ public partial class PlayerController : MonoBehaviour
     [HideInInspector]
     public float DefaultGravity;
 
+    [SerializeField] private GameObject playerShadow;
+    private float playerShadowStartingHeight;
+    private Vector3 playerShadowStartingScale;
+    private float playerGroundedHeight;
+
     [Tab("Settings")]
     [Header("Debug")]
     [SerializeField] bool godMode;
@@ -273,6 +278,9 @@ public partial class PlayerController : MonoBehaviour
             Debug.LogWarning("Character is null. Please assign a character to the player.");
         }
 
+        playerShadowStartingScale = playerShadow.transform.localScale;
+        playerShadowStartingHeight = playerShadow.transform.position.y;
+
         var playerInput = PlayerInput;
         playerInput.defaultControlScheme = Device is Keyboard ? "Keyboard" : "Gamepad";
         playerInput.defaultActionMap = $"Player {PlayerID}";
@@ -343,12 +351,61 @@ public partial class PlayerController : MonoBehaviour
 
     void Update()
     {
+        //Locks the shadows position into its initial height when the game starts
+        playerShadow.transform.position = new Vector3(playerShadow.transform.position.x, playerShadowStartingHeight, playerShadow.transform.position.z);
+
+        //Calculate the scaleFactor based on the players height
+        float scaleFactor = Mathf.Clamp01((transform.position.y - 0.3f) / (2.9f - 0.3f));
+
+        //Updates the starting scale for the shadow object
+        Vector3 initialShadowScale = playerShadow.transform.localScale;
+
+        //Sets how fast the shadow scales up and down
+        float scaleSpeed = 15f;
+
+        //If the player is above the minimum height and is moving upwards the shadow will begin to scale down until hitting the minimum size cap
+        if(transform.position.y > 0.3f && Rigidbody.velocity.y > 0.01f)
+        {
+            //Calculates the new size for the shadow
+            Vector3 newScale = new Vector3(
+                (playerShadowStartingScale.x - scaleFactor) * initialShadowScale.x, 
+                (playerShadowStartingScale.y - scaleFactor) * initialShadowScale.y,
+                (playerShadowStartingScale.z - scaleFactor) * initialShadowScale.z);
+            //Uses Mathf.Lerp to scale down the shadow according to the scaleSpeed
+            playerShadow.transform.localScale = Vector3.Lerp(playerShadow.transform.localScale, newScale, scaleSpeed * Time.deltaTime);
+
+            //Clamps the value so the shadow does not scale down infinitly if the scaleSpeed is at higher values
+            playerShadow.transform.localScale = new Vector3(
+                Mathf.Clamp(playerShadow.transform.localScale.x, playerShadow.transform.localScale.x * .25f, playerShadowStartingScale.x),
+                Mathf.Clamp(playerShadow.transform.localScale.y, playerShadow.transform.localScale.y * .25f, playerShadowStartingScale.y),
+                Mathf.Clamp(playerShadow.transform.localScale.z, playerShadow.transform.localScale.z * .25f, playerShadowStartingScale.z));
+        }
+
+        //If the player is below the maximum height and is falling the shadow will begin to scale down until reaching its default size
+        if(transform.position.y < 2.9f && Rigidbody.velocity.y < -0.01f)
+        {
+            //Calculates the new size for the shadow
+            Vector3 newScale = new Vector3(
+                playerShadowStartingScale.x * initialShadowScale.x,
+                playerShadowStartingScale.y * initialShadowScale.y,
+                playerShadowStartingScale.z * initialShadowScale.z);
+            //Uses Mathf.Lerp to scale up the shadow according to the scaleSpeed
+            playerShadow.transform.localScale = Vector3.Lerp(playerShadow.transform.localScale, newScale, scaleSpeed * Time.deltaTime);
+
+            //Clamps the value so the shadow does not scale up infinitly if the scaleSpeed is at higher values
+            playerShadow.transform.localScale = new Vector3(
+                Mathf.Clamp(playerShadow.transform.localScale.x, playerShadow.transform.localScale.x * .25f, playerShadowStartingScale.x),
+                Mathf.Clamp(playerShadow.transform.localScale.y, playerShadow.transform.localScale.y * .25f, playerShadowStartingScale.y),
+                Mathf.Clamp(playerShadow.transform.localScale.z, playerShadow.transform.localScale.z * .25f, playerShadowStartingScale.z));
+        }
         // Check if the player's grounded state has changed
         if (IsGrounded() != wasGroundedLastFrame)
         {
             // If the player has just landed, flip the model
-            if (IsGrounded()) FlipModel();
-
+            if (IsGrounded())
+            {
+                FlipModel();
+            }
             wasGroundedLastFrame = IsGrounded();
         }
     }
