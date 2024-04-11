@@ -44,6 +44,11 @@ public partial class PlayerController : MonoBehaviour
     [HideInInspector]
     public float DefaultGravity;
 
+    [SerializeField] private GameObject playerShadow;
+    private float playerShadowStartingHeight;
+    private Vector3 playerShadowStartingScale;
+    private float playerGroundedHeight;
+
     [Tab("Settings")]
     [Header("Debug")]
     [SerializeField] bool godMode;
@@ -272,6 +277,9 @@ public partial class PlayerController : MonoBehaviour
             Debug.LogWarning("Character is null. Please assign a character to the player.");
         }
 
+        playerShadowStartingScale = playerShadow.transform.localScale;
+        playerShadowStartingHeight = playerShadow.transform.position.y;
+
         var playerInput = PlayerInput;
         playerInput.defaultControlScheme = Device is Keyboard ? "Keyboard" : "Gamepad";
         playerInput.defaultActionMap = $"Player {PlayerID}";
@@ -340,12 +348,46 @@ public partial class PlayerController : MonoBehaviour
 
     void Update()
     {
+        playerShadow.transform.position = new Vector3(playerShadow.transform.position.x, playerShadowStartingHeight, playerShadow.transform.position.z);
+        float scaleFactor = Mathf.Clamp01((transform.position.y - 0.3f) / (2.9f - 0.3f));
+        Vector3 initialShadowScale = playerShadow.transform.localScale;
+        float scaleSpeed = 15f;
+        if(transform.position.y > 0.3f && Rigidbody.velocity.y > 0.01f)
+        {
+            Vector3 newScale = new Vector3(
+                (playerShadowStartingScale.x - scaleFactor) * initialShadowScale.x, 
+                (playerShadowStartingScale.y - scaleFactor) * initialShadowScale.y,
+                (playerShadowStartingScale.z - scaleFactor) * initialShadowScale.z);
+
+            playerShadow.transform.localScale = Vector3.Lerp(playerShadow.transform.localScale, newScale, scaleSpeed * Time.deltaTime);
+
+            playerShadow.transform.localScale = new Vector3(
+                Mathf.Clamp(playerShadow.transform.localScale.x, playerShadow.transform.localScale.x * .25f, playerShadowStartingScale.x),
+                Mathf.Clamp(playerShadow.transform.localScale.y, playerShadow.transform.localScale.y * .25f, playerShadowStartingScale.y),
+                Mathf.Clamp(playerShadow.transform.localScale.z, playerShadow.transform.localScale.z * .25f, playerShadowStartingScale.z));
+        }
+        if(transform.position.y < 2.9f && Rigidbody.velocity.y < -0.01f)
+        {
+            Vector3 newScale = new Vector3(
+                playerShadowStartingScale.x * initialShadowScale.x,
+                playerShadowStartingScale.y * initialShadowScale.y,
+                playerShadowStartingScale.z * initialShadowScale.z);
+
+            playerShadow.transform.localScale = Vector3.Lerp(playerShadow.transform.localScale, newScale, scaleSpeed * Time.deltaTime);
+
+            playerShadow.transform.localScale = new Vector3(
+                Mathf.Clamp(playerShadow.transform.localScale.x, playerShadow.transform.localScale.x * .25f, playerShadowStartingScale.x),
+                Mathf.Clamp(playerShadow.transform.localScale.y, playerShadow.transform.localScale.y * .25f, playerShadowStartingScale.y),
+                Mathf.Clamp(playerShadow.transform.localScale.z, playerShadow.transform.localScale.z * .25f, playerShadowStartingScale.z));
+        }
         // Check if the player's grounded state has changed
         if (IsGrounded() != wasGroundedLastFrame)
         {
             // If the player has just landed, flip the model
-            if (IsGrounded()) FlipModel();
-
+            if (IsGrounded())
+            {
+                FlipModel();
+            }
             wasGroundedLastFrame = IsGrounded();
         }
     }
