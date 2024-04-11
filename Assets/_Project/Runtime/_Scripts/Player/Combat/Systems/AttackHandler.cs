@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Scripting.APIUpdating;
 using Logger = Lumina.Debugging.Logger;
 
 public class AttackHandler
@@ -65,7 +66,7 @@ public class AttackHandler
 
         // Get the current movement input of the player
         Vector2 input = player.InputManager.MoveInput;
-
+        
         // Determine the direction of attack based on whether the player is currently airborne or not
         MoveData.Direction directionToPerform = player.IsAirborne() ? MoveData.Direction.Airborne : GetDirectionFromInput(input);
         
@@ -74,7 +75,7 @@ public class AttackHandler
 
         // Select the appropriate attack move based on the direction of the attack
         MoveData selectedAttack = attackMoves.FirstOrDefault(move => move.direction == directionToPerform);
-
+        
         // Perform the selected attack move
         return PerformAttack(selectedAttack, directionToPerform, attackType);
     }
@@ -164,19 +165,6 @@ public class AttackHandler
     {
         // Wait for current attack animation to finish (if there is one playing)
         yield return new WaitForSeconds(length);
-    }
-
-    public bool HasDirectionalAttacks(InputManager.AttackType attackType, Vector2 inputDirection)
-    {
-        // check if the current attackType has any directional attacks
-        List<MoveData> attackMoves = GetAttackMoves(attackType);
-        if (attackMoves == null) return false;
-        
-        // Get the direction to perform the attack
-        MoveData.Direction directionToPerform = GetDirectionFromInput(inputDirection);
-        
-        // Check if the attack moves list contains a move that corresponds to the direction
-        return attackMoves.Any(move => move.direction == directionToPerform);
     }
     
     #region Query Methods

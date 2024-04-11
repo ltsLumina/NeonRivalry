@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Fade
   m_EditorClassIdentifier: 
   type: 3
-  direction: 1
+  direction: 2
   guard: 2
   animation: {fileID: 7400000, guid: 5e9cf3d8cf67b114fa39e097adede198, type: 2}
   audioClip: {fileID: 0}
@@ -23,6 +23,8 @@ MonoBehaviour:
   damage: 1
   knockbackForce: {x: 0, y: 0}
   knockbackDir: {x: 0, y: 0}
+  screenShake: 0
+  screenShakeAmplitude: 0
   isAirborne: 0
   isSweep: 0
   isOverhead: 0

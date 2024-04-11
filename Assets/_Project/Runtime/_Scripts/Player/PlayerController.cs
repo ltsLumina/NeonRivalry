@@ -123,16 +123,17 @@ public partial class PlayerController : MonoBehaviour
         DefaultGravity = GlobalGravity;
     }
 
-    void OnDestroy() => Healthbar.OnPlayerDeath -= Death;
+    void OnDestroy()
+    {
+        Healthbar.OnPlayerDeath -= Death;
+        PlayerInput.actions.FindAction("Unique").performed -= SubscribeOnUnique;
+    }
 
     void Start() => Initialize();
 
 #if UNITY_EDITOR
     void OnValidate() => GetMovementValues();
 #endif
-
-    Vector3 thisPosition;
-    Vector3 otherPosition;
     
     void FixedUpdate()
     {
@@ -140,6 +141,8 @@ public partial class PlayerController : MonoBehaviour
         if (Rigidbody.velocity.y > 0 || Rigidbody.velocity.y < 0) IsBlocking = false;
 
         #region THE "I GIVE UP" REGION
+        PlayerShadow();
+        
         // Animation bug: If the player attacks and jumps on the same frame, the player will be stuck in the jump animation.
         // Exit the jump animation if the player is grounded.
         if (IsGrounded() && Animator.GetCurrentAnimatorStateInfo(0).IsName("Jump")) Animator.Play("Idle");
@@ -147,6 +150,14 @@ public partial class PlayerController : MonoBehaviour
 
         if (!IsGrounded() && !IsJumping()) Animator.SetBool("IsFalling", true);
         else if (IsGrounded()) Animator.SetBool("IsFalling", false);
+
+        // Check if the player's grounded state has changed
+        if (IsGrounded() != wasGroundedLastFrame)
+        {
+            // If the player has just landed, flip the model
+            if (IsGrounded()) { FlipModel(); }
+            wasGroundedLastFrame = IsGrounded();
+        }
         #endregion
 
         #region Gravity
@@ -294,7 +305,7 @@ public partial class PlayerController : MonoBehaviour
         playerInput.SwitchCurrentActionMap($"Player {PlayerID}");
         
         // HAVE TO DO THIS MANUALLY BECAUSE UNITY IS INCAPABLE OF DOING IT AUTOMATICALLY ANYMORE
-        playerInput.actions.FindAction("Unique").performed += ctx => InputManager.OnUnique(ctx);
+        playerInput.actions.FindAction("Unique").performed += SubscribeOnUnique;
         playerInput.actions.Enable();
         
         // Switch the UI input module to the UI input actions.
@@ -319,7 +330,9 @@ public partial class PlayerController : MonoBehaviour
         gameObject.SetActive(false);
         gameObject.SetActive(true);
     }
-    
+
+    void SubscribeOnUnique(InputAction.CallbackContext ctx) => InputManager.OnUnique(ctx);
+
     void SetSpawnPosition()
     {
         const float player1X = -4;
@@ -345,11 +358,11 @@ public partial class PlayerController : MonoBehaviour
     }
 
     bool wasGroundedLastFrame;
-
-    void Update()
+    
+    void PlayerShadow()
     {
         //Locks the shadows position into its initial height when the game starts
-        playerShadow.transform.position = new Vector3(playerShadow.transform.position.x, playerShadowStartingHeight, playerShadow.transform.position.z);
+        playerShadow.transform.position = new (playerShadow.transform.position.x, playerShadowStartingHeight, playerShadow.transform.position.z);
 
         //Calculate the scaleFactor based on the players height
         float scaleFactor = Mathf.Clamp01((transform.position.y - 0.3f) / (2.9f - 0.3f));
@@ -394,16 +407,6 @@ public partial class PlayerController : MonoBehaviour
                 Mathf.Clamp(playerShadow.transform.localScale.x, playerShadow.transform.localScale.x * .25f, playerShadowStartingScale.x),
                 Mathf.Clamp(playerShadow.transform.localScale.y, playerShadow.transform.localScale.y * .25f, playerShadowStartingScale.y),
                 Mathf.Clamp(playerShadow.transform.localScale.z, playerShadow.transform.localScale.z * .25f, playerShadowStartingScale.z));
-        }
-        // Check if the player's grounded state has changed
-        if (IsGrounded() != wasGroundedLastFrame)
-        {
-            // If the player has just landed, flip the model
-            if (IsGrounded())
-            {
-                FlipModel();
-            }
-            wasGroundedLastFrame = IsGrounded();
         }
     }
 

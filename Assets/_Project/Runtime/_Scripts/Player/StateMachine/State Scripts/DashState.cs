@@ -39,7 +39,7 @@ public class DashState : State
         player.GetComponentInChildren<SpriteRenderer>().color = new (0.2f, 1f, 0.67f);
 
         Vector3 moveInput = player.InputManager.MoveInput;
-
+        
         dashDir = (int) moveInput.x;
 
         player.GlobalGravity = 0f;

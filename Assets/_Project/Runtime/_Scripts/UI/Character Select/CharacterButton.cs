@@ -13,10 +13,10 @@ public class CharacterButton : MonoBehaviour
     [Space(10)]
     
     [SerializeField] int playerIndex;
-    [ShowIf("dorathy", null)]
+    [ShowIf("morphe", null)]
     [SerializeField] Character shelby;
     [ShowIf("shelby", null)]
-    [SerializeField] Character dorathy;
+    [SerializeField] Character morphe;
     [EndIf]
 
     public Button LeftButton => leftButton;
@@ -32,7 +32,7 @@ public class CharacterButton : MonoBehaviour
     /// Returns whichever <see cref="Character"/> field is not null.
     /// </summary>
     /// <returns></returns>
-    public Character GetCharacter() => shelby != null ? shelby : dorathy;
+    public Character GetCharacter() => shelby != null ? shelby : morphe;
 
     // -- Fields --
 

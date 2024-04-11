@@ -52,42 +52,6 @@ public class MenuNavigator : MonoBehaviour
         eventSystem = GetComponent<MultiplayerEventSystem>();
     }
 
-    void AddTriggers()
-    {
-        // Get all EventTrigger components in the scene
-        EventTrigger[] eventTriggers = FindObjectsOfType<EventTrigger>(true);
-
-        foreach (EventTrigger eventTrigger in eventTriggers)
-        {
-            // Check if the OnSelect event trigger already exists
-            bool onSelectExists = eventTrigger.triggers.Any(entry => entry.eventID == EventTriggerType.Select);
-
-            // If the OnSelect event trigger does not exist, add it
-            if (!onSelectExists)
-            {
-                // Create a new EventTrigger.Entry
-                EventTrigger.Entry entry = new EventTrigger.Entry();
-
-                // Set the event type
-                entry.eventID = EventTriggerType.Select;
-
-                // Set the callback function
-                entry.callback.AddListener
-                (_ =>
-                {
-                    int previousIndex = previousSelectedGameObject.transform.parent.GetSiblingIndex();
-                    int currentIndex  = eventSystem.currentSelectedGameObject.transform.parent.GetSiblingIndex();
-
-                    if (currentIndex      < previousIndex) navigateUp.Play();
-                    else if (currentIndex > previousIndex) navigateDown.Play();
-                });
-
-                // Add the entry to the triggers list
-                eventTrigger.triggers.Add(entry);
-            }
-        }
-    }
-
     void Start()
     {
         PlayerManager.AddMenuNavigator(this);
@@ -173,10 +137,28 @@ public class MenuNavigator : MonoBehaviour
         int previousIndex = previousSelectedGameObject.transform.GetSiblingIndex();
         int currentIndex  = eventSystem.currentSelectedGameObject.transform.GetSiblingIndex();
 
-        if (MenuManager.IsAnySettingsMenuActive() || CharacterSelectScene)
+        if (MainMenuScene && MenuManager.IsAnySettingsMenuActive())
         {
             previousIndex = previousSelectedGameObject.transform.parent.GetSiblingIndex();
             currentIndex  = eventSystem.currentSelectedGameObject.transform.parent.GetSiblingIndex();
+        }
+
+        if (CharacterSelectScene)
+        {
+            previousIndex = previousSelectedGameObject.transform.parent.GetSiblingIndex();
+            currentIndex  = eventSystem.currentSelectedGameObject.transform.parent.GetSiblingIndex();
+        }
+
+        if (CharacterSelectScene)
+        {
+            ShowCharacterModel(out GameObject selectedCharacter, out CharacterSelectManager manager);
+
+            // int selectedCharacterIndex = selectedCharacter.transform.GetSiblingIndex();
+            // int shelbyIndex            = manager.ShelbyButton.transform.GetSiblingIndex();
+            // int morpheIndex            = manager.MorpheButton.transform.GetSiblingIndex();
+            //
+            // if (selectedCharacterIndex      < shelbyIndex) navigateLeft.Play();
+            // else if (selectedCharacterIndex > morpheIndex) navigateRight.Play();
         }
 
         if (currentIndex      < previousIndex) navigateUp.Play();
@@ -185,6 +167,36 @@ public class MenuNavigator : MonoBehaviour
         OnSelectionChanged?.Invoke(previousSelectedGameObject, eventSystem.currentSelectedGameObject);
         previousSelectedGameObject = eventSystem.currentSelectedGameObject;
         #endregion
+    }
+
+    public void ShowCharacterModel(out GameObject selectedCharacter, out CharacterSelectManager manager)
+    {
+        manager = FindObjectOfType<CharacterSelectManager>();
+        
+        var shelbyButton = manager.ShelbyButton;
+        var morpheButton = manager.MorpheButton;
+        
+        if (eventSystem.currentSelectedGameObject      == shelbyButton.gameObject) selectedCharacter = shelbyButton.gameObject;
+        else if (eventSystem.currentSelectedGameObject == morpheButton.gameObject) selectedCharacter = morpheButton.gameObject;
+        else selectedCharacter                                                                       = null; 
+            
+        if (selectedCharacter != null)
+        {
+            Debug.Log($"Selected character: {selectedCharacter.name}");
+                
+            //Show the respective character object depending on the selected character.
+            // If the selected character is Shelby, show Shelby's model, otherwise show Morphe's model.
+            if (selectedCharacter == shelbyButton.gameObject)
+            {
+                manager.ShelbyModel.SetActive(true);
+                manager.MorpheModel.SetActive(false);
+            }
+            else if (selectedCharacter == morpheButton.gameObject)
+            {
+                manager.ShelbyModel.SetActive(false);
+                manager.MorpheModel.SetActive(true);
+            }
+        }
     }
 
     public void OnCancel(InputAction.CallbackContext context)
@@ -212,7 +224,7 @@ public class MenuNavigator : MonoBehaviour
                 var characterButton = GameObject.Find($"Player {playerID}").transform.GetChild(0).GetComponent<CharacterButton>();
                 
                 // If there is a character selected, deselect it.
-                if (CharacterSelector.DeselectCharacter(characterButton.PlayerIndex, characterButton))
+                if (CharacterSelector.DeselectCharacter(characterButton.PlayerIndex, eventSystem))
                 {
                     cancelSFX.Play();
 
@@ -334,7 +346,7 @@ public class MenuNavigator : MonoBehaviour
             
             case var _ when sceneIndex == CharacterSelect:
 
-                return GameObject.Find($"Player {playerID}").transform.GetChild(0).gameObject;
+                return GameObject.Find($"Player {PlayerID}").transform.GetChild(0).gameObject;
 
             default:
                 return null;

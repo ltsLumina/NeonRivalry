@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
+using UnityEditor.PackageManager;
 using UnityEngine;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 
 public static class CharacterSelector
@@ -43,7 +45,7 @@ public static class CharacterSelector
         return true;
     }
     
-    public static bool DeselectCharacter(int playerIndex, CharacterButton button)
+    public static bool DeselectCharacter(int playerIndex, MultiplayerEventSystem eventSystem)
     {
         // return if there is no character to deselect
         if (!selectedCharacters.Remove(playerIndex, out Character previousCharacter)) return false;
@@ -52,7 +54,8 @@ public static class CharacterSelector
         
         // -- Enable navigation -- \\
         
-        ResetNavigation(button.GetComponent<Button>());
+        var selectedButton = eventSystem.currentSelectedGameObject.GetComponent<Button>();
+        ResetNavigation(selectedButton);
 
         return true;
     }

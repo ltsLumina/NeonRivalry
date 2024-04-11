@@ -21,8 +21,10 @@ MonoBehaviour:
   name: Uppercut
   description: 
   damage: 25
-  knockbackForce: {x: 0.25, y: 12}
+  knockbackForce: {x: 3, y: 12}
   knockbackDir: {x: -1, y: 1}
+  screenShake: 0
+  screenShakeAmplitude: 0
   isAirborne: 0
   isSweep: 0
   isOverhead: 1

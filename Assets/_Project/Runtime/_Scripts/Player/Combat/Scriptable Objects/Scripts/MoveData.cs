@@ -77,6 +77,9 @@ public class MoveData : ScriptableObject
     [Tooltip("The direction the enemy is knocked back when hit by the move.")]
     public Vector2 knockbackDir;
 
+    public bool screenShake;
+    public bool screenShakeAmplitude;
+
     // [Tooltip("Block advantage/disadvantage.")]
     // public float blockstun;
 
