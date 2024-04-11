@@ -106,8 +106,6 @@ public class MenuManager : MonoBehaviour
     List<string> resolutions;
     Sound openMenu;
     Sound closeMenu;
-    Sound acceptSFX;
-    Music music;
 
     #region VInpector fix
 #pragma warning disable CS0414 // Field is assigned but its value is never used
@@ -177,11 +175,9 @@ public class MenuManager : MonoBehaviour
         // Initialize sounds
         openMenu = new (SFX.MenuOpen);
         closeMenu = new (SFX.MenuClose);
-        acceptSFX = new (SFX.Accept);
 
         openMenu.SetOutput(Output.SFX);
         closeMenu.SetOutput(Output.SFX);
-        acceptSFX.SetOutput(Output.SFX);
         
         // Populate the resolution dropdown with the most common resolutions.
         resolutions = new() { "3840x2160", "2560x1440", "1920x1080", "1366x768", "1280x720", };
@@ -197,8 +193,6 @@ public class MenuManager : MonoBehaviour
 
     public void ScaleUpSliderButton(Selectable parent) => parent.transform.DOScale(1.05f, 0.1f).SetEase(Ease.OutBack);
     public void ScaleDownSliderButton(Selectable parent) => parent.transform.DOScale(1, 0.1f).SetEase(Ease.InBack);
-
-    public void SubmitSFX() => acceptSFX.Play();
 
     void Update()
     {
@@ -349,8 +343,6 @@ public class MenuManager : MonoBehaviour
 
     public void ShowCredits()
     {
-        acceptSFX.Play();
-        
         creditsManager.ResetCredits();
 
         creditsButton.interactable = false;

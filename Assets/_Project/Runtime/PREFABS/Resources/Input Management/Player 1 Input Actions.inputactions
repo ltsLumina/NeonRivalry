@@ -60,6 +60,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "Unique",
+                    "type": "Button",
+                    "id": "595d4ea5-dd38-43ca-8b23-0b71ffd669bb",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Pause",
                     "type": "Button",
                     "id": "7b749409-a87c-4ee7-8a13-705550b7e4f5",
@@ -1077,6 +1086,28 @@
                     "processors": "",
                     "groups": "Keyboard",
                     "action": "Disallowed Bindings",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "944489ec-3790-42c0-86b4-4f2eb0571568",
+                    "path": "<Gamepad>/buttonNorth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Unique",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "6a78caab-cd73-404b-85b6-9fe47d6c4a54",
+                    "path": "<Keyboard>/k",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard",
+                    "action": "Unique",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

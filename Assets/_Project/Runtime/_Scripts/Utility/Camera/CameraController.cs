@@ -70,8 +70,7 @@ public class CameraController : MonoBehaviour
         Vector3 currentPosition = vCam.transform.position;
 
         // Calculate the midpoint between the two targets.
-        const float half     = 2;
-        Vector3     midpoint = (target1.position + target2.position) / half;
+        Vector3 midpoint = (target1.position + target2.position) / 2;
 
         // Calculate the new z-position of the camera. This is a linear interpolation between the current z-position and the desired z-position,
         // with the interpolation parameter being the product of the time delta and the zoom speed.

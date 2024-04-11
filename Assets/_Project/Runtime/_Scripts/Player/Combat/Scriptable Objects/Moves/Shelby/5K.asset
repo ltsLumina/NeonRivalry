@@ -14,15 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 1
   direction: 0
-  guard: 0
+  guard: 2
   animation: {fileID: 0}
   audioClip: {fileID: 0}
   sprite: {fileID: 0}
-  name: 5K
+  name: Hook
   description: 
   damage: 1
-  knockbackForce: {x: 0, y: 0}
-  knockbackDir: {x: 0, y: 0}
+  knockbackForce: {x: -5, y: 7}
+  knockbackDir: {x: -1, y: 0.2}
   isAirborne: 0
   isSweep: 0
   isOverhead: 0
@@ -31,5 +31,5 @@ MonoBehaviour:
   isGuardBreak: 0
   moveEffects: []
   showWarning: 0
-  wrongDir: {x: 0, y: 0}
-  wrongForce: {x: 0, y: 0}
+  wrongDir: {x: -1, y: 0.2}
+  wrongForce: {x: -5, y: 0}

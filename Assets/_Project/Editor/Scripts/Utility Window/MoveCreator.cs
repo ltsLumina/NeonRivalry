@@ -318,7 +318,7 @@ public static class MoveCreator
 
         name        = string.Empty;
         description = string.Empty;
-        damage      = 0;
+        damage      = 1;
         startup     = 0;
         active      = 0;
         recovery    = 0;

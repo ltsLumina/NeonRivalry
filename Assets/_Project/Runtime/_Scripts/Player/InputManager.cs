@@ -23,8 +23,8 @@ public class InputManager : MonoBehaviour
         Punch,
         Kick,
         Slash,
-        Airborne,
-        Unique
+        Unique,
+        Airborne
     }
 
     /// <summary>

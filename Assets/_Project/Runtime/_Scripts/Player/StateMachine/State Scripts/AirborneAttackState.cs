@@ -11,14 +11,12 @@ public class AirborneAttackState : State
 
     float timeAirborneAttacking;
     float timeAirborne;
-    bool hasAttacked;
     
     readonly float requiredAirTime;
     
     public AirborneAttackState(PlayerController player, AirborneAttackStateData stateData) : base(player)
     {
         animator = player.GetComponentInChildren<Animator>();
-        moveset = stateData.Moveset;
 
         // Falling variables
         fallGravityMultiplier = stateData.FallGravityMultiplier;
@@ -27,10 +25,8 @@ public class AirborneAttackState : State
         // Attack variables
         timeAirborne    = player.AirborneTime;
         requiredAirTime = stateData.RequiredAirTime;
-        hasAttacked     = false;
+        moveset = player.Character.Moveset;
         
-        Debug.Assert(moveset != null, "Moveset is null in the AttackStateData. Please assign it in the inspector.");
-
         // Create a new instance of the attack handler.
         attackHandler = new (moveset, animator, player);
     }
@@ -65,10 +61,10 @@ public class AirborneAttackState : State
         }
 
         // Only attack if the player has been airborne for a certain amount of time.
-        if (timeAirborne >= requiredAirTime && !IsAirborneAttacking && !hasAttacked)
+        if (timeAirborne >= requiredAirTime && !IsAirborneAttacking && !player.HasAirborneAttacked)
         {
             IsAirborneAttacking = true;
-            hasAttacked = true;
+            player.HasAirborneAttacked = true;
         }
 
         if (!IsAirborneAttacking)
@@ -118,7 +114,6 @@ public class AirborneAttackState : State
         
         IsAirborneAttacking = false;
         IsAirborne          = false;
-        hasAttacked         = false;
 
         player.StateMachine.TransitionToState(player.IsGrounded() ? StateType.Idle : StateType.Fall);
 
@@ -126,12 +121,12 @@ public class AirborneAttackState : State
         else if (player.IsGrounded()) player.StateMachine.TransitionToState(StateType.Idle);
 
         // Play land animation.
-        IsAirborneAttacking = false;
         player.Animator.SetBool("IsFalling", false);
 
         if (player.IsGrounded())
         {
             player.Animator.SetTrigger("Land");
+            player.HasAirborneAttacked = false;
         }
     }
     #endregion

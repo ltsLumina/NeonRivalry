@@ -14,6 +14,7 @@ public class MoveData : ScriptableObject
         Punch,
         Kick,
         Slash,
+        Unique
     }
 
     /// <summary>
@@ -121,7 +122,7 @@ public class MoveData : ScriptableObject
         knockbackDir.x = Mathf.Clamp(knockbackDir.x, -1, 1);
         knockbackDir.y = Mathf.Clamp(knockbackDir.y, -1, 1);
         
-        knockbackForce.x = Mathf.Clamp(knockbackForce.x, -5, 5);
+        knockbackForce.x = Mathf.Clamp(knockbackForce.x, -15, 15);
         knockbackForce.y = Mathf.Clamp(knockbackForce.y, -15, 15);
 
         // If the dir is non-zero on an axis and a force is zero on that axis, or vice versa, warn the user

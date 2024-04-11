@@ -23,17 +23,16 @@ public class AttackState : State
 
     readonly AttackHandler attackHandler;
     readonly Animator animator;
-    readonly Moveset moveset; // Could be declared as a local variable, but it will (probably) be used in the future.
-    
+
     float attackAnimationLength;
 
       // -- Constructor --
       public AttackState(PlayerController player, AttackStateData stateData) : base(player)
       {
           animator = player.Animator;
-          moveset  = stateData.Moveset;
+          Moveset moveset = player.Character.Moveset;
 
-          Debug.Assert(moveset != null, "Moveset is null in the AttackStateData. Please assign it in the inspector.");
+          Debug.Assert(moveset != null, "Moveset is null in the Character scriptable object. Please assign it in the inspector.");
 
           attackHandler = new (moveset, animator, player);
       }
@@ -46,7 +45,10 @@ public class AttackState : State
         player.GetComponentInChildren<SpriteRenderer>().color = Color.red;
 
         groundedAttackTimer = 0;
+    }
 
+    public override void UpdateState()
+    {
         InputManager.AttackType attackType = player.InputManager.LastAttackPressed;
 
         if (attackType != InputManager.AttackType.None)
@@ -54,14 +56,7 @@ public class AttackState : State
             if (attackHandler.SelectAttack(attackType)) player.InputManager.LastAttackPressed = InputManager.AttackType.None; // Reset after usage
             else OnExit();
         }
-        else
-        {
-            Debug.LogWarning("No attack type was selected. Something went wrong.");
-        }
-    }
-
-    public override void UpdateState()
-    {
+        
         // Have to set the attack animation length here because the animator will return the length of the idle animation instead of the attack animation.
         // So we have to set the attack animation length every frame to ensure that it is the correct value.
         attackAnimationLength = animator.GetCurrentAnimatorStateInfo(0).length;

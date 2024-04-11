@@ -10,15 +10,19 @@ public class HitBox : MonoBehaviour
 
     public MoveData MoveData => performedMove;
     public BoxCollider Collider => GetComponent<BoxCollider>();
+    public PlayerController Owner => player;
     
     PlayerController player;
+    bool wasColliderEnabled;
     
+
     void Start() => player = GetComponentInParent<PlayerController>();
 
     public void SetAttack(MoveData moveData) => performedMove = moveData;
 
     void Update()
     {
+        // todo: doent worky
         if (performedMove != null && performedMove.isArmor)
         {
             player.IsArmored = true;

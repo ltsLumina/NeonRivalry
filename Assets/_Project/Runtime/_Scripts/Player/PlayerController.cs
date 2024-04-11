@@ -133,11 +133,17 @@ public partial class PlayerController : MonoBehaviour
     {
         // Player cannot block while airborne.
         if (Rigidbody.velocity.y > 0 || Rigidbody.velocity.y < 0) IsBlocking = false;
-        
+
+        #region THE "I GIVE UP" REGION
         // Animation bug: If the player attacks and jumps on the same frame, the player will be stuck in the jump animation.
         // Exit the jump animation if the player is grounded.
-        if (IsGrounded() && Animator.GetCurrentAnimatorStateInfo(0).IsName("Jump")) Animator.SetTrigger("Land");
-        
+        if (IsGrounded() && Animator.GetCurrentAnimatorStateInfo(0).IsName("Jump")) Animator.Play("Idle");
+        if (IsGrounded()) HasAirborneAttacked = false;
+
+        if (!IsGrounded() && !IsJumping()) Animator.SetBool("IsFalling", true);
+        else if (IsGrounded()) Animator.SetBool("IsFalling", false);
+        #endregion
+
         #region Gravity
         Vector3 gravity = GlobalGravity * GravityScale * Vector3.up;
         Rigidbody.AddForce(gravity, ForceMode.Acceleration);
@@ -278,6 +284,9 @@ public partial class PlayerController : MonoBehaviour
         // Switch the player's action map to the correct player.
         playerInput.actions.Disable();
         playerInput.SwitchCurrentActionMap($"Player {PlayerID}");
+        
+        // HAVE TO DO THIS MANUALLY BECAUSE UNITY IS INCAPABLE OF DOING IT AUTOMATICALLY ANYMORE
+        playerInput.actions.FindAction("Unique").performed += ctx => InputManager.OnUnique(ctx);
         playerInput.actions.Enable();
         
         // Switch the UI input module to the UI input actions.

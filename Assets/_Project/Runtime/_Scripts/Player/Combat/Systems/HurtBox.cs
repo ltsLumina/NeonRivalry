@@ -1,4 +1,5 @@
 ﻿#region
+using System;
 using System.Collections;
 using UnityEngine;
 using VInspector;
@@ -19,7 +20,7 @@ public class HurtBox : MonoBehaviour
     [Header("Block Effect")]
     [SerializeField] GameObject blockEffect;
     [SerializeField] Gradient blockStrainGradient;
-
+    
     PlayerController player;
 
     public delegate void HurtBoxHit(HitBox hitBox, MoveData moveData);
@@ -61,7 +62,7 @@ public class HurtBox : MonoBehaviour
 
         if (incomingAttack.isOverhead && player.IsCrouching)
         {
-            Debug.Log("Overhead!");
+            Debug.Log("Overhead! (Attack missed)");
             return;
         }
         
@@ -96,20 +97,20 @@ public class HurtBox : MonoBehaviour
             if (incomingAttack.isGuardBreak)
             {
                 Debug.Log("Guard break!");
-                HandleHit(incomingAttack);
+                HandleHit(incomingAttack, hitBox);
                 return;
             }
 
-            HandleBlock(hitBox, incomingAttack);
+            HandleBlock(incomingAttack, hitBox);
             return;
         }
         
         // -- Player was hit by another character and was not blocking --
         
-        HandleHit(incomingAttack);
+        HandleHit(incomingAttack, hitBox);
     }
     
-    void HandleHit(MoveData moveData)
+    void HandleHit(MoveData moveData, HitBox hitBox = default)
     {
         if (!player.IsArmored)
         {
@@ -118,22 +119,22 @@ public class HurtBox : MonoBehaviour
 
             PlayEffect(punchKickEffect);
             
-            // Apply knockback
-            Knockback(moveData);
+            // Don't apply knockback if the player is airborne
+            Knockback(moveData, hitBox?.Owner);
         }
         else { player.IsArmored = false; }
         
         // Reduce health by the damage amount, and update the health bar.
         // Create variable to represent the player's health
         int health = player.Healthbar.Health;
-        health                  -= moveData.damage;
+        health -= moveData.damage;
         player.Healthbar.Health =  health;
         
         // Plays effects over time such as flashing red and invincibility frames.
         TakeDamageRoutine();
     }
 
-    void HandleBlock(HitBox hitBox, MoveData moveData)
+    void HandleBlock(MoveData moveData, HitBox hitBox = default)
     {
         OnBlockHit?.Invoke();
 
@@ -198,7 +199,7 @@ public class HurtBox : MonoBehaviour
         #endregion
     }
 
-    void Knockback(MoveData moveData)
+    void Knockback(MoveData moveData, PlayerController attacker)
     {
         Vector2 knockbackDir   = moveData.knockbackDir;
         Vector3 knockbackForce = moveData.knockbackForce;
@@ -213,10 +214,43 @@ public class HurtBox : MonoBehaviour
         }
         
         // Calculate the knockback force using the direction and force values
-        var force = new Vector3(knockbackDir.x * knockbackForce.x, knockbackForce.y, knockbackDir.y * knockbackForce.z);
+        var force = new Vector2(knockbackDir.x * knockbackForce.x, knockbackDir.y * knockbackForce.y);
     
-        // Apply the knockback force
+        // Apply the knockback force to the player who was hit
         player.Rigidbody.AddForce(force, ForceMode.Impulse);
+
+        if (moveData.isAirborne) return;
+
+        // Apply knockback to the player who attacked
+        var attackerForce = new Vector2(-force.x, 0);
+        attacker.Rigidbody.velocity = new (attackerForce.x, attacker.Rigidbody.velocity.y, 0);
+    }
+
+    [Obsolete("I wish this would work, but it doesn't.")]
+    IEnumerator ApplySmoothForce(Rigidbody playerRigidbody, Vector2 force, float duration)
+    {
+        // Slight wait before applying the force
+        yield return new WaitForSeconds(0.05f);
+        
+        float timer = 0;
+
+        while (timer < duration)
+        {
+            // Calculate how much of the duration has passed
+            float completed = timer / duration;
+
+            // Calculate the current force
+            Vector2 currentForce = Vector2.Lerp(force, Vector2.zero, completed);
+
+            // Apply the current force
+            playerRigidbody.AddForce(currentForce, ForceMode.Impulse);
+
+            // Wait for the next frame
+            yield return null;
+
+            // Increase the timer
+            timer += Time.deltaTime;
+        }
     }
     
     void TakeDamageRoutine()
@@ -224,8 +258,8 @@ public class HurtBox : MonoBehaviour
         // Flash player red on take damage.
         StartCoroutine(FlashRedOnDamage());
 
-        // Set player to invincible and start the invincibility frames coroutine
-        StartCoroutine(InvincibilityFrames());
+        // Set player to invincible and start the iframes coroutine
+        StartCoroutine(InvincibilityFrames(0.2f));
     }
 
     IEnumerator FlashRedOnDamage(float duration = 0.15f)

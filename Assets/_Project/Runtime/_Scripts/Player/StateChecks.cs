@@ -9,11 +9,11 @@ using Logger = Lumina.Debugging.Logger;
 //TODO: In hindsight, maybe I should put this into its own class rather than as a partial class of PlayerController.
 public partial class PlayerController // StateChecks.cs
 {
-    // -- State Checks --
-
     public bool IsArmored { get; set; }
 
     public bool IsBlocking { get; set; }
+    
+    public bool HasAirborneAttacked { get; set; }
     
     public bool Blocking()
     {

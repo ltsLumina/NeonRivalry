@@ -14,16 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 0
   direction: 3
-  guard: 0
-  animation: {fileID: 7400000, guid: 23c58b8c7d326eb4784ea5f18e67679e, type: 2}
+  guard: 2
+  animation: {fileID: 0}
   audioClip: {fileID: 0}
   sprite: {fileID: 0}
-  name: High Punch
-  description: A punch that hits high.
+  name: 
+  description: 
   damage: 5
-  knockbackForce: {x: 0, y: 8}
-  knockbackDir: {x: 0, y: 1}
-  isAirborne: 0
+  knockbackForce: {x: 1, y: 10}
+  knockbackDir: {x: -1, y: 1}
+  isAirborne: 1
   isSweep: 0
   isOverhead: 0
   isArmor: 0
@@ -31,5 +31,5 @@ MonoBehaviour:
   isGuardBreak: 0
   moveEffects: []
   showWarning: 0
-  wrongDir: {x: -1, y: 1}
-  wrongForce: {x: 0, y: 8}
+  wrongDir: {x: -1, y: 0}
+  wrongForce: {x: 5, y: 6.91}

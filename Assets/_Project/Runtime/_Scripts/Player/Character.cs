@@ -7,11 +7,18 @@
 public class Character : ScriptableObject
 {
     [SerializeField] GameObject characterPrefab;
+    [SerializeField] Moveset moveset;
 
     public GameObject CharacterPrefab
     {
         get => characterPrefab;
         set => characterPrefab = value;
+    }
+    
+    public Moveset Moveset
+    {
+        get => moveset;
+        set => moveset = value;
     }
 
     public string characterName => characterPrefab.name;

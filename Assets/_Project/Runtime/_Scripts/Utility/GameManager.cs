@@ -1,6 +1,7 @@
 #region
 using System;
 using System.Linq;
+using Lumina.Essentials.Sequencer;
 using MelenitasDev.SoundsGood;
 using UnityEngine;
 using UnityEngine.InputSystem.UI;
@@ -28,6 +29,8 @@ public class GameManager : MonoBehaviour
         Paused,
         GameOver
     }
+
+    Sound acceptSFX;
 
     public static GameState State
     {
@@ -80,14 +83,13 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         InitializeStateByScene();
+        InitializeMusic();
     }
 
     static void InitializeStateByScene()
     {
         // Things to do when any scene is loaded:
-        MenuManager.LoadSettings(); // Also loads audio.
-        AudioManager.StopAll();
-        
+        MenuManager.LoadSettings(); // Also loads volumes.
         
         switch (SceneManager.GetActiveScene().buildIndex)
         {
@@ -97,11 +99,6 @@ public class GameManager : MonoBehaviour
 
             case var mainMenu when mainMenu == MainMenu:
                 SetState(GameState.MainMenu);
-                
-                // Play Main Menu music
-                Music mainMenuMusic = new (Track.mainMenu);
-                mainMenuMusic.SetOutput(Output.Music).SetVolume(1f);
-                mainMenuMusic.Play();
                 break;
             
             case var charSelect when charSelect == CharacterSelect:
@@ -111,13 +108,42 @@ public class GameManager : MonoBehaviour
             case var game when game == Game || game == Bar || game == Street:
                 SetState(GameState.Game);
 
-                // Play Game music
-                Music gameMusic = new (Track.LoveTheSubhumanSelf);
-                gameMusic.SetOutput(Output.Music).SetVolume(1f);
-                gameMusic.Play(2f);
-
                 // Play timeline.
                 //TimelinePlayer.Play();
+                break;
+        }
+    }
+
+    void InitializeMusic()
+    {
+        acceptSFX = new (SFX.Accept);
+        acceptSFX.SetOutput(Output.SFX);
+        
+        switch (ActiveScene)
+        {
+            case var mainMenu when mainMenu == MainMenu:
+                // Play Main Menu music
+                Music mainMenuMusic = new (Track.mainMenu);
+                mainMenuMusic.SetOutput(Output.Music).SetVolume(1f);
+                mainMenuMusic.Play();
+                break;
+
+            case var charSelect when charSelect == CharacterSelect:
+                Music charSelectMusic = new (Track.charSelect);
+                charSelectMusic.SetOutput(Output.Music).SetVolume(1f);
+                charSelectMusic.Play();
+                break;
+
+            case var game when game == Bar:
+                Music barMusic = new (Track.thisIBelieve);
+                barMusic.SetOutput(Output.Music).SetVolume(1f);
+                barMusic.Play();
+                break;
+
+            case var game when game == Street:
+                Music streetMusic = new (Track.theAlarmist);
+                streetMusic.SetOutput(Output.Music).SetVolume(1f);
+                streetMusic.Play();
                 break;
         }
     }
@@ -126,6 +152,26 @@ public class GameManager : MonoBehaviour
     {
         State = state;
         OnGameStateChanged?.Invoke(state);
+    }
+
+    public void SubmitSFX() => acceptSFX.Play();
+
+    public void FadeOutMusic(float duration = 1.5f)
+    {
+        AudioManager.StopAll(duration);
+    }
+
+    public void QuitGame()
+    {
+        FadeOutMusic();
+        
+        var sequence = new Sequence(this);
+        sequence.WaitThenExecute
+        (1.5f, () =>
+        {
+            Application.Quit();
+            Debug.LogWarning("Usually this would quit the game, but you're in the editor.");
+        });
     }
     
     void Update()
@@ -182,6 +228,7 @@ public class GameManager : MonoBehaviour
         {
             if (player == null) continue;
             player.DisablePlayer(IsPaused);
+            //TODO: Obviously I can't disable the player input here. If I do, the players cant use the menu. *facepalm*
         }
 
         var UIManager = FindObjectOfType<UIManager>();

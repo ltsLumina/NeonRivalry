@@ -95,8 +95,8 @@ public class AttackHandler
     {
         if (selectedAttack == null)
         {
-            Logger.Log($"There is no move that corresponds to the direction: {directionToPerform} {type} \nPlease assign a move in the moveset.", LogType.Warning);
-            Logger.Log("Returned out of an attack early. \nThis means the player might behave unexpectedly.", LogType.Warning);
+            // Logger.Log($"There is no move that corresponds to the direction: {directionToPerform} {type} \nPlease assign a move in the moveset.", LogType.Warning);
+            // Logger.Log("Returned out of an attack early. \nThis means the player might behave unexpectedly.", LogType.Warning);
             return false;
         }
         
@@ -106,7 +106,6 @@ public class AttackHandler
         // Check for move effects
         foreach (var effect in selectedAttack.moveEffects)
         {
-            Debug.Log($"Applying effect {effect} to player {player}!");
             effect.ApplyEffect(player);
         }
 
@@ -127,15 +126,15 @@ public class AttackHandler
     /// <summary>
     /// Plays a specific attack animation based on the specified attack type and index.
     /// </summary>
-    /// <param name="move">The move data (This parameter is currently unused but it's planned to be used in the future).</param>
+    /// <param name="selectedAttack">The move data (This parameter is currently unused but it's planned to be used in the future).</param>
     /// <param name="animationIndex">The index of the attack within the attack type's sequence of animations.</param>
-    /// <param name="type">The type of the attack.</param>
+    /// <param name="type">The type of the attack. (e.g Punch or Kick)</param>
     /// <remarks>
     /// The method sets the animator parameters based on the type of attack and the index provided, and then triggers the attack animation.
     /// The name of the parameter in the animator must be the same as the name of the attack type.
     /// It also records this action to the Logger for traceability purposes.
     /// </remarks>
-    void PlayAnimation(MoveData move, int animationIndex, InputManager.AttackType type)
+    void PlayAnimation(MoveData selectedAttack, int animationIndex, InputManager.AttackType type)
     {
         string attackType = Enum.GetName(typeof(InputManager.AttackType), type);
 
@@ -149,12 +148,11 @@ public class AttackHandler
         // Trigger the correct animation.
         // If the attack type is airborne, then the animation index is always 0.
         //animator.SetTrigger(attackType);
-
+        
         // wait for current animation to finish
         var length = animator.GetCurrentAnimatorStateInfo(0).length;
         player.StartCoroutine(WaitForAnimation(length));
-        
-        animator.Play(move.direction + " " + attackType, 0, 0f);
+        animator.Play(selectedAttack.direction + " " + attackType);
         //Debug.Log($"Playing {directionToActionMap[move.direction]} {attackType} animation.");
 
         Logger.Trace
@@ -164,9 +162,23 @@ public class AttackHandler
     
     IEnumerator WaitForAnimation(float length)
     {
+        // Wait for current attack animation to finish (if there is one playing)
         yield return new WaitForSeconds(length);
     }
 
+    public bool HasDirectionalAttacks(InputManager.AttackType attackType, Vector2 inputDirection)
+    {
+        // check if the current attackType has any directional attacks
+        List<MoveData> attackMoves = GetAttackMoves(attackType);
+        if (attackMoves == null) return false;
+        
+        // Get the direction to perform the attack
+        MoveData.Direction directionToPerform = GetDirectionFromInput(inputDirection);
+        
+        // Check if the attack moves list contains a move that corresponds to the direction
+        return attackMoves.Any(move => move.direction == directionToPerform);
+    }
+    
     #region Query Methods
     /// <summary>
     /// Retrieves a list of attack moves based on the given attack type.
@@ -192,6 +204,9 @@ public class AttackHandler
 
             case InputManager.AttackType.Slash:
                 return moveset.SlashMoves;
+            
+            case InputManager.AttackType.Unique: 
+                return moveset.UniqueMoves;
 
             case InputManager.AttackType.Airborne:
                 return moveset.AirborneMoves;
@@ -212,7 +227,7 @@ public class AttackHandler
     /// <returns> The direction that the player is pressing. </returns>
     static MoveData.Direction GetDirectionFromInput(Vector2 inputDirection) => inputDirection switch
     { _ when inputDirection   == Vector2.zero => MoveData.Direction.Neutral,
-      _ when inputDirection.x != 0            => MoveData.Direction.Forward,
+      _ when inputDirection   == Vector2.zero => MoveData.Direction.Forward,
       _ when inputDirection.y < 0             => MoveData.Direction.Down,
       _                                       => MoveData.Direction.Neutral };
     #endregion

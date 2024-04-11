@@ -241,9 +241,17 @@ public class MenuNavigator : MonoBehaviour
 
                 #region Stop Selecting Map
                 var mapSelector = FindObjectOfType<MapSelector>();
-                if (mapSelector.IsSelecting())
+                if (mapSelector != null && mapSelector.IsSelecting())
                 {
                     mapSelector.gameObject.SetActive(false);
+                    
+                    // Set selection back to the character button.
+                    foreach (var player in PlayerManager.MenuNavigators)
+                    {
+                        // Deselect the confirmation button, and reselect the character button.
+                        var buttonToReturnTo = GameObject.Find($"Player {player.playerID}").transform.GetChild(0).gameObject;
+                        player.eventSystem.SetSelectedGameObject(buttonToReturnTo);
+                    }
                 }
                 #endregion
             }
