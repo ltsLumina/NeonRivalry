@@ -191,9 +191,19 @@ public class MenuManager : MonoBehaviour
         vSyncToggle.isOn         = PlayerPrefs.GetInt("VSync", 0)      == 1;
     }
 
+    public void ScaleUpButton(Button button) => button.transform.DOScale(4.2f, 0.1f).SetEase(Ease.OutBack);
+    public void ScaleDownButton(Button button) => button.transform.DOScale(4, 0.1f).SetEase(Ease.InBack);
+    
     public void ScaleUpSliderButton(Selectable parent) => parent.transform.DOScale(1.05f, 0.1f).SetEase(Ease.OutBack);
     public void ScaleDownSliderButton(Selectable parent) => parent.transform.DOScale(1, 0.1f).SetEase(Ease.InBack);
 
+    public void OnClickButton(Button button)
+    {
+        var sequence = DOTween.Sequence();
+        sequence.Append(button.transform.DOScale(4, 0.1f).SetEase(Ease.InBack));
+        sequence.Append(button.transform.DOScale(4.2f, 0.1f).SetEase(Ease.OutBack));
+    }
+    
     void Update()
     {
         ChangeHeaderColour();
@@ -391,7 +401,9 @@ public class MenuManager : MonoBehaviour
     }
 
     public bool IsAnyMainMenuActive() => mainMenus.Any(menu => menu.activeSelf);
+
     public static bool IsAnySettingsMenuActive() => settingsMenus.Any(menu => menu.activeSelf);
+
     public bool IsAnyMenuActive() => IsAnyMainMenuActive() || IsAnySettingsMenuActive();
 
     public void SetResolution(int resolutionIndex)

@@ -123,11 +123,7 @@ public class AirborneAttackState : State
         // Play land animation.
         player.Animator.SetBool("IsFalling", false);
 
-        if (player.IsGrounded())
-        {
-            player.Animator.SetTrigger("Land");
-            player.HasAirborneAttacked = false;
-        }
+        if (player.IsGrounded()) player.HasAirborneAttacked = false;
     }
     #endregion
 

@@ -123,7 +123,7 @@ public class GameManager : MonoBehaviour
         {
             case var mainMenu when mainMenu == MainMenu:
                 // Play Main Menu music
-                Music mainMenuMusic = new (Track.mainMenu);
+                Music mainMenuMusic = new (Track.generator);
                 mainMenuMusic.SetOutput(Output.Music).SetVolume(1f);
                 mainMenuMusic.Play();
                 break;

@@ -118,16 +118,17 @@ public partial class PlayerController : MonoBehaviour
         DefaultGravity = GlobalGravity;
     }
 
-    void OnDestroy() => Healthbar.OnPlayerDeath -= Death;
+    void OnDestroy()
+    {
+        Healthbar.OnPlayerDeath -= Death;
+        PlayerInput.actions.FindAction("Unique").performed -= SubscribeOnUnique;
+    }
 
     void Start() => Initialize();
 
 #if UNITY_EDITOR
     void OnValidate() => GetMovementValues();
 #endif
-
-    Vector3 thisPosition;
-    Vector3 otherPosition;
     
     void FixedUpdate()
     {
@@ -286,7 +287,7 @@ public partial class PlayerController : MonoBehaviour
         playerInput.SwitchCurrentActionMap($"Player {PlayerID}");
         
         // HAVE TO DO THIS MANUALLY BECAUSE UNITY IS INCAPABLE OF DOING IT AUTOMATICALLY ANYMORE
-        playerInput.actions.FindAction("Unique").performed += ctx => InputManager.OnUnique(ctx);
+        playerInput.actions.FindAction("Unique").performed += SubscribeOnUnique;
         playerInput.actions.Enable();
         
         // Switch the UI input module to the UI input actions.
@@ -311,7 +312,9 @@ public partial class PlayerController : MonoBehaviour
         gameObject.SetActive(false);
         gameObject.SetActive(true);
     }
-    
+
+    void SubscribeOnUnique(InputAction.CallbackContext ctx) => InputManager.OnUnique(ctx);
+
     void SetSpawnPosition()
     {
         const float player1X = -4;

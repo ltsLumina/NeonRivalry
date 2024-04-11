@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using VInspector;
 #endregion
 
@@ -116,6 +117,11 @@ public class HurtBox : MonoBehaviour
         {
             player.Animator.SetTrigger("Hitstun");
             player.StateMachine.TransitionToState(State.StateType.HitStun);
+            
+            //TODO: dont worky
+            // Rumble player gamepad
+            var gamepad = player.Device as Gamepad;
+            gamepad?.Rumble();
 
             PlayEffect(punchKickEffect);
             
@@ -318,7 +324,7 @@ public class HurtBox : MonoBehaviour
         effect.SetActive(true);
 
         // e.g. freeze game for a short duration for juice
-        Sleep(0.075f);
+        Sleep(0.125f);
 
         // Start the coroutine to disable the effect after the animation has finished
         StartCoroutine(DisableEffectAfterAnimation(effect));

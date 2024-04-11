@@ -1,4 +1,5 @@
 #region
+using System.Collections;
 using DG.Tweening;
 using MelenitasDev.SoundsGood;
 using TMPro;
@@ -14,7 +15,37 @@ public class CharacterSelectManager : MonoBehaviour
 {
     [SerializeField] Slider p1RumbleSlider;
     [SerializeField] Slider p2RumbleSlider;
+
+    [SerializeField] GameObject shelbyButton;
+    [SerializeField] GameObject morpheButton;
+
+    [SerializeField] GameObject shelbyModel;
+    [SerializeField] GameObject morpheModel;
+
+    public GameObject ShelbyButton
+    {
+        get => shelbyButton;
+        set => shelbyButton = value;
+    }
     
+    public GameObject MorpheButton
+    {
+        get => morpheButton;
+        set => morpheButton = value;
+    }
+    
+    public GameObject ShelbyModel
+    {
+        get => shelbyModel;
+        set => shelbyModel = value;
+    }
+    
+    public GameObject MorpheModel
+    {
+        get => morpheModel;
+        set => morpheModel = value;
+    }
+
     static Sound menuClose;
     static bool isTweening;
     
@@ -26,7 +57,7 @@ public class CharacterSelectManager : MonoBehaviour
         Debug.Assert(ActiveScene == CharacterSelect, "CharacterSelectManager should only exist in the Character Select scene.");
     }
 
-    void Start()
+    IEnumerator Start()
     {
         menuClose = new (SFX.MenuClose);
         menuClose.SetOutput(Output.SFX);
@@ -37,6 +68,10 @@ public class CharacterSelectManager : MonoBehaviour
         // update slider text
         p1RumbleSlider.onValueChanged.AddListener(_ => UpdateSliderText(p1RumbleSlider));
         p2RumbleSlider.onValueChanged.AddListener(_ => UpdateSliderText(p2RumbleSlider));
+        
+        // Show the character model
+        yield return new WaitUntil(() => FindObjectOfType<MenuNavigator>() != null);
+        FindObjectOfType<MenuNavigator>().ShowCharacterModel(out GameObject _, out CharacterSelectManager _);
     }
 
     static void UpdateSliderText(Slider slider)
