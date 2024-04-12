@@ -171,7 +171,7 @@ public class HurtBox : MonoBehaviour
         // Play block effect.
         PlayEffect(blockEffect);
 
-        StartCoroutine(InvincibilityFrames(0.1f));
+        StartCoroutine(InvincibilityFrames(0.2f));
 
         #region Local Functions
         return;
@@ -279,7 +279,7 @@ public class HurtBox : MonoBehaviour
         StartCoroutine(FlashRedOnDamage());
 
         // Set player to invincible and start the iframes coroutine
-        StartCoroutine(InvincibilityFrames(0f));
+        StartCoroutine(InvincibilityFrames(0.2f));
     }
 
     IEnumerator FlashRedOnDamage(float duration = 0.15f)
