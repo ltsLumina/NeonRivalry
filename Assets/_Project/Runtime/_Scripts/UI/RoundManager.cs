@@ -65,7 +65,7 @@ public class RoundManager : MonoBehaviour
         }
         
         // TODO: uncomment this line when the game is ready to be played. 
-        //SceneManagerExtended.ReloadScene(2f);
+        SceneManagerExtended.ReloadScene(2f);
     }
 
     void Reset()

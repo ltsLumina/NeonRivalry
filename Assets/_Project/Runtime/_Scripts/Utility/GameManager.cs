@@ -1,4 +1,7 @@
 #region
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using System;
 using System.Linq;
 using Lumina.Essentials.Sequencer;
@@ -62,6 +65,16 @@ public class GameManager : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
     }
 #endif
+
+#if UNITY_EDITOR
+    void OnEnable() => EditorApplication.playModeStateChanged += PlayModeState;
+    void OnDisable() => EditorApplication.playModeStateChanged -= PlayModeState;
+
+    static void PlayModeState(PlayModeStateChange state)
+    { // Repaint the window when entering play mode.
+        if (state == PlayModeStateChange.ExitingPlayMode) GamepadExtensions.StopAllRumble();
+    }
+#endif
     
     void Awake()
     {
@@ -123,25 +136,25 @@ public class GameManager : MonoBehaviour
         {
             case var mainMenu when mainMenu == MainMenu:
                 // Play Main Menu music
-                Music mainMenuMusic = new (Track.generator);
+                Music mainMenuMusic = new (Track.MainMenu);
                 mainMenuMusic.SetOutput(Output.Music).SetVolume(1f);
                 mainMenuMusic.Play();
                 break;
 
             case var charSelect when charSelect == CharacterSelect:
-                Music charSelectMusic = new (Track.charSelect);
+                Music charSelectMusic = new (Track.CharSelect);
                 charSelectMusic.SetOutput(Output.Music).SetVolume(1f);
                 charSelectMusic.Play();
                 break;
 
             case var game when game == Bar:
-                Music barMusic = new (Track.thisIBelieve);
+                Music barMusic = new (Track.ThisIBelieve);
                 barMusic.SetOutput(Output.Music).SetVolume(1f);
                 barMusic.Play();
                 break;
 
             case var game when game == Street:
-                Music streetMusic = new (Track.theAlarmist);
+                Music streetMusic = new (Track.TheAlarmist);
                 streetMusic.SetOutput(Output.Music).SetVolume(1f);
                 streetMusic.Play();
                 break;

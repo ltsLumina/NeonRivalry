@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Scripting.APIUpdating;
 using Logger = Lumina.Debugging.Logger;
 
 public class AttackHandler
@@ -149,21 +148,19 @@ public class AttackHandler
         // Trigger the correct animation.
         // If the attack type is airborne, then the animation index is always 0.
         //animator.SetTrigger(attackType);
-        
-        // wait for current animation to finish
-        var length = animator.GetCurrentAnimatorStateInfo(0).length;
-        player.StartCoroutine(WaitForAnimation(length));
+
         animator.Play(selectedAttack.direction + " " + attackType);
+        
         //Debug.Log($"Playing {directionToActionMap[move.direction]} {attackType} animation.");
 
         Logger.Trace
         ($"Attack animation played. Animator parameters set to: \n{attackType} = true \nAnimation Index = {animationIndex}", new[]
          { State.StateType.Attack, State.StateType.AirborneAttack });
     }
-    
-    IEnumerator WaitForAnimation(float length)
+
+    IEnumerator WaitForAnimation()
     {
-        // Wait for current attack animation to finish (if there is one playing)
+        var length = animator.GetCurrentAnimatorStateInfo(0).length;
         yield return new WaitForSeconds(length);
     }
     

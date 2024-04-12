@@ -21,8 +21,12 @@ MonoBehaviour:
   name: Light Punch
   description: This is a light punch.
   damage: 25
-  knockbackForce: {x: -1, y: 10}
-  knockbackDir: {x: 1, y: 1}
+  knockbackForce: {x: -1, y: 0}
+  knockbackDir: {x: 1, y: 0}
+  knockBackAttacker: 0
+  screenShake: 0
+  screenShakeAmplitude: 0
+  hitstunDuration: 0.2
   isAirborne: 0
   isSweep: 0
   isOverhead: 0
@@ -31,5 +35,5 @@ MonoBehaviour:
   isGuardBreak: 0
   moveEffects: []
   showWarning: 0
-  wrongDir: {x: 0, y: 1}
-  wrongForce: {x: -5, y: 10}
+  wrongDir: {x: 1, y: 1}
+  wrongForce: {x: -1, y: 0}

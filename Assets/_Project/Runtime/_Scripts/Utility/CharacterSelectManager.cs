@@ -1,5 +1,6 @@
 #region
 using System.Collections;
+using System.Linq;
 using DG.Tweening;
 using MelenitasDev.SoundsGood;
 using TMPro;
@@ -8,6 +9,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Samples.RebindUI;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
+using VInspector;
 using static SceneManagerExtended;
 #endregion
 
@@ -16,35 +18,29 @@ public class CharacterSelectManager : MonoBehaviour
     [SerializeField] Slider p1RumbleSlider;
     [SerializeField] Slider p2RumbleSlider;
 
-    [SerializeField] GameObject shelbyButton;
-    [SerializeField] GameObject morpheButton;
+    [Tab("Player 1")]
+    [SerializeField] public GameObject player1_shelbyButton;
+    [SerializeField] public GameObject player1_morpheButton;
 
-    [SerializeField] GameObject shelbyModel;
-    [SerializeField] GameObject morpheModel;
+    [SerializeField] public GameObject player1_shelbyModel;
+    [SerializeField] public GameObject player1_morpheModel;
 
-    public GameObject ShelbyButton
-    {
-        get => shelbyButton;
-        set => shelbyButton = value;
-    }
+    [SerializeField] public Image player1_shelbyText;
+    [SerializeField] public Image player1_morpheText;
+
+    [SerializeField] public Image player1_SettingsIcon;
     
-    public GameObject MorpheButton
-    {
-        get => morpheButton;
-        set => morpheButton = value;
-    }
+    [Tab("Player 2")]
+    [SerializeField] public GameObject player2_shelbyButton;
+    [SerializeField] public GameObject player2_morpheButton;
     
-    public GameObject ShelbyModel
-    {
-        get => shelbyModel;
-        set => shelbyModel = value;
-    }
+    [SerializeField] public GameObject player2_shelbyModel;
+    [SerializeField] public GameObject player2_morpheModel;
     
-    public GameObject MorpheModel
-    {
-        get => morpheModel;
-        set => morpheModel = value;
-    }
+    [SerializeField] public Image player2_shelbyText;
+    [SerializeField] public Image player2_morpheText;
+    
+    [SerializeField] public Image player2_SettingsIcon;
 
     static Sound menuClose;
     static bool isTweening;
@@ -68,10 +64,15 @@ public class CharacterSelectManager : MonoBehaviour
         // update slider text
         p1RumbleSlider.onValueChanged.AddListener(_ => UpdateSliderText(p1RumbleSlider));
         p2RumbleSlider.onValueChanged.AddListener(_ => UpdateSliderText(p2RumbleSlider));
+
         
-        // Show the character model
-        yield return new WaitUntil(() => FindObjectOfType<MenuNavigator>() != null);
-        FindObjectOfType<MenuNavigator>().ShowCharacterModel(out GameObject _, out CharacterSelectManager _);
+        var promptManager = FindObjectOfType<ButtonPromptsManager>();
+        promptManager.ShowGamepadPrompts("CharacterSelect", true);
+        promptManager.ShowKeyboardPrompts("CharacterSelect", true);
+
+        yield return new WaitUntil(() => PlayerManager.MenuNavigators.Count == 2);
+        promptManager.CurrentPrompts.First().gameObject.transform.parent.DOLocalMoveY(-600, 0.5f).SetEase(Ease.InBack);
+        
     }
 
     static void UpdateSliderText(Slider slider)
@@ -96,7 +97,7 @@ public class CharacterSelectManager : MonoBehaviour
     /// </summary>
     /// <param name="playerID"></param>
     /// <remarks>This method is highly volatile and should be modified with caution.</remarks>
-    public static void ToggleCharacterSettingsMenu(int playerID)
+    public void ToggleCharacterSettingsMenu(int playerID)
     {
         if (ActiveScene != CharacterSelect) return;
         
@@ -111,14 +112,14 @@ public class CharacterSelectManager : MonoBehaviour
         else OpenCharacterSettingsMenu(playerID, playerInput, eventSystem);
     }
 
-    static void OpenCharacterSettingsMenu(int playerID, PlayerInput playerInput, MultiplayerEventSystem eventSystem)
+    void OpenCharacterSettingsMenu(int playerID, PlayerInput playerInput, MultiplayerEventSystem eventSystem)
     {
         if (isTweening) return;
 
         GameObject      playerMenu    = GetPlayerMenu(playerID);
         DiagramSelector playerDiagram = GetPlayerDiagram(playerID);
 
-        const float shownY  = 50f;
+        const float shownY  = 90f;
         const float hiddenY = 1200f;
 
         // Create a sequence for the tweening animation
@@ -137,16 +138,15 @@ public class CharacterSelectManager : MonoBehaviour
         // Set the selection to the first button in the device buttons
         eventSystem.SetSelectedGameObject(deviceButtons.transform.GetChild(0)?.GetComponentInChildren<Button>().gameObject);
 
+        // Tween the settings icon out of the way.
+        sequence.Append(playerID == 1 ? player1_SettingsIcon.transform.DOLocalMoveY(785, 1f) : player2_SettingsIcon.transform.DOLocalMoveY(785, 1f));
+
         // Tween the player menu into view
-        sequence.AppendInterval(0.2f);
         sequence.Append(playerMenu.transform.DOLocalMoveY(shownY, 0.5f).SetEase(Ease.OutBack)).OnStart(() => isTweening = true);
-        sequence.OnComplete(() =>
-        {
-            isTweening = false;
-        });
+        sequence.OnComplete(() => { isTweening = false; });
     }
 
-    public static void CloseCharacterSettingsMenu(int playerID, MultiplayerEventSystem eventSystem)
+    void CloseCharacterSettingsMenu(int playerID, MultiplayerEventSystem eventSystem)
     {
         if (isTweening) return;
 
@@ -158,18 +158,21 @@ public class CharacterSelectManager : MonoBehaviour
         isTweening = true;
 
         // Tween the player menu out of view
-        sequence.AppendInterval(0.2f);
         sequence.Append(playerMenu.transform.DOLocalMoveY(hiddenY, 0.5f).SetEase(Ease.InBack)).OnStart(() => isTweening = true).OnComplete
         (() =>
         {
             isTweening = false;
+            
+            // Tween the settings icon back into view.
+            if (playerID == 1) player1_SettingsIcon.transform.DOLocalMoveY(485, 1f);
+            else player2_SettingsIcon.transform.DOLocalMoveY(485, 1f);
                 
             // Hide the device buttons and the diagram
             playerMenu.SetActive(false);
             playerMenu.transform.localPosition = new (playerMenu.transform.localPosition.x, hiddenY, playerMenu.transform.localPosition.z);
 
             // Set the selection back to the player's character button.
-            var characterButton = GameObject.Find($"Player {playerID}").transform.GetChild(0).gameObject.GetComponent<Button>();
+            var characterButton = GameObject.Find($"Player {playerID} CB").transform.GetChild(0).gameObject.GetComponent<Button>();
             eventSystem.SetSelectedGameObject(characterButton.gameObject);
         });
     }

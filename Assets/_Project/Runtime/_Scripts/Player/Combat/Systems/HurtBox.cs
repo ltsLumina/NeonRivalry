@@ -2,7 +2,6 @@
 using System;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using VInspector;
 #endregion
 
@@ -61,15 +60,15 @@ public class HurtBox : MonoBehaviour
         // Check if the player is invincible or already dead.
         if (player.IsInvincible || player.Healthbar.Health <= 0) return;
 
-        if (incomingAttack.isOverhead && player.IsCrouching)
+        if (incomingAttack.isAirborne && player.IsCrouching)
         {
-            Debug.Log("Overhead! (Attack missed)");
+            Debug.Log("Attack missed! (Airborne + Target was crouching)");
             return;
         }
         
         // -- Any logic that needs to happen regardless if the player is blocking or not --
         
-        player.FreezePlayer(true, .3f, true);
+        player.FreezePlayer(true, incomingAttack.hitstunDuration, true);
 
         // Check for move effects
         foreach (var effect in incomingAttack.moveEffects)
@@ -77,16 +76,10 @@ public class HurtBox : MonoBehaviour
             effect.ApplyEffect(player);
         }
         
-        if (incomingAttack.isSweep && !player.IsCrouching)
-        {
-            Debug.Log("Sweep!");
-            HandleHit(incomingAttack);
-            return;
-        }
-        
         if (incomingAttack.isArmor)
         {
             Debug.Log("Armor!");
+            Debug.Log("ARMOR ATTRIBUTE DOESNT WORK YET OR MAYBE EVER");
             HandleHit(incomingAttack);
             return;
         } 
@@ -101,9 +94,30 @@ public class HurtBox : MonoBehaviour
                 HandleHit(incomingAttack, hitBox);
                 return;
             }
+            
+            if (incomingAttack.guard == MoveData.Guard.Low && player.IsCrouching)
+            {
+                HandleBlock(incomingAttack, hitBox);
+                return;
+            }
 
-            HandleBlock(incomingAttack, hitBox);
-            return;
+            if (incomingAttack.guard == MoveData.Guard.High && !player.IsCrouching)
+            {
+                if (incomingAttack.isSweep)
+                {
+                    HandleHit(incomingAttack, hitBox);
+                    return;
+                }
+                
+                HandleBlock(incomingAttack, hitBox);
+                return;
+            }
+
+            if (incomingAttack.guard == MoveData.Guard.All)
+            {
+                HandleBlock(incomingAttack, hitBox);
+                return;
+            }
         }
         
         // -- Player was hit by another character and was not blocking --
@@ -115,13 +129,13 @@ public class HurtBox : MonoBehaviour
     {
         if (!player.IsArmored)
         {
+            player.Animator.SetFloat("HitstunDuration", moveData.hitstunDuration * 3f);
             player.Animator.SetTrigger("Hitstun");
             player.StateMachine.TransitionToState(State.StateType.HitStun);
             
             //TODO: dont worky
             // Rumble player gamepad
-            var gamepad = player.Device as Gamepad;
-            gamepad?.Rumble();
+            GamepadExtensions.RumbleAll();
 
             PlayEffect(punchKickEffect);
             
@@ -157,7 +171,7 @@ public class HurtBox : MonoBehaviour
         // Play block effect.
         PlayEffect(blockEffect);
 
-        StartCoroutine(InvincibilityFrames());
+        StartCoroutine(InvincibilityFrames(0.2f));
 
         #region Local Functions
         return;
@@ -225,10 +239,10 @@ public class HurtBox : MonoBehaviour
         // Apply the knockback force to the player who was hit
         player.Rigidbody.AddForce(force, ForceMode.Impulse);
 
-        if (moveData.isAirborne) return;
+        if (moveData.isAirborne || !moveData.knockBackAttacker) return;
 
         // Apply knockback to the player who attacked
-        var attackerForce = new Vector2(-force.x, 0);
+        var attackerForce = new Vector2(-force.x * 2, 0);
         attacker.Rigidbody.velocity = new (attackerForce.x, attacker.Rigidbody.velocity.y, 0);
     }
 
@@ -276,15 +290,22 @@ public class HurtBox : MonoBehaviour
         int baseColor       = Shader.PropertyToID("_BaseColor");
         int firstShadeColor = Shader.PropertyToID("_1st_ShadeColor");
 
-        var baseOriginalColor       = meshRenderer.material.GetColor(baseColor);
-        var firstShadeOriginalColor = meshRenderer.material.GetColor(firstShadeColor);
+        Color baseOriginalColor       = meshRenderer.material.GetColor(baseColor);
+        Color firstShadeOriginalColor = meshRenderer.material.GetColor(firstShadeColor);
 
-        // Set colors to red
+        if (baseOriginalColor != Color.white)
+        {
+            Debug.LogWarning("The weird colour bug occured. womp womp");
+            baseOriginalColor       = Color.white;
+            firstShadeOriginalColor = new (0.48f, 0.42f, 0.91f);
+            // NOTE: If we change the shade colors in the prefab, this will be off.
+        }
+
         var col = new Color(0.91f, 0.34f, 0.47f, 0.45f);
         meshRenderer.material.SetColor(baseColor, col);
         meshRenderer.material.SetColor(firstShadeColor, col);
 
-        // Fade out over 0.15 seconds
+        // Fade out over *duration* seconds
         float elapsedTime = 0f;
 
         while (elapsedTime < duration)

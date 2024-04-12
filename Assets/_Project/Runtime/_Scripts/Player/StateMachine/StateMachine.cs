@@ -125,7 +125,7 @@ public class StateMachine : MonoBehaviour
                 break;
 
             case HitStun:
-                SetState(new NoneState(Player));
+                SetState(new HitstunState(Player));
                 break;
 
             case Block:
