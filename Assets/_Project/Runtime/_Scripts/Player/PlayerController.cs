@@ -47,7 +47,6 @@ public partial class PlayerController : MonoBehaviour
     [SerializeField] private GameObject playerShadow;
     private float playerShadowStartingHeight;
     private Vector3 playerShadowStartingScale;
-    private float playerGroundedHeight;
 
     [Tab("Settings")]
     [Header("Debug")]
@@ -75,6 +74,7 @@ public partial class PlayerController : MonoBehaviour
     public HitBox HitBox { get; private set; }
     public HurtBox HurtBox { get; private set; }
     public bool IsInvincible { get; set; }
+    public bool ActivateTrail { get; set; }
 
     string ThisPlayer => $"Player {PlayerID}";
     public bool IsCrouching => Animator.GetBool("IsCrouching");

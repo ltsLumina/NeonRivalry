@@ -110,6 +110,7 @@ GameObject:
   - component: {fileID: 323316177474802617}
   - component: {fileID: 488312444501934667}
   - component: {fileID: 8910499296590818988}
+  - component: {fileID: 3580993441686361657}
   m_Layer: 0
   m_Name: Shelby
   m_TagString: Player
@@ -133,6 +134,7 @@ Transform:
   - {fileID: 7075976674052840816}
   - {fileID: 1757866786665376192}
   - {fileID: 1563456010534744481}
+  - {fileID: 3247327903726041828}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &323316177474802617
@@ -211,6 +213,25 @@ Rigidbody:
   m_Interpolate: 1
   m_Constraints: 120
   m_CollisionDetection: 1
+--- !u!114 &3580993441686361657
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 421975285420853384}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adf60bee140b70c458f2d161f90176d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  trailIsActive: 0
+  activeTime: 0.07
+  meshRefreshRate: 0.02
+  afterImageMeshMaterial: {fileID: 2100000, guid: aae52b4bb5434fd438635fbd0495b9ef,
+    type: 2}
+  meshDestroyDelay: 0.2
+  spawningPosition: {fileID: 8616531756816415124}
 --- !u!1 &455877587734595412
 GameObject:
   m_ObjectHideFlags: 0
@@ -689,6 +710,37 @@ MonoBehaviour:
   m_DeselectOnBackgroundClick: 1
   m_PointerBehavior: 0
   m_CursorLockBehavior: 0
+--- !u!1 &1299234641756588175
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3247327903726041828}
+  m_Layer: 0
+  m_Name: Particles
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3247327903726041828
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1299234641756588175}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6647826687636412292}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1386433689782576258
 GameObject:
   m_ObjectHideFlags: 0
@@ -1107,7 +1159,7 @@ GameObject:
   - component: {fileID: 1409264073342783573}
   m_Layer: 9
   m_Name: character1
-  m_TagString: Untagged
+  m_TagString: CharacterBody
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
