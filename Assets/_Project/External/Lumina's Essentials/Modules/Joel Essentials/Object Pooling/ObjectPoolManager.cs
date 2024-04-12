@@ -44,7 +44,7 @@ public static class ObjectPoolManager
     /// <param name="objectPrefab"></param>
     /// <param name="startAmount"></param>
     /// <returns>The pool that was created.</returns>
-    public static ObjectPool CreateNewPool(GameObject objectPrefab, int startAmount = 20)
+    public static ObjectPool CreateNewPool(GameObject objectPrefab, int startAmount = 5)
     {
         if (objectPrefab == null)
         {
@@ -76,8 +76,8 @@ public static class ObjectPoolManager
         }
 
         if (ObjectPoolLookup.TryGetValue(objectPrefab, out ObjectPool objectPool)) return objectPool;
-
-        Debug.LogWarning("That object is NOT yet pooled! Creating a new pool...");
+        
+        //Debug.LogWarning("That object is NOT yet pooled! Creating a new pool...");
         objectPool                     = CreateNewPool(objectPrefab);
         ObjectPoolLookup[objectPrefab] = objectPool;
         return objectPool;

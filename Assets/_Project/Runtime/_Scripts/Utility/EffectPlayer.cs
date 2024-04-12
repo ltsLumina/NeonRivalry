@@ -21,6 +21,19 @@ public class EffectPlayer : MonoBehaviour
     {
         if (!SettingsManager.ShowEffects) return;
 
+        // Check if the effect is already playing
+        if (effect.activeSelf)
+        {
+            ObjectPool pool = ObjectPoolManager.FindObjectPool(effect);
+            pool.transform.parent = effect.transform.parent;
+            GameObject newEffect = pool.GetPooledObject();
+            
+            newEffect.SetActive(true);
+            StartCoroutine(DisableEffectAfterAnimation(newEffect));
+            
+            return;
+        }
+        
         // Enable the effect
         effect.SetActive(true);
 
@@ -30,8 +43,10 @@ public class EffectPlayer : MonoBehaviour
 
     IEnumerator DisableEffectAfterAnimation(GameObject effect)
     {
+        var length = effect.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).length;
+        
         // Wait for the duration of the animation
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSecondsRealtime(length);
 
         // Disable the effect
         effect.SetActive(false);

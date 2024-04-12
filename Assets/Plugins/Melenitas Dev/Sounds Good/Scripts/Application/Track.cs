@@ -4,7 +4,7 @@ namespace MelenitasDev.SoundsGood
 	{
 		MainMenu,
 		CharSelect,
-		TheAlarmist,
-		ThisIBelieve
+		ThisIBelieve,
+		TheAlarmist
 	}
 }
