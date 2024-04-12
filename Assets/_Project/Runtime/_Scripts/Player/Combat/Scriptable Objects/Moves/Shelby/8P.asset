@@ -21,8 +21,12 @@ MonoBehaviour:
   name: 
   description: 
   damage: 5
-  knockbackForce: {x: 1, y: 10}
+  knockbackForce: {x: 4, y: 9}
   knockbackDir: {x: -1, y: 1}
+  knockBackAttacker: 0
+  screenShake: 0
+  screenShakeAmplitude: 0
+  hitstunDuration: 0.8
   isAirborne: 1
   isSweep: 0
   isOverhead: 0

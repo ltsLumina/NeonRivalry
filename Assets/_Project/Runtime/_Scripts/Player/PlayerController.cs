@@ -336,9 +336,9 @@ public partial class PlayerController : MonoBehaviour
     void SetSpawnPosition()
     {
         const float player1X = -4;
-        const float player1Z = -1.5f;
+        const float player1Z = -2.5f;
         const float player2X = 4;
-        const float player2Z = -1.5f;
+        const float player2Z = -2.5f;
         
         Action action = playerID switch
         { 1 => () => transform.position = new (player1X, 1, player1Z),
@@ -490,7 +490,7 @@ public partial class PlayerController : MonoBehaviour
         {
             DisablePlayer(frozen);
             Rigidbody.velocity = resetVelocity ? Vector3.zero : Rigidbody.velocity;
-            yield return new WaitForSeconds(duration);
+            yield return new WaitForSecondsRealtime(duration);
             DisablePlayer(false);
         }
     }
@@ -501,13 +501,12 @@ public partial class PlayerController : MonoBehaviour
         InputManager.Enabled = !disabled;
         InputManager.gameObject.SetActive(!disabled);
         HitBox.enabled       = !disabled;
-        HurtBox.enabled      = !disabled;
     }
 
     void Death(PlayerController playerThatDied)
     {
         DisablePlayer(true);
-        GamepadExtensions.RumbleAll(playerThatDied);
+        GamepadExtensions.RumbleAll();
 
         // Get the Volume component
         var volume = FindObjectOfType<Volume>();

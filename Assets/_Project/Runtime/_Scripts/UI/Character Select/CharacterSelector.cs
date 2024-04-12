@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
-using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
@@ -62,16 +61,24 @@ public static class CharacterSelector
     
     public static void ResetNavigation(Button button)
     {
+        var characterButton = button.GetComponent<CharacterButton>();
+        if (characterButton == null) return;
+        
         button.navigation = new() { mode = Navigation.Mode.Explicit };
         
         // Restore the previous navigation.
         Navigation navigation = button.navigation;
-        navigation.selectOnLeft = button.GetComponent<CharacterButton>().LeftButton;
-        button.navigation       = navigation;
-        
-        Navigation buttonNavigation = button.navigation;
-        buttonNavigation.selectOnRight = button.GetComponent<CharacterButton>().RightButton;
-        button.navigation              = buttonNavigation;
+        navigation.selectOnLeft  = characterButton.LeftButton;
+        navigation.selectOnRight = characterButton.RightButton;
+        button.navigation        = navigation;
+    }
+    
+    public static void ResetAllNavigation(CharacterButton[] characterButtons)
+    {
+        foreach (CharacterButton characterButton in characterButtons)
+        {
+            ResetNavigation(characterButton.GetComponent<Button>());
+        }
     }
 
     /// <summary>

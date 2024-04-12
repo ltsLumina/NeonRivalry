@@ -54,7 +54,7 @@ public static class GamepadExtensions
         float LerpFrequency(float frequency) => Mathf.Lerp(frequency, frequency * 2, duration);
     }
 
-    public static void RumbleAll(MonoBehaviour host, float lowFrequency = 0.25f, float highFrequency = 0.25f, float duration = 0.25f)
+    public static void RumbleAll(float lowFrequency = 0.25f, float highFrequency = 0.25f, float duration = 0.25f)
     {
         if (Gamepad.all.Count == 0) return;
 
@@ -62,7 +62,7 @@ public static class GamepadExtensions
         highFrequency = LerpFrequency(highFrequency);
 
         // Rumble the controller that joined for 'duration' time.
-        var rumbleSequence = new Sequence(host);
+        var rumbleSequence = new Sequence(CoroutineHelper.GetHost());
 
         foreach (Gamepad gamepad in Gamepad.all)
         {
@@ -71,6 +71,14 @@ public static class GamepadExtensions
 
         return; // Local function
         float LerpFrequency(float frequency) => Mathf.Lerp(frequency, frequency * 2, duration);
+    }
+
+    public static void StopAllRumble()
+    {
+        foreach (var gamepad in Gamepad.all)
+        {
+            gamepad.SetMotorSpeeds(0 , 0);
+        }
     }
 }
 

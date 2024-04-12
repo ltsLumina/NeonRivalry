@@ -36,4 +36,10 @@ public class EffectPlayer : MonoBehaviour
         // Disable the effect
         effect.SetActive(false);
     }
+
+    void PlayHitstun()
+    {
+        // var player = GetComponentInParent<PlayerController>();
+        // player.FreezePlayer(true, player.HitBox.MoveData.hitstunDuration, true);
+    }
 }

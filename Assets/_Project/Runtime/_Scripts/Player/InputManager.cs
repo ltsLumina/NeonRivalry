@@ -88,7 +88,7 @@ public class InputManager : MonoBehaviour
     /// </summary>
     void TransitionTo(InputAction.CallbackContext context, Func<bool> condition, State.StateType stateType)
     {
-        if (!player.enabled) return;
+        if (!Enabled) return;
         if (context.performed && condition()) stateMachine.TransitionToState(stateType);
     }
 

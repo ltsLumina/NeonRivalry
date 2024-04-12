@@ -29,7 +29,10 @@ public class ButtonPromptsManager : MonoBehaviour
     [SerializeField] ButtonPrompt GP_resetDefaultsPrompt;
     [SerializeField] ButtonPrompt GP_movePrompt;
     [SerializeField] ButtonPrompt GP_cancelPrompt;
-        
+
+    [Foldout("Character Select")]
+    [SerializeField] ButtonPrompt GP_JoinPrompt;
+    
     [Tab("Keyboard Prompts")]
     [Foldout("Intro")]
     [SerializeField] ButtonPrompt KB_mainMenuPrompt;
@@ -42,6 +45,9 @@ public class ButtonPromptsManager : MonoBehaviour
     [SerializeField] ButtonPrompt KB_resetDefaultsPrompt;
     [SerializeField] GameObject KB_movePrompt;
     [SerializeField] ButtonPrompt KB_cancelPrompt;
+
+    [Foldout("Character Select")]
+    [SerializeField] ButtonPrompt KB_JoinPrompt;
     
     // Mostly just used for the intro scene.
 
@@ -154,7 +160,7 @@ public class ButtonPromptsManager : MonoBehaviour
                         break;
 
                     case var _ when scene == characterSelect:
-                        // not implemented yet
+                        KB_JoinPrompt?.Toggle(show);
                         break;
 
                     case var _ when scene == game:
@@ -187,7 +193,7 @@ public class ButtonPromptsManager : MonoBehaviour
                         break;
 
                     case var _ when scene == characterSelect:
-                        // not implemented yet
+                        GP_JoinPrompt?.Toggle(show);
                         break;
 
                     case var _ when scene == game:

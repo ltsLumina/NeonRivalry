@@ -77,11 +77,14 @@ public class MoveData : ScriptableObject
     [Tooltip("The direction the enemy is knocked back when hit by the move.")]
     public Vector2 knockbackDir;
 
+    [Tooltip("Whether this move should knock-back the attacker.")]
+    public bool knockBackAttacker;
+    
     public bool screenShake;
-    public bool screenShakeAmplitude;
+    public float screenShakeAmplitude;
 
-    // [Tooltip("Block advantage/disadvantage.")]
-    // public float blockstun;
+    [Tooltip("The duration of the hitstun. (Multiplier)")]
+    public float hitstunDuration = 1;
 
     [Space(15)]
     [Header("Move Properties")]
@@ -92,7 +95,7 @@ public class MoveData : ScriptableObject
     [Tooltip("Whether the move hits low and causes knockdown.")]
     public bool isSweep;
 
-    [Tooltip("Whether the move hits crouching opponents.")]
+    [Tooltip("A move that must be blocked while standing.")]
     public bool isOverhead;
 
     [Tooltip("Whether the move can be blocked.")]

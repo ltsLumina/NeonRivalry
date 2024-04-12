@@ -3,7 +3,6 @@ using Lumina.Essentials.Attributes;
 using Lumina.Essentials.Modules;
 using MelenitasDev.SoundsGood;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
@@ -124,8 +123,7 @@ public class MenuNavigator : MonoBehaviour
     public void OnNavigate(InputAction.CallbackContext context)
     {
         var input = context.ReadValue<Vector2>();
-
-        #region Audio
+        
         if (!PlayNavigationSounds) return;
 
         // Checks the current selected game object and the previous selected game object.
@@ -151,7 +149,7 @@ public class MenuNavigator : MonoBehaviour
 
         if (CharacterSelectScene)
         {
-            ShowCharacterModel(out GameObject selectedCharacter, out CharacterSelectManager manager);
+            ShowCharacterModel(PlayerID);
 
             // int selectedCharacterIndex = selectedCharacter.transform.GetSiblingIndex();
             // int shelbyIndex            = manager.ShelbyButton.transform.GetSiblingIndex();
@@ -166,35 +164,61 @@ public class MenuNavigator : MonoBehaviour
 
         OnSelectionChanged?.Invoke(previousSelectedGameObject, eventSystem.currentSelectedGameObject);
         previousSelectedGameObject = eventSystem.currentSelectedGameObject;
-        #endregion
     }
 
-    public void ShowCharacterModel(out GameObject selectedCharacter, out CharacterSelectManager manager)
+    public void ShowCharacterModel(int playerID)
     {
-        manager = FindObjectOfType<CharacterSelectManager>();
-        
-        var shelbyButton = manager.ShelbyButton;
-        var morpheButton = manager.MorpheButton;
+        var manager = FindObjectOfType<CharacterSelectManager>();
+        GameObject selectedCharacter;
+
+        GameObject shelbyButton = playerID == 1 ? manager.player1_shelbyButton : manager.player2_shelbyButton;
+        GameObject morpheButton = playerID == 1 ? manager.player1_morpheButton : manager.player2_morpheButton;
         
         if (eventSystem.currentSelectedGameObject      == shelbyButton.gameObject) selectedCharacter = shelbyButton.gameObject;
         else if (eventSystem.currentSelectedGameObject == morpheButton.gameObject) selectedCharacter = morpheButton.gameObject;
-        else selectedCharacter                                                                       = null; 
+        else selectedCharacter = null; 
             
         if (selectedCharacter != null)
         {
-            Debug.Log($"Selected character: {selectedCharacter.name}");
-                
             //Show the respective character object depending on the selected character.
             // If the selected character is Shelby, show Shelby's model, otherwise show Morphe's model.
             if (selectedCharacter == shelbyButton.gameObject)
             {
-                manager.ShelbyModel.SetActive(true);
-                manager.MorpheModel.SetActive(false);
+                if (playerID == 1)
+                {
+                    manager.player1_shelbyModel.SetActive(true);
+                    manager.player1_morpheModel.SetActive(false);
+                    
+                    manager.player1_shelbyText.gameObject.SetActive(true);
+                    manager.player1_morpheText.gameObject.SetActive(false);
+                }
+                else
+                {
+                    manager.player2_shelbyModel.SetActive(true);
+                    manager.player2_morpheModel.SetActive(false);
+                    
+                    manager.player2_shelbyText.gameObject.SetActive(true);
+                    manager.player2_morpheText.gameObject.SetActive(false);
+                }
             }
             else if (selectedCharacter == morpheButton.gameObject)
             {
-                manager.ShelbyModel.SetActive(false);
-                manager.MorpheModel.SetActive(true);
+                if (playerID == 1)
+                {
+                    manager.player1_shelbyModel.SetActive(false);
+                    manager.player1_morpheModel.SetActive(true);
+                    
+                    manager.player1_shelbyText.gameObject.SetActive(false);
+                    manager.player1_morpheText.gameObject.SetActive(true);
+                }
+                else
+                {
+                    manager.player2_shelbyModel.SetActive(false);
+                    manager.player2_morpheModel.SetActive(true);
+                    
+                    manager.player2_shelbyText.gameObject.SetActive(false);
+                    manager.player2_morpheText.gameObject.SetActive(true);
+                }
             }
         }
     }
@@ -219,9 +243,38 @@ public class MenuNavigator : MonoBehaviour
             {
                 if (CharacterSelectManager.IsAnyMenuActive()) return;
 
+                #region Stop Selecting Map
+                var mapSelector = FindObjectOfType<MapSelector>();
+
+                if (mapSelector != null && mapSelector.IsSelecting())
+                {
+                    mapSelector.gameObject.SetActive(false);
+
+                    // Set selection back to the character button.
+                    foreach (var player in PlayerManager.MenuNavigators)
+                    {
+                        var characterButtons = FindObjectsOfType<CharacterButton>();
+                        CharacterSelector.ResetAllNavigation(characterButtons);
+
+                        // Deselect the confirmation button, and reselect the character button.
+
+                        int index = 0; // Default to Shelby.
+
+                        if (CharacterSelector.SelectedCharacters.TryGetValue(player.PlayerID, out Character character))
+                        {
+                            if (character.characterName      == "Shelby") { index = 0; }
+                            else if (character.characterName == "Morphe") { index = 1; }
+                        }
+
+                        var buttonToReturnTo = GameObject.Find($"Player {player.PlayerID} CB").transform.GetChild(index).gameObject;
+                        player.eventSystem.SetSelectedGameObject(buttonToReturnTo);
+                    }
+                }
+                #endregion
+                
                 #region Deselect Character
                 // Deselect the current character.
-                var characterButton = GameObject.Find($"Player {playerID}").transform.GetChild(0).GetComponent<CharacterButton>();
+                var characterButton = GameObject.Find($"Player {PlayerID} CB").transform.GetChild(0).GetComponent<CharacterButton>();
                 
                 // If there is a character selected, deselect it.
                 if (CharacterSelector.DeselectCharacter(characterButton.PlayerIndex, eventSystem))
@@ -244,25 +297,9 @@ public class MenuNavigator : MonoBehaviour
                         foreach (var player in PlayerManager.MenuNavigators)
                         {
                             // Deselect the confirmation button, and reselect the character button.
-                            var buttonToReturnTo = GameObject.Find($"Player {player.playerID}").transform.GetChild(0).gameObject;
+                            var buttonToReturnTo = GameObject.Find($"Player {player.PlayerID} CB").transform.GetChild(0).gameObject;
                             player.eventSystem.SetSelectedGameObject(buttonToReturnTo);
                         }
-                    }
-                }
-                #endregion
-
-                #region Stop Selecting Map
-                var mapSelector = FindObjectOfType<MapSelector>();
-                if (mapSelector != null && mapSelector.IsSelecting())
-                {
-                    mapSelector.gameObject.SetActive(false);
-                    
-                    // Set selection back to the character button.
-                    foreach (var player in PlayerManager.MenuNavigators)
-                    {
-                        // Deselect the confirmation button, and reselect the character button.
-                        var buttonToReturnTo = GameObject.Find($"Player {player.playerID}").transform.GetChild(0).gameObject;
-                        player.eventSystem.SetSelectedGameObject(buttonToReturnTo);
                     }
                 }
                 #endregion
@@ -297,7 +334,14 @@ public class MenuNavigator : MonoBehaviour
             menuManager.CloseCurrentSettingsMenu();
         }
 
-        if (CharacterSelectScene) CharacterSelectManager.ToggleCharacterSettingsMenu(playerID);
+        if (CharacterSelectScene)
+        {
+            var mapSelector = FindObjectOfType<MapSelector>();
+            if (mapSelector.IsSelecting()) return;
+            
+            var characterSelectManager = FindObjectOfType<CharacterSelectManager>();
+            characterSelectManager.ToggleCharacterSettingsMenu(playerID);
+        }
     }
 
     void InitializeAudio()
@@ -345,8 +389,7 @@ public class MenuNavigator : MonoBehaviour
                 return GameObject.Find("Play");
             
             case var _ when sceneIndex == CharacterSelect:
-
-                return GameObject.Find($"Player {PlayerID}").transform.GetChild(0).gameObject;
+                return GameObject.Find($"Player {PlayerID} CB").transform.GetChild(0).gameObject;
 
             default:
                 return null;
