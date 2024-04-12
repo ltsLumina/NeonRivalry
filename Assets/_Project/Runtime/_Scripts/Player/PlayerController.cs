@@ -10,6 +10,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.VFX;
 using VInspector;
 using static State;
 #endregion
@@ -36,6 +37,10 @@ public partial class PlayerController : MonoBehaviour
     [Header("Ground Check"), Tooltip("The minimum distance the ray-cast must be from the ground.")]
     [SerializeField] float raycastDistance;
     [SerializeField] LayerMask groundLayer;
+
+    [Space] 
+    [Header("VFX")] 
+    [SerializeField] VisualEffect playerLandVFX;
     
     [HideInInspector]
     public float GlobalGravity = -35f;
@@ -155,7 +160,7 @@ public partial class PlayerController : MonoBehaviour
         if (IsGrounded() != wasGroundedLastFrame)
         {
             // If the player has just landed, flip the model
-            if (IsGrounded()) { FlipModel(); }
+            if (IsGrounded()) { FlipModel(); playerLandVFX.Play(); }
             wasGroundedLastFrame = IsGrounded();
         }
         #endregion
