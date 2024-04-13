@@ -1,7 +1,6 @@
+using System.Collections;
 using DG.Tweening;
 using UnityEngine;
-using UnityEngine.UI;
-using Logger = Lumina.Debugging.Logger;
 
 /// <summary>
 /// Manages the intro splash screen.
@@ -9,10 +8,6 @@ using Logger = Lumina.Debugging.Logger;
 /// </summary>
 public class IntroSplashManager : MonoBehaviour
 {
-    // -- Serialized Fields --
-    [SerializeField] Image splashScreen;
-    [SerializeField] float splashScreenDuration;
-
     [SerializeField] GameObject keyboardPrompts;
     [SerializeField] GameObject gamepadPrompts;
 
@@ -28,20 +23,9 @@ public class IntroSplashManager : MonoBehaviour
         buttonPromptsManager = FindObjectOfType<ButtonPromptsManager>();
     }
 
-    void Start()
+    IEnumerator Start()
     {
         GameManager.SetState(GameManager.GameState.Transitioning);
-        
-        // If debug mode is enabled, skip the splash screen.
-        if (Logger.DebugMode)
-        {
-            Destroy(splashScreen.gameObject);
-            gamepadPrompts.transform.localScale = Vector3.one;
-            buttonPromptsManager.ShowGamepadPrompts(SceneManagerExtended.ActiveSceneName, true);
-            return;
-        } 
-
-        splashScreen.gameObject.SetActive(true);
         
         // Disable input until the splash screen is done fading.
         playerInitializer.enabled = false;
@@ -50,21 +34,15 @@ public class IntroSplashManager : MonoBehaviour
         // Default to showing the Gamepad prompts.
         buttonPromptsManager.ShowGamepadPrompts(SceneManagerExtended.ActiveSceneName, true);
         gamepadPrompts.transform.localScale = Vector3.zero;
+       
+        const float duration = 2.5f;
+        yield return new WaitForSeconds(duration);
         
-        Sequence sequence = DOTween.Sequence();
-        sequence.Append(splashScreen.DOFade(0f, splashScreenDuration));
-        sequence.Append(gamepadPrompts.transform.DOScale(1.25f, 1f));
-        sequence.Append(gamepadPrompts.transform.DOScale(1f, 0.25f).SetEase(Ease.OutBack));
-        sequence.AppendInterval(0.5f);
-        sequence.OnComplete
-        (() =>
-        {
-            Destroy(splashScreen.gameObject);
-
-            playerInitializer.enabled = true;
-            deviceManager.enabled     = true;
-
-            GameManager.SetState(GameManager.GameState.Intro);
-        });
+        // Once the splash screen is done animating, show the prompts.
+        gamepadPrompts.transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.InCirc);
+        
+        // Enable all the stuff.
+        playerInitializer.enabled = true;
+        deviceManager.enabled = true;
     }
 }

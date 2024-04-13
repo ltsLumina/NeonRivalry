@@ -160,7 +160,13 @@ public partial class PlayerController : MonoBehaviour
         if (IsGrounded() != wasGroundedLastFrame)
         {
             // If the player has just landed, flip the model
-            if (IsGrounded()) { FlipModel(); playerLandVFX.Play(); }
+            if (IsGrounded())
+            {
+                FlipModel(); 
+                
+                if (!SettingsManager.ShowParticles) return;
+                playerLandVFX.Play(); 
+            }
             wasGroundedLastFrame = IsGrounded();
         }
         #endregion

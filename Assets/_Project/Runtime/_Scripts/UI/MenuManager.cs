@@ -153,9 +153,10 @@ public class MenuManager : MonoBehaviour
         mainContents.AddRange(new List<GameObject> {mainContent, creditsContent});
         mainMenus.ForEach(menu => menu.SetActive(false));
         mainMenu.SetActive(true);
+        creditsManager.gameObject.SetActive(false);
         
         // Populate and enable the main menu buttons.
-        mainMenuButtons.AddRange(new List<Button> {playButton, settingsButton, quitButton, creditsButton});
+        mainMenuButtons.AddRange(new List<Button> {playButton, settingsButton, quitButton});
         mainMenuButtons.ForEach(button => button.gameObject.SetActive(true));
         
         // Populate the settings menus, headers, and contents lists and disable it all.
@@ -180,9 +181,7 @@ public class MenuManager : MonoBehaviour
         closeMenu.SetOutput(Output.SFX);
         
         // Populate the resolution dropdown with the most common resolutions.
-        resolutions = new() { "3840x2160", "2560x1440", "1920x1080", "1366x768", "1280x720", };
-        resolutionDropdown.ClearOptions();
-        resolutionDropdown.AddOptions(resolutions);
+        resolutions = new() { "3840x2160", "2560x1440", "1920x1080", "1366x768", "1280x720" };
         
         // Adjust the quality dropdown to match the current quality setting.
         resolutionDropdown.value = resolutions.IndexOf($"{Screen.currentResolution.width}x{Screen.currentResolution.height}");
@@ -191,8 +190,8 @@ public class MenuManager : MonoBehaviour
         vSyncToggle.isOn         = PlayerPrefs.GetInt("VSync", 0)      == 1;
     }
 
-    public void ScaleUpButton(Button button) => button.transform.DOScale(4.2f, 0.1f).SetEase(Ease.OutBack);
-    public void ScaleDownButton(Button button) => button.transform.DOScale(4, 0.1f).SetEase(Ease.InBack);
+    public void ScaleUpButton(Button button) => button.transform.DOScale(1.1f, 0.1f).SetEase(Ease.OutBack);
+    public void ScaleDownButton(Button button) => button.transform.DOScale(1, 0.1f).SetEase(Ease.InBack);
     
     public void ScaleUpSliderButton(Selectable parent) => parent.transform.DOScale(1.05f, 0.1f).SetEase(Ease.OutBack);
     public void ScaleDownSliderButton(Selectable parent) => parent.transform.DOScale(1, 0.1f).SetEase(Ease.InBack);
@@ -246,7 +245,7 @@ public class MenuManager : MonoBehaviour
     void ChangeHeaderColour()
     {
         // Define the new color for the active header
-        var newColor = new Color(0.4f, 0.65f, 0.86f);
+        var newColor = new Color(0.36f, 0.87f, 0.96f);
 
         // Iterate over all settings menus and headers
         for (int i = 0; i < settingsMenus.Count; i++)
@@ -336,7 +335,7 @@ public class MenuManager : MonoBehaviour
             videoContent.SetActive(true);
             
             // Select the first thing in the videoContent
-            UIManager.SelectSelectableByReference(resolutionDropdown);
+            resolutionDropdown.Select();
         }
 
         switch (InputDeviceManager.PlayerOneDevice)
@@ -353,10 +352,22 @@ public class MenuManager : MonoBehaviour
 
     public void ShowCredits()
     {
+        // Close all settings menus.
+        settingsBackground.gameObject.SetActive(false);
+        settingsTitle.gameObject.SetActive(false);
+        settingsInfo.gameObject.SetActive(false);
+        promptManager.HideKeyboardPrompts();
+        promptManager.HideGamepadPrompts();
+        settingsMenus.ForEach(menu => menu.SetActive(false));
+        settingsHeader.SetActive(false);
+        
+        // Enable the Credits Manager.
+        creditsManager.gameObject.SetActive(true);
+        
         creditsManager.ResetCredits();
 
         creditsButton.interactable = false;
-
+        
         creditsMenu.SetActive(true);
         creditsContent.SetActive(true);
 
@@ -380,6 +391,9 @@ public class MenuManager : MonoBehaviour
 
     void CloseCredits()
     {
+        // Enable the main menu
+        mainMenu.SetActive(true);
+        
         Sequence sequence = DOTween.Sequence();
         
         // Fade out the canvas group
@@ -396,7 +410,7 @@ public class MenuManager : MonoBehaviour
             creditsMenu.SetActive(false);
 
             creditsButton.interactable = true;
-            creditsButton.Select();
+            settingsButton.Select();
         });
     }
 
@@ -406,18 +420,27 @@ public class MenuManager : MonoBehaviour
 
     public bool IsAnyMenuActive() => IsAnyMainMenuActive() || IsAnySettingsMenuActive();
 
+    void SetEffects(bool showEffects) => SettingsManager.ShowEffects = showEffects;
+    void SetParticles(bool showParticles) => SettingsManager.ShowParticles = showParticles;
+
     public void SetResolution(int resolutionIndex)
     {
         // return if the resolution index equals the current resolution value
         
         string[] resolution = resolutionDropdown.options.ElementAt(resolutionIndex).text.Split('x');
         Screen.SetResolution(int.Parse(resolution[0]), int.Parse(resolution[1]), Screen.fullScreenMode, new RefreshRate { numerator = 60, denominator = 1 });
+        
+        // Update the resolution dropdown value
+        resolutionDropdown.value = resolutionIndex;
     }
 
     public void SetQuality(int qualityIndex)
     {
         QualitySettings.SetQualityLevel(qualityIndex);
         PlayerPrefs.SetInt("Quality", qualityIndex);
+        
+        // Update the quality dropdown value
+        qualityDropdown.value = qualityIndex;
     }
 
     public void SetFullscreen(bool isFullscreen)
@@ -440,12 +463,39 @@ public class MenuManager : MonoBehaviour
         }
 
         Screen.fullScreen = isFullscreen;
+        
+        // Update the fullscreen toggle value
+        fullscreenToggle.isOn = isFullscreen;
     }
 
     public void SetVSync(bool isVSync)
     {
         QualitySettings.vSyncCount = isVSync ? 1 : 0;
         PlayerPrefs.SetInt("VSync", isVSync ? 1 : 0);
+        
+        // Update the VSync toggle value
+        vSyncToggle.isOn = isVSync;
+    }
+    
+    public void ResetDefaults()
+    {
+        // Default: Show effects.
+        SetEffects(true);
+        
+        // Default: Show effects.
+        SetParticles(true);
+        
+        // Default: 1920x1080. Index 2 in the dropdown.
+        SetResolution(2);
+        
+        // Default: High. Index 0 in the dropdown.
+        SetQuality(0);
+        
+        // Reset fullscreen to the current fullscreen setting.
+        SetFullscreen(true);
+        
+        // Reset VSync to the current VSync setting.
+        SetVSync(true);
     }
 
     public void SetShadowQuality(int shadowQuality) => QualitySettings.shadows = (ShadowQuality) shadowQuality;

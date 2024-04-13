@@ -85,8 +85,8 @@ public class AirborneAttackState : State
             {
                 Logger.Debug("Attacking in the air!", LogType.Log, StateType.AirborneAttack);
                 
-                // Stop the player once they attack in the air.
-                player.Rigidbody.velocity = new Vector2(player.Rigidbody.velocity.x, 0);
+                // Stop the player once they attack in the air, if the moveData says so.
+                //player.Rigidbody.velocity = new Vector2(player.Rigidbody.velocity.x, 0);
 
                 // Apply gravity
                 if (player.Rigidbody.velocity.y < 0) player.Rigidbody.AddForce(fallGravityMultiplier * Vector3.down, ForceMode.Acceleration);

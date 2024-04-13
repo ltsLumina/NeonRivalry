@@ -14,6 +14,9 @@ public class HurtBox : MonoBehaviour
     [SerializeField] float blockFadeDuration = 3f; // Duration in seconds to fade the block
     
     [Tab("Effects")]
+    [Header("Flash Red On Damage")]
+    [SerializeField] Color flashColor = new (0.91f, 0.34f, 0.47f, 0.45f);
+    
     [Header("Punch/Kick Effect")]
     [SerializeField] GameObject punchKickEffect;
     [Space(5)]
@@ -300,10 +303,9 @@ public class HurtBox : MonoBehaviour
             firstShadeOriginalColor = new (0.48f, 0.42f, 0.91f);
             // NOTE: If we change the shade colors in the prefab, this will be off.
         }
-
-        var col = new Color(0.91f, 0.34f, 0.47f, 0.45f);
-        meshRenderer.material.SetColor(baseColor, col);
-        meshRenderer.material.SetColor(firstShadeColor, col);
+        
+        meshRenderer.material.SetColor(baseColor, flashColor);
+        meshRenderer.material.SetColor(firstShadeColor, flashColor);
 
         // Fade out over *duration* seconds
         float elapsedTime = 0f;
@@ -314,8 +316,8 @@ public class HurtBox : MonoBehaviour
             float t = elapsedTime / duration;
 
             // Interpolate color
-            Color baseInterpolatedColor       = Color.Lerp(col, baseOriginalColor, t);
-            Color firstShadeInterpolatedColor = Color.Lerp(col, firstShadeOriginalColor, t);
+            Color baseInterpolatedColor       = Color.Lerp(flashColor, baseOriginalColor, t);
+            Color firstShadeInterpolatedColor = Color.Lerp(flashColor, firstShadeOriginalColor, t);
 
             // Apply interpolated color
             meshRenderer.material.SetColor(baseColor, baseInterpolatedColor);
@@ -344,11 +346,11 @@ public class HurtBox : MonoBehaviour
         // Enable the effect
         effect.SetActive(true);
 
-        // e.g. freeze game for a short duration for juice
-        Sleep(0.125f);
-
         // Start the coroutine to disable the effect after the animation has finished
         StartCoroutine(DisableEffectAfterAnimation(effect));
+        
+        // e.g. freeze game for a short duration for juice
+        Sleep(0.125f);
     }
     
     // void PlayParticles(GameObject particles)
@@ -364,8 +366,10 @@ public class HurtBox : MonoBehaviour
 
     IEnumerator DisableEffectAfterAnimation(GameObject effect)
     {
+        var length = effect.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).length;
+        
         // Wait for the duration of the animation
-        yield return new WaitForSeconds(0.35f);
+        yield return new WaitForSecondsRealtime(length);
 
         // Disable the effect
         effect.SetActive(false);
