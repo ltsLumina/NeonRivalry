@@ -181,9 +181,7 @@ public class MenuManager : MonoBehaviour
         closeMenu.SetOutput(Output.SFX);
         
         // Populate the resolution dropdown with the most common resolutions.
-        resolutions = new() { "3840x2160", "2560x1440", "1920x1080", "1366x768", "1280x720", };
-        resolutionDropdown.ClearOptions();
-        resolutionDropdown.AddOptions(resolutions);
+        resolutions = new() { "3840x2160", "2560x1440", "1920x1080", "1366x768", "1280x720" };
         
         // Adjust the quality dropdown to match the current quality setting.
         resolutionDropdown.value = resolutions.IndexOf($"{Screen.currentResolution.width}x{Screen.currentResolution.height}");
@@ -337,7 +335,7 @@ public class MenuManager : MonoBehaviour
             videoContent.SetActive(true);
             
             // Select the first thing in the videoContent
-            UIManager.SelectSelectableByReference(resolutionDropdown);
+            resolutionDropdown.Select();
         }
 
         switch (InputDeviceManager.PlayerOneDevice)
