@@ -21,16 +21,20 @@ public class CameraController : MonoBehaviour
     [Tooltip("The maximum z-position of the camera.")]
     [SerializeField] float maxZPosition = -5f;
 
-    [Tooltip("The speed at which the camera zooms in and out.")]
+    [Tooltip("The speed at which the camera zooms in and out, can also be considered as how precise the camera is.")]
     [SerializeField] float zoomSpeed = 50f;
 
-    [Tab("Settings")]
-    [SerializeField, ReadOnly] Transform target1;
-    [SerializeField, ReadOnly] Transform target2;
+    [Tooltip("The speed at which the camera rotates, can also be considered as how precise the camera is.")]
+    [SerializeField] float rotationSpeed = 5f;
 
-    // -- Cached References -- \\
+    [Tab("Settings")]
+    [SerializeField] Transform target1;
+    [SerializeField] Transform target2;
+
+    // -- Cached References -- \\\
 
     CinemachineVirtualCamera vCam;
+    [SerializeField] private bool xbool = false;
 
     void Awake() => vCam = GetComponentInChildren<CinemachineVirtualCamera>();
 
@@ -44,8 +48,8 @@ public class CameraController : MonoBehaviour
 
         // Assign the playerTransform to target1 or target2 based on their current values
         // and ensure that the playerTransform is not already assigned to the other target
-        if (target1      == null && target2 != playerTransform) target1 = playerTransform;
-        else if (target2 == null && target1 != playerTransform) target2 = playerTransform;
+        //if (target1 == null && target2 != playerTransform) target1 = playerTransform;
+        //else if (target2 == null && target1 != playerTransform) target2 = playerTransform;
     }
 
     void LateUpdate() => Follow();
@@ -70,7 +74,15 @@ public class CameraController : MonoBehaviour
         Vector3 currentPosition = vCam.transform.position;
 
         // Calculate the midpoint between the two targets.
-        Vector3 midpoint = (target1.position + target2.position) / 2;
+        Vector3 midpoint = (target1.position + target2.position) / 2f;
+        if (xbool)
+        {
+            Vector3 directionToMidpointY = new Vector3(currentPosition.x, midpoint.y, 0) - currentPosition; // Only consider y-axis
+
+            // Smoothly rotate camera towards midpoint
+            Quaternion targetRotation = Quaternion.LookRotation(directionToMidpointY);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+        }
 
         // Calculate the new z-position of the camera. This is a linear interpolation between the current z-position and the desired z-position,
         // with the interpolation parameter being the product of the time delta and the zoom speed.
@@ -78,6 +90,6 @@ public class CameraController : MonoBehaviour
 
         // Set the new position of the camera. The x-position is the x-coordinate of the midpoint, the y-position is the current y-position,
         // and the z-position is the newly calculated z-position.
-        vCam.transform.position = new (midpoint.x, currentPosition.y, newZ);
+        vCam.transform.position = new Vector3(midpoint.x, 3.39f, newZ);
     }
 }
