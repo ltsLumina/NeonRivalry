@@ -12,7 +12,6 @@ public class PlayerAfterimage : MonoBehaviour
     [SerializeField] private float meshDestroyDelay = .2f;
     [SerializeField] private Transform spawningPosition;
 
-    private ObjectPool dashPool;
 
     private bool trailHasBeenActivated;
     private SkinnedMeshRenderer[] skinnedMeshRenderers;
@@ -20,7 +19,6 @@ public class PlayerAfterimage : MonoBehaviour
     private PlayerController playerController;
     private void Awake()
     {
-        dashPool = GetComponent<ObjectPool>();
         playerController = GetComponent<PlayerController>();  
     }
     // Update is called once per frame
