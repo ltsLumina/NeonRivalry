@@ -26,7 +26,7 @@ public class EffectPlayer : MonoBehaviour
         {
             ObjectPool pool = ObjectPoolManager.FindObjectPool(effect);
             pool.transform.parent = effect.transform.parent;
-            GameObject newEffect = pool.GetPooledObject();
+            GameObject newEffect = pool.GetPooledObject(); 
             
             newEffect.SetActive(true);
             StartCoroutine(DisableEffectAfterAnimation(newEffect));

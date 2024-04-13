@@ -367,7 +367,6 @@ public class HurtBox : MonoBehaviour
     IEnumerator DisableEffectAfterAnimation(GameObject effect)
     {
         var length = effect.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).length;
-        Debug.Log($"Length of animation: {length}");
         
         // Wait for the duration of the animation
         yield return new WaitForSecondsRealtime(length);

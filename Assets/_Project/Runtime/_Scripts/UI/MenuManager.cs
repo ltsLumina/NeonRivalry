@@ -155,7 +155,7 @@ public class MenuManager : MonoBehaviour
         mainMenu.SetActive(true);
         
         // Populate and enable the main menu buttons.
-        mainMenuButtons.AddRange(new List<Button> {playButton, settingsButton, quitButton, creditsButton});
+        mainMenuButtons.AddRange(new List<Button> {playButton, settingsButton, quitButton});
         mainMenuButtons.ForEach(button => button.gameObject.SetActive(true));
         
         // Populate the settings menus, headers, and contents lists and disable it all.
@@ -246,7 +246,7 @@ public class MenuManager : MonoBehaviour
     void ChangeHeaderColour()
     {
         // Define the new color for the active header
-        var newColor = new Color(0.4f, 0.65f, 0.86f);
+        var newColor = new Color(0.36f, 0.87f, 0.96f);
 
         // Iterate over all settings menus and headers
         for (int i = 0; i < settingsMenus.Count; i++)
@@ -353,6 +353,9 @@ public class MenuManager : MonoBehaviour
 
     public void ShowCredits()
     {
+        // Disable any active settings menu
+        settingsHeader.transform.parent.gameObject.SetActive(false);
+        
         creditsManager.ResetCredits();
 
         creditsButton.interactable = false;
@@ -380,6 +383,9 @@ public class MenuManager : MonoBehaviour
 
     void CloseCredits()
     {
+        // Enable the main menu
+        mainMenu.SetActive(true);
+        
         Sequence sequence = DOTween.Sequence();
         
         // Fade out the canvas group
@@ -396,7 +402,7 @@ public class MenuManager : MonoBehaviour
             creditsMenu.SetActive(false);
 
             creditsButton.interactable = true;
-            creditsButton.Select();
+            settingsButton.Select();
         });
     }
 
