@@ -26,8 +26,16 @@ public class SettingsManager : MonoBehaviour
     
     bool isSceneMainMenu => ActiveScene is 0;
 
-    public static bool ShowEffects => PlayerPrefs.GetInt("ShowEffects", 1) == 1;
-    public static bool ShowParticles => PlayerPrefs.GetInt("ShowParticles", 1) == 1;
+    public static bool ShowEffects
+    {
+        get => PlayerPrefs.GetInt("ShowEffects", 1) == 1;
+        set => PlayerPrefs.SetInt("ShowEffects", value ? 1 : 0);
+    }
+    public static bool ShowParticles
+    {
+        get => PlayerPrefs.GetInt("ShowParticles", 1) == 1;
+        set => PlayerPrefs.SetInt("ShowParticles", value ? 1 : 0);
+    }
     public static float Player1RumbleStrength => PlayerPrefs.GetFloat("Player1_RumbleStrength", 1);
     public static float Player2RumbleStrength => PlayerPrefs.GetFloat("Player2_RumbleStrength", 1);
     
@@ -98,7 +106,7 @@ public class SettingsManager : MonoBehaviour
         sound.Play();
     }
 
-    public void ShowEffectsToggle(bool value) => Debug.Log("ShowEffects: " + value);
+    public void ShowEffectsToggle(bool value) => PlayerPrefs.SetInt("ShowEffects", value ? 1 : 0);
 
     public void ShowParticlesToggle(bool value) => PlayerPrefs.SetInt("ShowParticles", value ? 1 : 0);
 

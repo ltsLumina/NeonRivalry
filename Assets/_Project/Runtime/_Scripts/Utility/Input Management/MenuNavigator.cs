@@ -306,6 +306,17 @@ public class MenuNavigator : MonoBehaviour
             }
         }
     }
+
+    public void OnReset(InputAction.CallbackContext context)
+    {
+        if (MainMenuScene)
+        {
+            var menuManager = FindObjectOfType<MenuManager>();
+            if (menuManager == null) return;
+            
+            menuManager.ResetDefaults();
+        }
+    }
     
     public void OnSwitchSettingsMenu(InputAction.CallbackContext context)
     {

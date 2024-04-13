@@ -29,6 +29,8 @@ public class IntroPlayerInitializer : MonoBehaviour
         // This might seem redundant, but it is necessary to prevent the game from loading the next scene before a player joins.
         yield return new WaitUntil(() => (player = FindObjectOfType<MenuNavigator>()) != null);
 
+        player.GetComponent<PlayerInput>().enabled = true;
+        
         // If the player joined using a keyboard, show the keyboard prompts.
         if (player.GetComponent<PlayerInput>().currentControlScheme == "Keyboard")
         {
