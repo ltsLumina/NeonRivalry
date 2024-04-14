@@ -1,6 +1,8 @@
 #region
 using System.Collections;
+using MelenitasDev.SoundsGood;
 using UnityEngine;
+using UnityEngine.Rendering;
 using Logger = Lumina.Debugging.Logger;
 #endregion
 
@@ -16,6 +18,8 @@ public class DashState : State
     bool dashing;
     bool dashed;
 
+    private Sound dashSFX;
+
     public override StateType Type => StateType.Dash;
     public override int Priority => statePriorities[Type];
 
@@ -30,12 +34,13 @@ public class DashState : State
     #region State Methods
     public override void OnEnter()
     {
-        dashed = false;
-        if (player.IsGrounded())
+        if (player.IsGrounded()|| player.IsAbleToDash == false)
         {
             OnExit();
             return;
         }
+        dashed = false;
+        player.IsAbleToDash = false;
         player.GetComponentInChildren<SpriteRenderer>().color = new (0.2f, 1f, 0.67f);
 
         Vector3 moveInput = player.InputManager.MoveInput;
@@ -46,6 +51,10 @@ public class DashState : State
         //player.Rigidbody.useGravity = false;
         player.Rigidbody.velocity = Vector3.zero;
 
+        dashSFX = new Sound(SFX.Dash);
+        dashSFX.SetVolume(0.1f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(1f, 1.1f));
+        dashSFX.Play();
+        
         player.StartCoroutine(HandleDashing());
     }
 

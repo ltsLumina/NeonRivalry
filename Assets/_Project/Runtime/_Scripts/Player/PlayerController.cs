@@ -80,6 +80,7 @@ public partial class PlayerController : MonoBehaviour
     public HurtBox HurtBox { get; private set; }
     public bool IsInvincible { get; set; }
     public bool ActivateTrail { get; set; }
+    public bool IsAbleToDash { get; set; }
 
     string ThisPlayer => $"Player {PlayerID}";
     public bool IsCrouching => Animator.GetBool("IsCrouching");
@@ -126,6 +127,7 @@ public partial class PlayerController : MonoBehaviour
         
         Rigidbody.useGravity = false;
         DefaultGravity = GlobalGravity;
+        IsAbleToDash = true;
     }
 
     void OnDestroy()
@@ -162,8 +164,8 @@ public partial class PlayerController : MonoBehaviour
             // If the player has just landed, flip the model
             if (IsGrounded())
             {
-                FlipModel(); 
-                
+                FlipModel();
+                IsAbleToDash = true;
                 if (!SettingsManager.ShowParticles) return;
                 playerLandVFX.Play(); 
             }

@@ -15,6 +15,8 @@ namespace MelenitasDev.SoundsGood
 		CSNavigateRight,
 		CSChoose,
 		CSCancel,
-		CSConfirm
+		CSConfirm,
+		Attack,
+		Dash
 	}
 }

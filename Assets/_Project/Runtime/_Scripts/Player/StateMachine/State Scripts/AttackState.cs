@@ -1,5 +1,9 @@
 ﻿#region
+
+using System.Dynamic;
 using UnityEngine;
+using MelenitasDev.SoundsGood;
+using UnityEngine.InputSystem;
 using Logger = Lumina.Debugging.Logger;
 #endregion
 
@@ -25,6 +29,7 @@ public class AttackState : State
     readonly Animator animator;
 
     float attackAnimationLength;
+    private Sound attackSFX1;
 
       // -- Constructor --
       public AttackState(PlayerController player, AttackStateData stateData) : base(player)
@@ -45,6 +50,20 @@ public class AttackState : State
         player.GetComponentInChildren<SpriteRenderer>().color = Color.red;
 
         groundedAttackTimer = 0;
+
+        if (player.InputManager.LastAttackPressed == InputManager.AttackType.Punch)
+        {
+            attackSFX1 = new Sound(SFX.Attack);
+            attackSFX1.SetVolume(0.1f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(1.3f, 1.5f));
+            attackSFX1.Play();
+        }
+        
+        if (player.InputManager.LastAttackPressed == InputManager.AttackType.Kick)
+        {
+            attackSFX1 = new Sound(SFX.Attack);
+            attackSFX1.SetVolume(0.15f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(0.6f, 0.8f)).SetFadeOut(0.15f);
+            attackSFX1.Play();
+        }
     }
 
     public override void UpdateState()
