@@ -17,7 +17,8 @@ public class NoneState : State
 
     public override void UpdateState()
     {
-        
+        // This should prevent the player from getting soft-locked in the 'None' state.
+        OnExit();
     }
 
     public override void OnExit()

@@ -1,30 +1,29 @@
+#region
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Pool;
+#endregion
 
-public class PlayerAfterimage : MonoBehaviour   
+public class PlayerAfterimage : MonoBehaviour
 {
-    [SerializeField] private bool trailIsActive = false;
-    [SerializeField] private float activeTime = .1f;
-    [SerializeField] private float meshRefreshRate = 0.01f;
-    [SerializeField] private Material afterImageMeshMaterial;
-    [SerializeField] private float meshDestroyDelay = .2f;
-    [SerializeField] private Transform spawningPosition;
+    [SerializeField] bool trailIsActive;
+    [SerializeField] float activeTime = .1f;
+    [SerializeField] float meshRefreshRate = 0.01f;
+    [SerializeField] Material afterImageMeshMaterial;
+    [SerializeField] float meshDestroyDelay = .2f;
+    [SerializeField] Transform spawningPosition;
 
+    bool trailHasBeenActivated;
+    SkinnedMeshRenderer[] skinnedMeshRenderers;
 
-    private bool trailHasBeenActivated;
-    private SkinnedMeshRenderer[] skinnedMeshRenderers;
+    PlayerController playerController;
 
-    private PlayerController playerController;
-    private void Awake()
-    {
-        playerController = GetComponent<PlayerController>();  
-    }
+    void Awake() => playerController = GetComponent<PlayerController>();
+
     // Update is called once per frame
     void Update()
     {
         trailIsActive = playerController.ActivateTrail;
+
         if (trailIsActive && !trailHasBeenActivated)
         {
             trailHasBeenActivated = true;
@@ -34,26 +33,25 @@ public class PlayerAfterimage : MonoBehaviour
 
     IEnumerator ActivateTrail(float timeActive)
     {
-        while(timeActive > 0)
+        while (timeActive > 0)
         {
             timeActive -= meshRefreshRate;
 
-            if(skinnedMeshRenderers == null)
-                skinnedMeshRenderers = GameObject.FindWithTag("CharacterBody").GetComponentsInChildren<SkinnedMeshRenderer>();
+            if (skinnedMeshRenderers == null) skinnedMeshRenderers = GameObject.FindWithTag("CharacterBody").GetComponentsInChildren<SkinnedMeshRenderer>();
 
             for (int i = 0; i < skinnedMeshRenderers.Length; i++)
             {
-                GameObject afterImage = new GameObject();
-                
+                var afterImage = new GameObject($"After Image {i} (Dash)", typeof(MeshRenderer), typeof(MeshFilter));
+
                 afterImage.transform.SetPositionAndRotation(spawningPosition.position, spawningPosition.rotation);
 
-                MeshRenderer meshRenderer = afterImage.AddComponent<MeshRenderer>();
-                MeshFilter meshFilter = afterImage.AddComponent<MeshFilter>();
+                var meshRenderer = afterImage.GetComponent<MeshRenderer>();
+                var meshFilter   = afterImage.GetComponent<MeshFilter>();
 
-                Mesh mesh = new Mesh();
+                var mesh = new Mesh();
                 skinnedMeshRenderers[i].BakeMesh(mesh);
 
-                meshFilter.mesh = mesh;
+                meshFilter.mesh       = mesh;
                 meshRenderer.material = afterImageMeshMaterial;
 
                 Destroy(afterImage, meshDestroyDelay);
@@ -62,8 +60,9 @@ public class PlayerAfterimage : MonoBehaviour
 
             yield return new WaitForSeconds(meshRefreshRate);
         }
+
         playerController.ActivateTrail = false;
-        trailIsActive = false;
-        trailHasBeenActivated = false;
+        trailIsActive                  = false;
+        trailHasBeenActivated          = false;
     }
 }

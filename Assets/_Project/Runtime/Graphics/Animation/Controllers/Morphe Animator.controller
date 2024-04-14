@@ -794,7 +794,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Fall
-  m_Speed: 5
+  m_Speed: 0.2
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: 4480757117253912007}
@@ -985,13 +985,13 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.4
+  m_TransitionDuration: 0.25
   m_TransitionOffset: 0
-  m_ExitTime: 0.75
-  m_HasExitTime: 0
+  m_ExitTime: 0
+  m_HasExitTime: 1
   m_HasFixedDuration: 1
   m_InterruptionSource: 1
-  m_OrderedInterruption: 1
+  m_OrderedInterruption: 0
   m_CanTransitionToSelf: 0
 --- !u!1102 &6085023435719688124
 AnimatorState:
@@ -1001,7 +1001,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Airborne Airborne
-  m_Speed: 3.5
+  m_Speed: 0.65
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: 8266604861790434567}
@@ -1113,7 +1113,7 @@ AnimatorStateMachine:
     m_Position: {x: 250, y: -280, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -6398596511398547554}
-    m_Position: {x: -390, y: 240, z: 0}
+    m_Position: {x: -370, y: 250, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 1547090141802301801}
     m_Position: {x: -50, y: 240, z: 0}
@@ -1135,7 +1135,7 @@ AnimatorStateMachine:
   m_EntryTransitions: []
   m_StateMachineTransitions: {}
   m_StateMachineBehaviours: []
-  m_AnyStatePosition: {x: -370, y: 100, z: 0}
+  m_AnyStatePosition: {x: -350, y: 110, z: 0}
   m_EntryPosition: {x: 280, y: 180, z: 0}
   m_ExitPosition: {x: 280, y: 240, z: 0}
   m_ParentStateMachinePosition: {x: 800, y: 20, z: 0}
@@ -1154,7 +1154,7 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0
+  m_TransitionDuration: 0.2
   m_TransitionOffset: 0
   m_ExitTime: 0
   m_HasExitTime: 1

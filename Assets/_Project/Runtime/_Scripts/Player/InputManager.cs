@@ -46,6 +46,8 @@ public class InputManager : MonoBehaviour
     /// </summary>
     public bool Enabled { get; set; } = true;
     
+    public static PlayerController PausingPlayer { get; private set; }
+    
     // Cached References
     PlayerController player;
     StateMachine stateMachine;
@@ -59,8 +61,13 @@ public class InputManager : MonoBehaviour
         stateMachine = player.GetComponent<StateMachine>();
     }
 
-    // -- Input Handling --
+    void Start()
+    {
+        Enabled = true;
+    }
 
+    // -- Input Handling --
+    
     /// <summary>
     /// Handles the move input from the player.
     /// <para></para>
@@ -116,7 +123,33 @@ public class InputManager : MonoBehaviour
 
     public void OnPause(InputAction.CallbackContext context)
     {
-        if (context.performed) GameManager.TogglePause(player);
+        if (TimelinePlayer.IsPlaying) return;
+        
+        if (context.performed)
+        {
+            var menuManager = FindObjectOfType<MenuManager>();
+
+            if (GameManager.IsPaused)
+            {
+                if (PausingPlayer != player) return;
+                
+                if (menuManager.creditsMenu.activeSelf)
+                {
+                    menuManager.CloseCreditsInGameScene();
+                    return;
+                }
+
+                menuManager.CloseCurrentSettingsMenuInGameScene();
+                GameManager.TogglePause(player);
+                PausingPlayer = null;
+            }
+            else
+            {
+                menuManager.ToggleSettings();
+                GameManager.TogglePause(player);
+                PausingPlayer = player;
+            }
+        }
     }
     
     /// <summary>

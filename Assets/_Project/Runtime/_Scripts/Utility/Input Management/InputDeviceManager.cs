@@ -192,7 +192,7 @@ public class InputDeviceManager : MonoBehaviour
         OnPlayerJoin?.Invoke(newPlayer, playerID);
 
         // Uses the default (recommended) rumble amount and duration.
-        if (device is Gamepad gamepad) gamepad.Rumble(); // bug: The rumble might be too weak on some gamepads, making it nearly unnoticeable.
+        if (device is Gamepad gamepad) gamepad.Rumble(playerID); // note: The rumble might be too weak on some gamepads, making it nearly unnoticeable.
 
         // Disable the second player in the main menu.
         if (MainMenuScene && PlayerInputManager.instance.playerCount == 2) newPlayer.gameObject.SetActive(false);

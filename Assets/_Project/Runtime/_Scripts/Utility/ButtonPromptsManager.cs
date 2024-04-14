@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using VInspector;
+using static SceneManagerExtended;
 
 /// <summary>
 /// This class is a singleton that keeps track of which button prompts should be shown when and where.
@@ -75,9 +76,11 @@ public class ButtonPromptsManager : MonoBehaviour
         intro           = SceneManager.GetSceneByBuildIndex(0).name;
         mainMenu        = SceneManager.GetSceneByBuildIndex(1).name;
         characterSelect = SceneManager.GetSceneByBuildIndex(2).name;
-        game            = SceneManager.GetSceneByBuildIndex(3).name;
-        
-         // Disable all prompts by default.
+
+        if (ActiveScene      == Bar) game    = "Bar";
+        else if (ActiveScene == Street) game = "Street";
+
+        // Disable all prompts by default.
          HideAllPrompts();
     }
 
@@ -145,7 +148,7 @@ public class ButtonPromptsManager : MonoBehaviour
                         KB_quitGamePrompt?.Toggle(show);
                         break;
 
-                    case var _ when scene == mainMenu:
+                    case var _ when scene == mainMenu || scene == game:
                         if (MenuManager.IsAnySettingsMenuActive())
                         {
                             // Show the settings prompts
@@ -162,10 +165,6 @@ public class ButtonPromptsManager : MonoBehaviour
                     case var _ when scene == characterSelect:
                         KB_JoinPrompt?.Toggle(show);
                         break;
-
-                    case var _ when scene == game:
-                        // not implemented yet
-                        break;
                 }
 
                 break;
@@ -178,7 +177,7 @@ public class ButtonPromptsManager : MonoBehaviour
                         GP_quitGamePrompt?.Toggle(show);
                         break;
 
-                    case var _ when scene == mainMenu:
+                    case var _ when scene == mainMenu || scene == game:
                         if (MenuManager.IsAnySettingsMenuActive())
                         {
                             // Show the settings prompts

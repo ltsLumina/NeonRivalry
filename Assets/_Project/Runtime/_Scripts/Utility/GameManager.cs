@@ -122,7 +122,7 @@ public class GameManager : MonoBehaviour
                 SetState(GameState.Game);
 
                 // Play timeline.
-                //TimelinePlayer.Play();
+                TimelinePlayer.Play();
                 break;
         }
     }
@@ -137,13 +137,13 @@ public class GameManager : MonoBehaviour
             case var mainMenu when mainMenu == MainMenu:
                 // Play Main Menu music
                 Music mainMenuMusic = new (Track.MainMenu);
-                mainMenuMusic.SetOutput(Output.Music).SetVolume(1f);
+                mainMenuMusic.SetOutput(Output.Music).SetVolume(.65f);
                 mainMenuMusic.Play();
                 break;
 
             case var charSelect when charSelect == CharacterSelect:
                 Music charSelectMusic = new (Track.CharSelect);
-                charSelectMusic.SetOutput(Output.Music).SetVolume(1f);
+                charSelectMusic.SetOutput(Output.Music).SetVolume(.5f);
                 charSelectMusic.Play();
                 break;
 
@@ -189,14 +189,13 @@ public class GameManager : MonoBehaviour
     
     void Update()
     {
-        // Things to do regardless of state:
-        
-        // Enable/show the mouse if the developer console pops up (due to an error being thrown in a build)
+#if !UNITY_EDITOR // Enable/show the mouse if the developer console pops up (due to an error being thrown in a build)
         if (Debug.developerConsoleVisible)
         {
-            Cursor.visible = true;
+            Cursor.visible   = true;
             Cursor.lockState = CursorLockMode.None;
         }
+#endif
         
         switch (State)
         {
@@ -234,6 +233,8 @@ public class GameManager : MonoBehaviour
 
     public static void TogglePause(PlayerController playerThatPaused)
     {
+        if (TimelinePlayer.IsPlaying) return;
+        
         IsPaused = !IsPaused;
         SetState(IsPaused ? GameState.Paused : GameState.Game);
 
@@ -241,26 +242,24 @@ public class GameManager : MonoBehaviour
         {
             if (player == null) continue;
             player.DisablePlayer(IsPaused);
-            //TODO: Obviously I can't disable the player input here. If I do, the players cant use the menu. *facepalm*
         }
-
-        var UIManager = FindObjectOfType<UIManager>();
-        UIManager.PauseMenu.SetActive(IsPaused);
 
         if (IsPaused)
         {
-            PausingPlayer = playerThatPaused;
-            UIManager.PauseMenuTitle.text = $"Paused (Player {PausingPlayer.PlayerID})";
+            PausingPlayer = playerThatPaused; 
+            Debug.Log($"Player {PausingPlayer.PlayerID} paused the game.");
+            var menuManager = FindObjectOfType<MenuManager>();
+            menuManager.PauseTitle.text = $"Paused (Player {PausingPlayer.PlayerID})";
 
-            PausingPlayer.GetComponentInChildren<MultiplayerEventSystem>().SetSelectedGameObject(UIManager.PauseMenuButtons[0].gameObject);
+            PausingPlayer.GetComponentInChildren<MultiplayerEventSystem>().SetSelectedGameObject(menuManager.showEffectsToggle.gameObject);
             var otherPlayer = PlayerManager.OtherPlayer(PausingPlayer);
-            if (otherPlayer != null) otherPlayer.PlayerInput.enabled = !IsPaused;
+            if (otherPlayer != null) otherPlayer.GetComponentInChildren<InputSystemUIInputModule>().enabled = !IsPaused;
         }
-        else
+        else // Game is unpaused
         {
             PausingPlayer.GetComponentInChildren<MultiplayerEventSystem>().SetSelectedGameObject(null);
             var otherPlayer = PlayerManager.OtherPlayer(PausingPlayer);
-            if (otherPlayer != null) otherPlayer.PlayerInput.enabled = !IsPaused;
+            if (otherPlayer != null) otherPlayer.GetComponentInChildren<InputSystemUIInputModule>().enabled = !IsPaused;
 
             PausingPlayer = null;
         }

@@ -21,20 +21,21 @@ public class CameraController : MonoBehaviour
     [Tooltip("The maximum z-position of the camera.")]
     [SerializeField] float maxZPosition = -5f;
 
-    [Tooltip("The speed at which the camera zooms in and out, can also be considered as how precise the camera is.")]
+    [Tooltip("The speed at which the camera zooms in and out.")]
     [SerializeField] float zoomSpeed = 50f;
 
     [Tooltip("The speed at which the camera rotates, can also be considered as how precise the camera is.")]
     [SerializeField] float rotationSpeed = 5f;
 
     [Tab("Settings")]
-    [SerializeField] Transform target1;
-    [SerializeField] Transform target2;
+    [SerializeField, ReadOnly] Transform target1;
+    [SerializeField, ReadOnly] Transform target2;
 
-    // -- Cached References -- \\\
+    [SerializeField] bool xbool;
+    
+    // -- Cached References -- \\
 
     CinemachineVirtualCamera vCam;
-    [SerializeField] private bool xbool = false;
 
     void Awake() => vCam = GetComponentInChildren<CinemachineVirtualCamera>();
 
@@ -48,8 +49,8 @@ public class CameraController : MonoBehaviour
 
         // Assign the playerTransform to target1 or target2 based on their current values
         // and ensure that the playerTransform is not already assigned to the other target
-        //if (target1 == null && target2 != playerTransform) target1 = playerTransform;
-        //else if (target2 == null && target1 != playerTransform) target2 = playerTransform;
+        if (target1      == null && target2 != playerTransform) target1 = playerTransform;
+        else if (target2 == null && target1 != playerTransform) target2 = playerTransform;
     }
 
     void LateUpdate() => Follow();
