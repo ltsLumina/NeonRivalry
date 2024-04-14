@@ -1,5 +1,6 @@
 #region
 using System.Collections;
+using MelenitasDev.SoundsGood;
 using UnityEngine;
 #endregion
 
@@ -13,12 +14,49 @@ public class EffectPlayer : MonoBehaviour
 
     GameObject pooledObject;
     
-    void PlayOverheadEffect() => PlayEffect(overhead);
-    void PlaySlashEffect()    => PlayEffect(slash);
-    void PlayUppercutEffect() => PlayEffect(uppercut);
-    void PlayHookEffect()     => PlayEffect(hook);
-    void PlayAerialEffect()   => PlayEffect(aerial);
+    // -- Sounds -- \\
     
+    Sound overheadSFX;
+    Sound slashSFX;
+    Sound uppercutSFX;
+    Sound hookSFX;
+    Sound aerialSFX;
+
+    void PlayOverheadEffect() => PlayEffect(overhead);
+    void PlaySlashEffect() => PlayEffect(slash);
+    void PlayUppercutEffect() => PlayEffect(uppercut);
+    void PlayHookEffect() => PlayEffect(hook);
+    void PlayAerialEffect() => PlayEffect(aerial);
+    
+    void PlayOverheadSound() => PlaySound(overheadSFX);
+    void PlaySlashSound() => PlaySound(slashSFX);
+    void PlayUppercutSound() => PlaySound(uppercutSFX);
+    void PlayHookSound() => PlaySound(hookSFX);
+    void PlayAerialSound() => PlaySound(aerialSFX);
+
+    void Start()
+    {
+        // TODO: Uncomment this when the sound effects are added
+        // overheadSFX = new Sound(SFX.Overhead);
+        // slashSFX = new Sound(SFX.Slash);
+        // uppercutSFX = new Sound(SFX.Uppercut);
+        // hookSFX = new Sound(SFX.Hook);
+        // aerialSFX = new Sound(SFX.Aerial);
+        
+        // Set the Output Mixer Group and Volume
+        SetMixerAndVolume();
+    }
+
+    void SetMixerAndVolume()
+    {
+        // TODO: Same here
+        // overheadSFX.SetOutput(Output.SFX).SetVolume(1);
+        // slashSFX.SetOutput(Output.SFX).SetVolume(1);
+        // uppercutSFX.SetOutput(Output.SFX).SetVolume(1);
+        // hookSFX.SetOutput(Output.SFX).SetVolume(1);
+        // aerialSFX.SetOutput(Output.SFX).SetVolume(1);
+    }
+
     void PlayEffect(GameObject effect)
     {
         if (!SettingsManager.ShowEffects) return;
@@ -61,6 +99,11 @@ public class EffectPlayer : MonoBehaviour
         yield return new WaitForSecondsRealtime(length);
 
         effect.SetActive(false);
+    }
+    
+    void PlaySound(Sound sound)
+    {
+        sound.Play();
     }
 
     void PlayHitstun()

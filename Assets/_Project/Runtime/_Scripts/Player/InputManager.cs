@@ -67,7 +67,7 @@ public class InputManager : MonoBehaviour
     }
 
     // -- Input Handling --
-
+    
     /// <summary>
     /// Handles the move input from the player.
     /// <para></para>

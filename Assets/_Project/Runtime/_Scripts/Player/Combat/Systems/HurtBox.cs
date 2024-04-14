@@ -357,7 +357,8 @@ public class HurtBox : MonoBehaviour
         StartCoroutine(DisableEffectAfterAnimation(effect));
         
         // e.g. freeze game for a short duration for juice
-        Sleep(0.095f);
+        Sleep(0.125f);
+        // Sleep(0.095f);
     }
     
     // void PlayParticles(GameObject particles)
