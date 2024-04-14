@@ -6,9 +6,10 @@ using UnityEngine.UI;
 
 public class ResultScreen : MonoBehaviour
 {
+    [Header("Components")]
     [SerializeField] TextMeshProUGUI winner;
-    // Get all sliders in the children of this GameObject
     Slider[] sliders;
+    [Header("Values")]
     public float animationDuration = 2f;
 
     private void Awake()
@@ -26,6 +27,13 @@ public class ResultScreen : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// This is the method in charge of randomizing the showcased slider values in the result screen.
+    /// </summary>
+    /// <param name="minValue">Minimum range value which serves as a basis for the sliders</param>
+    /// 
+    /// <param name="maxValue">Maximum range value which serves as a basis for the sliders</param>
+    /// <returns></returns>
     IEnumerator RandomizeSliderValues(float minValue, float maxValue)
     {
         foreach (Slider slider in sliders)

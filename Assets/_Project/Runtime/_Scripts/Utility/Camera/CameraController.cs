@@ -26,6 +26,7 @@ public class CameraController : MonoBehaviour
 
     [Tooltip("The speed at which the camera rotates, can also be considered as how precise the camera is.")]
     [SerializeField] float rotationSpeed = 5f;
+    [SerializeField] private bool xbool = false;
 
     [Tab("Settings")]
     [SerializeField] Transform target1;
@@ -34,7 +35,6 @@ public class CameraController : MonoBehaviour
     // -- Cached References -- \\\
 
     CinemachineVirtualCamera vCam;
-    [SerializeField] private bool xbool = false;
 
     void Awake() => vCam = GetComponentInChildren<CinemachineVirtualCamera>();
 
