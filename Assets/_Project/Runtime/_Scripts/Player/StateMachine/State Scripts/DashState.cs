@@ -1,7 +1,6 @@
 #region
 using System.Collections;
 using UnityEngine;
-using Logger = Lumina.Debugging.Logger;
 #endregion
 
 public class DashState : State
@@ -40,6 +39,7 @@ public class DashState : State
 
         Vector3 moveInput = player.InputManager.MoveInput;
         
+        if (moveInput.x == 0) moveInput.x = player.FacingDirection;
         dashDir = (int) moveInput.x;
 
         player.GlobalGravity = 0f;

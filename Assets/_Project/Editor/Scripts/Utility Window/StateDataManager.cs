@@ -100,16 +100,10 @@ public static class StateDataManager // NOTE: I haven't put as much effort into 
                         case not null when stateData.type == typeof(AirborneAttackStateData):
                         {
                             var airborneAttackStateData = (AirborneAttackStateData) stateData.data;
-                            MoveData airborneMove       = airborneAttackStateData.Moveset.AirborneMoves[0];
 
                             GUIContent label = new
                             ("Selected Airborne Move",
                              "This variable is shown through an editor script. It is not a part of the AirborneAttackStateData class. \nYou can change which move is selected from the \"Manage Movesets\" window.");
-
-                            using (new EditorGUI.DisabledScope(true))
-                            {
-                                EditorGUILayout.ObjectField(label, airborneMove, typeof(MoveData), false);
-                            }
                             break;
                         }
                     }

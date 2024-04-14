@@ -10,6 +10,8 @@ public class EffectPlayer : MonoBehaviour
     [SerializeField] GameObject uppercut;
     [SerializeField] GameObject hook;
     [SerializeField] GameObject aerial;
+
+    GameObject pooledObject;
     
     void PlayOverheadEffect() => PlayEffect(overhead);
     void PlaySlashEffect()    => PlayEffect(slash);
@@ -24,13 +26,15 @@ public class EffectPlayer : MonoBehaviour
         // Check if the effect is already playing
         if (effect.activeSelf)
         {
-            ObjectPool pool = ObjectPoolManager.FindObjectPool(effect);
-            pool.transform.parent = effect.transform.parent;
-            GameObject newEffect = pool.GetPooledObject(); 
-            
+            var newEffect = GetObject(effect);
+            newEffect.transform.position         = effect.transform.position;
+            newEffect.transform.rotation         = effect.transform.rotation;
+            newEffect.transform.localScale       = effect.transform.localScale;
+            newEffect.transform.localEulerAngles = effect.transform.localEulerAngles;
+            newEffect.transform.SetParent(effect.transform.parent);
+
             newEffect.SetActive(true);
             StartCoroutine(DisableEffectAfterAnimation(newEffect));
-            
             return;
         }
         
@@ -41,6 +45,14 @@ public class EffectPlayer : MonoBehaviour
         StartCoroutine(DisableEffectAfterAnimation(effect));
     }
 
+    GameObject GetObject(GameObject effect)
+    {
+        if (pooledObject == null) pooledObject = Instantiate(effect);
+        else if (pooledObject.activeInHierarchy) pooledObject = Instantiate(effect);
+
+        return pooledObject;
+    }
+
     IEnumerator DisableEffectAfterAnimation(GameObject effect)
     {
         var length = effect.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).length;
@@ -48,7 +60,6 @@ public class EffectPlayer : MonoBehaviour
         // Wait for the duration of the animation
         yield return new WaitForSecondsRealtime(length);
 
-        // Disable the effect
         effect.SetActive(false);
     }
 

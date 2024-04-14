@@ -56,18 +56,7 @@ public class RoundTimer : MonoBehaviour
         set => finished = value;
     }
 
-    void Awake()
-    {
-        InitializeTimeFormats();
-        FindTimerTextComponent();
-
-        return;
-        void FindTimerTextComponent()
-        {
-            var timerTextObject = GameObject.FindWithTag("[Header] User Interface").GetComponentInChildren<TextMeshProUGUI>();
-            if (timerTextObject != null) timerText = timerTextObject.GetComponentInChildren<TextMeshProUGUI>();
-        }
-    }
+    void Awake() => InitializeTimeFormats();
 
     void Start() => Finished = false;
 

@@ -48,7 +48,7 @@ public class ObjectPool : MonoBehaviour
     /// <returns>The object that was created.</returns>
     public GameObject CreatePooledObject()
     {
-        GameObject newObject = Instantiate(objectPrefab, transform, true);
+        GameObject newObject = Instantiate(objectPrefab, transform);
         newObject.SetActive(false);
         pooledObjects.Add(newObject);
         return newObject;

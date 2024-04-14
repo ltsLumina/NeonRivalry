@@ -83,6 +83,10 @@ public partial class PlayerController : MonoBehaviour
 
     string ThisPlayer => $"Player {PlayerID}";
     public bool IsCrouching => Animator.GetBool("IsCrouching");
+    
+    /// <summary>
+    /// <returns> 1 if the player is facing right, -1 if the player is facing left. </returns>
+    /// </summary>
     public int FacingDirection => (int) transform.GetChild(0).localScale.x;
 
     // -- Serialized Properties --
@@ -178,11 +182,6 @@ public partial class PlayerController : MonoBehaviour
 
         CheckIdle();
 
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            FlipModel();
-        }
-
         // Get the other player's position
         var otherPlayer = PlayerManager.OtherPlayer(this);
         if (otherPlayer != null)
@@ -196,7 +195,7 @@ public partial class PlayerController : MonoBehaviour
             if (IsGrounded())
             {
                 if (!InputManager.Enabled) return;
-
+                
                 // Reset the airborne time if the player is grounded.
                 AirborneTime = 0;
                 
@@ -510,14 +509,14 @@ public partial class PlayerController : MonoBehaviour
     public void DisablePlayer(bool disabled)
     {
         InputManager.Enabled = !disabled;
-        InputManager.gameObject.SetActive(!disabled);
         HitBox.enabled       = !disabled;
     }
 
     void Death(PlayerController playerThatDied)
     {
         DisablePlayer(true);
-        GamepadExtensions.RumbleAll();
+        GamepadExtensions.StopAllRumble();
+        GamepadExtensions.RumbleAll(true, 0.5f, 1f, 0.65f);
 
         // Get the Volume component
         var volume = FindObjectOfType<Volume>();

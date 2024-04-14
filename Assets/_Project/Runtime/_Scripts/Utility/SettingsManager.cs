@@ -1,8 +1,6 @@
-using System.Collections;
 using MelenitasDev.SoundsGood;
 using UnityEngine;
 using UnityEngine.Audio;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using VInspector;
 using static SceneManagerExtended;
@@ -53,7 +51,7 @@ public class SettingsManager : MonoBehaviour
         // If intro scene, return.
         if (ActiveScene == Intro) return;
 
-        if (ActiveScene == MainMenu)
+        if (ActiveScene == MainMenu || ActiveScene == Game)
         {
             masterVolume.onValueChanged.AddListener(SetMasterVolume);
             musicVolume.onValueChanged.AddListener(SetMusicVolume);
@@ -138,27 +136,5 @@ public class SettingsManager : MonoBehaviour
         masterVolume.value = MasterVolume;
         musicVolume.value  = MusicVolume;
         sfxVolume.value    = SFXVolume;
-    }
-
-    public void Rumble(int playerID)
-    {
-        float   speed   = PlayerPrefs.GetFloat(playerID == 1 ? "Player1_RumbleStrength" : "Player2_RumbleStrength");
-        Gamepad gamepad;
-
-        if (playerID == 1) 
-             gamepad = InputDeviceManager.PlayerOneDevice as Gamepad;
-        else gamepad = InputDeviceManager.PlayerTwoDevice as Gamepad;
-        
-        if (gamepad == null) return;
-
-        StartCoroutine(RumbleCoroutine());
-        
-        return; // Local function
-        IEnumerator RumbleCoroutine()
-        {
-            gamepad?.SetMotorSpeeds(speed, speed);
-            yield return new WaitForSeconds(0.085f);
-            gamepad?.SetMotorSpeeds(0, 0);
-        }
     }
 }

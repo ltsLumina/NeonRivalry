@@ -59,6 +59,11 @@ public class InputManager : MonoBehaviour
         stateMachine = player.GetComponent<StateMachine>();
     }
 
+    void Start()
+    {
+        Enabled = true;
+    }
+
     // -- Input Handling --
 
     /// <summary>
@@ -116,7 +121,27 @@ public class InputManager : MonoBehaviour
 
     public void OnPause(InputAction.CallbackContext context)
     {
-        if (context.performed) GameManager.TogglePause(player);
+        if (context.performed)
+        {
+            var menuManager = FindObjectOfType<MenuManager>();
+
+            if (GameManager.IsPaused)
+            {
+                if (menuManager.creditsMenu.activeSelf)
+                {
+                    menuManager.CloseCreditsInGameScene();
+                    return;
+                }
+
+                menuManager.CloseCurrentSettingsMenuInGameScene();
+                GameManager.TogglePause(player);
+            }
+            else
+            {
+                menuManager.ToggleSettings();
+                GameManager.TogglePause(player);
+            }
+        }
     }
     
     /// <summary>

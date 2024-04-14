@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using VInspector;
 #endregion
 
@@ -24,7 +25,9 @@ public class HurtBox : MonoBehaviour
     [SerializeField] GameObject blockEffect;
     [SerializeField] Gradient blockStrainGradient;
     
+    int ID => player.PlayerID;
     PlayerController player;
+    Gamepad gamepad;
 
     public delegate void HurtBoxHit(HitBox hitBox, MoveData moveData);
     public event HurtBoxHit OnHurtBoxHit;
@@ -32,7 +35,11 @@ public class HurtBox : MonoBehaviour
     public delegate void BlockHit();
     public event BlockHit OnBlockHit;
 
-    void Awake() => player = GetComponentInParent<PlayerController>();
+    void Awake()
+    {
+        player  = GetComponentInParent<PlayerController>();
+        gamepad = player.Device as Gamepad;
+    }
 
     void Update() // TODO: Remove Update and DEBUG method when finished debugging.
     {
@@ -135,10 +142,10 @@ public class HurtBox : MonoBehaviour
             player.Animator.SetFloat("HitstunDuration", moveData.hitstunDuration * 3f);
             player.Animator.SetTrigger("Hitstun");
             player.StateMachine.TransitionToState(State.StateType.HitStun);
-            
-            //TODO: dont worky
-            // Rumble player gamepad
-            GamepadExtensions.RumbleAll();
+
+            gamepad.Rumble(ID, .5f, 0f, 0.1f);
+            var attackerGamepad = hitBox?.Owner.Device as Gamepad;
+            attackerGamepad?.Rumble(hitBox.Owner.PlayerID, 0.3f, .5f, 0.1f);
 
             PlayEffect(punchKickEffect);
             
@@ -350,7 +357,7 @@ public class HurtBox : MonoBehaviour
         StartCoroutine(DisableEffectAfterAnimation(effect));
         
         // e.g. freeze game for a short duration for juice
-        Sleep(0.125f);
+        Sleep(0.095f);
     }
     
     // void PlayParticles(GameObject particles)
@@ -388,7 +395,7 @@ public class HurtBox : MonoBehaviour
     static IEnumerator PerformSleep(float duration = 0.1f)
     {
         // Freeze the game for a short duration
-        Time.timeScale = 0.1f;
+        Time.timeScale = 0.25f;
         yield return new WaitForSecondsRealtime(duration);
         Time.timeScale = 1f;
     }

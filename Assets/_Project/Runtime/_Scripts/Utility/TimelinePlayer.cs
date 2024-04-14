@@ -26,6 +26,16 @@ public class TimelinePlayer : MonoBehaviour
         timeline = sceneTimeline;
     }
 
+    void OnEnable()
+    {
+        timeline.stopped += TimelineStopped;
+    }
+
+    void OnDisable()
+    {
+        timeline.stopped -= TimelineStopped;
+    }
+
     public static void Play()
     {
         if (timeline == null)
@@ -34,6 +44,20 @@ public class TimelinePlayer : MonoBehaviour
             return;
         }
         
+        // Prep:
+        foreach (var player in PlayerManager.Players)
+        {
+            player.DisablePlayer(true);
+        }
+        
         timeline.Play();
+    }
+
+    static void TimelineStopped(PlayableDirector director)
+    {
+        foreach (var player in PlayerManager.Players)
+        {
+            player.DisablePlayer(false);
+        }
     }
 }
