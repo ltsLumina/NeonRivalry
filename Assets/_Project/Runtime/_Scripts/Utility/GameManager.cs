@@ -122,7 +122,7 @@ public class GameManager : MonoBehaviour
                 SetState(GameState.Game);
 
                 // Play timeline.
-                //TimelinePlayer.Play();
+                TimelinePlayer.Play();
                 break;
         }
     }
@@ -151,8 +151,6 @@ public class GameManager : MonoBehaviour
                 Music barMusic = new (Track.ThisIBelieve);
                 barMusic.SetOutput(Output.Music).SetVolume(1f);
                 barMusic.Play();
-                
-                TimelinePlayer.Play();
                 break;
 
             case var game when game == Street:
@@ -235,6 +233,8 @@ public class GameManager : MonoBehaviour
 
     public static void TogglePause(PlayerController playerThatPaused)
     {
+        if (TimelinePlayer.IsPlaying) return;
+        
         IsPaused = !IsPaused;
         SetState(IsPaused ? GameState.Paused : GameState.Game);
 
@@ -247,6 +247,7 @@ public class GameManager : MonoBehaviour
         if (IsPaused)
         {
             PausingPlayer = playerThatPaused; 
+            Debug.Log($"Player {PausingPlayer.PlayerID} paused the game.");
             var menuManager = FindObjectOfType<MenuManager>();
             menuManager.PauseTitle.text = $"Paused (Player {PausingPlayer.PlayerID})";
 

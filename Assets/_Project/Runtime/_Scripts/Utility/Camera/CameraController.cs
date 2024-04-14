@@ -55,6 +55,9 @@ public class CameraController : MonoBehaviour
     /// </summary>
     void Follow()
     {
+        // If the timeline is playing, wait until it's finished before following the players.
+        if (TimelinePlayer.IsPlaying) return;
+        
         // If either target is null, the method returns immediately without executing the rest of the code.
         if (target1 == null || target2 == null) return;
 

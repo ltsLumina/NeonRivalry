@@ -1,11 +1,18 @@
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Playables;
 
 public class TimelinePlayer : MonoBehaviour
 {
     [SerializeField] PlayableDirector sceneTimeline;
+    [SerializeField] bool debugPlay;
+    [Space]
+    [SerializeField] public UnityEvent onTimelineEnd;
     
     static PlayableDirector timeline;
+    static bool play;
+    
+    public static bool IsPlaying => timeline.state == PlayState.Playing;
 
     void Awake()
     {
@@ -24,30 +31,31 @@ public class TimelinePlayer : MonoBehaviour
 
         // Set the static timeline to the scene timeline.
         timeline = sceneTimeline;
+        play = debugPlay;
     }
 
-    void OnEnable()
-    {
-        timeline.stopped += TimelineStopped;
-    }
+    void OnEnable() => timeline.stopped += TimelineStopped;
+    void OnDisable() => timeline.stopped -= TimelineStopped;
 
-    void OnDisable()
+    void Update()
     {
-        timeline.stopped -= TimelineStopped;
+        if (IsPlaying)
+        {
+            foreach (var player in PlayerManager.Players)
+            {
+                player.DisablePlayer(true);
+            }
+        }
     }
 
     public static void Play()
     {
+        if (!play) return;
+        
         if (timeline == null)
         {
             Debug.LogWarning("No timeline was found. Please assign a timeline to this script." + "\n");
             return;
-        }
-        
-        // Prep:
-        foreach (var player in PlayerManager.Players)
-        {
-            player.DisablePlayer(true);
         }
         
         timeline.Play();

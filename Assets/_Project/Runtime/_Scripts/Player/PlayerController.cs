@@ -4,6 +4,7 @@ using UnityEditor;
 #endif
 using System;
 using System.Collections;
+using Cinemachine;
 using DG.Tweening;
 using Lumina.Essentials.Attributes;
 using UnityEngine;
@@ -245,22 +246,18 @@ public partial class PlayerController : MonoBehaviour
 
         bool movingAway;
         if (otherPlayer != null)
-        {
             // Check if the player is moving away from the other player
-            movingAway = (otherPlayer.transform.position.x > transform.position.x && moveInput.x < 0) || (otherPlayer.transform.position.x < transform.position.x && moveInput.x > 0);
-        }
+            movingAway  = (otherPlayer.transform.position.x > transform.position.x && moveInput.x < 0) || (otherPlayer.transform.position.x < transform.position.x && moveInput.x > 0);
         else
-        {
             // If there is only one player, moving left is considered as moving away
             movingAway = moveInput.x < 0;
-        }
 
         int   moveDirection   = (int) moveInput.x;
         float targetSpeed     = moveDirection * (movingAway ? moveSpeed * backwardSpeedFactor : moveSpeed);
         float speedDifference = targetSpeed - Rigidbody.velocity.x;
         float accelRate       = Mathf.Abs(targetSpeed) > 0.01f ? acceleration : deceleration;
         float movement        = Mathf.Pow(Mathf.Abs(speedDifference) * accelRate, velocityPower) * Mathf.Sign(speedDifference);
-    
+        
         // Apply force.
         Rigidbody.AddForce(movement * Vector3.right);
     
@@ -301,25 +298,35 @@ public partial class PlayerController : MonoBehaviour
         playerShadowStartingScale = playerShadow.transform.localScale;
         playerShadowStartingHeight = playerShadow.transform.position.y;
 
-        var playerInput = PlayerInput;
-        playerInput.defaultControlScheme = Device is Keyboard ? "Keyboard" : "Gamepad";
-        playerInput.defaultActionMap = $"Player {PlayerID}";
+        PlayerInput.defaultControlScheme = Device is Keyboard ? "Keyboard" : "Gamepad";
+        PlayerInput.defaultActionMap     = $"Player {PlayerID}";
+        
+        var player1actions = Resources.Load<InputActionAsset>("Input Management/Player 1 Input Actions");
+        var player2actions = Resources.Load<InputActionAsset>("Input Management/Player 2 Input Actions");
         
         // Assign the player input actions asset to the player input.
-        playerInput.actions = PlayerID == 1 
-            ? Resources.Load<InputActionAsset>("Input Management/Player 1 Input Actions") 
-            : Resources.Load<InputActionAsset>("Input Management/Player 2 Input Actions");
+        PlayerInput.actions = PlayerID == 1 
+            ? player1actions
+            : player2actions;
         
         // Switch the player's action map to the correct player.
-        playerInput.actions.Disable();
-        playerInput.SwitchCurrentActionMap($"Player {PlayerID}");
+        PlayerInput.actions.Disable();
+        PlayerInput.SwitchCurrentActionMap($"Player {PlayerID}");
         
         // HAVE TO DO THIS MANUALLY BECAUSE UNITY IS INCAPABLE OF DOING IT AUTOMATICALLY ANYMORE
-        playerInput.actions.FindAction("Unique").performed += SubscribeOnUnique;
-        playerInput.actions.Enable();
-        
+        PlayerInput.actions.FindAction("Unique").performed += SubscribeOnUnique;
+        PlayerInput.actions.Enable();
+
         // Switch the UI input module to the UI input actions.
-        PlayerInput.uiInputModule.actionsAsset = playerInput.actions;
+        PlayerInput.uiInputModule.actionsAsset = PlayerInput.actions;
+
+        var move = InputActionReference.Create(PlayerInput.actions.FindAction("Navigate"));
+        var submit = InputActionReference.Create(PlayerInput.actions.FindAction("Submit"));
+        var cancel = InputActionReference.Create(PlayerInput.actions.FindAction("Cancel"));
+        
+        PlayerInput.uiInputModule.move = move;
+        PlayerInput.uiInputModule.submit = submit;
+        PlayerInput.uiInputModule.cancel = cancel;
         
         // -- Player Light fix -- \\
         // Must disable the player light if there are two players.
@@ -345,9 +352,9 @@ public partial class PlayerController : MonoBehaviour
 
     void SetSpawnPosition()
     {
-        const float player1X = -4;
+        const float player1X = -2.5f;
         const float player1Z = -2.5f;
-        const float player2X = 4;
+        const float player2X = 2.5f;
         const float player2Z = -2.5f;
         
         Action action = playerID switch
@@ -522,21 +529,21 @@ public partial class PlayerController : MonoBehaviour
         var volume = FindObjectOfType<Volume>();
         if (volume == null) return;
 
-        DeathEffect();
+        StartCoroutine(DeathEffect());
 
         // Stop any ongoing animations and play the death animation
         Animator.Play("Idle");
         //Animator.SetTrigger("HasDied");
         
-        Debug.Log($"{ThisPlayer} is dead!");
+        Debug.Log($"{ThisPlayer} died!");
 
         return;
-        void DeathEffect()
+        IEnumerator DeathEffect()
         {
             // Try to get the ChromaticAberration effect
-            if (!volume.profile.TryGet(out ChromaticAberration chromaticAberration)) return;
-            if (!volume.profile.TryGet(out DepthOfField depthOfField)) return;
-            if (!volume.profile.TryGet(out LensDistortion lensDistortion)) return;
+            if (!volume.profile.TryGet(out ChromaticAberration chromaticAberration)) { Debug.LogWarning($"The {typeof(ChromaticAberration)} post processing effect is missing on the volume!", volume); yield break; }
+            if (!volume.profile.TryGet(out DepthOfField depthOfField)) { Debug.LogWarning($"The {typeof(DepthOfField)} post processing effect is missing on the volume!", volume); yield break; }
+            if (!volume.profile.TryGet(out LensDistortion lensDistortion)) { Debug.LogWarning($"The {typeof(LensDistortion)} post processing effect is missing on the volume!", volume); yield break; }
             
             Sequence sequence = DOTween.Sequence();
             int      mult     = 2;
@@ -549,6 +556,32 @@ public partial class PlayerController : MonoBehaviour
             sequence.Join(DOTween.To(() => depthOfField.focusDistance.value, x => depthOfField.focusDistance.value       = x, 1.85f, .5f).SetEase(Ease.OutBounce));
             sequence.Join(DOTween.To(() => lensDistortion.intensity.value, x => lensDistortion.intensity.value           = x, 0f, .5f).SetEase(Ease.OutCubic));
             sequence.Play();
+
+            var vcam = FindObjectOfType<CinemachineVirtualCamera>();
+            if (vcam == null) yield break;
+
+            vcam.Follow = transform;
+            vcam.LookAt = transform;
+
+            var body = vcam.AddCinemachineComponent<CinemachineTrackedDolly>();
+            if (body == null) yield break;
+            
+            body.m_Path = GetComponentInChildren<CinemachineSmoothPath>();
+            
+            // Set the aim to Group Composer
+            var aim = vcam.AddCinemachineComponent<CinemachineComposer>();
+            if (aim == null) yield break;
+
+            aim.m_TrackedObjectOffset = new (0, 1.35f, 0);
+
+            yield return new WaitForSeconds(0.25f);
+
+            body.m_XDamping = 2f;
+            body.m_YDamping = 1.25f;
+
+            // Start the AutoDolly
+            body.m_AutoDolly.m_Enabled = true;
+
         }
     }
 
