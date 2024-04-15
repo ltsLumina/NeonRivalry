@@ -1,4 +1,5 @@
 #region
+using UnityEditor.Graphs;
 using UnityEngine;
 #endregion
 
@@ -18,9 +19,12 @@ public class DashStateData : DefaultStateData
     [Tooltip("Changes how fast the player falls after a dash ends")]
     [SerializeField] private float dashEndGravity;
 
+    [Tooltip("Percentage of aerial dash values when dashing on the ground")]
+    [SerializeField] private float groundedDashMultiplier;
+
     public float DashDuration => dashDuration;
     public float DashSpeed => dashSpeed;
     public float DashSleepTime => dashSleepTime;
-
     public float DashEndGravity => dashEndGravity;
+    public float GroundedDashMultiplier => groundedDashMultiplier;
 }
