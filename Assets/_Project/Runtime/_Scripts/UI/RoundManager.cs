@@ -55,8 +55,6 @@ public class RoundManager : MonoBehaviour
 
         OnRoundEnded += UpdateCheckpoints;
         
-        Debug.Log("Current Round: " + CurrentRound);
-        
         // If the previous scene was the character select scene, reset the round manager.
         // This means a new game is to be played.
         if (SceneManagerExtended.PreviousScene == SceneManagerExtended.CharacterSelect)

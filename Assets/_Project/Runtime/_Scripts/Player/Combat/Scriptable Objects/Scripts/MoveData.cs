@@ -81,7 +81,9 @@ public class MoveData : ScriptableObject
     public bool knockBackAttacker;
     
     public bool screenShake;
-    public float screenShakeAmplitude;
+    public float screenShakeAmplitude = 1;
+    public float screenShakeFrequency = 1;
+    public float screenShakeDuration = 0.25f;
 
     [Tooltip("The duration of the hitstun. (Multiplier)")]
     public float hitstunDuration = 1;
