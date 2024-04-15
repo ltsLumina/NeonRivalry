@@ -53,6 +53,7 @@ public class AttackState : State
 
         if (player.InputManager.LastAttackPressed == InputManager.AttackType.Punch)
         {
+            return;
             attackSFX1 = new Sound(SFX.Attack);
             attackSFX1.SetVolume(0.1f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(1.3f, 1.5f));
             attackSFX1.Play();
@@ -60,6 +61,7 @@ public class AttackState : State
         
         if (player.InputManager.LastAttackPressed == InputManager.AttackType.Kick)
         {
+            return;
             attackSFX1 = new Sound(SFX.Attack);
             attackSFX1.SetVolume(0.15f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(0.6f, 0.8f)).SetFadeOut(0.15f);
             attackSFX1.Play();

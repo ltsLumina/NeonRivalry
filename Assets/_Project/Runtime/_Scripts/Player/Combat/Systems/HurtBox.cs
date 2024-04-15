@@ -26,6 +26,8 @@ public class HurtBox : MonoBehaviour
     [SerializeField] Gradient blockStrainGradient;
     
     int ID => player.PlayerID;
+    int TotalBlocks { get; set; }
+    
     PlayerController player;
     Gamepad gamepad;
 
@@ -198,7 +200,7 @@ public class HurtBox : MonoBehaviour
             int reducedDamage = Mathf.RoundToInt(moveData.damage * modifiedBlockDamageReductionPercentage);
             int finalDamage   = moveData.damage - reducedDamage; // Subtract the reduced damage from the original damage
             player.Healthbar.Health -= finalDamage;                   // Apply the final damage
-            Debug.Log($"Blocked and took {finalDamage} damage!");
+            //Debug.Log($"Blocked and took {finalDamage} damage!");
 
             // Add the blocked damage to the total
             totalBlockedDamage += finalDamage;

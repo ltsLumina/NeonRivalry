@@ -21,8 +21,8 @@ public class MenuManager : MonoBehaviour
     readonly static List<GameObject> mainContents = new ();
 
     // -- Settings -- \\
-    
-    readonly static List<GameObject> settingsMenus = new ();
+
+    public readonly static List<GameObject> settingsMenus = new ();
     [Tooltip(tooltip)]
     readonly static List<Button> settingsHeaders = new (); // The buttons at the top of the settings menu. ("Game", "Audio", "Video", etc.)
     [Tooltip(tooltip)]
@@ -238,44 +238,7 @@ public class MenuManager : MonoBehaviour
         sequence.Append(button.transform.DOScale(1.2f, 0.1f).SetEase(Ease.OutBack));
     }
     
-    void Update()
-    {
-        ChangeHeaderColour();
-
-        // Toggle between the settings menus. (Game, Audio, Video, etc.)
-        SwitchBetweenHeaderMenus();
-
-        return;
-        void SwitchBetweenHeaderMenus()
-        {
-            // Get the player's player input
-            if (PlayerInput.all.Count == 0) return;
-            var action = PlayerInput.all[0].actions["SwitchSettingsMenu"];
-            var input  = action.ReadValue<Vector2>();
-
-            if (!action.triggered) return;
-        
-            GameObject currentMenu = settingsMenus.Find(menu => menu.activeSelf);
-            GameObject newMenu;
-        
-            if (currentMenu == null) return;
-
-            // Q to go left.
-            if (input.x < 0)
-            {
-                currentMenu.SetActive(false);
-                newMenu = settingsMenus[Mathf.Clamp(settingsMenus.IndexOf(currentMenu) - 1, 0, settingsMenus.Count - 1)];
-                ToggleSettingsMenu(newMenu);
-            }
-            // E to go right.
-            else
-            {
-                currentMenu.SetActive(false);
-                newMenu = settingsMenus[Mathf.Clamp(settingsMenus.IndexOf(currentMenu) + 1, 0, settingsMenus.Count - 1)];
-                ToggleSettingsMenu(newMenu);
-            }
-        }
-    }
+    void Update() => ChangeHeaderColour();
 
     void ChangeHeaderColour()
     {
@@ -316,10 +279,12 @@ public class MenuManager : MonoBehaviour
         if (mainMenu) mainMenu.SetActive(!mainMenu.activeSelf);
         settingsHeader.SetActive(!settingsHeader.activeSelf);
         
+        openMenu.Play();
+        
         ToggleGameMenu();
     }
-    
-    void ToggleSettingsMenu(GameObject menu)
+
+    public void ToggleSettingsMenu(GameObject menu)
     {
         bool isMenuActive = menu.activeSelf;
         

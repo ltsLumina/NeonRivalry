@@ -17,6 +17,12 @@ namespace MelenitasDev.SoundsGood
 		CSCancel,
 		CSConfirm,
 		Attack,
-		Dash
+		Dash,
+		BarStep,
+		Block,
+		Aerial,
+		Jump,
+		Land,
+		Hit
 	}
 }
