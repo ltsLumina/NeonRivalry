@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
+using static MenuManager;
 using static SceneManagerExtended;
 
 /// <summary>
@@ -135,7 +136,7 @@ public class MenuNavigator : MonoBehaviour
         int previousIndex = previousSelectedGameObject.transform.GetSiblingIndex();
         int currentIndex  = eventSystem.currentSelectedGameObject.transform.GetSiblingIndex();
 
-        if ((MainMenuScene || GameScene) && MenuManager.IsAnySettingsMenuActive())
+        if ((MainMenuScene || GameScene) && IsAnySettingsMenuActive())
         {
             previousIndex = previousSelectedGameObject.transform.parent.GetSiblingIndex();
             currentIndex  = eventSystem.currentSelectedGameObject.transform.parent.GetSiblingIndex();
@@ -322,6 +323,8 @@ public class MenuNavigator : MonoBehaviour
     {
         if (context.performed)
         {
+            if (GameManager.IsPaused && GameManager.PausingPlayer.PlayerID != PlayerID) return;
+
             var menuManager = FindObjectOfType<MenuManager>();
             if (menuManager == null) return;
 
@@ -331,6 +334,27 @@ public class MenuNavigator : MonoBehaviour
             {
                 if (input.x > 0) CSNavigateLeft.Play();
                 if (input.x < 0) CSNavigateRight.Play();
+                
+                GameObject currentMenu = settingsMenus.Find(menu => menu.activeSelf);
+                GameObject newMenu;
+
+                if (currentMenu == null) return;
+
+                // Q to go left.
+                if (input.x < 0)
+                {
+                    currentMenu.SetActive(false);
+                    newMenu = settingsMenus[Mathf.Clamp(settingsMenus.IndexOf(currentMenu) - 1, 0, settingsMenus.Count - 1)];
+                    menuManager.ToggleSettingsMenu(newMenu);
+                }
+
+                // E to go right.
+                else
+                {
+                    currentMenu.SetActive(false);
+                    newMenu = settingsMenus[Mathf.Clamp(settingsMenus.IndexOf(currentMenu) + 1, 0, settingsMenus.Count - 1)];
+                    menuManager.ToggleSettingsMenu(newMenu);
+                }
             }
         }
     }

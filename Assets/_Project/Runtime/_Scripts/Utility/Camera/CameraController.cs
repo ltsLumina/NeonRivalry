@@ -60,6 +60,8 @@ public class CameraController : MonoBehaviour
     /// </summary>
     void Follow()
     {
+        if (TimelinePlayer.IsPlaying) return;
+        
         // If either target is null, the method returns immediately without executing the rest of the code.
         if (target1 == null || target2 == null) return;
 

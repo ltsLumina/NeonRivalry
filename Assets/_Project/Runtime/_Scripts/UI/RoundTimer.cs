@@ -67,6 +67,12 @@ public class RoundTimer : MonoBehaviour
     {
         Finished = true;
         Debug.Log("Timer has ended!");
+        
+        // Select the player with the most health as the player who won.
+        var losingPlayer = PlayerManager.PlayerOne.Healthbar.Health > PlayerManager.PlayerTwo.Healthbar.Health ? PlayerManager.PlayerTwo : PlayerManager.PlayerOne;
+        
+        var roundManager = FindObjectOfType<RoundManager>();
+        roundManager.IncrementRound(losingPlayer);
     }
 
     void Update()

@@ -7,6 +7,7 @@ using System.Collections;
 using Cinemachine;
 using DG.Tweening;
 using Lumina.Essentials.Attributes;
+using MelenitasDev.SoundsGood;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
@@ -524,6 +525,7 @@ public partial class PlayerController : MonoBehaviour
         DisablePlayer(true);
         GamepadExtensions.StopAllRumble();
         GamepadExtensions.RumbleAll(true, 0.5f, 1f, 0.65f);
+        AudioManager.PauseAll(3f);
 
         // Get the Volume component
         var volume = FindObjectOfType<Volume>();
@@ -581,7 +583,6 @@ public partial class PlayerController : MonoBehaviour
 
             // Start the AutoDolly
             body.m_AutoDolly.m_Enabled = true;
-
         }
     }
 

@@ -1,6 +1,7 @@
 using MelenitasDev.SoundsGood;
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using VInspector;
 using static SceneManagerExtended;
@@ -93,6 +94,21 @@ public class SettingsManager : MonoBehaviour
     {
         mixer.SetFloat("SFX", Mathf.Log10(value) * 40);
         PlayerPrefs.SetFloat("SFX", value);
+    }
+
+    public void Rumble(int playerID)
+    {
+        switch (playerID)
+        {
+            case 1:
+                var gamepad = InputDeviceManager.PlayerOneDevice as Gamepad;
+                gamepad.Rumble((int) player1RumbleSlider.value, player1RumbleSlider.value);
+                break;
+            case 2:
+                var gamepad2 = InputDeviceManager.PlayerTwoDevice as Gamepad;
+                gamepad2.Rumble((int) player2RumbleSlider.value, player2RumbleSlider.value);
+                break;
+        }
     }
 
     public void OnVolumeChanged()
