@@ -84,6 +84,7 @@ public partial class PlayerController : MonoBehaviour
     public HurtBox HurtBox { get; private set; }
     public bool IsInvincible { get; set; }
     public bool ActivateTrail { get; set; }
+    public bool IsAbleToDash { get; set; }
 
     string ThisPlayer => $"Player {PlayerID}";
     public bool IsCrouching => Animator.GetBool("IsCrouching");
@@ -134,6 +135,7 @@ public partial class PlayerController : MonoBehaviour
         
         Rigidbody.useGravity = false;
         DefaultGravity = GlobalGravity;
+        IsAbleToDash = true;
     }
 
     void OnDestroy()
@@ -161,6 +163,7 @@ public partial class PlayerController : MonoBehaviour
         // Exit the jump animation if the player is grounded.
         if (IsGrounded() && Animator.GetCurrentAnimatorStateInfo(0).IsName("Jump")) Animator.Play("Idle");
         if (IsGrounded()) HasAirborneAttacked = false;
+        if (IsGrounded()) IsAbleToDash = true;
 
         if (!IsGrounded() && !IsJumping()) Animator.SetBool("IsFalling", true);
         else if (IsGrounded()) Animator.SetBool("IsFalling", false);
