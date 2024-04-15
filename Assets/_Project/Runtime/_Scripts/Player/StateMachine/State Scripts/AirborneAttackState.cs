@@ -64,6 +64,7 @@ public class AirborneAttackState : State
         if (timeAirborne >= requiredAirTime && !IsAirborneAttacking && !player.HasAirborneAttacked)
         {
             IsAirborneAttacking = true;
+            player.Animator.SetBool("AirborneAttacking", true);
             player.HasAirborneAttacked = true;
         }
 
@@ -114,6 +115,7 @@ public class AirborneAttackState : State
         
         IsAirborneAttacking = false;
         IsAirborne          = false;
+        player.Animator.SetBool("AirborneAttacking", false);
 
         player.StateMachine.TransitionToState(player.IsGrounded() ? StateType.Idle : StateType.Fall);
 
