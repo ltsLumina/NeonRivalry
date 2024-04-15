@@ -14,6 +14,7 @@ using UnityEngine.Rendering.Universal;
 using UnityEngine.VFX;
 using VInspector;
 using static State;
+using MelenitasDev.SoundsGood;
 #endregion
 
 /// <summary>
@@ -70,6 +71,8 @@ public partial class PlayerController : MonoBehaviour
     float acceleration = 8f;
     float deceleration = 10f;
     float velocityPower = 1.4f;
+
+    Sound landSFX;
     
     // -- Properties --  
     public Rigidbody Rigidbody { get; private set; }
@@ -169,6 +172,7 @@ public partial class PlayerController : MonoBehaviour
             // If the player has just landed, flip the model
             if (IsGrounded())
             {
+                landSFX.Play();
                 FlipModel();
                 IsAbleToDash = true;
                 if (!SettingsManager.ShowParticles) return;
@@ -296,6 +300,9 @@ public partial class PlayerController : MonoBehaviour
             gameObject.name = $"Player {PlayerID}";
             Debug.LogWarning("Character is null. Please assign a character to the player.");
         }
+
+        landSFX = new Sound(SFX.Land);
+        landSFX.SetVolume(1f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(.8f, .8f));
 
         playerShadowStartingScale = playerShadow.transform.localScale;
         playerShadowStartingHeight = playerShadow.transform.position.y;

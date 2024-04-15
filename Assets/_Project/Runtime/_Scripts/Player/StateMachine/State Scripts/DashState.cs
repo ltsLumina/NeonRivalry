@@ -52,7 +52,7 @@ public class DashState : State
         player.Rigidbody.velocity = Vector3.zero;
 
         dashSFX = new Sound(SFX.Dash);
-        dashSFX.SetVolume(0.1f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(1f, 1.1f));
+        dashSFX.SetVolume(0.75f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(1f, 1.1f));
         dashSFX.Play();
         
         player.StartCoroutine(HandleDashing());

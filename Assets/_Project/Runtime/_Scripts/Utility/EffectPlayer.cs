@@ -17,11 +17,15 @@ public class EffectPlayer : MonoBehaviour
     // -- Sounds -- \\
     
     Sound overheadSFX;
+    Sound overheadWindupSFX;
     Sound slashSFX;
     Sound uppercutSFX;
     Sound hookSFX;
     Sound aerialSFX; 
     Sound barStepSFX;
+    Sound blockSFX;
+    Sound jumpSFX;
+    Sound hitSFX;
 
     void PlayOverheadEffect() => PlayEffect(overhead);
     void PlaySlashEffect() => PlayEffect(slash);
@@ -29,22 +33,30 @@ public class EffectPlayer : MonoBehaviour
     void PlayHookEffect() => PlayEffect(hook);
     void PlayAerialEffect() => PlayEffect(aerial);
 
-    void PlayOverheadSound() => PlaySound(overheadSFX);
+    void PlayOverheadSound() => PlaySound(overheadWindupSFX);
+    void PlayOverheadWindupSound() => PlaySound(overheadSFX);
     void PlaySlashSound() => PlaySound(slashSFX);
     void PlayUppercutSound() => PlaySound(uppercutSFX);
     void PlayHookSound() => PlaySound(hookSFX);
     void PlayAerialSound() => PlaySound(aerialSFX);
     void PlayBarStepSound() => PlaySound(barStepSFX);
+    void PlayBlockSound() => PlaySound(blockSFX);
+    void PlayJumpSound() => PlaySound(jumpSFX);
+    void PlayHitSound() => PlaySound(hitSFX);
 
     void Start()
     {
         // TODO: Uncomment this when the sound effects are added
-        // overheadSFX = new Sound(SFX.Overhead);
-         slashSFX = new Sound(SFX.Attack);
-        // uppercutSFX = new Sound(SFX.Uppercut);
-        hookSFX = new Sound(SFX.Attack);
-        // aerialSFX = new Sound(SFX.Aerial);
-        barStepSFX = new Sound(SFX.BarStep);
+        overheadSFX       = new Sound(SFX.Attack);
+        overheadWindupSFX = new Sound(SFX.Attack);
+        slashSFX          = new Sound(SFX.Attack);
+        uppercutSFX       = new Sound(SFX.Attack);
+        hookSFX           = new Sound(SFX.Attack);
+        aerialSFX         = new Sound(SFX.Aerial);
+        barStepSFX        = new Sound(SFX.BarStep);
+        blockSFX          = new Sound(SFX.Block);
+        jumpSFX           = new Sound(SFX.Jump);
+        hitSFX            = new Sound(SFX.Hit);
         
         // Set the Output Mixer Group and Volume
         ConfigureAudio();
@@ -53,12 +65,16 @@ public class EffectPlayer : MonoBehaviour
     void ConfigureAudio()
     {
         // TODO: Same here
-        // overheadSFX.SetOutput(Output.SFX).SetVolume(1);
-        slashSFX.SetVolume(1f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(1.3f, 1.5f));
-        // uppercutSFX.SetOutput(Output.SFX).SetVolume(1);
-        hookSFX.SetVolume(1f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(0.6f, 0.8f)).SetFadeOut(0.15f);
-        // aerialSFX.SetOutput(Output.SFX).SetVolume(1);
-        barStepSFX.SetVolume(1f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(.8f, .9f)).SetFadeOut(0.25f);
+        overheadWindupSFX.SetVolume(1f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(.75f, .75f)).SetFadeOut(0.1f);
+        overheadSFX      .SetVolume(1.5f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(0.5f, 0.5f)).SetFadeOut(0.3f);
+        slashSFX         .SetVolume(0.6f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(1.3f, 1.5f));
+        uppercutSFX      .SetVolume(1f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(0.8f, 1f)).SetFadeOut(0.15f);
+        hookSFX          .SetVolume(1f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(0.6f, 0.8f)).SetFadeOut(0.15f);
+        aerialSFX        .SetVolume(3f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch().SetFadeOut(0.15f);
+        barStepSFX       .SetVolume(4f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(.75f, 85f));
+        blockSFX         .SetVolume(.6f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(1.2f, 1.4f)).SetFadeOut(.15f);
+        jumpSFX          .SetVolume(1f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch();
+        hitSFX           .SetVolume(.6f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch();
     }
 
     void PlayEffect(GameObject effect)
