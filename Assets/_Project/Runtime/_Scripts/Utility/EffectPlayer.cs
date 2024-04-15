@@ -20,19 +20,21 @@ public class EffectPlayer : MonoBehaviour
     Sound slashSFX;
     Sound uppercutSFX;
     Sound hookSFX;
-    Sound aerialSFX;
+    Sound aerialSFX; 
+    Sound barStepSFX;
 
     void PlayOverheadEffect() => PlayEffect(overhead);
     void PlaySlashEffect() => PlayEffect(slash);
     void PlayUppercutEffect() => PlayEffect(uppercut);
     void PlayHookEffect() => PlayEffect(hook);
     void PlayAerialEffect() => PlayEffect(aerial);
-    
+
     void PlayOverheadSound() => PlaySound(overheadSFX);
     void PlaySlashSound() => PlaySound(slashSFX);
     void PlayUppercutSound() => PlaySound(uppercutSFX);
     void PlayHookSound() => PlaySound(hookSFX);
     void PlayAerialSound() => PlaySound(aerialSFX);
+    void PlayBarStepSound() => PlaySound(barStepSFX);
 
     void Start()
     {
@@ -42,6 +44,7 @@ public class EffectPlayer : MonoBehaviour
         // uppercutSFX = new Sound(SFX.Uppercut);
         hookSFX = new Sound(SFX.Attack);
         // aerialSFX = new Sound(SFX.Aerial);
+        barStepSFX = new Sound(SFX.BarStep);
         
         // Set the Output Mixer Group and Volume
         ConfigureAudio();
@@ -55,6 +58,7 @@ public class EffectPlayer : MonoBehaviour
         // uppercutSFX.SetOutput(Output.SFX).SetVolume(1);
         hookSFX.SetVolume(1f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(0.6f, 0.8f)).SetFadeOut(0.15f);
         // aerialSFX.SetOutput(Output.SFX).SetVolume(1);
+        barStepSFX.SetVolume(1f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(.8f, .9f)).SetFadeOut(0.25f);
     }
 
     void PlayEffect(GameObject effect)
