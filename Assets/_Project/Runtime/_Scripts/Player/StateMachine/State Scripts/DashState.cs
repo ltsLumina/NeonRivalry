@@ -92,7 +92,7 @@ public class DashState : State
         if (player.IsGrounded() && player.InputManager.MoveInput.x != 0) player.StateMachine.TransitionToState(StateType.Walk);
         else if (player.IsGrounded()) player.StateMachine.TransitionToState(StateType.Idle);
 
-        if (dashed) player.StateMachine.TransitionToState(StateType.Fall);
+        if (dashed && !player.IsGrounded()) player.StateMachine.TransitionToState(StateType.Fall);
     }
     #endregion
 

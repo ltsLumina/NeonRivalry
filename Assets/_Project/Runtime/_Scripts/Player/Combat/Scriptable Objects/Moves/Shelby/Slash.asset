@@ -21,12 +21,14 @@ MonoBehaviour:
   name: Slash
   description: 
   damage: 5
-  knockbackForce: {x: 15, y: 1.7}
+  knockbackForce: {x: 6, y: 1.7}
   knockbackDir: {x: -1, y: 1}
-  knockBackAttacker: 0
+  knockBackAttacker: 1
   screenShake: 0
   screenShakeAmplitude: 0
-  hitstunDuration: 0.1
+  screenShakeFrequency: 1
+  screenShakeDuration: 0.25
+  hitstunDuration: 0.08
   isAirborne: 0
   isSweep: 0
   isOverhead: 0
