@@ -21,9 +21,9 @@ MonoBehaviour:
   name: Slash
   description: 
   damage: 5
-  knockbackForce: {x: 6.27, y: 0}
-  knockbackDir: {x: -1, y: 0}
-  knockBackAttacker: 1
+  knockbackForce: {x: 15, y: 1.7}
+  knockbackDir: {x: -1, y: 1}
+  knockBackAttacker: 0
   screenShake: 0
   screenShakeAmplitude: 0
   hitstunDuration: 0.1
@@ -35,5 +35,5 @@ MonoBehaviour:
   isGuardBreak: 0
   moveEffects: []
   showWarning: 0
-  wrongDir: {x: -1, y: 1}
-  wrongForce: {x: 2, y: 0}
+  wrongDir: {x: -1, y: 0}
+  wrongForce: {x: 15, y: 1}
