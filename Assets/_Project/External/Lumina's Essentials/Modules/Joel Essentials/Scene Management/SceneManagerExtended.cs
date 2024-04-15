@@ -18,7 +18,7 @@ public static class SceneManagerExtended
     public static int Bar => 3;
     public static int Street => 4;
 
-    public static int PreviousScene { get; private set; }
+    public static int PreviousScene { get; set; }
     public static string ActiveSceneName => SceneManager.GetActiveScene().name;
     public static int ActiveScene => SceneManager.GetActiveScene().buildIndex;
     

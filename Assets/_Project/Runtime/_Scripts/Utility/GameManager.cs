@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using Lumina.Essentials.Sequencer;
 using MelenitasDev.SoundsGood;
+using TransitionsPlus;
 using UnityEngine;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
@@ -205,6 +206,38 @@ public class GameManager : MonoBehaviour
         {
             LoadScene(MainMenu);
         });
+    }
+
+    public void LoadBar()
+    {
+        FadeOutMusic();
+        
+        var sequence = new Sequence(this);
+        sequence.WaitThenExecute
+        (1.5f, () =>
+        {
+            LoadScene(Bar);
+        });
+    }
+    
+    public void LoadStreet()
+    {
+        FadeOutMusic();
+        
+        var sequence = new Sequence(this);
+        sequence.WaitThenExecute
+        (1.5f, () =>
+        {
+            LoadScene(Street);
+        });
+    }
+
+    public void ReloadScene()
+    {
+        FadeOutMusic();
+        
+        var sequence = new Sequence(this);
+        sequence.WaitThenExecute(1.5f, () => GameObject.FindWithTag("ReloadTransition").GetComponent<TransitionAnimator>().enabled = true);
     }
     
     public void QuitGame()

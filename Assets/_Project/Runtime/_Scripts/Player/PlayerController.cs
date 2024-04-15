@@ -71,6 +71,8 @@ public partial class PlayerController : MonoBehaviour
     float acceleration = 8f;
     float deceleration = 10f;
     float velocityPower = 1.4f;
+
+    bool timerDeath;
     
     // -- Properties --  
     public Rigidbody Rigidbody { get; private set; }
@@ -138,6 +140,7 @@ public partial class PlayerController : MonoBehaviour
     {
         Healthbar.OnPlayerDeath -= Death;
         PlayerInput.actions.FindAction("Unique").performed -= SubscribeOnUnique;
+        RoundTimer.OnTimerEnded -= TimerDeath;
     }
 
     void Start() => Initialize();
@@ -227,6 +230,8 @@ public partial class PlayerController : MonoBehaviour
 
     void Movement()
     {
+        if (!InputManager.Enabled) return;
+        
         // Getting the move input from the player's input manager.
         Vector2 moveInput = InputManager.MoveInput;
     
@@ -338,6 +343,7 @@ public partial class PlayerController : MonoBehaviour
         
         PlayerManager.AssignHealthbarToPlayer(this, PlayerID);
         Healthbar.OnPlayerDeath += Death;
+        RoundTimer.OnTimerEnded += TimerDeath;
 
         // Player has been fully initialized.
         // Invoke the OnPlayerJoin event from the InputDeviceManager.
@@ -348,6 +354,8 @@ public partial class PlayerController : MonoBehaviour
         gameObject.SetActive(false);
         gameObject.SetActive(true);
     }
+
+    void TimerDeath() => timerDeath = true;
 
     void SubscribeOnUnique(InputAction.CallbackContext ctx) => InputManager.OnUnique(ctx);
 
@@ -519,11 +527,14 @@ public partial class PlayerController : MonoBehaviour
         InputManager.Enabled = !disabled;
         HitBox.enabled       = !disabled;
     }
-
-    void Death(PlayerController playerThatDied)
+    
+    public void Death(PlayerController playerThatDied)
     {
-        Animator.SetTrigger("Died");
-        Animator.SetBool("Dead", true);
+        if (!timerDeath)
+        {
+            Animator.SetTrigger("Died");
+            Animator.SetBool("Dead", true);
+        }
         
         DisablePlayer(true);
         GamepadExtensions.StopAllRumble();
