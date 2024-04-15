@@ -38,22 +38,22 @@ public class EffectPlayer : MonoBehaviour
     {
         // TODO: Uncomment this when the sound effects are added
         // overheadSFX = new Sound(SFX.Overhead);
-        // slashSFX = new Sound(SFX.Slash);
+         slashSFX = new Sound(SFX.Attack);
         // uppercutSFX = new Sound(SFX.Uppercut);
-        // hookSFX = new Sound(SFX.Hook);
+        hookSFX = new Sound(SFX.Attack);
         // aerialSFX = new Sound(SFX.Aerial);
         
         // Set the Output Mixer Group and Volume
-        SetMixerAndVolume();
+        ConfigureAudio();
     }
 
-    void SetMixerAndVolume()
+    void ConfigureAudio()
     {
         // TODO: Same here
         // overheadSFX.SetOutput(Output.SFX).SetVolume(1);
-        // slashSFX.SetOutput(Output.SFX).SetVolume(1);
+        slashSFX.SetVolume(1f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(1.3f, 1.5f));
         // uppercutSFX.SetOutput(Output.SFX).SetVolume(1);
-        // hookSFX.SetOutput(Output.SFX).SetVolume(1);
+        hookSFX.SetVolume(1f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(0.6f, 0.8f)).SetFadeOut(0.15f);
         // aerialSFX.SetOutput(Output.SFX).SetVolume(1);
     }
 
