@@ -1,32 +1,86 @@
+#region
 using System.Collections;
+using System.Linq;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
+#endregion
 
 public class ResultScreen : MonoBehaviour
 {
+    [Header("Components")]
     [SerializeField] TextMeshProUGUI winner;
-    // Get all sliders in the children of this GameObject
+    [SerializeField] Button p1Rematch;
+    [SerializeField] Button p2Rematch;
+    
+    [Header("Values")]
+    [SerializeField] float animationDuration = 2f;
+
     Slider[] sliders;
-    public float animationDuration = 2f;
+    void Awake() => sliders = GetComponentsInChildren<Slider>();
 
-    private void Awake()
+    void Start()
     {
-        sliders = GetComponentsInChildren<Slider>();
+        Reset();
+        RandomizeSliderValues(1, 100);
     }
 
-    private void Start()
+    void Reset()
     {
-        StartCoroutine(RandomizeSliderValues(1, 100));
-        if (FindObjectOfType<RoundManager>() == null) { return; }
-
-        //FindObjectOfType<RoundManager>().player1Victory = true;
-        //winner.text = FindObjectOfType<RoundManager>().player1Victory ? "Player 1 Has Won" : "Player 2 Has Won";
-
+        foreach (Slider slider in sliders)
+        {
+            slider.value = 0;
+        }
     }
 
-    IEnumerator RandomizeSliderValues(float minValue, float maxValue)
+    public IEnumerator EnableResultScreen(PlayerController winningPlayer)
+    {
+        // Disable the timer.
+        RoundTimer timer = FindObjectOfType<RoundTimer>();
+        timer.gameObject.SetActive(false);
+        
+        yield return new WaitUntil(() => FindObjectsOfType<PlayerController>().Length == 2);
+        
+        // Disable the players
+        foreach (PlayerController player in FindObjectsOfType<PlayerController>())
+        {
+            player.DisablePlayer(true);
+        }
+        
+        transform.GetChild(0).position = new (0, 1000, 0);
+        gameObject.SetActive(true);
+
+        transform.GetChild(0).DOLocalMoveY(0, 3f).SetEase(Ease.OutBack);
+        StartCoroutine(Navigate());
+
+        RandomizeSliderValues(1, 100);
+
+        winner.text = winningPlayer ? "Player 1 Has Won" : "Player 2 Has Won";
+    }
+
+    IEnumerator Navigate()
+    {
+        yield return new WaitUntil(() => FindObjectsOfType<MenuNavigator>().Length == 2);
+        
+        var p1 = FindObjectsOfType<MenuNavigator>().FirstOrDefault(p => p.PlayerID == 1);
+        var p2 = FindObjectsOfType<MenuNavigator>().FirstOrDefault(p => p.PlayerID == 2);
+        
+        p1.GetComponent<MultiplayerEventSystem>().SetSelectedGameObject(p1Rematch.gameObject);
+        p2.GetComponent<MultiplayerEventSystem>().SetSelectedGameObject(p2Rematch.gameObject);
+        
+        Debug.Log("Navigated to rematch buttons.", p1.GetComponent<MultiplayerEventSystem>().currentSelectedGameObject);
+    }
+
+    /// <summary>
+    ///     This is the method in charge of randomizing the showcased slider values in the result screen.
+    /// </summary>
+    /// <param name="minValue">Minimum range value which serves as a basis for the sliders</param>
+    /// <param name="maxValue">Maximum range value which serves as a basis for the sliders</param>
+    /// <returns></returns>
+    void RandomizeSliderValues(float minValue, float maxValue)
     {
         foreach (Slider slider in sliders)
         {
@@ -36,7 +90,5 @@ public class ResultScreen : MonoBehaviour
             // Lerp the slider to the random value. The bool makes the slider fill in differently, I like true more.
             slider.DOValue(randomValue, animationDuration, true);
         }
-
-        yield return null;
     }
 }

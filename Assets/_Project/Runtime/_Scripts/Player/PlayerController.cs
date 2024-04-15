@@ -7,6 +7,7 @@ using System.Collections;
 using Cinemachine;
 using DG.Tweening;
 using Lumina.Essentials.Attributes;
+using MelenitasDev.SoundsGood;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
@@ -14,7 +15,6 @@ using UnityEngine.Rendering.Universal;
 using UnityEngine.VFX;
 using VInspector;
 using static State;
-using MelenitasDev.SoundsGood;
 #endregion
 
 /// <summary>
@@ -72,7 +72,7 @@ public partial class PlayerController : MonoBehaviour
     float deceleration = 10f;
     float velocityPower = 1.4f;
 
-    Sound landSFX;
+    bool timerDeath;
     
     // -- Properties --  
     public Rigidbody Rigidbody { get; private set; }
@@ -84,7 +84,6 @@ public partial class PlayerController : MonoBehaviour
     public HurtBox HurtBox { get; private set; }
     public bool IsInvincible { get; set; }
     public bool ActivateTrail { get; set; }
-    public bool IsAbleToDash { get; set; }
 
     string ThisPlayer => $"Player {PlayerID}";
     public bool IsCrouching => Animator.GetBool("IsCrouching");
@@ -135,13 +134,13 @@ public partial class PlayerController : MonoBehaviour
         
         Rigidbody.useGravity = false;
         DefaultGravity = GlobalGravity;
-        IsAbleToDash = true;
     }
 
     void OnDestroy()
     {
         Healthbar.OnPlayerDeath -= Death;
         PlayerInput.actions.FindAction("Unique").performed -= SubscribeOnUnique;
+        RoundTimer.OnTimerEnded -= TimerDeath;
     }
 
     void Start() => Initialize();
@@ -162,7 +161,6 @@ public partial class PlayerController : MonoBehaviour
         // Exit the jump animation if the player is grounded.
         if (IsGrounded() && Animator.GetCurrentAnimatorStateInfo(0).IsName("Jump")) Animator.Play("Idle");
         if (IsGrounded()) HasAirborneAttacked = false;
-        if (IsGrounded()) IsAbleToDash = true;
 
         if (!IsGrounded() && !IsJumping()) Animator.SetBool("IsFalling", true);
         else if (IsGrounded()) Animator.SetBool("IsFalling", false);
@@ -173,8 +171,8 @@ public partial class PlayerController : MonoBehaviour
             // If the player has just landed, flip the model
             if (IsGrounded())
             {
-                landSFX.Play();
-                FlipModel();
+                FlipModel(); 
+                
                 if (!SettingsManager.ShowParticles) return;
                 playerLandVFX.Play(); 
             }
@@ -218,7 +216,7 @@ public partial class PlayerController : MonoBehaviour
             }
         }
     }
-    
+
     void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Player"))
@@ -232,6 +230,8 @@ public partial class PlayerController : MonoBehaviour
 
     void Movement()
     {
+        if (!InputManager.Enabled) return;
+        
         // Getting the move input from the player's input manager.
         Vector2 moveInput = InputManager.MoveInput;
     
@@ -301,9 +301,6 @@ public partial class PlayerController : MonoBehaviour
             Debug.LogWarning("Character is null. Please assign a character to the player.");
         }
 
-        landSFX = new Sound(SFX.Land);
-        landSFX.SetVolume(1f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(.8f, .8f));
-
         playerShadowStartingScale = playerShadow.transform.localScale;
         playerShadowStartingHeight = playerShadow.transform.position.y;
 
@@ -346,6 +343,7 @@ public partial class PlayerController : MonoBehaviour
         
         PlayerManager.AssignHealthbarToPlayer(this, PlayerID);
         Healthbar.OnPlayerDeath += Death;
+        RoundTimer.OnTimerEnded += TimerDeath;
 
         // Player has been fully initialized.
         // Invoke the OnPlayerJoin event from the InputDeviceManager.
@@ -356,6 +354,8 @@ public partial class PlayerController : MonoBehaviour
         gameObject.SetActive(false);
         gameObject.SetActive(true);
     }
+
+    void TimerDeath() => timerDeath = true;
 
     void SubscribeOnUnique(InputAction.CallbackContext ctx) => InputManager.OnUnique(ctx);
 
@@ -527,22 +527,29 @@ public partial class PlayerController : MonoBehaviour
         InputManager.Enabled = !disabled;
         HitBox.enabled       = !disabled;
     }
-
-    void Death(PlayerController playerThatDied)
+    
+    public void Death(PlayerController playerThatDied)
     {
+        if (!timerDeath)
+        {
+            Animator.SetTrigger("Died");
+            Animator.SetBool("Dead", true);
+        }
+        
         DisablePlayer(true);
         GamepadExtensions.StopAllRumble();
         GamepadExtensions.RumbleAll(true, 0.5f, 1f, 0.65f);
+        AudioManager.PauseAll(3f);
+        
+        // Flip the death track
+        var deathTrack = GetComponentInChildren<CinemachineSmoothPath>();
+        deathTrack.transform.localScale = new (FacingDirection, 1, 1);
 
         // Get the Volume component
         var volume = FindObjectOfType<Volume>();
         if (volume == null) return;
 
         StartCoroutine(DeathEffect());
-
-        // Stop any ongoing animations and play the death animation
-        Animator.Play("Idle");
-        //Animator.SetTrigger("HasDied");
         
         Debug.Log($"{ThisPlayer} died!");
 
@@ -550,9 +557,9 @@ public partial class PlayerController : MonoBehaviour
         IEnumerator DeathEffect()
         {
             // Try to get the ChromaticAberration effect
-            if (!volume.profile.TryGet(out ChromaticAberration chromaticAberration)) { Debug.LogWarning($"The {typeof(ChromaticAberration)} post processing effect is missing on the volume!", volume); yield break; }
-            if (!volume.profile.TryGet(out DepthOfField depthOfField)) { Debug.LogWarning($"The {typeof(DepthOfField)} post processing effect is missing on the volume!", volume); yield break; }
-            if (!volume.profile.TryGet(out LensDistortion lensDistortion)) { Debug.LogWarning($"The {typeof(LensDistortion)} post processing effect is missing on the volume!", volume); yield break; }
+            if (!volume.profile.TryGet(out ChromaticAberration chromaticAberration)) { Debug.LogWarning($"The {nameof(ChromaticAberration)} post processing effect is missing on the volume!", volume); yield break; }
+            if (!volume.profile.TryGet(out DepthOfField depthOfField)) { Debug.LogWarning($"The {nameof(DepthOfField)} post processing effect is missing on the volume!", volume); yield break; }
+            if (!volume.profile.TryGet(out LensDistortion lensDistortion)) { Debug.LogWarning($"The {nameof(LensDistortion)} post processing effect is missing on the volume!", volume); yield break; }
             
             Sequence sequence = DOTween.Sequence();
             int      mult     = 2;
@@ -590,7 +597,6 @@ public partial class PlayerController : MonoBehaviour
 
             // Start the AutoDolly
             body.m_AutoDolly.m_Enabled = true;
-
         }
     }
 

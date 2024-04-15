@@ -209,6 +209,7 @@ namespace TransitionsPlus {
                     }
                 }
                 if (loadSceneAtEnd && !string.IsNullOrEmpty(sceneNameToLoad)) {
+                    SceneManagerExtended.PreviousScene = SceneManager.GetActiveScene().buildIndex;
                     SceneManager.LoadScene(sceneNameToLoad, sceneLoadMode);
                 }
             }

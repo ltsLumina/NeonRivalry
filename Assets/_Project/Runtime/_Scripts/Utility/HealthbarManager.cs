@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using Logger = Lumina.Debugging.Logger;
 
 public class HealthbarManager : MonoBehaviour
 {
@@ -13,11 +12,11 @@ public class HealthbarManager : MonoBehaviour
         {
             healthbar.OnPlayerDeath += SubscribeHealthbars;
 
-            if (Logger.DebugMode)
-            {
-                healthbar.Invincible = true;
-                Debug.Log("Player is invincible!");
-            }
+            // if (Logger.DebugMode)
+            // {
+            //     healthbar.Invincible = true;
+            //     Debug.Log("Player is invincible!");
+            // }
         }
     }
 

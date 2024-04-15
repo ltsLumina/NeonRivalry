@@ -19,33 +19,33 @@ public class MainMenuButtonEffect : MonoBehaviour
             sequence.Append(button.DOScale(1, 0.15f));
         }
         
-        sequence.OnComplete(Effect);
+        //sequence.OnComplete(Effect);
     }
 
-    void Effect()
-    {
-        // Create a new sequence
-        Sequence sequence = DOTween.Sequence();
-        DOTween.SetTweensCapacity(500, 50);
-        
-        for (int i = 0; i < stats.downbeatEvents.Count; i++)
-        {
-            sequence.AppendInterval(stats.downbeatEvents[i].delay);
-
-            for (int b = 0; b < 3; b++)
-            {
-                sequence.Append(button.DOScale(stats.scaleIncrease, 0.15f));
-                sequence.Append(button.DOScale(1, 0.15f));
-            }
-            
-            // Once you've reached the final downbeat event, loop indefinitely using the last delay value
-            if (i == stats.downbeatEvents.Count - 1)
-            {
-                sequence.AppendInterval(stats.downbeatEvents[i].delay);
-                sequence.SetLoops(-1, LoopType.Restart);
-            }
-        }
-    }
+    // void Effect()
+    // {
+    //     // Create a new sequence
+    //     Sequence sequence = DOTween.Sequence();
+    //     DOTween.SetTweensCapacity(500, 50);
+    //     
+    //     for (int i = 0; i < stats.downbeatEvents.Count; i++)
+    //     {
+    //         sequence.AppendInterval(stats.downbeatEvents[i].delay);
+    //
+    //         for (int b = 0; b < 3; b++)
+    //         {
+    //             sequence.Append(button.DOScale(stats.scaleIncrease, 0.15f));
+    //             sequence.Append(button.DOScale(1, 0.15f));
+    //         }
+    //         
+    //         // Once you've reached the final downbeat event, loop indefinitely using the last delay value
+    //         if (i == stats.downbeatEvents.Count - 1)
+    //         {
+    //             sequence.AppendInterval(stats.downbeatEvents[i].delay);
+    //             sequence.SetLoops(-1, LoopType.Restart);
+    //         }
+    //     }
+    // }
 
     void Start()
     {

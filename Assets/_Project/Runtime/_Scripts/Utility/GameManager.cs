@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using Lumina.Essentials.Sequencer;
 using MelenitasDev.SoundsGood;
+using TransitionsPlus;
 using UnityEngine;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
@@ -131,7 +132,9 @@ public class GameManager : MonoBehaviour
     {
         acceptSFX = new (SFX.Accept);
         acceptSFX.SetOutput(Output.SFX);
-        
+
+        Music streetMusic;
+
         switch (ActiveScene)
         {
             case var mainMenu when mainMenu == MainMenu:
@@ -150,13 +153,32 @@ public class GameManager : MonoBehaviour
             case var game when game == Bar:
                 Music barMusic = new (Track.ThisIBelieve);
                 barMusic.SetOutput(Output.Music).SetVolume(1f);
-                barMusic.Play();
+                
+                streetMusic = new (Track.TheAlarmist);
+                streetMusic.SetOutput(Output.Music).SetVolume(1f);
+                
+                if (barMusic.Playing || streetMusic.Playing) return;
+                if (barMusic.Paused || streetMusic.Paused)
+                {
+                    barMusic.Resume();
+                    streetMusic.Resume();
+                    return;
+                }
+                
+                // choose one at random
+                if (UnityEngine.Random.value > 0.5f) barMusic.Play();
+                else streetMusic.Play();
+
                 break;
 
             case var game when game == Street:
-                Music streetMusic = new (Track.TheAlarmist);
+                streetMusic = new (Track.TheAlarmist);
                 streetMusic.SetOutput(Output.Music).SetVolume(1f);
-                streetMusic.Play();
+                
+                if (streetMusic.Playing) return;
+                
+                if (streetMusic.Paused) streetMusic.Resume();
+                else streetMusic.Play();
                 break;
         }
     }
@@ -174,6 +196,50 @@ public class GameManager : MonoBehaviour
         AudioManager.StopAll(duration);
     }
 
+    public void LoadMainMenu()
+    {
+        FadeOutMusic();
+        
+        var sequence = new Sequence(this);
+        sequence.WaitThenExecute
+        (1f, () =>
+        {
+            LoadScene(MainMenu);
+        });
+    }
+
+    public void LoadBar()
+    {
+        FadeOutMusic();
+        
+        var sequence = new Sequence(this);
+        sequence.WaitThenExecute
+        (1.5f, () =>
+        {
+            LoadScene(Bar);
+        });
+    }
+    
+    public void LoadStreet()
+    {
+        FadeOutMusic();
+        
+        var sequence = new Sequence(this);
+        sequence.WaitThenExecute
+        (1.5f, () =>
+        {
+            LoadScene(Street);
+        });
+    }
+
+    public void ReloadScene()
+    {
+        FadeOutMusic();
+        
+        var sequence = new Sequence(this);
+        sequence.WaitThenExecute(1.5f, () => GameObject.FindWithTag("ReloadTransition").GetComponent<TransitionAnimator>().enabled = true);
+    }
+    
     public void QuitGame()
     {
         FadeOutMusic();
@@ -250,6 +316,9 @@ public class GameManager : MonoBehaviour
             Debug.Log($"Player {PausingPlayer.PlayerID} paused the game.");
             var menuManager = FindObjectOfType<MenuManager>();
             menuManager.PauseTitle.text = $"Paused (Player {PausingPlayer.PlayerID})";
+            
+            // Disable the healthbars parent
+            PausingPlayer.Healthbar.transform.parent.gameObject.SetActive(false);
 
             PausingPlayer.GetComponentInChildren<MultiplayerEventSystem>().SetSelectedGameObject(menuManager.showEffectsToggle.gameObject);
             var otherPlayer = PlayerManager.OtherPlayer(PausingPlayer);
@@ -261,6 +330,8 @@ public class GameManager : MonoBehaviour
             var otherPlayer = PlayerManager.OtherPlayer(PausingPlayer);
             if (otherPlayer != null) otherPlayer.GetComponentInChildren<InputSystemUIInputModule>().enabled = !IsPaused;
 
+            PausingPlayer.Healthbar.transform.parent.gameObject.SetActive(true);
+            
             PausingPlayer = null;
         }
     }

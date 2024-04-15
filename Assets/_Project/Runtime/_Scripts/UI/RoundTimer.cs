@@ -21,6 +21,7 @@ public class RoundTimer : MonoBehaviour
     [Header("Timer Settings")]
     [SerializeField, ReadOnly] float currentTime;
     [SerializeField, ReadOnly] bool finished;
+    [Tooltip("If true, the timer will count down instead of up.")]
     [SerializeField] bool countdownMode;
     
     [Header("Limit Settings"), Tooltip("If true, the timer will have a time limit.")]
@@ -62,11 +63,18 @@ public class RoundTimer : MonoBehaviour
 
     void OnEnable() => OnTimerEnded += TimerFinishedEvent;
     void OnDisable() => OnTimerEnded -= TimerFinishedEvent;
-
+    
     void TimerFinishedEvent()
     {
         Finished = true;
         Debug.Log("Timer has ended!");
+        
+        // Select the player with the most health as the player who won.
+        var losingPlayer = PlayerManager.PlayerOne.Healthbar.Health > PlayerManager.PlayerTwo.Healthbar.Health ? PlayerManager.PlayerTwo : PlayerManager.PlayerOne;
+        losingPlayer.Death(losingPlayer);
+        
+        var roundManager = FindObjectOfType<RoundManager>();
+        roundManager.IncrementRound(losingPlayer);
     }
 
     void Update()
@@ -82,8 +90,8 @@ public class RoundTimer : MonoBehaviour
     void InitializeTimeFormats()
     {
         timeFormats.Add(TimerFormat.Whole, "0");
-        timeFormats.Add(TimerFormat.TenthDecimal, "0.0");
-        timeFormats.Add(TimerFormat.HundredthsDecimal, "0.00");
+        timeFormats.Add(TimerFormat.TenthDecimal, "0,0");
+        timeFormats.Add(TimerFormat.HundredthsDecimal, "0");
     }
 
     #region Timer Methods
