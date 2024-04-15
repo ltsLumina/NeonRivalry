@@ -213,7 +213,7 @@ public partial class PlayerController : MonoBehaviour
             }
         }
     }
-    
+
     void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Player"))
@@ -522,20 +522,23 @@ public partial class PlayerController : MonoBehaviour
 
     void Death(PlayerController playerThatDied)
     {
+        Animator.SetTrigger("Died");
+        Animator.SetBool("Dead", true);
+        
         DisablePlayer(true);
         GamepadExtensions.StopAllRumble();
         GamepadExtensions.RumbleAll(true, 0.5f, 1f, 0.65f);
         AudioManager.PauseAll(3f);
+        
+        // Flip the death track
+        var deathTrack = GetComponentInChildren<CinemachineSmoothPath>();
+        deathTrack.transform.localScale = new (FacingDirection, 1, 1);
 
         // Get the Volume component
         var volume = FindObjectOfType<Volume>();
         if (volume == null) return;
 
         StartCoroutine(DeathEffect());
-
-        // Stop any ongoing animations and play the death animation
-        Animator.Play("Idle");
-        //Animator.SetTrigger("HasDied");
         
         Debug.Log($"{ThisPlayer} died!");
 
@@ -543,9 +546,9 @@ public partial class PlayerController : MonoBehaviour
         IEnumerator DeathEffect()
         {
             // Try to get the ChromaticAberration effect
-            if (!volume.profile.TryGet(out ChromaticAberration chromaticAberration)) { Debug.LogWarning($"The {typeof(ChromaticAberration)} post processing effect is missing on the volume!", volume); yield break; }
-            if (!volume.profile.TryGet(out DepthOfField depthOfField)) { Debug.LogWarning($"The {typeof(DepthOfField)} post processing effect is missing on the volume!", volume); yield break; }
-            if (!volume.profile.TryGet(out LensDistortion lensDistortion)) { Debug.LogWarning($"The {typeof(LensDistortion)} post processing effect is missing on the volume!", volume); yield break; }
+            if (!volume.profile.TryGet(out ChromaticAberration chromaticAberration)) { Debug.LogWarning($"The {nameof(ChromaticAberration)} post processing effect is missing on the volume!", volume); yield break; }
+            if (!volume.profile.TryGet(out DepthOfField depthOfField)) { Debug.LogWarning($"The {nameof(DepthOfField)} post processing effect is missing on the volume!", volume); yield break; }
+            if (!volume.profile.TryGet(out LensDistortion lensDistortion)) { Debug.LogWarning($"The {nameof(LensDistortion)} post processing effect is missing on the volume!", volume); yield break; }
             
             Sequence sequence = DOTween.Sequence();
             int      mult     = 2;

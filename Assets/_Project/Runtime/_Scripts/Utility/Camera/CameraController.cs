@@ -27,11 +27,14 @@ public class CameraController : MonoBehaviour
     [Tooltip("The speed at which the camera rotates, can also be considered as how precise the camera is.")]
     [SerializeField] float rotationSpeed = 5f;
 
+    [SerializeField] float yOffset = 3.39f;
+
+    [SerializeField] bool xbool;
+    
     [Tab("Settings")]
     [SerializeField, ReadOnly] Transform target1;
     [SerializeField, ReadOnly] Transform target2;
 
-    [SerializeField] bool xbool;
     
     // -- Cached References -- \\
 
@@ -80,7 +83,7 @@ public class CameraController : MonoBehaviour
         Vector3 midpoint = (target1.position + target2.position) / 2f;
         if (xbool)
         {
-            Vector3 directionToMidpointY = new Vector3(currentPosition.x, midpoint.y, 0) - currentPosition; // Only consider y-axis
+            Vector3 directionToMidpointY = new Vector3(currentPosition.x, midpoint.y + 1.35f, 0) - currentPosition; // Only consider y-axis
 
             // Smoothly rotate camera towards midpoint
             Quaternion targetRotation = Quaternion.LookRotation(directionToMidpointY);
@@ -93,6 +96,6 @@ public class CameraController : MonoBehaviour
 
         // Set the new position of the camera. The x-position is the x-coordinate of the midpoint, the y-position is the current y-position,
         // and the z-position is the newly calculated z-position.
-        vCam.transform.position = new Vector3(midpoint.x, 3.39f, newZ);
+        vCam.transform.position = new Vector3(midpoint.x, yOffset, newZ);
     }
 }
