@@ -73,7 +73,7 @@ public class EffectPlayer : MonoBehaviour
         aerialSFX        .SetVolume(3f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch().SetFadeOut(0.15f);
         barStepSFX       .SetVolume(4f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(.75f, 85f));
         blockSFX         .SetVolume(.6f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(1.2f, 1.4f)).SetFadeOut(.15f);
-        jumpSFX          .SetVolume(1f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch();
+        jumpSFX          .SetVolume(.4f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch();
         hitSFX           .SetVolume(.6f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch();
     }
 
