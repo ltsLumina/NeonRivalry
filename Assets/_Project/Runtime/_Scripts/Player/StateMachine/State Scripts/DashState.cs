@@ -30,11 +30,6 @@ public class DashState : State
     public override void OnEnter()
     {
         dashed = false;
-        if (player.IsGrounded())
-        {
-            OnExit();
-            return;
-        }
         player.GetComponentInChildren<SpriteRenderer>().color = new (0.2f, 1f, 0.67f);
 
         Vector3 moveInput = player.InputManager.MoveInput;
@@ -74,7 +69,7 @@ public class DashState : State
         if (player.IsGrounded() && player.InputManager.MoveInput.x != 0) player.StateMachine.TransitionToState(StateType.Walk);
         else if (player.IsGrounded()) player.StateMachine.TransitionToState(StateType.Idle);
 
-        if (dashed) player.StateMachine.TransitionToState(StateType.Fall);
+        if (dashed && player.IsAirborne()) player.StateMachine.TransitionToState(StateType.Fall);
     }
     #endregion
 
