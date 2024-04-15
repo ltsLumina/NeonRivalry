@@ -139,22 +139,21 @@ public class HurtBox : MonoBehaviour
     
     void HandleHit(MoveData moveData, HitBox hitBox = default)
     {
-        if (!player.IsArmored)
-        {
-            player.Animator.SetFloat("HitstunDuration", moveData.hitstunDuration * 3f);
-            player.Animator.SetTrigger("Hitstun");
-            player.StateMachine.TransitionToState(State.StateType.HitStun);
+        player.Animator.SetFloat("HitstunDuration", moveData.hitstunDuration * 3f);
+        player.Animator.SetTrigger("Hitstun");
+        player.StateMachine.TransitionToState(State.StateType.HitStun);
 
-            gamepad.Rumble(ID, .5f, 0f, 0.1f);
-            var attackerGamepad = hitBox?.Owner.Device as Gamepad;
-            attackerGamepad?.Rumble(hitBox.Owner.PlayerID, 0.3f, .5f, 0.1f);
+        gamepad.Rumble(ID, .5f, 0f, 0.1f);
+        // Apply screenshake
+        CameraController.Shake(moveData.screenShakeAmplitude, moveData.screenShakeFrequency, moveData.screenShakeDuration);
+        
+        var attackerGamepad = hitBox?.Owner.Device as Gamepad;
+        attackerGamepad?.Rumble(hitBox.Owner.PlayerID, 0.3f, .5f, 0.1f);
 
-            PlayEffect(punchKickEffect);
-            
-            // Don't apply knockback if the player is airborne
-            Knockback(moveData, hitBox?.Owner);
-        }
-        else { player.IsArmored = false; }
+        PlayEffect(punchKickEffect);
+
+        // Don't apply knockback if the player is airborne
+        Knockback(moveData, hitBox?.Owner);
         
         // Reduce health by the damage amount, and update the health bar.
         // Create variable to represent the player's health
