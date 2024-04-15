@@ -21,18 +21,22 @@ public class CameraController : MonoBehaviour
     [Tooltip("The maximum z-position of the camera.")]
     [SerializeField] float maxZPosition = -5f;
 
-    [Tooltip("The speed at which the camera zooms in and out, can also be considered as how precise the camera is.")]
+    [Tooltip("The speed at which the camera zooms in and out.")]
     [SerializeField] float zoomSpeed = 50f;
 
     [Tooltip("The speed at which the camera rotates, can also be considered as how precise the camera is.")]
     [SerializeField] float rotationSpeed = 5f;
-    [SerializeField] private bool xbool = false;
 
+    [SerializeField] float yOffset = 3.39f;
+
+    [SerializeField] bool xbool;
+    
     [Tab("Settings")]
-    [SerializeField] Transform target1;
-    [SerializeField] Transform target2;
+    [SerializeField, ReadOnly] Transform target1;
+    [SerializeField, ReadOnly] Transform target2;
 
-    // -- Cached References -- \\\
+    
+    // -- Cached References -- \\
 
     CinemachineVirtualCamera vCam;
 
@@ -48,8 +52,8 @@ public class CameraController : MonoBehaviour
 
         // Assign the playerTransform to target1 or target2 based on their current values
         // and ensure that the playerTransform is not already assigned to the other target
-        //if (target1 == null && target2 != playerTransform) target1 = playerTransform;
-        //else if (target2 == null && target1 != playerTransform) target2 = playerTransform;
+        if (target1      == null && target2 != playerTransform) target1 = playerTransform;
+        else if (target2 == null && target1 != playerTransform) target2 = playerTransform;
     }
 
     void LateUpdate() => Follow();
@@ -59,6 +63,8 @@ public class CameraController : MonoBehaviour
     /// </summary>
     void Follow()
     {
+        if (TimelinePlayer.IsPlaying) return;
+        
         // If either target is null, the method returns immediately without executing the rest of the code.
         if (target1 == null || target2 == null) return;
 
@@ -77,7 +83,7 @@ public class CameraController : MonoBehaviour
         Vector3 midpoint = (target1.position + target2.position) / 2f;
         if (xbool)
         {
-            Vector3 directionToMidpointY = new Vector3(currentPosition.x, midpoint.y, 0) - currentPosition; // Only consider y-axis
+            Vector3 directionToMidpointY = new Vector3(currentPosition.x, midpoint.y + 1.35f, 0) - currentPosition; // Only consider y-axis
 
             // Smoothly rotate camera towards midpoint
             Quaternion targetRotation = Quaternion.LookRotation(directionToMidpointY);
@@ -90,6 +96,6 @@ public class CameraController : MonoBehaviour
 
         // Set the new position of the camera. The x-position is the x-coordinate of the midpoint, the y-position is the current y-position,
         // and the z-position is the newly calculated z-position.
-        vCam.transform.position = new Vector3(midpoint.x, 3.39f, newZ);
+        vCam.transform.position = new Vector3(midpoint.x, yOffset, newZ);
     }
 }

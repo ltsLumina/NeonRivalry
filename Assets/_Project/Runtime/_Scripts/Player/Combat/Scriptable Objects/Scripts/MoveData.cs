@@ -122,6 +122,8 @@ public class MoveData : ScriptableObject
     
     void OnValidate()
     {
+        if (screenShake) Debug.LogWarning("NOT IMPLEMENTED!!");
+
         damage = Mathf.Clamp(damage, 1, 100);
         
         #region Knockback

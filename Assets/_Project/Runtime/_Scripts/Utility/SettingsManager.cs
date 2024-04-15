@@ -1,4 +1,3 @@
-using System.Collections;
 using MelenitasDev.SoundsGood;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -53,7 +52,7 @@ public class SettingsManager : MonoBehaviour
         // If intro scene, return.
         if (ActiveScene == Intro) return;
 
-        if (ActiveScene == MainMenu)
+        if (ActiveScene == MainMenu || ActiveScene == Game)
         {
             masterVolume.onValueChanged.AddListener(SetMasterVolume);
             musicVolume.onValueChanged.AddListener(SetMusicVolume);
@@ -97,6 +96,21 @@ public class SettingsManager : MonoBehaviour
         PlayerPrefs.SetFloat("SFX", value);
     }
 
+    public void Rumble(int playerID)
+    {
+        switch (playerID)
+        {
+            case 1:
+                var gamepad = InputDeviceManager.PlayerOneDevice as Gamepad;
+                gamepad.Rumble((int) player1RumbleSlider.value, player1RumbleSlider.value);
+                break;
+            case 2:
+                var gamepad2 = InputDeviceManager.PlayerTwoDevice as Gamepad;
+                gamepad2.Rumble((int) player2RumbleSlider.value, player2RumbleSlider.value);
+                break;
+        }
+    }
+
     public void OnVolumeChanged()
     {
         if (!masterVolume.isActiveAndEnabled || !musicVolume.isActiveAndEnabled || !sfxVolume.isActiveAndEnabled) return;
@@ -138,27 +152,5 @@ public class SettingsManager : MonoBehaviour
         masterVolume.value = MasterVolume;
         musicVolume.value  = MusicVolume;
         sfxVolume.value    = SFXVolume;
-    }
-
-    public void Rumble(int playerID)
-    {
-        float   speed   = PlayerPrefs.GetFloat(playerID == 1 ? "Player1_RumbleStrength" : "Player2_RumbleStrength");
-        Gamepad gamepad;
-
-        if (playerID == 1) 
-             gamepad = InputDeviceManager.PlayerOneDevice as Gamepad;
-        else gamepad = InputDeviceManager.PlayerTwoDevice as Gamepad;
-        
-        if (gamepad == null) return;
-
-        StartCoroutine(RumbleCoroutine());
-        
-        return; // Local function
-        IEnumerator RumbleCoroutine()
-        {
-            gamepad?.SetMotorSpeeds(speed, speed);
-            yield return new WaitForSeconds(0.085f);
-            gamepad?.SetMotorSpeeds(0, 0);
-        }
     }
 }

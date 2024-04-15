@@ -122,7 +122,7 @@ public class GameManager : MonoBehaviour
                 SetState(GameState.Game);
 
                 // Play timeline.
-                //TimelinePlayer.Play();
+                TimelinePlayer.Play();
                 break;
         }
     }
@@ -131,32 +131,53 @@ public class GameManager : MonoBehaviour
     {
         acceptSFX = new (SFX.Accept);
         acceptSFX.SetOutput(Output.SFX);
-        
+
+        Music streetMusic;
+
         switch (ActiveScene)
         {
             case var mainMenu when mainMenu == MainMenu:
                 // Play Main Menu music
                 Music mainMenuMusic = new (Track.MainMenu);
-                mainMenuMusic.SetOutput(Output.Music).SetVolume(1f);
+                mainMenuMusic.SetOutput(Output.Music).SetVolume(.65f);
                 mainMenuMusic.Play();
                 break;
 
             case var charSelect when charSelect == CharacterSelect:
                 Music charSelectMusic = new (Track.CharSelect);
-                charSelectMusic.SetOutput(Output.Music).SetVolume(1f);
+                charSelectMusic.SetOutput(Output.Music).SetVolume(.5f);
                 charSelectMusic.Play();
                 break;
 
             case var game when game == Bar:
                 Music barMusic = new (Track.ThisIBelieve);
                 barMusic.SetOutput(Output.Music).SetVolume(1f);
-                barMusic.Play();
+                
+                streetMusic = new (Track.TheAlarmist);
+                streetMusic.SetOutput(Output.Music).SetVolume(1f);
+                
+                if (barMusic.Playing || streetMusic.Playing) return;
+                if (barMusic.Paused || streetMusic.Paused)
+                {
+                    barMusic.Resume();
+                    streetMusic.Resume();
+                    return;
+                }
+                
+                // choose one at random
+                if (UnityEngine.Random.value > 0.5f) barMusic.Play();
+                else streetMusic.Play();
+
                 break;
 
             case var game when game == Street:
-                Music streetMusic = new (Track.TheAlarmist);
+                streetMusic = new (Track.TheAlarmist);
                 streetMusic.SetOutput(Output.Music).SetVolume(1f);
-                streetMusic.Play();
+                
+                if (streetMusic.Playing) return;
+                
+                if (streetMusic.Paused) streetMusic.Resume();
+                else streetMusic.Play();
                 break;
         }
     }
@@ -174,6 +195,18 @@ public class GameManager : MonoBehaviour
         AudioManager.StopAll(duration);
     }
 
+    public void LoadMainMenu()
+    {
+        FadeOutMusic();
+        
+        var sequence = new Sequence(this);
+        sequence.WaitThenExecute
+        (1f, () =>
+        {
+            LoadScene(MainMenu);
+        });
+    }
+    
     public void QuitGame()
     {
         FadeOutMusic();
@@ -189,14 +222,13 @@ public class GameManager : MonoBehaviour
     
     void Update()
     {
-        // Things to do regardless of state:
-        
-        // Enable/show the mouse if the developer console pops up (due to an error being thrown in a build)
+#if !UNITY_EDITOR // Enable/show the mouse if the developer console pops up (due to an error being thrown in a build)
         if (Debug.developerConsoleVisible)
         {
-            Cursor.visible = true;
+            Cursor.visible   = true;
             Cursor.lockState = CursorLockMode.None;
         }
+#endif
         
         switch (State)
         {
@@ -234,6 +266,8 @@ public class GameManager : MonoBehaviour
 
     public static void TogglePause(PlayerController playerThatPaused)
     {
+        if (TimelinePlayer.IsPlaying) return;
+        
         IsPaused = !IsPaused;
         SetState(IsPaused ? GameState.Paused : GameState.Game);
 
@@ -241,27 +275,30 @@ public class GameManager : MonoBehaviour
         {
             if (player == null) continue;
             player.DisablePlayer(IsPaused);
-            //TODO: Obviously I can't disable the player input here. If I do, the players cant use the menu. *facepalm*
         }
-
-        var UIManager = FindObjectOfType<UIManager>();
-        UIManager.PauseMenu.SetActive(IsPaused);
 
         if (IsPaused)
         {
-            PausingPlayer = playerThatPaused;
-            UIManager.PauseMenuTitle.text = $"Paused (Player {PausingPlayer.PlayerID})";
+            PausingPlayer = playerThatPaused; 
+            Debug.Log($"Player {PausingPlayer.PlayerID} paused the game.");
+            var menuManager = FindObjectOfType<MenuManager>();
+            menuManager.PauseTitle.text = $"Paused (Player {PausingPlayer.PlayerID})";
+            
+            // Disable the healthbars parent
+            PausingPlayer.Healthbar.transform.parent.gameObject.SetActive(false);
 
-            PausingPlayer.GetComponentInChildren<MultiplayerEventSystem>().SetSelectedGameObject(UIManager.PauseMenuButtons[0].gameObject);
+            PausingPlayer.GetComponentInChildren<MultiplayerEventSystem>().SetSelectedGameObject(menuManager.showEffectsToggle.gameObject);
             var otherPlayer = PlayerManager.OtherPlayer(PausingPlayer);
-            if (otherPlayer != null) otherPlayer.PlayerInput.enabled = !IsPaused;
+            if (otherPlayer != null) otherPlayer.GetComponentInChildren<InputSystemUIInputModule>().enabled = !IsPaused;
         }
-        else
+        else // Game is unpaused
         {
             PausingPlayer.GetComponentInChildren<MultiplayerEventSystem>().SetSelectedGameObject(null);
             var otherPlayer = PlayerManager.OtherPlayer(PausingPlayer);
-            if (otherPlayer != null) otherPlayer.PlayerInput.enabled = !IsPaused;
+            if (otherPlayer != null) otherPlayer.GetComponentInChildren<InputSystemUIInputModule>().enabled = !IsPaused;
 
+            PausingPlayer.Healthbar.transform.parent.gameObject.SetActive(true);
+            
             PausingPlayer = null;
         }
     }

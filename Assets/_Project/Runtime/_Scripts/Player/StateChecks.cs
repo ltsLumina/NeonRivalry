@@ -150,7 +150,7 @@ public partial class PlayerController // StateChecks.cs
 
     public bool CanAirborneAttack() => IsAirborne() && !IsAirborneAttacking() && !IsAttacking();
     
-    public bool CanDash() => !IsAttacking() && !IsAirborneAttacking();
+    public bool CanDash() => IsAirborne() && !IsAttacking() && !IsAirborneAttacking();
 
     // -- Gizmos --
 

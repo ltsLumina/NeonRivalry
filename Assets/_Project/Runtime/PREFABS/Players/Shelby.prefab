@@ -135,6 +135,7 @@ Transform:
   - {fileID: 1757866786665376192}
   - {fileID: 1563456010534744481}
   - {fileID: 3247327903726041828}
+  - {fileID: 4743740019330987932}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &323316177474802617
@@ -427,6 +428,7 @@ GameObject:
   - component: {fileID: 3449417835058429744}
   - component: {fileID: 6830370453534907556}
   - component: {fileID: 6975596519576687294}
+  - component: {fileID: 4194307678197598235}
   m_Layer: 0
   m_Name: Hurtbox
   m_TagString: Hurtbox
@@ -519,6 +521,18 @@ MonoBehaviour:
     m_ColorSpace: 0
     m_NumColorKeys: 5
     m_NumAlphaKeys: 2
+--- !u!114 &4194307678197598235
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 757198473333594200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfc1c878d757e244d94637ce7b0b0737, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &886104276513945123
 GameObject:
   m_ObjectHideFlags: 0
@@ -694,14 +708,14 @@ MonoBehaviour:
   m_MoveRepeatDelay: 0.5
   m_MoveRepeatRate: 0.1
   m_XRTrackingOrigin: {fileID: 0}
-  m_ActionsAsset: {fileID: -944628639613478452, guid: d7e406d5fa84a3341b31b1ed9ec86c83,
+  m_ActionsAsset: {fileID: -944628639613478452, guid: 058b2bc6b63c87d46a5e937a644e4bab,
     type: 3}
   m_PointAction: {fileID: 0}
-  m_MoveAction: {fileID: -5416716019817182376, guid: d7e406d5fa84a3341b31b1ed9ec86c83,
+  m_MoveAction: {fileID: -5416716019817182376, guid: 058b2bc6b63c87d46a5e937a644e4bab,
     type: 3}
-  m_SubmitAction: {fileID: 7828721872671465463, guid: d7e406d5fa84a3341b31b1ed9ec86c83,
+  m_SubmitAction: {fileID: 7828721872671465463, guid: 058b2bc6b63c87d46a5e937a644e4bab,
     type: 3}
-  m_CancelAction: {fileID: -7321772815861845285, guid: d7e406d5fa84a3341b31b1ed9ec86c83,
+  m_CancelAction: {fileID: -7321772815861845285, guid: 058b2bc6b63c87d46a5e937a644e4bab,
     type: 3}
   m_LeftClickAction: {fileID: 0}
   m_MiddleClickAction: {fileID: 0}
@@ -1009,6 +1023,65 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5448628812740946410}
   m_LocalEulerAnglesHint: {x: 17.505325, y: 14.110741, z: 21.027855}
+--- !u!1 &1891656776317864492
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7860222640812291703}
+  - component: {fileID: 2871392792007827514}
+  m_Layer: 0
+  m_Name: Dolly Track
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7860222640812291703
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1891656776317864492}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.95, z: -2.41}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4743740019330987932}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2871392792007827514
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1891656776317864492}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a200b19ca1a9685429ed7e043c28e904, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Resolution: 100
+  m_Appearance:
+    pathColor: {r: 0, g: 1, b: 0, a: 1}
+    inactivePathColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+    width: 0.2
+  m_Looped: 0
+  m_Waypoints:
+  - position: {x: 2.5, y: 2.2, z: -6.5}
+    roll: 0
+  - position: {x: 3.5173035, y: 1.0873833, z: -3.7376688}
+    roll: 0
+  - position: {x: 3.8682964, y: 1.2600429, z: -2.4374163}
+    roll: 0
+  - position: {x: 3.5663369, y: 0.8372729, z: -1.1589658}
+    roll: 0
 --- !u!1 &1971689375432965934
 GameObject:
   m_ObjectHideFlags: 0
@@ -2104,6 +2177,7 @@ GameObject:
   - component: {fileID: 6571921644502988114}
   - component: {fileID: 3863560742367357308}
   - component: {fileID: 8476184333083439713}
+  - component: {fileID: 5847798056509019932}
   m_Layer: 0
   m_Name: Hitbox
   m_TagString: Hitbox
@@ -2160,6 +2234,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   performedMove: {fileID: 0}
+--- !u!114 &5847798056509019932
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4899866057253394350}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfc1c878d757e244d94637ce7b0b0737, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4902893490998857296
 GameObject:
   m_ObjectHideFlags: 0
@@ -2656,6 +2742,7 @@ GameObject:
   - component: {fileID: 717485970116107437}
   - component: {fileID: 1667132402759188014}
   - component: {fileID: 2670674726895243826}
+  - component: {fileID: 615107155673084616}
   m_Layer: 0
   m_Name: Body
   m_TagString: Body
@@ -2722,6 +2809,18 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.15, y: 0.01, z: 0.15}
   m_Center: {x: -0.02, y: 1.48, z: -0.18}
+--- !u!114 &615107155673084616
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5658616182542942862}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfc1c878d757e244d94637ce7b0b0737, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5754449740924491656
 GameObject:
   m_ObjectHideFlags: 0
@@ -2924,6 +3023,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4234117672460019617}
   - component: {fileID: 6420799840106060926}
+  - component: {fileID: 7778684739878458491}
   m_Layer: 0
   m_Name: Feet
   m_TagString: Body
@@ -2967,6 +3067,18 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.2, y: 0.03, z: 0.2}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7778684739878458491
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6284300367980087224}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfc1c878d757e244d94637ce7b0b0737, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6407186496608025535
 GameObject:
   m_ObjectHideFlags: 0
@@ -3530,6 +3642,38 @@ Transform:
   - {fileID: 6384176075503121625}
   m_Father: {fileID: 8558662009009610468}
   m_LocalEulerAnglesHint: {x: 1.6864815e-20, y: -2.000065, z: 4.829296e-19}
+--- !u!1 &7144950577781794431
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4743740019330987932}
+  m_Layer: 0
+  m_Name: Death Track
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4743740019330987932
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7144950577781794431}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 7860222640812291703}
+  m_Father: {fileID: 6647826687636412292}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7451801604045181914
 GameObject:
   m_ObjectHideFlags: 0
@@ -4021,7 +4165,19 @@ MonoBehaviour:
     m_ActionId: 7b749409-a87c-4ee7-8a13-705550b7e4f5
     m_ActionName: Player 2/Pause[/Keyboard/escape,/XInputControllerWindows/start]
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 5512258457051813422}
+        m_TargetAssemblyTypeName: MenuNavigator, _Project
+        m_MethodName: OnNavigate
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: 0c169118-9aa1-43a6-a1d6-2c86ad9a64f9
     m_ActionName: UI (2)/Navigate[/Keyboard/w,/Keyboard/a,/Keyboard/s,/Keyboard/d,/XInputControllerWindows/dpad/up,/XInputControllerWindows/dpad/left,/XInputControllerWindows/dpad/down,/XInputControllerWindows/dpad/right,/XInputControllerWindows/leftStick/up,/XInputControllerWindows/leftStick/left,/XInputControllerWindows/leftStick/down,/XInputControllerWindows/leftStick/right]
   - m_PersistentCalls:
@@ -4029,15 +4185,51 @@ MonoBehaviour:
     m_ActionId: d7bd00fc-7052-44a9-a9a0-64e83d9b1a30
     m_ActionName: UI (2)/Submit[/Keyboard/enter,/XInputControllerWindows/buttonSouth]
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 5512258457051813422}
+        m_TargetAssemblyTypeName: MenuNavigator, _Project
+        m_MethodName: OnCancel
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: 6d8e6735-040e-4a49-b28a-0b6f52d6059f
     m_ActionName: UI (2)/Cancel[/Keyboard/escape,/XInputControllerWindows/buttonEast]
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 5512258457051813422}
+        m_TargetAssemblyTypeName: MenuNavigator, _Project
+        m_MethodName: OnSwitchSettingsMenu
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: c1c4b18b-56c6-4577-b319-2328d0622714
     m_ActionName: UI (2)/SwitchSettingsMenu[/Keyboard/q,/Keyboard/e,/XInputControllerWindows/leftShoulder,/XInputControllerWindows/rightShoulder]
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 5512258457051813422}
+        m_TargetAssemblyTypeName: MenuNavigator, _Project
+        m_MethodName: OnMenu
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: f34a7fc1-a28c-4c13-aeae-799cd3d1f563
     m_ActionName: UI (2)/Menu[/XInputControllerWindows/start,/Keyboard/escape]
   - m_PersistentCalls:
@@ -4048,6 +4240,22 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 1cf98d75-d6a0-4265-89a5-82c895f0f967
     m_ActionName: Player 1/Disallowed Bindings[/XInputControllerWindows/select,/XInputControllerWindows/leftStick/x,/XInputControllerWindows/leftStick/y,/XInputControllerWindows/leftStick/right,/XInputControllerWindows/leftStick/left,/XInputControllerWindows/leftStick/down,/XInputControllerWindows/leftStick/up,/Keyboard/1,/Keyboard/2,/Keyboard/3,/Keyboard/4,/Keyboard/5,/Keyboard/6,/Keyboard/7,/Keyboard/8,/Keyboard/9,/Keyboard/0,/Keyboard/f1,/Keyboard/f2,/Keyboard/f3,/Keyboard/f4,/Keyboard/f5,/Keyboard/f6,/Keyboard/f7,/Keyboard/f8,/Keyboard/f9,/Keyboard/f10,/Keyboard/f11,/Keyboard/f12,/Keyboard/leftCtrl,/Keyboard/rightCtrl,/Keyboard/leftAlt,/Keyboard/rightAlt,/Keyboard/capsLock,/Keyboard/tab,/Keyboard/backquote,/Keyboard/OEM1,/Keyboard/OEM2,/Keyboard/OEM3,/Keyboard/OEM4,/Keyboard/OEM5,/Keyboard/backslash,/Keyboard/leftBracket,/Keyboard/rightBracket,/Keyboard/minus,/Keyboard/equals,/Keyboard/contextMenu,/Keyboard/backspace,/Keyboard/enter,/Keyboard/leftMeta,/Keyboard/rightMeta,/Keyboard/pageDown,/Keyboard/pageUp,/Keyboard/home,/Keyboard/end,/Keyboard/insert,/Keyboard/delete,/Keyboard/printScreen,/Keyboard/scrollLock,/Keyboard/pause]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 5512258457051813422}
+        m_TargetAssemblyTypeName: MenuNavigator, _Project
+        m_MethodName: OnReset
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: d8d15c0e-3b3b-44c9-8556-2334897cd0dc
+    m_ActionName: UI (1)/Cancel1[/Keyboard/backspace,/Keyboard/i]
   m_NeverAutoSwitchControlSchemes: 1
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player 1

@@ -8,5 +8,9 @@ using UnityEngine;
 /// </summary>
 public class ArcadeMachineRenderTextureCameraController : MonoBehaviour
 {
-    void LateUpdate() => transform.position = Helpers.CameraMain.transform.position;
+    void LateUpdate()
+    {
+        if (TimelinePlayer.IsPlaying) return;
+        transform.position = Helpers.CameraMain.transform.position;
+    }
 }

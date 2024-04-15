@@ -9,7 +9,11 @@ public static class SceneManagerExtended
     public static int Intro => 0;
     public static int MainMenu => 1;
     public static int CharacterSelect => 2;
-    public static int Game => 3;
+    public static int Game => ActiveSceneName switch
+    {
+      "Bar"    => 3,
+      "Street" => 4,
+      _        => 3 };
 
     public static int Bar => 3;
     public static int Street => 4;

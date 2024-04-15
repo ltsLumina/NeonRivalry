@@ -42,12 +42,19 @@ public class RoundManager : MonoBehaviour
             playerScores["Player 1"] = player1WonRounds;
             playerScores["Player 2"] = player2WonRounds;
         }
+        
+        if (CurrentRound == maxRounds)
+        {
+            // End the game.
+            // Display the winner.
+            // Return to the main menu.
+        }
     }
 
     void OnEnable() => HealthbarManager.OnAnyPlayerDeath += IncrementRound;
     void OnDisable() => HealthbarManager.OnAnyPlayerDeath -= IncrementRound;
 
-    void IncrementRound(PlayerController playerThatDied)
+    public void IncrementRound(PlayerController playerThatDied)
     {
         OnRoundEnded?.Invoke();
         currentRound++;
@@ -56,16 +63,15 @@ public class RoundManager : MonoBehaviour
         if (playerThatDied == PlayerManager.PlayerOne)
         {
             playerScores["Player 2"]++;
-            player1WonRounds++;
+            player2WonRounds++;
         }
         else
         {
             playerScores["Player 1"]++;
-            player2WonRounds++;
+            player1WonRounds++;
         }
         
-        // TODO: uncomment this line when the game is ready to be played. 
-        SceneManagerExtended.ReloadScene(2f);
+        SceneManagerExtended.ReloadScene(3f);
     }
 
     void Reset()

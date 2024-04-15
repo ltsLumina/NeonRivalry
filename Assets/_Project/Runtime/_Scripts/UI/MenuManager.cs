@@ -1,6 +1,8 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
+using JetBrains.Annotations;
 using MelenitasDev.SoundsGood;
 using TMPro;
 using UnityEngine;
@@ -19,8 +21,8 @@ public class MenuManager : MonoBehaviour
     readonly static List<GameObject> mainContents = new ();
 
     // -- Settings -- \\
-    
-    readonly static List<GameObject> settingsMenus = new ();
+
+    public readonly static List<GameObject> settingsMenus = new ();
     [Tooltip(tooltip)]
     readonly static List<Button> settingsHeaders = new (); // The buttons at the top of the settings menu. ("Game", "Audio", "Video", etc.)
     [Tooltip(tooltip)]
@@ -30,7 +32,10 @@ public class MenuManager : MonoBehaviour
     [Tab("Main")]
     [Foldout("Main")]
     [Space]
+
+    [CanBeNull]
     [SerializeField] GameObject mainMenu;
+    [CanBeNull]
     [SerializeField] GameObject mainContent;
     
     [Header("Buttons")]
@@ -40,7 +45,7 @@ public class MenuManager : MonoBehaviour
     [SerializeField] Button creditsButton;
 
     [Foldout("Credits")]
-    [SerializeField] GameObject creditsMenu;
+    [SerializeField] public GameObject creditsMenu;
     [Space]
     [SerializeField] GameObject creditsContent;
     [SerializeField] Image creditsBackground;
@@ -49,29 +54,18 @@ public class MenuManager : MonoBehaviour
     [Tab(" Settings ")]
     [SerializeField] Image settingsBackground;
     [SerializeField] TextMeshProUGUI settingsTitle;
+    [CanBeNull] 
     [SerializeField] TextMeshProUGUI settingsInfo;
-    
-    [Foldout("On-Screen Keys")]
-    [Header("On-Screen Keys")]
-    [SerializeField] Image QKeyIcon;
-    [SerializeField] Image EKeyIcon;
-    [SerializeField] GameObject keyboardBottomLeftIcons;
-    [SerializeField] Image LBKeyIcon;
-    [SerializeField] Image RBKeyIcon;
-    [SerializeField] GameObject gamepadBottomLeftIcons;
-    [EndFoldout]
-    [Space]
-
     [SerializeField] GameObject settingsHeader;
     
     [Foldout("Game")]
-    [SerializeField] GameObject gameMenu;
+    [SerializeField] public GameObject gameMenu;
     [SerializeField] Button gameHeader;
     
     [Header("Content")]
     [SerializeField] GameObject gameContent;
-    [SerializeField] Toggle showEffectsToggle;
-    [SerializeField] Toggle showParticlesToggle;
+    [SerializeField] public Toggle showEffectsToggle;
+    [SerializeField] public Toggle showParticlesToggle;
     
     [Foldout("Audio")]
     [SerializeField] GameObject audioMenu;
@@ -93,6 +87,10 @@ public class MenuManager : MonoBehaviour
     [SerializeField] TMP_Dropdown qualityDropdown;
     [SerializeField] Toggle fullscreenToggle;
     [SerializeField] Toggle vSyncToggle;
+
+    [Foldout("Pause Menu")]
+    [SerializeField]
+    public TextMeshProUGUI PauseTitle;
 
     // === === === ===  Cached References  === === === === \\
     
@@ -140,10 +138,17 @@ public class MenuManager : MonoBehaviour
 
     void OnEnable()
     {
-        creditsManager.onCreditsEnd.AddListener(CloseCredits);
+        if (SceneManagerExtended.ActiveScene == SceneManagerExtended.Game)
+        {
+            creditsManager.onCreditsEnd.AddListener(CloseCreditsInGameScene);
+        }
+        else
+        {
+            creditsManager.onCreditsEnd.AddListener(CloseCredits);
+        }
     }
 
-    void Start()
+    IEnumerator Start()
     {
         // Load PlayerPrefs settings.
         SettingsManager.LoadVolume(masterVolumeSlider, musicVolumeSlider, sfxVolumeSlider);
@@ -151,20 +156,30 @@ public class MenuManager : MonoBehaviour
         // Populate the main lists, disable all menus, and enable the main menu.
         mainMenus.AddRange(new List<GameObject> {mainMenu, creditsMenu});
         mainContents.AddRange(new List<GameObject> {mainContent, creditsContent});
-        mainMenus.ForEach(menu => menu.SetActive(false));
-        mainMenu.SetActive(true);
+        mainMenus.ForEach(menu =>
+        {
+            if (!menu) return;
+            menu.SetActive(false);
+        });
+
+        if (mainMenu) mainMenu.SetActive(true);
         creditsManager.gameObject.SetActive(false);
         
         // Populate and enable the main menu buttons.
         mainMenuButtons.AddRange(new List<Button> {playButton, settingsButton, quitButton});
-        mainMenuButtons.ForEach(button => button.gameObject.SetActive(true));
+        mainMenuButtons.ForEach(button =>
+        {
+            if (!button) return;
+            button.gameObject.SetActive(true);
+        });
         
         // Populate the settings menus, headers, and contents lists and disable it all.
         settingsMenus.AddRange(new List<GameObject> {gameMenu, audioMenu, videoMenu});
         settingsMenus.ForEach(menu => menu.SetActive(false));
         settingsTitle.gameObject.SetActive(false);
-        settingsInfo.gameObject.SetActive(false);
-        settingsInfo.enabled = false; // Settings info is treated differently, as the text is dynamic.
+        settingsInfo?.gameObject.SetActive(false);
+        if (settingsInfo != null) settingsInfo.enabled = false;
+        PauseTitle?.gameObject.SetActive(false);
         settingsHeaders.AddRange(new List<Button> {gameHeader, audioHeader, videoHeader});
         settingsHeader.SetActive(false);
         settingsContents.AddRange(new List<GameObject> {gameContent, audioContent, videoContent});
@@ -183,11 +198,31 @@ public class MenuManager : MonoBehaviour
         // Populate the resolution dropdown with the most common resolutions.
         resolutions = new() { "3840x2160", "2560x1440", "1920x1080", "1366x768", "1280x720" };
         
+        // Set the effect toggles to match the current settings.
+        showEffectsToggle.isOn = SettingsManager.ShowEffects;
+        showParticlesToggle.isOn = SettingsManager.ShowParticles;
+        
         // Adjust the quality dropdown to match the current quality setting.
         resolutionDropdown.value = resolutions.IndexOf($"{Screen.currentResolution.width}x{Screen.currentResolution.height}");
         qualityDropdown.value    = PlayerPrefs.GetInt("Quality", 0);
         fullscreenToggle.isOn    = PlayerPrefs.GetInt("Fullscreen", 1) == 1;
         vSyncToggle.isOn         = PlayerPrefs.GetInt("VSync", 0)      == 1;
+        
+        // Animate the buttons moving into frame.
+        if (SceneManagerExtended.ActiveScene != SceneManagerExtended.MainMenu) yield break;
+
+        List<Vector3> buttonPositions = mainMenuButtons.Select(button => button.transform.position).ToList();
+        mainMenuButtons[0].transform.position = new (buttonPositions[0].x * 2, buttonPositions[0].y * 2, buttonPositions[0].z);
+        mainMenuButtons[1].transform.position = new (buttonPositions[1].x * 2, buttonPositions[1].y * 1.2f, buttonPositions[1].z);
+        mainMenuButtons[2].transform.position = new (buttonPositions[2].x * 2, buttonPositions[2].y / 2, buttonPositions[2].z);
+
+        yield return new WaitForSeconds(0.275f);
+        
+        Sequence sequence = DOTween.Sequence();
+        sequence.SetEase(Ease.OutBack);
+        sequence.Append(mainMenuButtons[0].transform.DOMove(buttonPositions[0], 1f));
+        sequence.Append(mainMenuButtons[1].transform.DOMove(buttonPositions[1], .85f));
+        sequence.Append(mainMenuButtons[2].transform.DOMove(buttonPositions[2], .35f));
     }
 
     public void ScaleUpButton(Button button) => button.transform.DOScale(1.1f, 0.1f).SetEase(Ease.OutBack);
@@ -195,52 +230,15 @@ public class MenuManager : MonoBehaviour
     
     public void ScaleUpSliderButton(Selectable parent) => parent.transform.DOScale(1.05f, 0.1f).SetEase(Ease.OutBack);
     public void ScaleDownSliderButton(Selectable parent) => parent.transform.DOScale(1, 0.1f).SetEase(Ease.InBack);
-
+    
     public void OnClickButton(Button button)
     {
         var sequence = DOTween.Sequence();
-        sequence.Append(button.transform.DOScale(4, 0.1f).SetEase(Ease.InBack));
-        sequence.Append(button.transform.DOScale(4.2f, 0.1f).SetEase(Ease.OutBack));
+        sequence.Append(button.transform.DOScale(1, 0.1f).SetEase(Ease.InBack));
+        sequence.Append(button.transform.DOScale(1.2f, 0.1f).SetEase(Ease.OutBack));
     }
     
-    void Update()
-    {
-        ChangeHeaderColour();
-
-        // Toggle between the settings menus. (Game, Audio, Video, etc.)
-        SwitchBetweenHeaderMenus();
-
-        return;
-        void SwitchBetweenHeaderMenus()
-        {
-            // Get the player's player input
-            if (PlayerInput.all.Count == 0) return;
-            var action = PlayerInput.all[0].actions["SwitchSettingsMenu"];
-            var input  = action.ReadValue<Vector2>();
-
-            if (!action.triggered) return;
-        
-            GameObject currentMenu = settingsMenus.Find(menu => menu.activeSelf);
-            GameObject newMenu;
-        
-            if (currentMenu == null) return;
-
-            // Q to go left.
-            if (input.x < 0)
-            {
-                currentMenu.SetActive(false);
-                newMenu = settingsMenus[Mathf.Clamp(settingsMenus.IndexOf(currentMenu) - 1, 0, settingsMenus.Count - 1)];
-                ToggleSettingsMenu(newMenu);
-            }
-            // E to go right.
-            else
-            {
-                currentMenu.SetActive(false);
-                newMenu = settingsMenus[Mathf.Clamp(settingsMenus.IndexOf(currentMenu) + 1, 0, settingsMenus.Count - 1)];
-                ToggleSettingsMenu(newMenu);
-            }
-        }
-    }
+    void Update() => ChangeHeaderColour();
 
     void ChangeHeaderColour()
     {
@@ -278,13 +276,15 @@ public class MenuManager : MonoBehaviour
 
     public void ToggleSettings()
     {
-        mainMenu.SetActive(!mainMenu.activeSelf);
+        if (mainMenu) mainMenu.SetActive(!mainMenu.activeSelf);
         settingsHeader.SetActive(!settingsHeader.activeSelf);
+        
+        openMenu.Play();
         
         ToggleGameMenu();
     }
-    
-    void ToggleSettingsMenu(GameObject menu)
+
+    public void ToggleSettingsMenu(GameObject menu)
     {
         bool isMenuActive = menu.activeSelf;
         
@@ -302,8 +302,13 @@ public class MenuManager : MonoBehaviour
         {
             settingsBackground.gameObject.SetActive(true);
             settingsTitle.gameObject.SetActive(true);
-            settingsInfo.gameObject.SetActive(true);
-            settingsInfo.enabled = true;
+
+            if (settingsInfo)
+            {
+                settingsInfo.gameObject.SetActive(true); 
+                settingsInfo.enabled = true;
+            }
+
             
             settingsHeaders.ForEach(header => header.gameObject.SetActive(true));
             settingsContents.ForEach(content => content.SetActive(false));
@@ -355,7 +360,7 @@ public class MenuManager : MonoBehaviour
         // Close all settings menus.
         settingsBackground.gameObject.SetActive(false);
         settingsTitle.gameObject.SetActive(false);
-        settingsInfo.gameObject.SetActive(false);
+        settingsInfo?.gameObject.SetActive(false);
         promptManager.HideKeyboardPrompts();
         promptManager.HideGamepadPrompts();
         settingsMenus.ForEach(menu => menu.SetActive(false));
@@ -414,7 +419,35 @@ public class MenuManager : MonoBehaviour
         });
     }
 
-    public bool IsAnyMainMenuActive() => mainMenus.Any(menu => menu.activeSelf);
+    public void CloseCreditsInGameScene()
+    {
+        Sequence sequence = DOTween.Sequence();
+
+        // Fade out the canvas group
+        sequence.Append(creditsContent.GetComponent<CanvasGroup>().DOFade(0, 0.5f));
+
+        // Fade out the background and scale Y from 1 to 0.
+        sequence.Append(creditsBackground.DOFade(0, 0.5f));
+        sequence.Join(creditsBackground.transform.DOScaleY(0, 0.5f));
+
+        sequence.OnComplete
+        (() =>
+        {
+            ToggleSettings();
+            
+            // Toggle the credits menu
+            creditsMenu.SetActive(false);
+
+            creditsButton.interactable = true;
+            creditsButton.Select();
+        });
+    }
+
+    public bool IsAnyMainMenuActive()
+    {
+        if (SceneManagerExtended.GameScene) return false;
+        return mainMenus.Any(menu => menu.activeSelf);
+    }
 
     public static bool IsAnySettingsMenuActive() => settingsMenus.Any(menu => menu.activeSelf);
 
@@ -556,15 +589,42 @@ public class MenuManager : MonoBehaviour
         // Disable the header and title
         settingsHeader.SetActive(false);
         settingsTitle.gameObject.SetActive(false);
-        settingsInfo.gameObject.SetActive(false);
+        settingsInfo?.gameObject.SetActive(false);
         
         // Enable the main menu
-        mainMenu.SetActive(true);
+        mainMenu?.SetActive(true);
 
         // Disable the background.
         settingsBackground.gameObject.SetActive(false);
         
         // Select the "Settings" button.
         mainMenuButtons[1].Select();
+    }
+    
+    public void CloseCurrentSettingsMenuInGameScene()
+    {
+        // Find the active settings menu.
+        GameObject currentMenu = settingsMenus.Find(menu => menu.activeSelf);
+        if (currentMenu == null) return;
+
+        closeMenu.Play();
+        
+        // Disable all settings menus
+        settingsMenus.ForEach(menu => menu.SetActive(false));
+        
+        // Disable prompts
+        promptManager.HideGamepadPrompts();
+        promptManager.HideKeyboardPrompts();
+        
+        // Disable the header and title
+        settingsHeader.SetActive(false);
+        settingsTitle.gameObject.SetActive(false);
+        settingsInfo?.gameObject.SetActive(false);
+
+        // Disable the background.
+        settingsBackground.gameObject.SetActive(false);
+        
+        // Select the "Settings" button.
+        showEffectsToggle.Select();
     }
 }

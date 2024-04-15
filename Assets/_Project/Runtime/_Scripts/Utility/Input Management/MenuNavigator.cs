@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
+using static MenuManager;
 using static SceneManagerExtended;
 
 /// <summary>
@@ -64,7 +65,7 @@ public class MenuNavigator : MonoBehaviour
         int sceneIndex = ActiveScene;
         
         // If the scene is the Intro or Game scene, return, as we don't want to select a button in these scenes.
-        if (sceneIndex == Intro || sceneIndex == Game || sceneIndex == Bar || sceneIndex == Street) return;
+        if (sceneIndex == Intro) return;
 
         if (playerID == 2 && SceneNotSupportedForPlayer2(sceneIndex))
         {
@@ -73,15 +74,15 @@ public class MenuNavigator : MonoBehaviour
         }
 
         GameObject button = FindButtonBySceneIndex(sceneIndex);
-
+        
         if (button == null)
         {
             Debug.LogWarning("No button was found in this scene. (Scene index failed to return a button).");
             return;
         }
 
-        ProcessButton(button.GetComponent<Button>());
-        
+        ProcessButton(button);
+
         previousSelectedGameObject = eventSystem.currentSelectedGameObject;
     }
     
@@ -135,7 +136,7 @@ public class MenuNavigator : MonoBehaviour
         int previousIndex = previousSelectedGameObject.transform.GetSiblingIndex();
         int currentIndex  = eventSystem.currentSelectedGameObject.transform.GetSiblingIndex();
 
-        if (MainMenuScene && MenuManager.IsAnySettingsMenuActive())
+        if ((MainMenuScene || GameScene) && IsAnySettingsMenuActive())
         {
             previousIndex = previousSelectedGameObject.transform.parent.GetSiblingIndex();
             currentIndex  = eventSystem.currentSelectedGameObject.transform.parent.GetSiblingIndex();
@@ -322,6 +323,8 @@ public class MenuNavigator : MonoBehaviour
     {
         if (context.performed)
         {
+            if (GameManager.IsPaused && GameManager.PausingPlayer.PlayerID != PlayerID) return;
+
             var menuManager = FindObjectOfType<MenuManager>();
             if (menuManager == null) return;
 
@@ -331,6 +334,27 @@ public class MenuNavigator : MonoBehaviour
             {
                 if (input.x > 0) CSNavigateLeft.Play();
                 if (input.x < 0) CSNavigateRight.Play();
+                
+                GameObject currentMenu = settingsMenus.Find(menu => menu.activeSelf);
+                GameObject newMenu;
+
+                if (currentMenu == null) return;
+
+                // Q to go left.
+                if (input.x < 0)
+                {
+                    currentMenu.SetActive(false);
+                    newMenu = settingsMenus[Mathf.Clamp(settingsMenus.IndexOf(currentMenu) - 1, 0, settingsMenus.Count - 1)];
+                    menuManager.ToggleSettingsMenu(newMenu);
+                }
+
+                // E to go right.
+                else
+                {
+                    currentMenu.SetActive(false);
+                    newMenu = settingsMenus[Mathf.Clamp(settingsMenus.IndexOf(currentMenu) + 1, 0, settingsMenus.Count - 1)];
+                    menuManager.ToggleSettingsMenu(newMenu);
+                }
             }
         }
     }
@@ -348,7 +372,7 @@ public class MenuNavigator : MonoBehaviour
         if (CharacterSelectScene)
         {
             var mapSelector = FindObjectOfType<MapSelector>();
-            if (mapSelector.IsSelecting()) return;
+            if (mapSelector != null && mapSelector.IsSelecting()) return;
             
             var characterSelectManager = FindObjectOfType<CharacterSelectManager>();
             characterSelectManager.ToggleCharacterSettingsMenu(playerID);
@@ -402,15 +426,19 @@ public class MenuNavigator : MonoBehaviour
             case var _ when sceneIndex == CharacterSelect:
                 return GameObject.Find($"Player {PlayerID} CB").transform.GetChild(0).gameObject;
 
+            case var _ when sceneIndex == Game:
+                var firstSelected = FindObjectOfType<MenuManager>(true).showEffectsToggle.gameObject;
+                return firstSelected;
+            
             default:
                 return null;
         }
     }
 
-    void ProcessButton(Button button)
+    void ProcessButton(GameObject button)
     {
         if (button != null && eventSystem != null) 
-            eventSystem.SetSelectedGameObject(button.gameObject);
+            eventSystem.SetSelectedGameObject(button);
 
         //button.Select();
         
