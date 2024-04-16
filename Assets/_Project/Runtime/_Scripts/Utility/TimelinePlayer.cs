@@ -98,7 +98,8 @@ public class TimelinePlayer : MonoBehaviour
 
         foreach (BoxCollider collider in colliders) { collider.enabled = true; }
 
-        var UICam = GameObject.FindWithTag("UI Camera").GetComponent<Camera>();
-        if (UICam != null) UICam.enabled = true;
+        GameObject uiTag = GameObject.FindWithTag("UI Camera");
+        uiTag.TryGetComponent(out Camera uiCam);
+        if (uiCam != null) uiCam.enabled = true;
     }
 }
