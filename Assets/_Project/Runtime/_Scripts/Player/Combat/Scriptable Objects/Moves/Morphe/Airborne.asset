@@ -24,15 +24,16 @@ MonoBehaviour:
   damage: 4
   knockbackForce: {x: 3, y: 9}
   knockbackDir: {x: 1, y: 1}
-  aerialKnockbackForce: {x: 0, y: 2}
-  aerialKnockbackDir: {x: 0, y: -1}
   knockBackAttacker: 0
   attackerKnockbackMultiplier: 1
+  aerialOverrideKnockback: 0
+  aerialKnockbackForce: {x: 0, y: 2}
+  aerialKnockbackDir: {x: 0, y: -1}
   screenShake: 0
   screenShakeAmplitude: 1
   screenShakeFrequency: 3
   screenShakeDuration: 0.001
-  hitstunDuration: 0.35
+  hitstunDuration: 0.25
   isAirborne: 1
   isOverhead: 0
   isGuardBreak: 0
