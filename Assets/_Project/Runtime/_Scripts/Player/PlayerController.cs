@@ -85,6 +85,15 @@ public partial class PlayerController : MonoBehaviour
     public bool IsInvincible { get; set; }
     public bool ActivateTrail { get; set; }
     public bool IsAbleToDash { get; set; }
+    [field: SerializeField]
+    public bool IsAbleToPhase { get; set; }
+    [field: SerializeField]
+    public bool IsPhasing { get; set; }
+    [field: SerializeField]
+    private bool wasPhasingLastFrame;
+
+    [SerializeField] private float phaseCooldown;
+    [SerializeField] float phaseCooldownTimer;
 
     string ThisPlayer => $"Player {PlayerID}";
     public bool IsCrouching => Animator.GetBool("IsCrouching");
@@ -156,6 +165,17 @@ public partial class PlayerController : MonoBehaviour
         // Player cannot block while airborne.
         if (Rigidbody.velocity.y > 0 || Rigidbody.velocity.y < 0) IsBlocking = false;
 
+        // Timers:
+        if (phaseCooldownTimer > 0)
+        {
+            phaseCooldownTimer -= Time.fixedDeltaTime;
+            IsAbleToPhase = false;
+        }
+        else
+        {
+            IsAbleToPhase = true;
+        }
+        
         #region THE "I GIVE UP" REGION
         PlayerShadow();
         
@@ -180,6 +200,16 @@ public partial class PlayerController : MonoBehaviour
                 playerLandVFX.Play(); 
             }
             wasGroundedLastFrame = IsGrounded();
+        }
+
+        if (wasPhasingLastFrame != IsPhasing)
+        {
+            if (wasPhasingLastFrame)
+            {
+                phaseCooldownTimer = phaseCooldown;
+            }
+
+            wasPhasingLastFrame = IsPhasing;
         }
         #endregion
 
