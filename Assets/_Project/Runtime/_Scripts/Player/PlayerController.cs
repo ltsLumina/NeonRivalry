@@ -94,6 +94,7 @@ public partial class PlayerController : MonoBehaviour
 
     [SerializeField] private float phaseCooldown;
     [SerializeField] float phaseCooldownTimer;
+    [SerializeField] private Vector3 currentVelocity;
 
     string ThisPlayer => $"Player {PlayerID}";
     public bool IsCrouching => Animator.GetBool("IsCrouching");
@@ -162,6 +163,7 @@ public partial class PlayerController : MonoBehaviour
     
     void FixedUpdate()
     {
+        currentVelocity = Rigidbody.velocity;
         // Player cannot block while airborne.
         if (Rigidbody.velocity.y > 0 || Rigidbody.velocity.y < 0) IsBlocking = false;
 
