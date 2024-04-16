@@ -100,24 +100,24 @@ public class CameraController : MonoBehaviour
 
         Vector3 directionToHighestPlayer = highestPlayer.position - transform.position;
 
-// Adjust the y-component to tilt the camera up more on the x-axis.
+        // Adjust the y-component to tilt the camera up more on the x-axis.
         directionToHighestPlayer.y += rotationYOffset; // Increase or decrease as needed
 
-// Calculate the rotation only on the x-axis.
+        // Calculate the rotation only on the x-axis.
         Quaternion targetRotation = Quaternion.LookRotation(directionToHighestPlayer, Vector3.up);
-        targetRotation.eulerAngles = new Vector3(targetRotation.eulerAngles.x, transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z);
+        targetRotation.eulerAngles = new (targetRotation.eulerAngles.x, transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z);
 
-// Apply the rotation to the camera.
+        // Apply the rotation to the camera.
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
 
-            // Calculate the new z-position of the camera. This is a linear interpolation between the current z-position and the desired z-position,
+        // Calculate the new z-position of the camera. This is a linear interpolation between the current z-position and the desired z-position,
         // with the interpolation parameter being the product of the time delta and the zoom speed.
         float newZ = Mathf.Lerp(currentPosition.z, desiredZ, Time.deltaTime * zoomSpeed);
         float newY = Mathf.Lerp(currentPosition.y, desiredY, Time.deltaTime * zoomSpeed);
 
         // Set the new position of the camera. The x-position is the x-coordinate of the midpoint, the y-position is the current y-position,
         // and the z-position is the newly calculated z-position.
-        vCam.transform.position = new Vector3(midpoint.x, newY, newZ);
+        vCam.transform.position = new (midpoint.x, newY, newZ);
     }
 
     public static void Shake(float amplitude = 5, float frequency = 1f, float duration = 0.25f)
