@@ -55,15 +55,22 @@ public class DashState : State
         player.Rigidbody.velocity = Vector3.zero;
 
         dashSFX = new Sound(SFX.Dash);
-        dashSFX.SetVolume(0.75f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(1f, 1.1f));
-        dashSFX.Play();
+        
         if (player.IsGrounded())
         {
+            if (!player.IsAbleToPhase) return;
+            if (player.IsPhasing) return;
+            
+            dashSFX.SetVolume(0.45f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(.4f, .6f));
+            dashSFX.Play();
             dashDuration *= groundedDashMultiplier;
             dashSleepTime *= groundedDashMultiplier;
             dashDuration = 1f;
             player.StartCoroutine(HandleGroundedDashing());
+            return;
         }
+        dashSFX.SetVolume(0.75f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(1f, 1.1f));
+        dashSFX.Play();
         player.StartCoroutine(HandleDashing());
     }
 
@@ -92,7 +99,7 @@ public class DashState : State
         if (player.IsGrounded() && player.InputManager.MoveInput.x != 0) player.StateMachine.TransitionToState(StateType.Walk);
         else if (player.IsGrounded()) player.StateMachine.TransitionToState(StateType.Idle);
 
-        if (dashed && player.IsAirborne()) player.StateMachine.TransitionToState(StateType.Fall);
+        if (dashed && !player.IsGrounded()) player.StateMachine.TransitionToState(StateType.Fall);
     }
     #endregion
 
@@ -113,10 +120,13 @@ public class DashState : State
     {
         yield return new WaitForSeconds(dashSleepTime);
         dashTimer = dashDuration;
+        player.ActivateTrail = true;
+        player.IsPhasing = true;
         yield return new WaitForSeconds(dashTimer);
         player.Rigidbody.velocity *= 0f;
         player.GlobalGravity = dashEndGravity;
         dashed = true;
+        player.IsPhasing = false;
 
         OnExit();
         yield return new WaitForEndOfFrame();

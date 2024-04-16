@@ -20,23 +20,22 @@ MonoBehaviour:
   sprite: {fileID: 0}
   name: Sweep
   description: 
-  owner: {fileID: 323316177474802617, guid: bb4eb473b2a74af42b52dcbffeb36c2a, type: 3}
-  damage: 4
-  knockbackForce: {x: -8, y: 0}
-  knockbackDir: {x: 1, y: 0}
-  aerialKnockbackForce: {x: 0, y: 0}
-  aerialKnockbackDir: {x: 0, y: 0}
-  knockBackAttacker: 1
-  attackerKnockbackMultiplier: 1
+  damage: 3
+  knockbackForce: {x: 1, y: 9}
+  knockbackDir: {x: -1, y: 1}
+  knockBackAttacker: 0
   screenShake: 0
   screenShakeAmplitude: 1
   screenShakeFrequency: 3
   screenShakeDuration: 0.001
-  hitstunDuration: 0.45
+  hitstunDuration: 0.4
   isAirborne: 0
+  isSweep: 0
   isOverhead: 0
+  isArmor: 0
+  isInvincible: 0
   isGuardBreak: 0
   moveEffects: []
   showWarning: 0
-  wrongDir: {x: 1, y: 0}
-  wrongForce: {x: 0, y: 0}
+  wrongDir: {x: 1, y: 1}
+  wrongForce: {x: 0, y: 2}

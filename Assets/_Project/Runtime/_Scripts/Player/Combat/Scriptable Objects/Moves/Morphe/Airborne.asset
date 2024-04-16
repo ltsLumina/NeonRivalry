@@ -20,23 +20,22 @@ MonoBehaviour:
   sprite: {fileID: 0}
   name: Shulk
   description: 
-  owner: {fileID: 323316177474802617, guid: bb4eb473b2a74af42b52dcbffeb36c2a, type: 3}
-  damage: 6
-  knockbackForce: {x: -1.55, y: 8}
+  damage: 4
+  knockbackForce: {x: 3, y: 9}
   knockbackDir: {x: 1, y: 1}
-  aerialKnockbackForce: {x: 0, y: 0}
-  aerialKnockbackDir: {x: 0, y: 0}
   knockBackAttacker: 0
-  attackerKnockbackMultiplier: 1
   screenShake: 0
   screenShakeAmplitude: 1
   screenShakeFrequency: 3
   screenShakeDuration: 0.001
-  hitstunDuration: 0.75
+  hitstunDuration: 0.35
   isAirborne: 1
+  isSweep: 0
   isOverhead: 0
+  isArmor: 0
+  isInvincible: 0
   isGuardBreak: 0
   moveEffects: []
   showWarning: 0
-  wrongDir: {x: 1, y: 1}
-  wrongForce: {x: 0, y: 8}
+  wrongDir: {x: -1, y: 1}
+  wrongForce: {x: 0, y: 10}
