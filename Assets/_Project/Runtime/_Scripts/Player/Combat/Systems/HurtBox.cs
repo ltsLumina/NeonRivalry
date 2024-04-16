@@ -1,5 +1,4 @@
 ﻿#region
-using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -88,18 +87,19 @@ public class HurtBox : MonoBehaviour
             effect.ApplyEffect(player);
         }
         
-        if (incomingAttack.isArmor)
-        {
-            Debug.Log("Armor!");
-            Debug.Log("ARMOR ATTRIBUTE DOESNT WORK YET OR MAYBE EVER");
-            HandleHit(incomingAttack);
-            return;
-        } 
-        
         // -- Blocking Logic --
         
         if (player.IsBlocking)
         {
+            // Hits if player is blocking an overhead attack while crouching
+            if (incomingAttack.isOverhead && player.IsCrouching)
+            {
+                Debug.Log("Overhead attack!");
+                HandleHit(incomingAttack, hitBox);
+                return;
+            }
+            
+            // Hits: Always
             if (incomingAttack.isGuardBreak)
             {
                 Debug.Log("Guard break!");
@@ -107,24 +107,21 @@ public class HurtBox : MonoBehaviour
                 return;
             }
             
+            // Hits: Player is not blocking low. | Blocks: Player is crouching & Blocking
             if (incomingAttack.guard == MoveData.Guard.Low && player.IsCrouching)
             {
                 HandleBlock(incomingAttack, hitBox);
                 return;
             }
 
+            // Hits: Player is not blocking high. | Blocks: Player is not crouching
             if (incomingAttack.guard == MoveData.Guard.High && !player.IsCrouching)
             {
-                if (incomingAttack.isSweep)
-                {
-                    HandleHit(incomingAttack, hitBox);
-                    return;
-                }
-                
                 HandleBlock(incomingAttack, hitBox);
                 return;
             }
 
+            // Hits: Player is not blocking low. | Blocks: Player is not crouching
             if (incomingAttack.guard == MoveData.Guard.All)
             {
                 HandleBlock(incomingAttack, hitBox);
@@ -139,22 +136,21 @@ public class HurtBox : MonoBehaviour
     
     void HandleHit(MoveData moveData, HitBox hitBox = default)
     {
-        if (!player.IsArmored)
-        {
-            player.Animator.SetFloat("HitstunDuration", moveData.hitstunDuration * 3f);
-            player.Animator.SetTrigger("Hitstun");
-            player.StateMachine.TransitionToState(State.StateType.HitStun);
+        player.Animator.SetFloat("HitstunDuration", moveData.hitstunDuration * 3f);
+        player.Animator.SetTrigger("Hitstun");
+        player.StateMachine.TransitionToState(State.StateType.HitStun);
 
-            gamepad.Rumble(ID, .5f, 0f, 0.1f);
-            var attackerGamepad = hitBox?.Owner.Device as Gamepad;
-            attackerGamepad?.Rumble(hitBox.Owner.PlayerID, 0.3f, .5f, 0.1f);
+        gamepad.Rumble(ID, .5f, 0f, 0.1f);
+        // Apply screenshake
+        if (moveData.screenShake) CameraController.Shake(moveData.screenShakeAmplitude, moveData.screenShakeFrequency, moveData.screenShakeDuration);
 
-            PlayEffect(punchKickEffect);
-            
-            // Don't apply knockback if the player is airborne
-            Knockback(moveData, hitBox?.Owner);
-        }
-        else { player.IsArmored = false; }
+        var attackerGamepad = hitBox?.Owner.Device as Gamepad;
+        attackerGamepad?.Rumble(hitBox.Owner.PlayerID, 0.3f, .5f, 0.1f);
+
+        PlayEffect(punchKickEffect);
+
+        // Don't apply knockback if the player is airborne
+        Knockback(moveData, hitBox?.Owner);
         
         // Reduce health by the damage amount, and update the health bar.
         // Create variable to represent the player's health
@@ -234,7 +230,10 @@ public class HurtBox : MonoBehaviour
     void Knockback(MoveData moveData, PlayerController attacker)
     {
         Vector2 knockbackDir   = moveData.knockbackDir;
-        Vector3 knockbackForce = moveData.knockbackForce;
+        Vector2 knockbackForce = moveData.knockbackForce;
+        
+        Vector2 aerialKnockbackDir = moveData.aerialKnockbackDir;
+        Vector2 aerialKnockbackForce = moveData.aerialKnockbackForce;
         
         var otherPlayer = PlayerManager.OtherPlayer(player);
         if (otherPlayer != null) // Two-player knockback
@@ -244,44 +243,42 @@ public class HurtBox : MonoBehaviour
             Vector3 otherPlayerPos = otherPlayer.transform.position;
             if (playerPos.x > otherPlayerPos.x) knockbackDir.x *= -1;
         }
-        
-        // Calculate the knockback force using the direction and force values
-        var force = new Vector2(knockbackDir.x * knockbackForce.x, knockbackDir.y * knockbackForce.y);
-    
-        // Apply the knockback force to the player who was hit
-        player.Rigidbody.AddForce(force, ForceMode.Impulse);
 
-        if (moveData.isAirborne || !moveData.knockBackAttacker) return;
+        Vector2 groundedForce = Vector2.one;
+        Vector2 aerialForce = Vector2.one;
 
-        // Apply knockback to the player who attacked
-        var attackerForce = new Vector2(-force.x * 2, 0);
-        attacker.Rigidbody.velocity = new (attackerForce.x, attacker.Rigidbody.velocity.y, 0);
-    }
-
-    [Obsolete("I wish this would work, but it doesn't.")]
-    IEnumerator ApplySmoothForce(Rigidbody playerRigidbody, Vector2 force, float duration)
-    {
-        // Slight wait before applying the force
-        yield return new WaitForSeconds(0.05f);
-        
-        float timer = 0;
-
-        while (timer < duration)
+        if (player.IsGrounded())
         {
-            // Calculate how much of the duration has passed
-            float completed = timer / duration;
+            // Calculate the knockback force using the direction and force values
+            groundedForce = new (knockbackDir.x * knockbackForce.x, knockbackDir.y * knockbackForce.y);
 
-            // Calculate the current force
-            Vector2 currentForce = Vector2.Lerp(force, Vector2.zero, completed);
+            // Apply the knockback force to the player who was hit
+            player.Rigidbody.AddForce(groundedForce, ForceMode.Impulse);
+        }
+        else // Player is airborne
+        {
+            // Calculate the knockback force using the direction and force values
+            aerialForce = new (aerialKnockbackDir.x * aerialKnockbackForce.x, aerialKnockbackDir.y * aerialKnockbackForce.y);
 
-            // Apply the current force
-            playerRigidbody.AddForce(currentForce, ForceMode.Impulse);
+            // Apply the knockback force to the player who was hit
+            player.Rigidbody.AddForce(aerialForce, ForceMode.Impulse);
+        }
 
-            // Wait for the next frame
-            yield return null;
+        
+        // Knockback attacker logic
+        if (!moveData.knockBackAttacker) return;
 
-            // Increase the timer
-            timer += Time.deltaTime;
+        if (attacker.IsGrounded())
+        {
+            // Apply knockback to the player who attacked
+            var attackerForce = new Vector2(-groundedForce.x * moveData.attackerKnockbackMultiplier, 0);
+            attacker.Rigidbody.velocity = new (attackerForce.x, attacker.Rigidbody.velocity.y);
+        }
+        else // Attacker is airborne
+        {
+            // Apply knockback to the player who attacked
+            var attackerForce = new Vector2(-aerialForce.x * moveData.attackerKnockbackMultiplier, 0);
+            attacker.Rigidbody.velocity = new (attackerForce.x, attacker.Rigidbody.velocity.y);
         }
     }
     

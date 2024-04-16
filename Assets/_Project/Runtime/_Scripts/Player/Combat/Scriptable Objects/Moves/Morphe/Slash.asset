@@ -20,18 +20,21 @@ MonoBehaviour:
   sprite: {fileID: 0}
   name: Anti Air
   description: 
+  owner: {fileID: 323316177474802617, guid: bb4eb473b2a74af42b52dcbffeb36c2a, type: 3}
   damage: 7
   knockbackForce: {x: -2.23, y: 10}
   knockbackDir: {x: 1, y: 1}
+  aerialKnockbackForce: {x: 0, y: 0}
+  aerialKnockbackDir: {x: 0, y: 0}
   knockBackAttacker: 0
+  attackerKnockbackMultiplier: 1
   screenShake: 0
-  screenShakeAmplitude: 0
+  screenShakeAmplitude: 1
+  screenShakeFrequency: 3
+  screenShakeDuration: 0.001
   hitstunDuration: 0.8
   isAirborne: 0
-  isSweep: 0
   isOverhead: 1
-  isArmor: 0
-  isInvincible: 0
   isGuardBreak: 0
   moveEffects: []
   showWarning: 0

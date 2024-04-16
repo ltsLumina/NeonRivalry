@@ -1,4 +1,5 @@
 #region
+using System.Collections;
 using Cinemachine;
 using Lumina.Essentials.Attributes;
 using UnityEngine;
@@ -34,13 +35,20 @@ public class CameraController : MonoBehaviour
     [Tab("Settings")]
     [SerializeField, ReadOnly] Transform target1;
     [SerializeField, ReadOnly] Transform target2;
-
     
     // -- Cached References -- \\
 
     CinemachineVirtualCamera vCam;
+    
+    static CameraController Instance { get; set; }
 
-    void Awake() => vCam = GetComponentInChildren<CinemachineVirtualCamera>();
+    void Awake()
+    {
+        vCam = GetComponentInChildren<CinemachineVirtualCamera>();
+        
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
+    }
 
     void OnEnable() => InputDeviceManager.OnPlayerJoin += OnPlayerJoined;
     void OnDisable() => InputDeviceManager.OnPlayerJoin -= OnPlayerJoined;
@@ -97,5 +105,23 @@ public class CameraController : MonoBehaviour
         // Set the new position of the camera. The x-position is the x-coordinate of the midpoint, the y-position is the current y-position,
         // and the z-position is the newly calculated z-position.
         vCam.transform.position = new Vector3(midpoint.x, yOffset, newZ);
+    }
+
+    public static void Shake(float amplitude = 5, float frequency = 1f, float duration = 0.25f)
+    {
+        CinemachineBasicMultiChannelPerlin noise = Instance.vCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
+        Instance.StartCoroutine(ShakeRoutine(noise, amplitude, frequency, duration));
+    }
+
+    static IEnumerator ShakeRoutine(CinemachineBasicMultiChannelPerlin noise, float amplitude = 5, float frequency = 1f, float duration = 0.25f)
+    {
+        // Shake the camera for <duration> seconds, then lerp the amplitude and frequency back to 0 over 1 second.
+        noise.m_AmplitudeGain = amplitude;
+        noise.m_FrequencyGain = frequency;
+        
+        yield return new WaitForSecondsRealtime(duration);
+
+        noise.m_AmplitudeGain = 0;
+        noise.m_FrequencyGain = 0;
     }
 }

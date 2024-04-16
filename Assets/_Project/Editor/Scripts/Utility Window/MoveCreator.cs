@@ -276,17 +276,13 @@ public static class MoveCreator
                 currentMove.name        = name;
                 currentMove.description = description;
                 currentMove.damage      = damage;
-                //currentMove.blockstun   = blockstun;
 
                 currentMove.animation = animation;
                 currentMove.audioClip = audioClip;
                 currentMove.sprite    = sprite;
 
                 currentMove.isAirborne   = isAirborne;
-                currentMove.isSweep      = isSweep;
                 currentMove.isOverhead   = isOverhead;
-                currentMove.isArmor      = isArmor;
-                currentMove.isInvincible = isInvincible;
                 currentMove.isGuardBreak = isGuardBreak;
 
                 AssetDatabase.SaveAssets();

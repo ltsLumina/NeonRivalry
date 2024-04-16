@@ -113,7 +113,7 @@ public class StateMachine : MonoBehaviour
                 CheckStateDataThenExecute(stateData.airborneAttackStateData, data => SetState(new AirborneAttackState(Player, data)));
                 break;
 
-            case Dash when Player.CanDash():
+            case Dash:
                 CheckStateDataThenExecute(stateData.dashStateData, data => SetState(new DashState(Player, data)));
                 break;
             

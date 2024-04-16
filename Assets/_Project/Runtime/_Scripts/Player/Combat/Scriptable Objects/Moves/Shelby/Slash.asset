@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4c19459cfa9a40a0827e607c77b07abf, type: 3}
-  m_Name: Slash
+  m_Name: 5P
   m_EditorClassIdentifier: 
   type: 0
   direction: 0
@@ -20,13 +20,14 @@ MonoBehaviour:
   sprite: {fileID: 0}
   name: Slash
   description: 
-  damage: 5
-  knockbackForce: {x: 15, y: 1.7}
+  damage: 4
+  knockbackForce: {x: 5, y: 1.7}
   knockbackDir: {x: -1, y: 1}
-  aerialKnockbackMultiplier: 0
-  knockBackAttacker: 0
+  knockBackAttacker: 1
   screenShake: 0
   screenShakeAmplitude: 0
+  screenShakeFrequency: 1
+  screenShakeDuration: 0.25
   hitstunDuration: 0.1
   isAirborne: 0
   isSweep: 0

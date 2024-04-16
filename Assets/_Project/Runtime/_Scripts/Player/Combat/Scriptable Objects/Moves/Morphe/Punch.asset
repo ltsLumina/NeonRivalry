@@ -20,18 +20,21 @@ MonoBehaviour:
   sprite: {fileID: 0}
   name: Bonk
   description: 
+  owner: {fileID: 323316177474802617, guid: bb4eb473b2a74af42b52dcbffeb36c2a, type: 3}
   damage: 3
   knockbackForce: {x: -4, y: 2}
   knockbackDir: {x: 1, y: 1}
+  aerialKnockbackForce: {x: 0, y: 0}
+  aerialKnockbackDir: {x: 0, y: 0}
   knockBackAttacker: 1
+  attackerKnockbackMultiplier: 1
   screenShake: 0
-  screenShakeAmplitude: 0
+  screenShakeAmplitude: 1
+  screenShakeFrequency: 3
+  screenShakeDuration: 0.001
   hitstunDuration: 0.3
   isAirborne: 0
-  isSweep: 0
   isOverhead: 0
-  isArmor: 0
-  isInvincible: 0
   isGuardBreak: 0
   moveEffects: []
   showWarning: 0
