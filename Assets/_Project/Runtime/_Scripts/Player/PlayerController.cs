@@ -162,6 +162,8 @@ public partial class PlayerController : MonoBehaviour
     
     void FixedUpdate()
     {
+        if (Animator.GetBool("Dead")) DisablePlayer(true);
+
         // Player cannot block while airborne.
         if (Rigidbody.velocity.y > 0 || Rigidbody.velocity.y < 0) IsBlocking = false;
 

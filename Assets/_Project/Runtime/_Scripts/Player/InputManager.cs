@@ -61,10 +61,7 @@ public class InputManager : MonoBehaviour
         stateMachine = player.GetComponent<StateMachine>();
     }
 
-    void Start()
-    {
-        Enabled = true;
-    }
+    void Start() => Enabled = true;
 
     // -- Input Handling --
     
