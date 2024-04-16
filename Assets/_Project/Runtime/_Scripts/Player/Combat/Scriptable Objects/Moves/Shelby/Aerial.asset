@@ -20,22 +20,23 @@ MonoBehaviour:
   sprite: {fileID: 0}
   name: 
   description: 
+  owner: {fileID: 0}
   damage: 4
-  knockbackForce: {x: 4, y: 11}
-  knockbackDir: {x: 1, y: 0.81}
-  knockBackAttacker: 0
+  knockbackForce: {x: 0, y: 11}
+  knockbackDir: {x: 0, y: 0.81}
+  aerialKnockbackForce: {x: 0, y: 0.08}
+  aerialKnockbackDir: {x: 0, y: 1}
+  knockBackAttacker: 1
+  attackerKnockbackMultiplier: 2
   screenShake: 0
   screenShakeAmplitude: 0
   screenShakeFrequency: 1
   screenShakeDuration: 0.25
-  hitstunDuration: 0.08
+  hitstunDuration: 0.12
   isAirborne: 1
-  isSweep: 0
   isOverhead: 0
-  isArmor: 0
-  isInvincible: 0
   isGuardBreak: 0
   moveEffects: []
   showWarning: 0
-  wrongDir: {x: 0, y: 1}
-  wrongForce: {x: 4, y: 10}
+  wrongDir: {x: 1, y: 0.81}
+  wrongForce: {x: 0, y: 11}
