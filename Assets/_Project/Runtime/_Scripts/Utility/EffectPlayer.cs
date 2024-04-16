@@ -65,16 +65,16 @@ public class EffectPlayer : MonoBehaviour
     void ConfigureAudio()
     {
         // TODO: Same here
-        overheadWindupSFX.SetVolume(1f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(.75f, .75f)).SetFadeOut(0.1f);
-        overheadSFX      .SetVolume(1.5f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(0.5f, 0.5f)).SetFadeOut(0.3f);
-        slashSFX         .SetVolume(0.6f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(1.3f, 1.5f));
-        uppercutSFX      .SetVolume(1f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(0.8f, 1f)).SetFadeOut(0.15f);
-        hookSFX          .SetVolume(1f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(0.6f, 0.8f)).SetFadeOut(0.15f);
-        aerialSFX        .SetVolume(3f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch().SetFadeOut(0.15f);
-        barStepSFX       .SetVolume(4f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(.75f, 85f));
-        blockSFX         .SetVolume(.6f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(1.2f, 1.4f)).SetFadeOut(.15f);
-        jumpSFX          .SetVolume(.4f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch();
-        hitSFX           .SetVolume(.6f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch();
+        overheadWindupSFX.SetVolume(1.0f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(0.75f, 0.75f)).SetFadeOut(0.1f);
+        overheadSFX      .SetVolume(1.5f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(0.50f, 0.50f)).SetFadeOut(0.3f);
+        slashSFX         .SetVolume(0.6f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(1.30f, 1.50f));
+        uppercutSFX      .SetVolume(1.0f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(0.80f, 1.00f)).SetFadeOut(0.15f);
+        hookSFX          .SetVolume(1.0f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(0.60f, 0.80f)).SetFadeOut(0.15f);
+        aerialSFX        .SetVolume(3.0f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(0.85f, 1.15f)).SetFadeOut(0.15f);
+        barStepSFX       .SetVolume(4.0f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(0.75f, 0.85f));
+        blockSFX         .SetVolume(0.6f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(1.20f, 1.40f)).SetFadeOut(.15f);
+        jumpSFX          .SetVolume(0.4f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch();
+        hitSFX           .SetVolume(0.6f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch();
     }
 
     void PlayEffect(GameObject effect)
