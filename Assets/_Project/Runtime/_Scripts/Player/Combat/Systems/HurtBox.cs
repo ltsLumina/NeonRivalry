@@ -24,10 +24,10 @@ public class HurtBox : MonoBehaviour
     [SerializeField] GameObject blockEffect;
     [SerializeField] Gradient blockStrainGradient;
     
-    int ID => player.PlayerID;
+    int ID => victim.PlayerID;
     int TotalBlocks { get; set; }
     
-    PlayerController player;
+    PlayerController victim;
     Gamepad gamepad;
 
     public delegate void HurtBoxHit(HitBox hitBox, MoveData moveData);
@@ -38,8 +38,8 @@ public class HurtBox : MonoBehaviour
 
     void Awake()
     {
-        player  = GetComponentInParent<PlayerController>();
-        gamepad = player.Device as Gamepad;
+        victim  = GetComponentInParent<PlayerController>();
+        gamepad = victim.Device as Gamepad;
     }
 
     void Update() // TODO: Remove Update and DEBUG method when finished debugging.
@@ -69,9 +69,9 @@ public class HurtBox : MonoBehaviour
     void TakeDamage(HitBox hitBox, MoveData incomingAttack)
     {
         // Check if the player is invincible or already dead.
-        if (player.IsInvincible || player.Healthbar.Health <= 0) return;
+        if (victim.IsInvincible || victim.Healthbar.Health <= 0) return;
 
-        if (incomingAttack.isAirborne && player.IsCrouching)
+        if (incomingAttack.isAirborne && victim.IsCrouching)
         {
             Debug.Log("Attack missed! (Airborne + Target was crouching)");
             return;
@@ -79,20 +79,20 @@ public class HurtBox : MonoBehaviour
         
         // -- Any logic that needs to happen regardless if the player is blocking or not --
         
-        player.FreezePlayer(true, incomingAttack.hitstunDuration, true);
+        victim.FreezePlayer(true, incomingAttack.hitstunDuration, true);
 
         // Check for move effects
         foreach (var effect in incomingAttack.moveEffects)
         {
-            effect.ApplyEffect(player);
+            effect.ApplyEffect(victim);
         }
         
         // -- Blocking Logic --
         
-        if (player.IsBlocking)
+        if (victim.IsBlocking)
         {
             // Hits if player is blocking an overhead attack while crouching
-            if (incomingAttack.isOverhead && player.IsCrouching)
+            if (incomingAttack.isOverhead && victim.IsCrouching)
             {
                 Debug.Log("Overhead attack!");
                 HandleHit(incomingAttack, hitBox);
@@ -108,14 +108,14 @@ public class HurtBox : MonoBehaviour
             }
             
             // Hits: Player is not blocking low. | Blocks: Player is crouching & Blocking
-            if (incomingAttack.guard == MoveData.Guard.Low && player.IsCrouching)
+            if (incomingAttack.guard == MoveData.Guard.Low && victim.IsCrouching)
             {
                 HandleBlock(incomingAttack, hitBox);
                 return;
             }
 
             // Hits: Player is not blocking high. | Blocks: Player is not crouching
-            if (incomingAttack.guard == MoveData.Guard.High && !player.IsCrouching)
+            if (incomingAttack.guard == MoveData.Guard.High && !victim.IsCrouching)
             {
                 HandleBlock(incomingAttack, hitBox);
                 return;
@@ -136,9 +136,9 @@ public class HurtBox : MonoBehaviour
     
     void HandleHit(MoveData moveData, HitBox hitBox = default)
     {
-        player.Animator.SetFloat("HitstunDuration", moveData.hitstunDuration * 3f);
-        player.Animator.SetTrigger("Hitstun");
-        player.StateMachine.TransitionToState(State.StateType.HitStun);
+        victim.Animator.SetFloat("HitstunDuration", moveData.hitstunDuration * 3f);
+        victim.Animator.SetTrigger("Hitstun");
+        victim.StateMachine.TransitionToState(State.StateType.HitStun);
 
         gamepad.Rumble(ID, .5f, 0f, 0.1f);
         // Apply screenshake
@@ -154,9 +154,9 @@ public class HurtBox : MonoBehaviour
         
         // Reduce health by the damage amount, and update the health bar.
         // Create variable to represent the player's health
-        int health = player.Healthbar.Health;
+        int health = victim.Healthbar.Health;
         health -= moveData.damage;
-        player.Healthbar.Health =  health;
+        victim.Healthbar.Health =  health;
         
         // Plays effects over time such as flashing red and invincibility frames.
         TakeDamageRoutine();
@@ -167,10 +167,10 @@ public class HurtBox : MonoBehaviour
         OnBlockHit?.Invoke();
 
         // Update the state of the player.
-        player.StateMachine.TransitionToState(State.StateType.Block);
+        victim.StateMachine.TransitionToState(State.StateType.Block);
 
         // If the player is standing, play the standing block animation.
-        if (!player.IsCrouching) player.Animator.SetTrigger("Blocked");
+        if (!victim.IsCrouching) victim.Animator.SetTrigger("Blocked");
 
         // Calculate the damage taken and the strain percentage.
         CalculateDamageTaken(moveData, out float strainPercentage);
@@ -195,7 +195,7 @@ public class HurtBox : MonoBehaviour
 
             int reducedDamage = Mathf.RoundToInt(moveData.damage * modifiedBlockDamageReductionPercentage);
             int finalDamage   = moveData.damage - reducedDamage; // Subtract the reduced damage from the original damage
-            player.Healthbar.Health -= finalDamage;                   // Apply the final damage
+            victim.Healthbar.Health -= finalDamage;                   // Apply the final damage
             //Debug.Log($"Blocked and took {finalDamage} damage!");
 
             // Add the blocked damage to the total
@@ -235,33 +235,39 @@ public class HurtBox : MonoBehaviour
         Vector2 aerialKnockbackDir = moveData.aerialKnockbackDir;
         Vector2 aerialKnockbackForce = moveData.aerialKnockbackForce;
         
-        var otherPlayer = PlayerManager.OtherPlayer(player);
+        var otherPlayer = PlayerManager.OtherPlayer(victim);
         if (otherPlayer != null) // Two-player knockback
         {
             // If the player is on the right side of the other player, reverse the knockback direction, and vice versa
-            Vector3 playerPos = player.transform.position;
+            Vector3 playerPos = victim.transform.position;
             Vector3 otherPlayerPos = otherPlayer.transform.position;
-            if (playerPos.x > otherPlayerPos.x) knockbackDir.x *= -1;
+
+            if (playerPos.x > otherPlayerPos.x)
+            {
+                knockbackDir.x *= -1;
+                aerialKnockbackDir.x *= -1;
+            }
         }
 
-        Vector2 groundedForce = Vector2.one;
+        Vector2 regularForce = Vector2.one;
         Vector2 aerialForce = Vector2.one;
-
-        if (player.IsGrounded())
-        {
-            // Calculate the knockback force using the direction and force values
-            groundedForce = new (knockbackDir.x * knockbackForce.x, knockbackDir.y * knockbackForce.y);
-
-            // Apply the knockback force to the player who was hit
-            player.Rigidbody.AddForce(groundedForce, ForceMode.Impulse);
-        }
-        else // Player is airborne
+        
+        // if the moveData has an aerial override knockback, use the aerial knockback values
+        if (moveData.aerialOverrideKnockback)
         {
             // Calculate the knockback force using the direction and force values
             aerialForce = new (aerialKnockbackDir.x * aerialKnockbackForce.x, aerialKnockbackDir.y * aerialKnockbackForce.y);
 
             // Apply the knockback force to the player who was hit
-            player.Rigidbody.AddForce(aerialForce, ForceMode.Impulse);
+            victim.Rigidbody.AddForce(aerialForce, ForceMode.Impulse);
+        }
+        else
+        {
+            // Calculate the knockback force using the direction and force values
+            regularForce = new (knockbackDir.x * knockbackForce.x, knockbackDir.y * knockbackForce.y);
+
+            // Apply the knockback force to the player who was hit
+            victim.Rigidbody.AddForce(regularForce, ForceMode.Impulse);
         }
 
         
@@ -271,7 +277,7 @@ public class HurtBox : MonoBehaviour
         if (attacker.IsGrounded())
         {
             // Apply knockback to the player who attacked
-            var attackerForce = new Vector2(-groundedForce.x * moveData.attackerKnockbackMultiplier, 0);
+            var attackerForce = new Vector2(-regularForce.x * moveData.attackerKnockbackMultiplier, 0);
             attacker.Rigidbody.velocity = new (attackerForce.x, attacker.Rigidbody.velocity.y);
         }
         else // Attacker is airborne
@@ -293,7 +299,7 @@ public class HurtBox : MonoBehaviour
 
     IEnumerator FlashRedOnDamage(float duration = 0.15f)
     {
-        var meshRenderer = player.GetComponentInChildren<SkinnedMeshRenderer>();
+        var meshRenderer = victim.GetComponentInChildren<SkinnedMeshRenderer>();
         if (!meshRenderer) yield break;
 
         int baseColor       = Shader.PropertyToID("_BaseColor");
@@ -338,11 +344,11 @@ public class HurtBox : MonoBehaviour
 
     IEnumerator InvincibilityFrames(float duration = 0.35f)
     {
-        player.IsInvincible = true;
+        victim.IsInvincible = true;
         yield return new WaitForSeconds(duration);
 
         // Set player back to vulnerable
-        player.IsInvincible = false;
+        victim.IsInvincible = false;
     }
 
     void PlayEffect(GameObject effect)
