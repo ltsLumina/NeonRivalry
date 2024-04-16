@@ -29,6 +29,7 @@ public class CameraController : MonoBehaviour
     [SerializeField] float rotationSpeed = 5f;
 
     [SerializeField] float yOffset = 3.39f;
+    [SerializeField] float rotationYOffset = 2.0f;
 
     [SerializeField] bool xbool;
     
@@ -94,7 +95,7 @@ public class CameraController : MonoBehaviour
         Vector3 directionToHighestPlayer = highestPlayer.position - transform.position;
 
 // Adjust the y-component to tilt the camera up more on the x-axis.
-        directionToHighestPlayer.y += 1.0f; // Increase or decrease as needed
+        directionToHighestPlayer.y += rotationYOffset; // Increase or decrease as needed
 
 // Calculate the rotation only on the x-axis.
         Quaternion targetRotation = Quaternion.LookRotation(directionToHighestPlayer, Vector3.up);
