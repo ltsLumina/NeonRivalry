@@ -39,7 +39,7 @@ public class CameraController : MonoBehaviour
     // -- Cached References -- \\
 
     CinemachineVirtualCamera vCam;
-    
+
     static CameraController Instance { get; set; }
 
     void Awake()
@@ -89,16 +89,21 @@ public class CameraController : MonoBehaviour
 
         // Calculate the midpoint between the two targets.
         Vector3 midpoint = (target1.position + target2.position) / 2f;
-        if (xbool)
-        {
-            Vector3 directionToMidpointY = new Vector3(currentPosition.x, midpoint.y + 1.35f, 0) - currentPosition; // Only consider y-axis
+        Transform highestPlayer = (target1.position.y > target2.position.y) ? target1 : target2;
 
-            // Smoothly rotate camera towards midpoint
-            Quaternion targetRotation = Quaternion.LookRotation(directionToMidpointY);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-        }
+        Vector3 directionToHighestPlayer = highestPlayer.position - transform.position;
 
-        // Calculate the new z-position of the camera. This is a linear interpolation between the current z-position and the desired z-position,
+// Adjust the y-component to tilt the camera up more on the x-axis.
+        directionToHighestPlayer.y += 1.0f; // Increase or decrease as needed
+
+// Calculate the rotation only on the x-axis.
+        Quaternion targetRotation = Quaternion.LookRotation(directionToHighestPlayer, Vector3.up);
+        targetRotation.eulerAngles = new Vector3(targetRotation.eulerAngles.x, transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z);
+
+// Apply the rotation to the camera.
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+
+            // Calculate the new z-position of the camera. This is a linear interpolation between the current z-position and the desired z-position,
         // with the interpolation parameter being the product of the time delta and the zoom speed.
         float newZ = Mathf.Lerp(currentPosition.z, desiredZ, Time.deltaTime * zoomSpeed);
 
