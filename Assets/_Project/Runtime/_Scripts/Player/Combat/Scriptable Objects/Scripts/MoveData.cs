@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using Lumina.Essentials.Attributes;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 /// <summary>
 /// This is a ScriptableObject that represents a move (e.g. punch, kick, etc.) that can be used by the player.
@@ -67,6 +69,9 @@ public class MoveData : ScriptableObject
 
     [Tooltip("Description of the move.")]
     public string description;
+
+    [Tooltip("The name of the move's owner." + "\nReally only used to easier know which move belongs to who when looking at the MoveData")]
+    [SerializeField, ReadOnly] PlayerController owner;
     
     [Tooltip("Damage caused by the move.")]
     public int damage;
@@ -76,9 +81,19 @@ public class MoveData : ScriptableObject
     
     [Tooltip("The direction the enemy is knocked back when hit by the move.")]
     public Vector2 knockbackDir;
+    
+    [Space(10)]
+    
+    public Vector2 aerialKnockbackForce;
+    public Vector2 aerialKnockbackDir;
 
     [Tooltip("Whether this move should knock-back the attacker.")]
     public bool knockBackAttacker;
+    
+    [Tooltip("The amount of force applied to the attacker when hit by the move.")]
+    public float attackerKnockbackMultiplier = 1;
+    
+    [Space(10)]
     
     public bool screenShake;
     public float screenShakeAmplitude = 1;
@@ -91,20 +106,11 @@ public class MoveData : ScriptableObject
     [Space(15)]
     [Header("Move Properties")]
 
-    [Tooltip("Whether the move can be performed while airborne.")]
+    [Tooltip("If this is true and the target is crouching, this attack will miss.")]
     public bool isAirborne;
-
-    [Tooltip("Whether the move hits low and causes knockdown.")]
-    public bool isSweep;
 
     [Tooltip("A move that must be blocked while standing.")]
     public bool isOverhead;
-
-    [Tooltip("Whether the move can be blocked.")]
-    public bool isArmor;
-
-    [Tooltip("Whether the player becomes invincible to attacks while performing the move.")]
-    public bool isInvincible;
 
     [Tooltip("Whether the move ignores the enemy's guard.")]
     public bool isGuardBreak;
@@ -124,16 +130,16 @@ public class MoveData : ScriptableObject
     
     void OnValidate()
     {
-        if (screenShake) Debug.LogWarning("NOT IMPLEMENTED!!");
-
-        damage = Mathf.Clamp(damage, 1, 100);
-        
         #region Knockback
         knockbackDir.x = Mathf.Clamp(knockbackDir.x, -1, 1);
         knockbackDir.y = Mathf.Clamp(knockbackDir.y, -1, 1);
-        
         knockbackForce.x = Mathf.Clamp(knockbackForce.x, -15, 15);
         knockbackForce.y = Mathf.Clamp(knockbackForce.y, -15, 15);
+        
+        aerialKnockbackDir.x = Mathf.Clamp(aerialKnockbackDir.x, -1, 1);
+        aerialKnockbackDir.y = Mathf.Clamp(aerialKnockbackDir.y, -1, 1);
+        aerialKnockbackForce.x = Mathf.Clamp(aerialKnockbackForce.x, -15, 15);
+        aerialKnockbackForce.y = Mathf.Clamp(aerialKnockbackForce.y, -15, 15);
 
         // If the dir is non-zero on an axis and a force is zero on that axis, or vice versa, warn the user
         if ((knockbackDir.x != 0 && knockbackForce.x == 0) || (knockbackDir.y != 0 && knockbackForce.y == 0) || (knockbackDir.x == 0 && knockbackForce.x != 0) || (knockbackDir.y == 0 && knockbackForce.y != 0))
@@ -165,6 +171,10 @@ public class MoveDataEditor : Editor
 
         GUILayout.Space(15);
         
+        if (GUILayout.Button("Show Graphs in Separate Window", GUILayout.Height(35))) MoveDataGraphWindow.ShowWindow();
+
+        GUILayout.Space(15);
+        
         if (moveData.showWarning)
         {
             var wrongDir   = moveData.wrongDir;
@@ -172,13 +182,25 @@ public class MoveDataEditor : Editor
 
             string warning = "The knockback direction and force are not aligned. " + "\n" + $"Direction: ({wrongDir.x}, {wrongDir.y})" + "\n" + $"Force: ({wrongForce.x}, {wrongForce.y})" + "\n" +
                              "You are either trying to apply a force to a direction that is zero, or the force is zero when the direction is not.";
-            EditorGUILayout.HelpBox(warning, MessageType.Warning);
+            
+            if (moveData.knockbackDir != Vector2.zero && moveData.knockbackForce != Vector2.zero) EditorGUILayout.HelpBox(warning, MessageType.Warning);
         }
 
         GUILayout.Space(15);
         GUILayout.Label("", GUI.skin.horizontalSlider);
         GUILayout.Space(15);
 
+        GroundedKnockbackGraph();
+
+        GUILayout.Space(5);
+        GUILayout.Label("", GUI.skin.horizontalSlider);
+        GUILayout.Space(5);
+        
+        AerialKnockbackGraph();
+    }
+    
+    void GroundedKnockbackGraph()
+    {
         // Draw graph
         string label   = leftPlayerGraph ? "Right Player" : "Left Player";
         var    content = new GUIContent(label, $"The direction the {label} is knocked back when hit by the move.");
@@ -200,6 +222,81 @@ public class MoveDataEditor : Editor
         Handles.CircleHandleCap(0, end, Quaternion.identity, 2, EventType.Repaint);
     }
 
-    
+    void AerialKnockbackGraph()
+    {
+        // Draw graph
+        string label   = leftPlayerGraph ? "Right Player" : "Left Player";
+        var    content = new GUIContent(label, $"The direction the {label} is knocked back when hit by the move in the air.");
+        leftPlayerGraph = GUILayout.Toggle(leftPlayerGraph, content, EditorStyles.toolbarButton);
+        EditorGUILayout.LabelField("Aerial Knockback Direction and Force Graph");
+
+        GUILayout.Space(15);
+
+        Rect rect = GUILayoutUtility.GetRect(150, 150);
+        Handles.DrawSolidRectangleWithOutline(rect, new Color(0.22f, 0.22f, 0.22f), new Color(0.22f, 0.22f, 0.22f));
+        Vector2 center = rect.center;
+
+        // Scale the aerial knockback direction by the magnitude of the aerial knockback force
+        // Flip the X direction if leftPlayerGraph is true
+        Vector2 aerialKnockbackDir = moveData.aerialKnockbackDir;
+        aerialKnockbackDir.x = leftPlayerGraph ? -aerialKnockbackDir.x : aerialKnockbackDir.x;
+        Vector2 end = center + new Vector2(aerialKnockbackDir.x * moveData.aerialKnockbackForce.x, -aerialKnockbackDir.y * moveData.aerialKnockbackForce.y) * 4.5f; // 4.5f is the scale factor to fit the graph in the rect
+        Handles.DrawLine(center, end);
+        Handles.CircleHandleCap(0, end, Quaternion.identity, 2, EventType.Repaint);
+    }
+}
+
+public class MoveDataGraphWindow : EditorWindow
+{
+    MoveData moveData;
+    static bool leftPlayerGraph = true;
+
+    [MenuItem("Window/Move Data Graphs")]
+    public static void ShowWindow() => GetWindow<MoveDataGraphWindow>("Move Data Graphs");
+
+    void OnEnable() => EditorApplication.update += Repaint;
+    void OnDisable() => EditorApplication.update -= Repaint;
+
+    void OnGUI()
+    {
+        string label = leftPlayerGraph ? "Right Player" : "Left Player";
+        GUIContent content = new (label, $"The direction the {label} is knocked back when hit by the move.");
+        
+        leftPlayerGraph = GUILayout.Toggle(leftPlayerGraph, content, EditorStyles.toolbarButton);
+        
+        EditorGUI.BeginChangeCheck();
+        moveData = (MoveData) EditorGUILayout.ObjectField("Move Data", moveData, typeof(MoveData), false);
+
+        if (EditorGUI.EndChangeCheck())
+        {
+            EditorApplication.QueuePlayerLoopUpdate(); 
+        }
+
+        // Get the currently selected object in the inspector
+        Object selectedObject = Selection.activeObject;
+
+        // If the selected object is of type MoveData, set it as the moveData
+        if (selectedObject is MoveData data) moveData = data;
+
+        if (moveData != null)
+        {
+            DrawKnockbackGraph("Knockback Direction and Force Graph", moveData.knockbackDir, moveData.knockbackForce);
+            DrawKnockbackGraph("Aerial Knockback Direction and Force Graph", moveData.aerialKnockbackDir, moveData.aerialKnockbackForce);
+        }
+    }
+
+    void DrawKnockbackGraph(string title, Vector2 knockbackDir, Vector2 knockbackForce)
+    {
+        EditorGUILayout.LabelField(title);
+
+        Rect rect = GUILayoutUtility.GetRect(150, 150);
+        Handles.DrawSolidRectangleWithOutline(rect, new (0.22f, 0.22f, 0.22f), new (0.22f, 0.22f, 0.22f));
+        Vector2 center = rect.center;
+
+        knockbackDir.x = leftPlayerGraph ? -knockbackDir.x : knockbackDir.x;
+        Vector2 end = center + new Vector2(knockbackDir.x * knockbackForce.x, -knockbackDir.y * knockbackForce.y) * 4.5f;
+        Handles.DrawLine(center, end);
+        Handles.CircleHandleCap(0, end, Quaternion.identity, 2, EventType.Repaint);
+    }
 }
 #endif

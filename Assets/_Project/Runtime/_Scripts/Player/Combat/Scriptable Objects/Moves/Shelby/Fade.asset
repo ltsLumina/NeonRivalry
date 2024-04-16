@@ -20,19 +20,21 @@ MonoBehaviour:
   sprite: {fileID: 0}
   name: Fade
   description: 
+  owner: {fileID: 323316177474802617, guid: 6f331347ace53074cb26d46cacbec1d3, type: 3}
   damage: 1
   knockbackForce: {x: 0, y: 0}
   knockbackDir: {x: 0, y: 0}
-  aerialKnockbackMultiplier: 0
+  aerialKnockbackForce: {x: 0, y: 0}
+  aerialKnockbackDir: {x: 0, y: 0}
   knockBackAttacker: 0
+  attackerKnockbackMultiplier: 1
   screenShake: 0
   screenShakeAmplitude: 0
+  screenShakeFrequency: 1
+  screenShakeDuration: 0.25
   hitstunDuration: 1
   isAirborne: 0
-  isSweep: 0
   isOverhead: 0
-  isArmor: 0
-  isInvincible: 0
   isGuardBreak: 0
   moveEffects:
   - {fileID: 11400000, guid: 614525e2851799744b1245027facabab, type: 2}
