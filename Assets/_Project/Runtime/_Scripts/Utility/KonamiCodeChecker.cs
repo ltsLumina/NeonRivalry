@@ -51,7 +51,7 @@ public class KonamiCodeChecker : MonoBehaviour
                 
                 // Do something here
                 var sequence = new Sequence(this);
-                sequence.WaitThenExecute(2f, () =>
+                sequence.WaitThenExecute(1.5f, () =>
                 {
                     var house = new Music(Track.House);
                     house.Play();
