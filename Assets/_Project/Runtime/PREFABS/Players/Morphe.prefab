@@ -323,6 +323,11 @@ MonoBehaviour:
   godMode: 0
   healthbar: {fileID: 0}
   animator: {fileID: 0}
+  <IsAbleToPhase>k__BackingField: 0
+  <IsPhasing>k__BackingField: 0
+  wasPhasingLastFrame: 0
+  phaseCooldown: 0
+  phaseCooldownTimer: 0
 --- !u!114 &488312444501934667
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1579,7 +1584,7 @@ GameObject:
   - component: {fileID: 2963051292780941437}
   m_Layer: 9
   m_Name: polySurface62
-  m_TagString: Untagged
+  m_TagString: Weapon
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
