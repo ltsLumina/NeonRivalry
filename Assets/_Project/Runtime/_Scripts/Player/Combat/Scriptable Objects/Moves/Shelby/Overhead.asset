@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4c19459cfa9a40a0827e607c77b07abf, type: 3}
-  m_Name: 5U
+  m_Name: Overhead
   m_EditorClassIdentifier: 
   type: 3
   direction: 0
@@ -20,20 +20,21 @@ MonoBehaviour:
   sprite: {fileID: 0}
   name: Overhead
   description: Knocks enemy back a great distance.
+  owner: {fileID: 323316177474802617, guid: 6f331347ace53074cb26d46cacbec1d3, type: 3}
   damage: 15
   knockbackForce: {x: 5, y: 5.41}
   knockbackDir: {x: -1, y: 1}
+  aerialKnockbackForce: {x: 0, y: 0}
+  aerialKnockbackDir: {x: 0, y: 0}
   knockBackAttacker: 1
+  attackerKnockbackMultiplier: 1
   screenShake: 0
   screenShakeAmplitude: 0.5
   screenShakeFrequency: 1
   screenShakeDuration: 0.4
   hitstunDuration: 0.5
   isAirborne: 0
-  isSweep: 0
   isOverhead: 1
-  isArmor: 0
-  isInvincible: 0
   isGuardBreak: 0
   moveEffects: []
   showWarning: 0
