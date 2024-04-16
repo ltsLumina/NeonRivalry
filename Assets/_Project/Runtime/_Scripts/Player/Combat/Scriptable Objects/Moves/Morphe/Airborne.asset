@@ -22,10 +22,10 @@ MonoBehaviour:
   description: 
   owner: {fileID: 0}
   damage: 4
-  knockbackForce: {x: 3, y: 9}
-  knockbackDir: {x: 1, y: 1}
-  knockBackAttacker: 0
-  attackerKnockbackMultiplier: 1
+  knockbackForce: {x: 6, y: 9}
+  knockbackDir: {x: -1, y: 1}
+  knockBackAttacker: 1
+  attackerKnockbackMultiplier: 3
   aerialOverrideKnockback: 0
   aerialKnockbackForce: {x: 0, y: 2}
   aerialKnockbackDir: {x: 0, y: -1}
@@ -33,7 +33,7 @@ MonoBehaviour:
   screenShakeAmplitude: 1
   screenShakeFrequency: 3
   screenShakeDuration: 0.001
-  hitstunDuration: 0.25
+  hitstunDuration: 0.45
   isAirborne: 1
   isOverhead: 0
   isGuardBreak: 0
