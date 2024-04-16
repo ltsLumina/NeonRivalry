@@ -81,17 +81,22 @@ public class MoveData : ScriptableObject
     
     [Tooltip("The direction the enemy is knocked back when hit by the move.")]
     public Vector2 knockbackDir;
-    
+
     [Space(10)]
+    
+    [Tooltip("Whether this move should knock-back the attacker.")]
+    public bool knockBackAttacker;
+
+    [Tooltip("The amount of force applied to the attacker when hit by the move.")]
+    public float attackerKnockbackMultiplier = 1;
+
+    [Space(10)]
+    
+    [Tooltip("Whether this move performs a different knockback when the player being hit is in the air.")]
+    public bool aerialOverrideKnockback;
     
     public Vector2 aerialKnockbackForce;
     public Vector2 aerialKnockbackDir;
-
-    [Tooltip("Whether this move should knock-back the attacker.")]
-    public bool knockBackAttacker;
-    
-    [Tooltip("The amount of force applied to the attacker when hit by the move.")]
-    public float attackerKnockbackMultiplier = 1;
     
     [Space(10)]
     
