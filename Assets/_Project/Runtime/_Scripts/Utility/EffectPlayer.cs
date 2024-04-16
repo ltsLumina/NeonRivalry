@@ -11,6 +11,7 @@ public class EffectPlayer : MonoBehaviour
     [SerializeField] GameObject uppercut;
     [SerializeField] GameObject hook;
     [SerializeField] GameObject aerial;
+    [SerializeField] GameObject TEMP;
 
     GameObject pooledObject;
     
@@ -32,6 +33,7 @@ public class EffectPlayer : MonoBehaviour
     void PlayUppercutEffect() => PlayEffect(uppercut);
     void PlayHookEffect() => PlayEffect(hook);
     void PlayAerialEffect() => PlayEffect(aerial);
+    void PlayerTempEffect() => PlayEffect(TEMP);
 
     void PlayOverheadSound() => PlaySound(overheadWindupSFX);
     void PlayOverheadWindupSound() => PlaySound(overheadSFX);
