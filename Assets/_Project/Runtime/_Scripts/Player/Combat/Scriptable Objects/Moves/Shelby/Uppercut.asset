@@ -14,18 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 2
   direction: 0
-  guard: 1
+  guard: 2
   animation: {fileID: 0}
   audioClip: {fileID: 0}
   sprite: {fileID: 0}
   name: Uppercut
   description: 
   owner: {fileID: 323316177474802617, guid: 6f331347ace53074cb26d46cacbec1d3, type: 3}
-  damage: 5
-  knockbackForce: {x: 3, y: 13}
+  damage: 3
+  knockbackForce: {x: 0, y: 11}
   knockbackDir: {x: -1, y: 1}
-  aerialKnockbackForce: {x: 0, y: 0}
-  aerialKnockbackDir: {x: 0, y: 0}
+  aerialKnockbackForce: {x: 0, y: 2}
+  aerialKnockbackDir: {x: 0, y: 1}
   knockBackAttacker: 1
   attackerKnockbackMultiplier: 2
   screenShake: 0
@@ -37,6 +37,6 @@ MonoBehaviour:
   isOverhead: 0
   isGuardBreak: 0
   moveEffects: []
-  showWarning: 0
-  wrongDir: {x: 1, y: 1}
-  wrongForce: {x: 0, y: 10}
+  showWarning: 1
+  wrongDir: {x: -1, y: 1}
+  wrongForce: {x: 0, y: 11}
