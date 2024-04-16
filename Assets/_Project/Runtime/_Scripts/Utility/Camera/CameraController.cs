@@ -30,6 +30,10 @@ public class CameraController : MonoBehaviour
 
     [SerializeField] float yOffset = 3.39f;
     [SerializeField] float rotationYOffset = 2.0f;
+    [SerializeField] float minYPosition;
+    [SerializeField] float maxYPosition;
+    [SerializeField] float minYDistance;
+    [SerializeField] float maxYDistance;
 
     [SerializeField] bool xbool;
     
@@ -79,11 +83,13 @@ public class CameraController : MonoBehaviour
 
         // Calculate the distance between the two targets (players).
         float distance = Vector3.Distance(target1.position, target2.position);
+        float yDistance =  Mathf.Abs(target1.position.y - target2.position.y);
 
         // Calculate the desired z-position of the camera based on the distance between the two targets.
         // The desired z-position is a linear interpolation between the maximum and minimum z-positions,
         // with the interpolation parameter being the inverse lerp of the distance and the minimum and maximum distances.
         float desiredZ = Mathf.Lerp(maxZPosition, minZPosition, Mathf.InverseLerp(minDistance, maxDistance, distance));
+        float desiredY = Mathf.Lerp(minYPosition, maxYPosition, Mathf.InverseLerp(minYDistance, maxYDistance, yDistance));
 
         // Get the current position of the camera.
         Vector3 currentPosition = vCam.transform.position;
@@ -107,10 +113,11 @@ public class CameraController : MonoBehaviour
             // Calculate the new z-position of the camera. This is a linear interpolation between the current z-position and the desired z-position,
         // with the interpolation parameter being the product of the time delta and the zoom speed.
         float newZ = Mathf.Lerp(currentPosition.z, desiredZ, Time.deltaTime * zoomSpeed);
+        float newY = Mathf.Lerp(currentPosition.y, desiredY, Time.deltaTime * zoomSpeed);
 
         // Set the new position of the camera. The x-position is the x-coordinate of the midpoint, the y-position is the current y-position,
         // and the z-position is the newly calculated z-position.
-        vCam.transform.position = new Vector3(midpoint.x, yOffset, newZ);
+        vCam.transform.position = new Vector3(midpoint.x, newY, newZ);
     }
 
     public static void Shake(float amplitude = 5, float frequency = 1f, float duration = 0.25f)
