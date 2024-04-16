@@ -43,6 +43,7 @@ public partial class PlayerController : MonoBehaviour
     [Space] 
     [Header("VFX")] 
     [SerializeField] VisualEffect playerLandVFX;
+    private Sound playerLandSFX;
     
     [HideInInspector]
     public float GlobalGravity = -35f;
@@ -146,6 +147,8 @@ public partial class PlayerController : MonoBehaviour
         Rigidbody.useGravity = false;
         DefaultGravity = GlobalGravity;
         IsAbleToDash = true;
+        playerLandSFX = new Sound(SFX.Land);
+        playerLandSFX.SetVolume(0.5f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch();
     }
 
     void OnDestroy()
@@ -199,7 +202,8 @@ public partial class PlayerController : MonoBehaviour
                 FlipModel(); 
                 
                 if (!SettingsManager.ShowParticles) return;
-                playerLandVFX.Play(); 
+                playerLandVFX.Play();
+                playerLandSFX.Play();
             }
             wasGroundedLastFrame = IsGrounded();
         }
