@@ -1,5 +1,4 @@
 ﻿#region
-using MelenitasDev.SoundsGood;
 using UnityEngine;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
@@ -8,12 +7,14 @@ using UnityEngine.UI;
 public class ConfirmCharactersButton : MonoBehaviour
 {
     Button confirmationButton;
+    Image background;
     bool confirming;
 
     void Start()
     {
         confirmationButton = GetComponentInChildren<Button>();
         confirmationButton.gameObject.SetActive(false);
+        background = GetComponentInChildren<Image>();
     }
 
     void Update()
@@ -32,6 +33,7 @@ public class ConfirmCharactersButton : MonoBehaviour
     {
         var mapSelector = FindObjectOfType<MapSelector>(true);
         mapSelector.gameObject.SetActive(true);
+        background.enabled = true;
     }
 
     public void Confirm()
@@ -48,12 +50,5 @@ public class ConfirmCharactersButton : MonoBehaviour
         if (mapSelector == null) return;
         
         mapSelector.LoadMap();
-    }
-
-    public void PlayConfirmSound()
-    {
-        Sound CSConfirm = new (SFX.CSConfirm);
-        CSConfirm.SetOutput(Output.SFX);
-        CSConfirm.Play();
     }
 }

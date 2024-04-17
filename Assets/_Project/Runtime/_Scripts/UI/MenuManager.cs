@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,8 +8,10 @@ using MelenitasDev.SoundsGood;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 using VInspector;
+using static SceneManagerExtended;
 
 public class MenuManager : MonoBehaviour
 {
@@ -138,7 +141,7 @@ public class MenuManager : MonoBehaviour
 
     void OnEnable()
     {
-        if (SceneManagerExtended.ActiveScene == SceneManagerExtended.Game)
+        if (ActiveScene == Game)
         {
             creditsManager.onCreditsEnd.AddListener(CloseCreditsInGameScene);
         }
@@ -209,7 +212,7 @@ public class MenuManager : MonoBehaviour
         vSyncToggle.isOn         = PlayerPrefs.GetInt("VSync", 0)      == 1;
         
         // Animate the buttons moving into frame.
-        if (SceneManagerExtended.ActiveScene != SceneManagerExtended.MainMenu) yield break;
+        if (ActiveScene != MainMenu) yield break;
 
         List<Vector3> buttonPositions = mainMenuButtons.Select(button => button.transform.position).ToList();
         mainMenuButtons[0].transform.position = new (buttonPositions[0].x * 2, buttonPositions[0].y * 2, buttonPositions[0].z);
@@ -286,8 +289,19 @@ public class MenuManager : MonoBehaviour
 
     public void ToggleSettingsMenu(GameObject menu)
     {
+        MultiplayerEventSystem player1EventSystem = null;
+        MultiplayerEventSystem player2EventSystem = null;
+
+        try
+        {
+            player1EventSystem = PlayerManager.MenuNavigatorOne.GetComponent<MultiplayerEventSystem>();
+            player2EventSystem = PlayerManager.MenuNavigatorTwo.GetComponent<MultiplayerEventSystem>();
+            
+        } catch (Exception)
+        { // ignored
+        }
+
         bool isMenuActive = menu.activeSelf;
-        
         menu.SetActive(!isMenuActive);
 
         // Regardless of which menu is active, enable the background. (other than the credits menu)
@@ -316,9 +330,18 @@ public class MenuManager : MonoBehaviour
             gameMenu.SetActive(true);
             gameHeader.gameObject.SetActive(true);
             gameContent.SetActive(true);
-            
-            // Select the first thing in the gameContent
-            showEffectsToggle.Select();
+
+            if (MainMenuScene)
+            {
+                showEffectsToggle.Select();
+                return;
+            }
+
+            if (GameManager.IsPaused)
+            {
+                if (GameManager.PausingPlayer.PlayerID == 1) player1EventSystem.SetSelectedGameObject(showEffectsToggle.gameObject);
+                else player2EventSystem.SetSelectedGameObject(showEffectsToggle.gameObject);
+            }
         }
         
         if (menu == audioMenu)
@@ -327,9 +350,18 @@ public class MenuManager : MonoBehaviour
             settingsMenus.ForEach(m => m.SetActive(false));
             audioMenu.SetActive(true);
             audioContent.SetActive(true);
+
+            if (MainMenuScene)
+            {
+                masterVolumeSlider.Select();
+                return;
+            }
             
-            // Select the first thing in the audioContent
-            masterVolumeSlider.Select();
+            if (GameManager.IsPaused)
+            {
+                if (GameManager.PausingPlayer.PlayerID == 1) player1EventSystem.SetSelectedGameObject(masterVolumeSlider.gameObject);
+                else player2EventSystem.SetSelectedGameObject(masterVolumeSlider.gameObject);
+            }
         }
         
         if (menu == videoMenu)
@@ -339,8 +371,17 @@ public class MenuManager : MonoBehaviour
             videoMenu.SetActive(true);
             videoContent.SetActive(true);
             
-            // Select the first thing in the videoContent
-            resolutionDropdown.Select();
+            if (MainMenuScene)
+            {
+                resolutionDropdown.Select();
+                return;
+            }
+            
+            if (GameManager.IsPaused)
+            {
+                if (GameManager.PausingPlayer.PlayerID == 1) player1EventSystem.SetSelectedGameObject(resolutionDropdown.gameObject);
+                else player2EventSystem.SetSelectedGameObject(resolutionDropdown.gameObject);
+            }
         }
 
         switch (InputDeviceManager.PlayerOneDevice)
@@ -445,7 +486,7 @@ public class MenuManager : MonoBehaviour
 
     public bool IsAnyMainMenuActive()
     {
-        if (SceneManagerExtended.GameScene) return false;
+        if (GameScene) return false;
         return mainMenus.Any(menu => menu.activeSelf);
     }
 
@@ -544,7 +585,7 @@ public class MenuManager : MonoBehaviour
         // Load the video settings
         int  qualityIndex = PlayerPrefs.GetInt("Quality", 0);         // Default to 0 if not set
         bool isFullscreen = PlayerPrefs.GetInt("Fullscreen", 1) == 1; // Default to true if not set
-        bool isVSync      = PlayerPrefs.GetInt("VSync", 0)      == 1; // Default to false if not set
+        bool isVSync      = PlayerPrefs.GetInt("VSync", 1)      == 1; // Default to true if not set
         
         // Apply the settings
         QualitySettings.SetQualityLevel(qualityIndex);

@@ -55,6 +55,13 @@ public class CharacterSelectManager : MonoBehaviour
 
     IEnumerator Start()
     {
+        // Update the Rebind Action UI labels.
+        RebindActionUI[] rebindActionUIs = FindObjectsOfType<RebindActionUI>();
+        foreach (RebindActionUI rebindActionUI in rebindActionUIs)
+        {
+            rebindActionUI.UpdateActionLabel();
+        }
+        
         menuClose = new (SFX.MenuClose);
         menuClose.SetOutput(Output.SFX);
 
@@ -64,7 +71,6 @@ public class CharacterSelectManager : MonoBehaviour
         // update slider text
         p1RumbleSlider.onValueChanged.AddListener(_ => UpdateSliderText(p1RumbleSlider));
         p2RumbleSlider.onValueChanged.AddListener(_ => UpdateSliderText(p2RumbleSlider));
-
         
         var promptManager = FindObjectOfType<ButtonPromptsManager>();
         promptManager.ShowGamepadPrompts("CharacterSelect", true);

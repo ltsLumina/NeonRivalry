@@ -9,7 +9,7 @@ public class SkinSelector : MonoBehaviour
     [SerializeField] Material shelbyOriginalSkin;
     [SerializeField] Material shelbyAlternateSkin;
     [SerializeField] Material shelbyWeaponSkin;
-    [SerializeField] Material shelbyWeaponAlternateSkin;                                                                                       
+    [SerializeField] Material shelbyWeaponAlternateSkin;
     
     [SerializeField] Material morpheOriginalSkin;
     [SerializeField] Material morpheAlternateSkin;
@@ -19,8 +19,6 @@ public class SkinSelector : MonoBehaviour
     IEnumerator Start()
     {
         yield return new WaitUntil(() => PlayerManager.Players.Count == 2);
-        
-        Debug.Log("Skin Selector is running");
         
         // if there is only one player of each character, set the original skin
         if (PlayerManager.Players[0].Character.CharacterPrefab.name == "Shelby")

@@ -4,13 +4,15 @@ using UnityEditor;
 #endif
 using System;
 using System.Linq;
-using Lumina.Essentials.Sequencer;
+using DG.Tweening;
 using MelenitasDev.SoundsGood;
 using TransitionsPlus;
 using UnityEngine;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using static SceneManagerExtended;
+using Sequence = Lumina.Essentials.Sequencer.Sequence;
 #endregion
 
 /*--------------------------------------
@@ -133,28 +135,26 @@ public class GameManager : MonoBehaviour
         acceptSFX = new (SFX.Accept);
         acceptSFX.SetOutput(Output.SFX);
 
-        Music streetMusic;
+        Music streetMusic = new (Track.TheAlarmist);
+        Music barMusic = new (Track.ThisIBelieve);
 
         switch (ActiveScene)
         {
             case var mainMenu when mainMenu == MainMenu:
                 // Play Main Menu music
                 Music mainMenuMusic = new (Track.MainMenu);
-                mainMenuMusic.SetOutput(Output.Music).SetVolume(.65f);
+                mainMenuMusic.SetOutput(Output.Music).SetVolume(.5f);
                 mainMenuMusic.Play();
                 break;
 
             case var charSelect when charSelect == CharacterSelect:
                 Music charSelectMusic = new (Track.CharSelect);
-                charSelectMusic.SetOutput(Output.Music).SetVolume(.5f);
+                charSelectMusic.SetOutput(Output.Music).SetVolume(.35f);
                 charSelectMusic.Play();
                 break;
 
             case var game when game == Bar:
-                Music barMusic = new (Track.ThisIBelieve);
                 barMusic.SetOutput(Output.Music).SetVolume(1f);
-                
-                streetMusic = new (Track.TheAlarmist);
                 streetMusic.SetOutput(Output.Music).SetVolume(1f);
                 
                 if (barMusic.Playing || streetMusic.Playing) return;
@@ -172,12 +172,20 @@ public class GameManager : MonoBehaviour
                 break;
 
             case var game when game == Street:
-                streetMusic = new (Track.TheAlarmist);
+                barMusic.SetOutput(Output.Music).SetVolume(1f);
                 streetMusic.SetOutput(Output.Music).SetVolume(1f);
-                
-                if (streetMusic.Playing) return;
-                
-                if (streetMusic.Paused) streetMusic.Resume();
+
+                if (barMusic.Playing || streetMusic.Playing) return;
+
+                if (barMusic.Paused || streetMusic.Paused)
+                {
+                    barMusic.Resume();
+                    streetMusic.Resume();
+                    return;
+                }
+
+                // choose one at random
+                if (UnityEngine.Random.value > 0.5f) barMusic.Play();
                 else streetMusic.Play();
                 break;
         }
@@ -335,6 +343,9 @@ public class GameManager : MonoBehaviour
             PausingPlayer = null;
         }
     }
+
+    public void ScaleUpButton(Button button) => button.transform.DOScale(2.1f, 0.5f).SetEase(Ease.OutBack);
+    public void ScaleDownButton(Button button) => button.transform.DOScale(2, 0.5f).SetEase(Ease.InBack);
 
     public static bool IsCurrentState(params GameState[] states) => states.Contains(State);
 }

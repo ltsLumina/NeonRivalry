@@ -42,23 +42,8 @@ public class HurtBox : MonoBehaviour
         gamepad = victim.Device as Gamepad;
     }
 
-    void Update() // TODO: Remove Update and DEBUG method when finished debugging.
-    {
-        DEBUG_TryHitHurtBox();
-    }
-
     void OnEnable() => OnHurtBoxHit += TakeDamage;
     void OnDisable() => OnHurtBoxHit -= TakeDamage;
-
-    void DEBUG_TryHitHurtBox()
-    {
-        if (!Input.GetKeyDown(KeyCode.H)) return;
-
-        var hitBox = FindObjectOfType<HitBox>();
-        var debugMoveData = Resources.Load<MoveData>("ScriptableObjects/Debug Attack");
-        
-        if (hitBox != null) OnHurtBoxHit?.Invoke(hitBox, debugMoveData);
-    }
 
     void OnTriggerEnter(Collider other)
     {
@@ -70,12 +55,6 @@ public class HurtBox : MonoBehaviour
     {
         // Check if the player is invincible or already dead.
         if (victim.IsInvincible || victim.Healthbar.Health <= 0) return;
-
-        if (incomingAttack.isAirborne && victim.IsCrouching)
-        {
-            Debug.Log("Attack missed! (Airborne + Target was crouching)");
-            return;
-        }
         
         // -- Any logic that needs to happen regardless if the player is blocking or not --
         

@@ -250,6 +250,7 @@ public class MenuNavigator : MonoBehaviour
                 if (mapSelector != null && mapSelector.IsSelecting())
                 {
                     mapSelector.gameObject.SetActive(false);
+                    mapSelector.transform.parent.transform.GetChild(1).GetComponent<Image>().enabled = false;
 
                     // Set selection back to the character button.
                     foreach (var player in PlayerManager.MenuNavigators)
@@ -322,7 +323,7 @@ public class MenuNavigator : MonoBehaviour
     public void OnSwitchSettingsMenu(InputAction.CallbackContext context)
     {
         if (context.performed)
-        {
+        { 
             if (GameManager.IsPaused && GameManager.PausingPlayer.PlayerID != PlayerID) return;
 
             var menuManager = FindObjectOfType<MenuManager>();
@@ -387,25 +388,25 @@ public class MenuNavigator : MonoBehaviour
         navigateLeft  = new (SFX.NavigateLeft);
         navigateRight = new (SFX.NavigateRight);
         
-        navigateUp.SetOutput(Output.SFX);
-        navigateDown.SetOutput(Output.SFX);
-        navigateLeft.SetOutput(Output.SFX);
-        navigateRight.SetOutput(Output.SFX);
+        navigateUp.SetOutput(Output.SFX).SetVolume(0.5f);
+        navigateDown.SetOutput(Output.SFX).SetVolume(0.5f);
+        navigateLeft.SetOutput(Output.SFX).SetVolume(0.5f);
+        navigateRight.SetOutput(Output.SFX).SetVolume(0.5f);
         
         // Initialize the accept and cancel sounds.
         cancelSFX = new (SFX.Cancel);
-        cancelSFX.SetOutput(Output.SFX);
+        cancelSFX.SetOutput(Output.SFX).SetVolume(0.5f);
         
         // Initialize the close menu sound.
         closeMenu = new (SFX.MenuClose);
-        closeMenu.SetOutput(Output.SFX);
+        closeMenu.SetOutput(Output.SFX).SetVolume(0.5f);
         
         // Initialize the switch menu navigation sounds.
         CSNavigateLeft  = new (SFX.CSNavigateLeft);
         CSNavigateRight = new (SFX.CSNavigateRight);
         
-        CSNavigateLeft.SetOutput(Output.SFX);
-        CSNavigateRight.SetOutput(Output.SFX);
+        CSNavigateLeft.SetOutput(Output.SFX).SetVolume(0.5f);
+        CSNavigateRight.SetOutput(Output.SFX).SetVolume(0.5f);
     }
 
     static bool SceneNotSupportedForPlayer2(int sceneIndex)
@@ -439,26 +440,5 @@ public class MenuNavigator : MonoBehaviour
     {
         if (button != null && eventSystem != null) 
             eventSystem.SetSelectedGameObject(button);
-
-        //button.Select();
-        
-        // if (CurrentSelectedGameObject.name == "Shelby")
-        // {
-        //     GameObject P1Marker = GameObject.Find("P1 Marker");
-        //     P1Marker.SetActive(true);
-        //     P1Marker.GetComponent<RectTransform>().anchoredPosition = new (-100, -325);
-        // }
-        // else if (CurrentSelectedGameObject.name == "Dorathy")
-        // {
-        //     GameObject P1Marker = GameObject.Find("P1 Marker");
-        //     P1Marker.SetActive(true);
-        //     P1Marker.GetComponent<RectTransform>().anchoredPosition = new (100, -325);
-        // }
-    }
-    
-    // Debug button.
-    public void OnPressButton()
-    {
-        Debug.Log($"Player {playerID} pressed a button using \"{playerInput.currentControlScheme}\" control scheme!");
     }
 }
