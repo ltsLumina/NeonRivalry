@@ -46,7 +46,6 @@ public class KonamiCodeChecker : MonoBehaviour
                 inputKeys.Clear();
 
                 // Perform your action here
-                // TODO: Probably should remove this.
                 Application.Quit();
             }
         }
