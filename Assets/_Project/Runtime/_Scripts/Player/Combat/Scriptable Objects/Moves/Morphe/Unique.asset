@@ -22,21 +22,22 @@ MonoBehaviour:
   description: 
   owner: {fileID: 323316177474802617, guid: bb4eb473b2a74af42b52dcbffeb36c2a, type: 3}
   damage: 8
-  knockbackForce: {x: 0, y: 9.37}
-  knockbackDir: {x: 0, y: 1}
-  aerialKnockbackForce: {x: 0, y: 8}
-  aerialKnockbackDir: {x: 0, y: 1}
+  knockbackForce: {x: 5, y: 9.37}
+  knockbackDir: {x: -1, y: 1}
   knockBackAttacker: 0
   attackerKnockbackMultiplier: 1
+  aerialOverrideKnockback: 0
+  aerialKnockbackForce: {x: 0, y: 8}
+  aerialKnockbackDir: {x: 0, y: 1}
   screenShake: 0
   screenShakeAmplitude: 1
   screenShakeFrequency: 3
   screenShakeDuration: 0.001
-  hitstunDuration: 0.7
+  hitstunDuration: 0.5
   isAirborne: 0
   isOverhead: 0
   isGuardBreak: 0
   moveEffects: []
   showWarning: 0
-  wrongDir: {x: -1, y: 1}
-  wrongForce: {x: 0, y: 9.37}
+  wrongDir: {x: 0, y: 1}
+  wrongForce: {x: 1, y: 9.37}

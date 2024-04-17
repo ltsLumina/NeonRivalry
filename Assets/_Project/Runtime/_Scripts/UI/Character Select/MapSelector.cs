@@ -1,3 +1,4 @@
+using MelenitasDev.SoundsGood;
 using TransitionsPlus;
 using UnityEngine;
 using UnityEngine.InputSystem.UI;
@@ -34,7 +35,7 @@ public class MapSelector : MonoBehaviour
     }
 
     
-    // Player 1 choses the map.
+    // Player 1 chooses the map.
     void Update()
     {
         MapSelector mapSelector = FindObjectOfType<MapSelector>();
@@ -107,5 +108,14 @@ public class MapSelector : MonoBehaviour
         var transitionAnimator = FindObjectOfType<TransitionAnimator>();
         transitionAnimator.sceneNameToLoad = SelectedMap == 1 ? "Bar" : "Street";
         transitionAnimator.gameObject.SetActive(true);
+        
+        PlayConfirmSound();
+    }
+
+    void PlayConfirmSound()
+    {
+        Sound CSConfirm = new (SFX.CSConfirm);
+        CSConfirm.SetOutput(Output.SFX).SetVolume(0.75f);
+        CSConfirm.Play();
     }
 }

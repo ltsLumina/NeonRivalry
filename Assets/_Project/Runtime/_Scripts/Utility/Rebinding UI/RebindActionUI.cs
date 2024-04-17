@@ -596,7 +596,7 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                     m_ActionLabelString = string.Empty;
                 }
                 
-                //m_ActionLabel.text = action != null ? action.name : string.Empty;
+                m_ActionLabel.text = action != null ? action.name : string.Empty;
             }
         }
 

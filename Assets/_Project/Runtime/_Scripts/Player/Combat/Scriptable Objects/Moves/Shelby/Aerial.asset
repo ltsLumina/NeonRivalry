@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 0
   direction: 3
-  guard: 2
+  guard: 0
   animation: {fileID: 0}
   audioClip: {fileID: 0}
   sprite: {fileID: 0}
@@ -24,10 +24,11 @@ MonoBehaviour:
   damage: 3
   knockbackForce: {x: 0, y: 11}
   knockbackDir: {x: 0, y: 0.81}
-  aerialKnockbackForce: {x: 0, y: 0.08}
-  aerialKnockbackDir: {x: 0, y: 1}
   knockBackAttacker: 1
   attackerKnockbackMultiplier: 2
+  aerialOverrideKnockback: 0
+  aerialKnockbackForce: {x: 0, y: 0.08}
+  aerialKnockbackDir: {x: 0, y: 1}
   screenShake: 0
   screenShakeAmplitude: 0
   screenShakeFrequency: 1
