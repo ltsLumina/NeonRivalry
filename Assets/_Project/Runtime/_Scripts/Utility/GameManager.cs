@@ -204,18 +204,6 @@ public class GameManager : MonoBehaviour
         AudioManager.StopAll(duration);
     }
 
-    public void LoadMainMenu()
-    {
-        FadeOutMusic();
-        
-        var sequence = new Sequence(this);
-        sequence.WaitThenExecute
-        (1f, () =>
-        {
-            LoadScene(MainMenu);
-        });
-    }
-
     public void LoadBar()
     {
         FadeOutMusic();

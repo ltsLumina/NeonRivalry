@@ -56,7 +56,7 @@ public class CharacterSelectManager : MonoBehaviour
     IEnumerator Start()
     {
         // Update the Rebind Action UI labels.
-        RebindActionUI[] rebindActionUIs = FindObjectsOfType<RebindActionUI>();
+        RebindActionUI[] rebindActionUIs = FindObjectsOfType<RebindActionUI>(true);
         foreach (RebindActionUI rebindActionUI in rebindActionUIs)
         {
             rebindActionUI.UpdateActionLabel();

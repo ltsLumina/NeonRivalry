@@ -480,6 +480,8 @@ public partial class PlayerController : MonoBehaviour
 
     void FlipModel()
     {
+        if (Animator.GetBool("Dead")) return;
+
         var otherPlayer = PlayerManager.OtherPlayer(this);
         if (otherPlayer == null) return;
 
