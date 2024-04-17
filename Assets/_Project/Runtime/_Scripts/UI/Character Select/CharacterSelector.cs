@@ -35,6 +35,15 @@ public static class CharacterSelector
 
         LogSelectedCharacters(playerIndex, "selected", character);
 
+        // Check if both players have selected their characters
+        if (SelectedCharacters.Count == 2)
+        {
+            // Get the CharacterSelectManager instance
+            var characterSelectManager = Object.FindObjectOfType<CharacterSelectManager>();
+
+            characterSelectManager.CloseALLCharacterSettingsMenus();
+        }
+        
         // -- Disable navigation -- \\
 
         // Disable the navigation.
@@ -49,7 +58,16 @@ public static class CharacterSelector
         // return if there is no character to deselect
         if (!selectedCharacters.Remove(playerIndex, out Character previousCharacter)) return false;
 
-        LogSelectedCharacters(playerIndex, "deselected", previousCharacter); 
+        LogSelectedCharacters(playerIndex, "deselected", previousCharacter);
+
+        // Check if both players have selected their characters
+        if (SelectedCharacters.Count == 2)
+        {
+            // Get the CharacterSelectManager instance
+            var characterSelectManager = Object.FindObjectOfType<CharacterSelectManager>();
+
+            characterSelectManager.CloseALLCharacterSettingsMenus();
+        }
         
         // -- Enable navigation -- \\
         

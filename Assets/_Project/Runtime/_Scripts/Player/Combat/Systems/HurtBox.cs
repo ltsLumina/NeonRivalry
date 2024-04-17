@@ -1,5 +1,6 @@
 ﻿#region
 using System.Collections;
+using MelenitasDev.SoundsGood;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using VInspector;
@@ -150,6 +151,11 @@ public class HurtBox : MonoBehaviour
 
         // If the player is standing, play the standing block animation.
         if (!victim.IsCrouching) victim.Animator.SetTrigger("Blocked");
+        else // Crouching SFX
+        {
+            var blockSFX = new Sound(SFX.Block);
+            EffectPlayer.PlaySound(blockSFX, 0.6f, Output.SFX, new (1.10f, 1.30f), 0.05f);
+        }
 
         // Calculate the damage taken and the strain percentage.
         CalculateDamageTaken(moveData, out float strainPercentage);

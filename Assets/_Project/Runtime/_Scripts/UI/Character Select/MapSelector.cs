@@ -115,7 +115,7 @@ public class MapSelector : MonoBehaviour
     void PlayConfirmSound()
     {
         Sound CSConfirm = new (SFX.CSConfirm);
-        CSConfirm.SetOutput(Output.SFX).SetVolume(0.75f);
+        CSConfirm.SetOutput(Output.SFX).SetVolume(1f);
         CSConfirm.Play();
     }
 }

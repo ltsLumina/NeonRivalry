@@ -152,7 +152,7 @@ public class CharacterSelectManager : MonoBehaviour
         sequence.OnComplete(() => { isTweening = false; });
     }
 
-    void CloseCharacterSettingsMenu(int playerID, MultiplayerEventSystem eventSystem)
+    public void CloseCharacterSettingsMenu(int playerID, MultiplayerEventSystem eventSystem)
     {
         if (isTweening) return;
 
@@ -181,6 +181,17 @@ public class CharacterSelectManager : MonoBehaviour
             var characterButton = GameObject.Find($"Player {playerID} CB").transform.GetChild(0).gameObject.GetComponent<Button>();
             eventSystem.SetSelectedGameObject(characterButton.gameObject);
         });
+    }
+    
+    public void CloseALLCharacterSettingsMenus()
+    {
+        if (isTweening) return;
+        Debug.Log("Closing all character settings menus.");
+        
+        for (int i = 1; i <= 2; i++)
+        {
+            if (IsMenuActive(i)) CloseCharacterSettingsMenu(i, PlayerManager.GetMenuNavigator(i).GetComponent<MultiplayerEventSystem>());
+        }
     }
 
     #region Menu Utility Functions

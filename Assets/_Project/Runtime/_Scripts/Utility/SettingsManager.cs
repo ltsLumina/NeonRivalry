@@ -92,7 +92,7 @@ public class SettingsManager : MonoBehaviour
 
     static void SetSFXVolume(float value)
     {
-        mixer.SetFloat("SFX", Mathf.Log10(value) * 40);
+        mixer.SetFloat("SFX", Mathf.Log10(value) * 50);
         PlayerPrefs.SetFloat("SFX", value);
     }
 

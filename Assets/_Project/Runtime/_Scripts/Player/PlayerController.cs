@@ -480,7 +480,8 @@ public partial class PlayerController : MonoBehaviour
 
     void FlipModel()
     {
-        if (Animator.GetBool("Dead")) return;
+        // Check if any player is dead, and if so, return.
+        if (PlayerManager.Players.Count == 2 && (PlayerManager.PlayerOne.Animator.GetBool("Dead") || PlayerManager.PlayerTwo.Animator.GetBool("Dead"))) return;
 
         var otherPlayer = PlayerManager.OtherPlayer(this);
         if (otherPlayer == null) return;
