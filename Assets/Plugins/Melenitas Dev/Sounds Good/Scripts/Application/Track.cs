@@ -5,6 +5,7 @@ namespace MelenitasDev.SoundsGood
 		MainMenu,
 		CharSelect,
 		ThisIBelieve,
-		TheAlarmist
+		TheAlarmist,
+		House
 	}
 }

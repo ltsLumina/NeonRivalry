@@ -68,10 +68,6 @@ public class InputDeviceManager : MonoBehaviour
 
             // Set the control scheme based on the device type.
             string controlScheme = deviceIndexPair.Key is Keyboard ? "Keyboard" : "Gamepad";
-            
-            // Figure out which player to instantiate based on which character was selected.
-            // We must increment the player index by 1 because the player index is 0-based.
-            CharacterSelector.SelectedCharacters.TryGetValue(playerID, out Character character);
 
             if (!GameScene)
             {
@@ -84,6 +80,10 @@ public class InputDeviceManager : MonoBehaviour
             }
             else // Scene is Game.
             {
+                // Figure out which player to instantiate based on which character was selected.
+                // We must increment the player index by 1 because the player index is 0-based.
+                CharacterSelector.SelectedCharacters.TryGetValue(playerID, out Character character);
+                
                 // Instantiate the player based on the character that was selected.
                 if (!character) return;
                 PlayerInput loadedPlayer = PlayerInput.Instantiate(character.CharacterPrefab, playerIndex, controlScheme, -1, deviceIndexPair.Key);

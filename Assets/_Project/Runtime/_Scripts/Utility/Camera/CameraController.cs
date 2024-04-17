@@ -34,6 +34,7 @@ public class CameraController : MonoBehaviour
     [SerializeField] float maxYPosition;
     [SerializeField] float minYDistance;
     [SerializeField] float maxYDistance;
+    [SerializeField] float ySpeed = 30f;
 
     [SerializeField] bool xbool;
     
@@ -77,13 +78,13 @@ public class CameraController : MonoBehaviour
     void Follow()
     {
         if (TimelinePlayer.IsPlaying) return;
-        
+
         // If either target is null, the method returns immediately without executing the rest of the code.
         if (target1 == null || target2 == null) return;
 
         // Calculate the distance between the two targets (players).
-        float distance = Vector3.Distance(target1.position, target2.position);
-        float yDistance =  Mathf.Abs(target1.position.y - target2.position.y);
+        float distance  = Vector3.Distance(target1.position, target2.position);
+        float yDistance = Mathf.Abs(target1.position.y - target2.position.y);
 
         // Calculate the desired z-position of the camera based on the distance between the two targets.
         // The desired z-position is a linear interpolation between the maximum and minimum z-positions,
@@ -96,26 +97,13 @@ public class CameraController : MonoBehaviour
 
         // Calculate the midpoint between the two targets.
         Vector3 midpoint = (target1.position + target2.position) / 2f;
-        Transform highestPlayer = (target1.position.y > target2.position.y) ? target1 : target2;
-
-        Vector3 directionToHighestPlayer = highestPlayer.position - transform.position;
-
-        // Adjust the y-component to tilt the camera up more on the x-axis.
-        directionToHighestPlayer.y += rotationYOffset; // Increase or decrease as needed
-
-        // Calculate the rotation only on the x-axis.
-        Quaternion targetRotation = Quaternion.LookRotation(directionToHighestPlayer, Vector3.up);
-        targetRotation.eulerAngles = new (targetRotation.eulerAngles.x, transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z);
-
-        // Apply the rotation to the camera.
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
 
         // Calculate the new z-position of the camera. This is a linear interpolation between the current z-position and the desired z-position,
         // with the interpolation parameter being the product of the time delta and the zoom speed.
         float newZ = Mathf.Lerp(currentPosition.z, desiredZ, Time.deltaTime * zoomSpeed);
-        float newY = Mathf.Lerp(currentPosition.y, desiredY, Time.deltaTime * zoomSpeed);
+        float newY = Mathf.Lerp(currentPosition.y, desiredY, Time.deltaTime * ySpeed); // Use ySpeed here
 
-        // Set the new position of the camera. The x-position is the x-coordinate of the midpoint, the y-position is the current y-position,
+        // Set the new position of the camera. The x-position is the x-coordinate of the midpoint, the y-position is the newly calculated y-position,
         // and the z-position is the newly calculated z-position.
         vCam.transform.position = new (midpoint.x, newY, newZ);
     }

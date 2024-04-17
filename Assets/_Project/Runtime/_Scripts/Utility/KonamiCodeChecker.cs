@@ -1,6 +1,8 @@
 #region
 using System.Collections.Generic;
 using System.Linq;
+using Lumina.Essentials.Sequencer;
+using MelenitasDev.SoundsGood;
 using UnityEngine;
 #endregion
 
@@ -45,8 +47,15 @@ public class KonamiCodeChecker : MonoBehaviour
                 Debug.Log("Konami Code Entered!");
                 inputKeys.Clear();
 
-                // Perform your action here
-                Application.Quit();
+                AudioManager.StopAllMusic(1.75f);
+                
+                // Do something here
+                var sequence = new Sequence(this);
+                sequence.WaitThenExecute(2f, () =>
+                {
+                    var house = new Music(Track.House);
+                    house.Play();
+                });
             }
         }
     }
