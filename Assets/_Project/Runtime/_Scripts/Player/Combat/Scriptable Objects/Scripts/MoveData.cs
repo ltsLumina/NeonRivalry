@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using JetBrains.Annotations;
 using Lumina.Essentials.Attributes;
 using UnityEditor;
 using UnityEngine;
@@ -9,7 +10,6 @@ using Object = UnityEngine.Object;
 /// It is used by the Moveset ScriptableObject where each move is stored in an array.
 /// This ScriptableObject is created by the MovesetCreator.cs EditorWindow.
 /// </summary>
-[Icon("Assets/_Project/Runtime/Graphics/Art/Textures/Icons/Misc/Sword.png")]
 public class MoveData : ScriptableObject
 {
     public enum Type
@@ -62,7 +62,7 @@ public class MoveData : ScriptableObject
     [Tooltip("Name of the move.")]
     new public string name;
 
-    [Tooltip("Description of the move."), TextArea(0, 3)]
+    [Tooltip("Description of the move."), TextArea(0, 3)] [UsedImplicitly]
     public string description;
 
     [Tooltip("The name of the move's owner." + "\nReally only used to easier know which move belongs to who when looking at the MoveData")]
@@ -105,9 +105,6 @@ public class MoveData : ScriptableObject
 
     [Space(15)]
     [Header("Move Properties")]
-
-    [Tooltip("If this is true and the target is crouching, this attack will miss.")]
-    public bool isAirborne;
 
     [Tooltip("A move that must be blocked while standing.")]
     public bool isOverhead;
@@ -156,7 +153,7 @@ public class MoveData : ScriptableObject
 }
 
 #if UNITY_EDITOR
-[CustomEditor(typeof(MoveData))]
+[CustomEditor(typeof(MoveData)), CanEditMultipleObjects]
 public class MoveDataEditor : Editor
 {
     MoveData moveData;
@@ -250,8 +247,7 @@ public class MoveDataGraphWindow : EditorWindow
 {
     MoveData moveData;
     static bool leftPlayerGraph = true;
-
-    [MenuItem("Window/Move Data Graphs")]
+    
     public static void ShowWindow() => GetWindow<MoveDataGraphWindow>("Move Data Graphs");
 
     void OnEnable() => EditorApplication.update += Repaint;
@@ -282,9 +278,9 @@ public class MoveDataGraphWindow : EditorWindow
         }
     }
 
-    void DrawKnockbackGraph(string title, Vector2 knockbackDir, Vector2 knockbackForce)
+    void DrawKnockbackGraph(string _title, Vector2 knockbackDir, Vector2 knockbackForce)
     {
-        EditorGUILayout.LabelField(title);
+        EditorGUILayout.LabelField(_title);
 
         Rect rect = GUILayoutUtility.GetRect(150, 150);
         Handles.DrawSolidRectangleWithOutline(rect, new (0.22f, 0.22f, 0.22f), new (0.22f, 0.22f, 0.22f));
