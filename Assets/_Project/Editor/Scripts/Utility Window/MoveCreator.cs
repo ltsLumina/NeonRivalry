@@ -16,7 +16,6 @@ public static class MoveCreator
     internal static string moveName;
 
     static bool showAttributes;
-    static bool showResources;
     static bool showProperties;
 
     // -- Attributes --
@@ -28,32 +27,18 @@ public static class MoveCreator
     static string name;
     static string description;
     static int damage;
-    static float startup;
-    static float active;
-    static float recovery;
-    static float blockstun;
 
     // -- Resources --
 
-    static AnimationClip animation;
-    static AudioClip audioClip;
-    static Sprite sprite;
-
     // -- Move Properties --
-    static bool isAirborne;
-    static bool isSweep;
     static bool isOverhead;
-    static bool isArmor;
-    static bool isInvincible;
     static bool isGuardBreak;
-    // -- End --
     #endregion
 
     #region GUI
     public static void ManageMoveMenu()
     {
         showAttributes = true;
-        showResources  = true;
         showProperties = true;
         
         DrawMenuHeader();
@@ -126,10 +111,6 @@ public static class MoveCreator
 
         Space(10);
 
-        DrawResourcesGUI();
-
-        Space(10);
-
         DrawAttributesGUI();
 
         Space(10);
@@ -161,34 +142,6 @@ public static class MoveCreator
         }
     }
     
-    static void DrawResourcesGUI()
-    {
-        using (new VerticalScope("box"))
-        {
-            string label = showResources ? "Resources (click to hide)" : "Resources (click to show)";
-
-            showResources = EditorGUILayout.Foldout(showResources, label, true, EditorStyles.boldLabel);
-
-            if (showResources)
-            {
-                // Object field
-                animation = (AnimationClip) EditorGUILayout.ObjectField(animationContent, animation, typeof(AnimationClip), false);
-
-                // Object field
-                audioClip = (AudioClip) EditorGUILayout.ObjectField(audioClipContent, audioClip, typeof(AudioClip), false);
-
-                using (new HorizontalScope())
-                {
-                    // Object field
-                    sprite = (Sprite) EditorGUILayout.ObjectField(spriteContent, sprite, typeof(Sprite), false);
-
-                    FlexibleSpace();
-                    FlexibleSpace();
-                }
-            }
-        }
-    }
-    
     static void DrawAttributesGUI()
     {
         using (new VerticalScope("box"))
@@ -205,10 +158,6 @@ public static class MoveCreator
                 name        = EditorGUILayout.TextField(nameContent, name);
                 description = EditorGUILayout.TextField(descriptionContent, description);
                 damage      = EditorGUILayout.IntField(damageContent, damage);
-                startup     = EditorGUILayout.FloatField(startupContent, startup);
-                active      = EditorGUILayout.FloatField(activeContent, active);
-                recovery    = EditorGUILayout.FloatField(recoveryContent, recovery);
-                blockstun   = EditorGUILayout.FloatField(blockstunContent, blockstun);
             }
         }
     }
@@ -223,11 +172,7 @@ public static class MoveCreator
 
             if (showProperties)
             {
-                isAirborne   = EditorGUILayout.Toggle(isAirborneContent, isAirborne);
-                isSweep      = EditorGUILayout.Toggle(isSweepContent, isSweep);
                 isOverhead   = EditorGUILayout.Toggle(isOverheadContent, isOverhead);
-                isArmor      = EditorGUILayout.Toggle(isArmorContent, isArmor);
-                isInvincible = EditorGUILayout.Toggle(isInvincibleContent, isInvincible);
                 isGuardBreak = EditorGUILayout.Toggle(isGuardBreakContent, isGuardBreak);
             }
         }
@@ -277,8 +222,7 @@ public static class MoveCreator
                 currentMove.name        = name;
                 currentMove.description = description;
                 currentMove.damage      = damage;
-
-                currentMove.isAirborne   = isAirborne;
+                
                 currentMove.isOverhead   = isOverhead;
                 currentMove.isGuardBreak = isGuardBreak;
 
@@ -312,20 +256,8 @@ public static class MoveCreator
         name        = string.Empty;
         description = string.Empty;
         damage      = 1;
-        startup     = 0;
-        active      = 0;
-        recovery    = 0;
-        blockstun   = 0;
-
-        animation = null;
-        audioClip = null;
-        sprite    = null;
-
-        isAirborne   = false;
-        isSweep      = false;
+        
         isOverhead   = false;
-        isArmor      = false;
-        isInvincible = false;
         isGuardBreak = false;
     }
     #endregion
