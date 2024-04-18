@@ -50,7 +50,7 @@ public class RoundManager : MonoBehaviour
     {
         yield return new WaitUntil(() => HealthbarManager.Healthbars.Count == 2);
         
-        // Subscribe the incremendround method to each healthbar's OnPlayerDeath event.
+        // Subscribe the IncrementRound method to each healthbar's OnPlayerDeath event.
         foreach (Healthbar healthbar in FindObjectsOfType<Healthbar>()) { healthbar.OnPlayerDeath += IncrementRound; }
 
         OnRoundEnded += UpdateCheckpoints;

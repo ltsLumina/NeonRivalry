@@ -9,6 +9,7 @@ using Logger = Lumina.Debugging.Logger;
 public static class MoveCreator
 {
     #region Move Data
+    
     // -- Fields --
     
     static MoveData currentMove;
@@ -276,10 +277,6 @@ public static class MoveCreator
                 currentMove.name        = name;
                 currentMove.description = description;
                 currentMove.damage      = damage;
-
-                currentMove.animation = animation;
-                currentMove.audioClip = audioClip;
-                currentMove.sprite    = sprite;
 
                 currentMove.isAirborne   = isAirborne;
                 currentMove.isOverhead   = isOverhead;

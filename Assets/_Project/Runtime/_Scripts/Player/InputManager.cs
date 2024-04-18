@@ -9,6 +9,7 @@ using UnityEngine.InputSystem;
 /// Handles all player input, such as movement, jumping, attacking, etc.
 /// Partial class, see StateChecks.cs for the input checks.
 /// </summary>
+[DisallowMultipleComponent]
 public class InputManager : MonoBehaviour
 {
     [Header("Read-Only Fields")]
@@ -65,13 +66,6 @@ public class InputManager : MonoBehaviour
 
     // -- Input Handling --
     
-    /// <summary>
-    /// Handles the move input from the player.
-    /// <para></para>
-    /// Calls a necessary transition in the player's state machine if the player
-    /// is in a state where movement is a valid action.
-    /// </summary>
-    /// <param name="context">The context from the input system containing movement input values</param>
     public void OnMove(InputAction.CallbackContext context)
     {
         MoveInput = context.ReadValue<Vector2>();
@@ -79,10 +73,7 @@ public class InputManager : MonoBehaviour
         // Transition to move state if the player is not crouching or blocking.
         TransitionTo(context, player.CanMove, State.StateType.Walk);
     }
-
-    /// <summary>
-    /// Handles jump input.
-    /// </summary>
+    
     public void OnJump(InputAction.CallbackContext context) => TransitionTo(context, player.CanJump, State.StateType.Jump);
     
     public void OnDash(InputAction.CallbackContext context) => TransitionTo(context, player.CanDash, State.StateType.Dash);
@@ -97,25 +88,10 @@ public class InputManager : MonoBehaviour
     }
 
     #region Attack Input Handling
-
-    /// <summary>
-    /// Handles punch input.
-    /// </summary>
+    
     public void OnPunch(InputAction.CallbackContext context) => PerformAttack(context, AttackType.Punch);
-
-    /// <summary>
-    /// Handles kick input.
-    /// </summary>
     public void OnKick(InputAction.CallbackContext context) => PerformAttack(context, AttackType.Kick);
-
-    /// <summary>
-    /// Handles slash input.
-    /// </summary>
     public void OnSlash(InputAction.CallbackContext context) => PerformAttack(context, AttackType.Slash);
-
-    /// <summary>
-    /// Handles unique input.
-    /// </summary>
     public void OnUnique(InputAction.CallbackContext context) => PerformAttack(context, AttackType.Unique);
 
     public void OnPause(InputAction.CallbackContext context)

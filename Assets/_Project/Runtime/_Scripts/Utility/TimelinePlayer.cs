@@ -86,7 +86,7 @@ public class TimelinePlayer : MonoBehaviour
         hasPlayed = true;
     }
 
-    static void TimelineStopped(PlayableDirector director)
+    void TimelineStopped(PlayableDirector director)
     {
         foreach (var player in PlayerManager.Players)
         {

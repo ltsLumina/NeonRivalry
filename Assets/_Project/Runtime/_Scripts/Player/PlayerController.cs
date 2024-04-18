@@ -170,9 +170,6 @@ public partial class PlayerController : MonoBehaviour
         
         currentVelocity = Rigidbody.velocity;
 
-        // Player cannot block while airborne.
-        if (Rigidbody.velocity.y > 0 || Rigidbody.velocity.y < 0) IsBlocking = false;
-
         // Timers:
         if (phaseCooldownTimer > 0)
         {
@@ -282,9 +279,6 @@ public partial class PlayerController : MonoBehaviour
         
         // Set the animator based on the player's facing direction.
         Animator.SetInteger(Speed, (int) moveInput.x * FacingDirection);
-        
-        // Check if the player is blocking.
-        IsBlocking = Blocking();
     
         // If crouching, reduce movement speed to zero.
         if (IsCrouching) return;
@@ -353,9 +347,7 @@ public partial class PlayerController : MonoBehaviour
         var player2actions = Resources.Load<InputActionAsset>("Input Management/Player 2 Input Actions");
         
         // Assign the player input actions asset to the player input.
-        PlayerInput.actions = PlayerID == 1 
-            ? player1actions
-            : player2actions;
+        PlayerInput.actions = PlayerID == 1 ? player1actions : player2actions;
         
         // Switch the player's action map to the correct player.
         PlayerInput.actions.Disable();
@@ -453,10 +445,10 @@ public partial class PlayerController : MonoBehaviour
             playerShadow.transform.localScale = Vector3.Lerp(playerShadow.transform.localScale, newScale, scaleSpeed * Time.deltaTime);
 
             //Clamps the value so the shadow does not scale down infinitly if the scaleSpeed is at higher values
-            playerShadow.transform.localScale = new Vector3(
-                Mathf.Clamp(playerShadow.transform.localScale.x, playerShadow.transform.localScale.x * .25f, playerShadowStartingScale.x),
-                Mathf.Clamp(playerShadow.transform.localScale.y, playerShadow.transform.localScale.y * .25f, playerShadowStartingScale.y),
-                Mathf.Clamp(playerShadow.transform.localScale.z, playerShadow.transform.localScale.z * .25f, playerShadowStartingScale.z));
+            playerShadow.transform.localScale = new 
+            (Mathf.Clamp(playerShadow.transform.localScale.x, playerShadow.transform.localScale.x * .25f, playerShadowStartingScale.x),
+             Mathf.Clamp(playerShadow.transform.localScale.y, playerShadow.transform.localScale.y * .25f, playerShadowStartingScale.y),
+             Mathf.Clamp(playerShadow.transform.localScale.z, playerShadow.transform.localScale.z * .25f, playerShadowStartingScale.z));
         }
 
         //If the player is below the maximum height and is falling the shadow will begin to scale down until reaching its default size
@@ -471,10 +463,10 @@ public partial class PlayerController : MonoBehaviour
             playerShadow.transform.localScale = Vector3.Lerp(playerShadow.transform.localScale, newScale, scaleSpeed * Time.deltaTime);
 
             //Clamps the value so the shadow does not scale up infinitly if the scaleSpeed is at higher values
-            playerShadow.transform.localScale = new Vector3(
-                Mathf.Clamp(playerShadow.transform.localScale.x, playerShadow.transform.localScale.x * .25f, playerShadowStartingScale.x),
-                Mathf.Clamp(playerShadow.transform.localScale.y, playerShadow.transform.localScale.y * .25f, playerShadowStartingScale.y),
-                Mathf.Clamp(playerShadow.transform.localScale.z, playerShadow.transform.localScale.z * .25f, playerShadowStartingScale.z));
+            playerShadow.transform.localScale = new
+            (Mathf.Clamp(playerShadow.transform.localScale.x, playerShadow.transform.localScale.x * .25f, playerShadowStartingScale.x),
+             Mathf.Clamp(playerShadow.transform.localScale.y, playerShadow.transform.localScale.y * .25f, playerShadowStartingScale.y),
+             Mathf.Clamp(playerShadow.transform.localScale.z, playerShadow.transform.localScale.z * .25f, playerShadowStartingScale.z));
         }
     }
 
@@ -521,35 +513,14 @@ public partial class PlayerController : MonoBehaviour
         {
             IdleTime += Time.deltaTime;
 
-            if (IdleTime >= idleTimeThreshold)
-            {
+            if (IdleTime >= idleTimeThreshold) 
                 Animator.SetBool("Idle", true);
-            }
         }
         else
         {
             IdleTime = 0;
             Animator.SetBool("Idle", false);
         }
-        
-        // // Check if the player is idle.
-        // if (IsIdle())
-        // {
-        //     // If the player is idle, we add to the idle time.
-        //     IdleTime += Time.deltaTime;
-        //
-        //     // If the idle time is greater than the threshold, we transition to the idle state.
-        //     if (IdleTime >= idleTimeThreshold)
-        //     {
-        //         StateMachine.TransitionToState(StateType.Idle);
-        //         Animator.SetBool("Idle", true);
-        //     }
-        // }
-        // else
-        // {
-        //     IdleTime = 0; 
-        //     Animator.SetBool("Idle", false);
-        // }
     }
     
     public void FreezePlayer(bool frozen, float duration = 0.3f, bool resetVelocity = false)
@@ -582,8 +553,10 @@ public partial class PlayerController : MonoBehaviour
         }
         
         DisablePlayer(true);
+        
         GamepadExtensions.StopAllRumble();
         GamepadExtensions.RumbleAll(true, 0.5f, 1f, 0.65f);
+        
         AudioManager.PauseAll(3f);
         
         // Flip the death track

@@ -55,6 +55,11 @@ public class KonamiCodeChecker : MonoBehaviour
                 {
                     var house = new Music(Track.House);
                     house.Play();
+
+                    foreach (PlayerController player in PlayerManager.Players)
+                    {
+                        player.Character.moveSpeed = 15;
+                    }
                 });
             }
         }

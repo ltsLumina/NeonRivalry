@@ -16,7 +16,7 @@ public class UtilityWindow : EditorWindow
     public static Action activeMenu;
     public static bool createdSuccessfully;
 
-    [MenuItem("Tools/Character Management/Utility Window")]
+    [MenuItem("Tools/Character Menu")]
     public static void Open()
     {
         if (window != null)

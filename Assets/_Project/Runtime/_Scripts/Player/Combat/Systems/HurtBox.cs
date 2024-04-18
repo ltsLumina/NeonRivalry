@@ -69,7 +69,7 @@ public class HurtBox : MonoBehaviour
         
         // -- Blocking Logic --
         
-        if (victim.IsBlocking)
+        if (victim.Blocking())
         {
             // Hits if player is blocking an overhead attack while crouching
             if (incomingAttack.isOverhead && victim.IsCrouching)
@@ -145,12 +145,17 @@ public class HurtBox : MonoBehaviour
     void HandleBlock(MoveData moveData, HitBox hitBox = default)
     {
         OnBlockHit?.Invoke();
+        
+        victim.FreezePlayer(true, 0.5f, true);
 
         // Update the state of the player.
         victim.StateMachine.TransitionToState(State.StateType.Block);
 
         // If the player is standing, play the standing block animation.
-        if (!victim.IsCrouching) victim.Animator.SetTrigger("Blocked");
+        if (!victim.IsCrouching)
+        {
+            victim.Animator.SetTrigger("Blocked");
+        }
         else // Crouching SFX
         {
             var blockSFX = new Sound(SFX.Block);
