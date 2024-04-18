@@ -598,6 +598,11 @@ public partial class PlayerController : MonoBehaviour
         return;
         IEnumerator DeathEffect()
         {
+            Time.timeScale = 0f;
+            Debug.Log("okokok");
+            yield return new WaitForSecondsRealtime(1f);
+            Time.timeScale = 1f;
+
             // Try to get the ChromaticAberration effect
             if (!volume.profile.TryGet(out ChromaticAberration chromaticAberration)) { Debug.LogWarning($"The {nameof(ChromaticAberration)} post processing effect is missing on the volume!", volume); yield break; }
             if (!volume.profile.TryGet(out DepthOfField depthOfField)) { Debug.LogWarning($"The {nameof(DepthOfField)} post processing effect is missing on the volume!", volume); yield break; }
@@ -631,7 +636,7 @@ public partial class PlayerController : MonoBehaviour
             if (aim == null) yield break;
 
             aim.m_TrackedObjectOffset = new (0, 1.35f, 0);
-
+            
             yield return new WaitForSeconds(0.25f);
 
             body.m_XDamping = 2f;

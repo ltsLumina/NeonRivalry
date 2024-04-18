@@ -360,7 +360,13 @@ public class HurtBox : MonoBehaviour
 
         // Start the coroutine to disable the effect after the animation has finished
         StartCoroutine(DisableEffectAfterAnimation(effect));
-        
+
+        if (victim.Healthbar.Health <= 0)
+        {
+            Debug.Log("fefw");
+            return;
+        }
+
         // e.g. freeze game for a short duration for juice
         Sleep(0.125f);
         // Sleep(0.095f);
@@ -388,7 +394,7 @@ public class HurtBox : MonoBehaviour
         effect.SetActive(false);
     }
     
-    public static void Sleep(float duration = 0.1f)
+    public static void Sleep(float duration = 0.04f)
     {
         CoroutineHelper.StartCoroutine(PerformSleep(duration));
         //StartCoroutine(PerformSleep(duration));
@@ -398,10 +404,10 @@ public class HurtBox : MonoBehaviour
     /// Freezes the game for a very short duration to give a sense of impact on each hit.
     /// </summary>
     /// <returns></returns>
-    static IEnumerator PerformSleep(float duration = 0.1f)
+    static IEnumerator PerformSleep(float duration = 0.04f)
     {
         // Freeze the game for a short duration
-        Time.timeScale = 0.25f;
+        Time.timeScale = 0.08f;
         yield return new WaitForSecondsRealtime(duration);
         Time.timeScale = 1f;
     }
