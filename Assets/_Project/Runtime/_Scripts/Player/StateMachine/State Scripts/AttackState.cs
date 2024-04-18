@@ -1,9 +1,5 @@
 ﻿#region
-
-using System.Dynamic;
 using UnityEngine;
-using MelenitasDev.SoundsGood;
-using UnityEngine.InputSystem;
 using Logger = Lumina.Debugging.Logger;
 #endregion
 
@@ -29,7 +25,6 @@ public class AttackState : State
     readonly Animator animator;
 
     float attackAnimationLength;
-    private Sound attackSFX1;
 
       // -- Constructor --
       public AttackState(PlayerController player, AttackStateData stateData) : base(player)
@@ -50,22 +45,6 @@ public class AttackState : State
         player.GetComponentInChildren<SpriteRenderer>().color = Color.red;
 
         groundedAttackTimer = 0;
-
-        if (player.InputManager.LastAttackPressed == InputManager.AttackType.Punch)
-        {
-            return;
-            attackSFX1 = new Sound(SFX.Attack);
-            attackSFX1.SetVolume(0.1f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(1.3f, 1.5f));
-            attackSFX1.Play();
-        }
-        
-        if (player.InputManager.LastAttackPressed == InputManager.AttackType.Kick)
-        {
-            return;
-            attackSFX1 = new Sound(SFX.Attack);
-            attackSFX1.SetVolume(0.15f).SetSpatialSound(false).SetOutput(Output.SFX).SetRandomPitch(new Vector2(0.6f, 0.8f)).SetFadeOut(0.15f);
-            attackSFX1.Play();
-        }
     }
 
     public override void UpdateState()
@@ -89,15 +68,6 @@ public class AttackState : State
         groundedAttackTimer += Time.deltaTime;
 
         if (player.IsGrounded()) Logger.Debug("Attacking on the ground!", LogType.Log, StateType.Attack);
-
-        // // Player has become airborne after starting the attack, cancel the attack. (e.g. player gets knocked into the air) 
-        // else
-        // {
-        //     Logger.Debug("Player has been knocked into the air! \nCancelling the attack...", LogType.Log, StateType.Attack);
-        //
-        //     // Cancel the attack.
-        //     OnExit();
-        // }
 
         // i figured it out.
         // attackAnimationLength is the length of the IDLE ANIMATION, not the attack animation. :'(

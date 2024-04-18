@@ -9,16 +9,14 @@ using Logger = Lumina.Debugging.Logger;
 //TODO: In hindsight, maybe I should put this into its own class rather than as a partial class of PlayerController.
 public partial class PlayerController // StateChecks.cs
 {
-    public bool IsArmored { get; set; }
-
-    public bool IsBlocking { get; set; }
-    
     public bool HasAirborneAttacked { get; set; }
     
     public bool Blocking()
     {
         // If the player is not grounded, they cannot block
         if (!IsGrounded()) return false;
+
+        if (Rigidbody.velocity.y is > 0 or < 0) return false;
 
         // Single-player check
         if (PlayerManager.PlayerCount == 1)
@@ -44,8 +42,6 @@ public partial class PlayerController // StateChecks.cs
         Logger.Trace($"IsBlocking() is {isBlocking}", State.StateType.Block);
         return isBlocking;
     }
-
-    public bool IsCrouchBlocking() => IsBlocking && IsCrouching;
 
     public bool IsGrounded()
     {

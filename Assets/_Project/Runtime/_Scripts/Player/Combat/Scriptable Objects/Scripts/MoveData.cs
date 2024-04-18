@@ -9,6 +9,7 @@ using Object = UnityEngine.Object;
 /// It is used by the Moveset ScriptableObject where each move is stored in an array.
 /// This ScriptableObject is created by the MovesetCreator.cs EditorWindow.
 /// </summary>
+[Icon("Assets/_Project/Runtime/Graphics/Art/Textures/Icons/Misc/Sword.png")]
 public class MoveData : ScriptableObject
 {
     public enum Type
@@ -54,12 +55,6 @@ public class MoveData : ScriptableObject
     public Type type;
     public Direction direction;
     public Guard guard;
-
-    [Space(10)]
-    [Header("Resources")] // Note: These variables are unused, and due to Unity limitations, we cannot make them usable. They are intended as reference only.
-    public AnimationClip animation;
-    public AudioClip audioClip;
-    public Sprite sprite;
     
     [Space(15)]
     [Header("Move Attributes")]
@@ -67,13 +62,13 @@ public class MoveData : ScriptableObject
     [Tooltip("Name of the move.")]
     new public string name;
 
-    [Tooltip("Description of the move.")]
+    [Tooltip("Description of the move."), TextArea(0, 3)]
     public string description;
 
     [Tooltip("The name of the move's owner." + "\nReally only used to easier know which move belongs to who when looking at the MoveData")]
     [SerializeField, ReadOnly] PlayerController owner;
     
-    [Tooltip("Damage caused by the move.")]
+    [Tooltip("Damage caused by the move."), Min(0)]
     public int damage;
 
     [Tooltip("The amount of force applied to the enemy when hit by the move.")]
@@ -272,10 +267,7 @@ public class MoveDataGraphWindow : EditorWindow
         EditorGUI.BeginChangeCheck();
         moveData = (MoveData) EditorGUILayout.ObjectField("Move Data", moveData, typeof(MoveData), false);
 
-        if (EditorGUI.EndChangeCheck())
-        {
-            EditorApplication.QueuePlayerLoopUpdate(); 
-        }
+        if (EditorGUI.EndChangeCheck()) EditorApplication.QueuePlayerLoopUpdate();
 
         // Get the currently selected object in the inspector
         Object selectedObject = Selection.activeObject;

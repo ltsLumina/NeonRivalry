@@ -24,12 +24,6 @@ public class CameraController : MonoBehaviour
 
     [Tooltip("The speed at which the camera zooms in and out.")]
     [SerializeField] float zoomSpeed = 50f;
-
-    [Tooltip("The speed at which the camera rotates, can also be considered as how precise the camera is.")]
-    [SerializeField] float rotationSpeed = 5f;
-
-    [SerializeField] float yOffset = 3.39f;
-    [SerializeField] float rotationYOffset = 2.0f;
     [SerializeField] float minYPosition;
     [SerializeField] float maxYPosition;
     [SerializeField] float minYDistance;
