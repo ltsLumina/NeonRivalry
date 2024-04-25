@@ -4,22 +4,12 @@ using UnityEngine;
 
 public class MoveState : State
 {
-    float moveSpeed;
-    float acceleration;
-    float deceleration;
-    float velocityPower;
-
-    public override StateType Type => StateType.Walk;
-    public override int Priority => statePriorities[Type];
 
     public bool IsMoving { get; private set; }
 
     public MoveState(PlayerController player, MoveStateData stateData) : base(player)
     {
-        moveSpeed = stateData.MoveSpeed;
-        acceleration = stateData.Acceleration;
-        deceleration = stateData.Deceleration;
-        velocityPower = stateData.AccelerationRate;
+        
     }
 
     public override void OnEnter()

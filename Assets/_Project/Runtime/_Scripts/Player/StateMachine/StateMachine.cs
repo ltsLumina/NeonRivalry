@@ -87,10 +87,8 @@ public class StateMachine : MonoBehaviour
         // Do NOT run any other code than the CheckStateDataThenExecute() method in this switch statement.
         switch (state)
         {
-            // Note: The 'when X condition' checks that we perform on each case seem to be redundant.
-            
             case Idle:
-                SetState(new IdleState(Player)); //TODO: Add state data, potentially. (Such as idleTimeThreshold. Currently handled in the player controller.)
+                SetState(new IdleState(Player));
                 break;
             
             case Walk when Player.IsGrounded():
@@ -150,16 +148,14 @@ public class StateMachine : MonoBehaviour
         
         isTransitioning = false;
     }
-
-    // I totally wrote this method myself and didn't copy it from the internet.
+    
     // Checks if the state data is null or default, and if it is, it throws an error.
     // ReSharper disable Unity.PerformanceAnalysis
-    static void CheckStateDataThenExecute<T>(T stateData, Action<T> executeCode)
+    static void CheckStateDataThenExecute<T>(T stateData, Action<T> executeCode) where T : DefaultStateData
     {
         if (EqualityComparer<T>.Default.Equals(stateData, default))
-            Debug.LogError(
-                $"The state data of type {typeof(T)} is null or default. " +
-                           "Please assign the correct data in the inspector via the 'Systems' prefab.");
+            Debug.LogError($"The state data of type {typeof(T)} is null or default. " + "\n" +
+                           "Please assign the correct data in the inspector.");
         else executeCode(stateData);
     }
 }

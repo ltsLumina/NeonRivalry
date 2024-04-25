@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -95,8 +94,7 @@ public class AttackHandler
     {
         if (selectedAttack == null)
         {
-            // Logger.Log($"There is no move that corresponds to the direction: {directionToPerform} {type} \nPlease assign a move in the moveset.", LogType.Warning);
-            // Logger.Log("Returned out of an attack early. \nThis means the player might behave unexpectedly.", LogType.Warning);
+            Logger.Log($"There is no move that corresponds to the direction: {directionToPerform} {type} \nPlease assign a move in the moveset.", LogType.Warning);
             return false;
         }
         
@@ -138,30 +136,11 @@ public class AttackHandler
     {
         string attackType = Enum.GetName(typeof(InputManager.AttackType), type);
 
-        // For non-airborne attacks, set the selected attack integer.
-        // if (type != InputManager.AttackType.Airborne)
-        // {
-        //     string selectedAttack = "Selected" + attackType;
-        //     animator.SetInteger(selectedAttack, animationIndex);
-        // }
-
-        // Trigger the correct animation.
-        // If the attack type is airborne, then the animation index is always 0.
-        //animator.SetTrigger(attackType);
-
         animator.Play(selectedAttack.direction + " " + attackType);
-        
-        //Debug.Log($"Playing {directionToActionMap[move.direction]} {attackType} animation.");
 
         Logger.Trace
         ($"Attack animation played. Animator parameters set to: \n{attackType} = true \nAnimation Index = {animationIndex}", new[]
          { State.StateType.Attack, State.StateType.AirborneAttack });
-    }
-
-    IEnumerator WaitForAnimation()
-    {
-        var length = animator.GetCurrentAnimatorStateInfo(0).length;
-        yield return new WaitForSeconds(length);
     }
     
     #region Query Methods

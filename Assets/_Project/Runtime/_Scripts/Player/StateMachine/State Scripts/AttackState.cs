@@ -12,10 +12,6 @@ using Logger = Lumina.Debugging.Logger;
 /// </summary>
 public class AttackState : State
 {
-    // -- Abstract Variables --
-    public override StateType Type => StateType.Attack;
-    public override int Priority => statePriorities[Type];
-    
     public bool IsAttacking { get; private set; }
 
     // -- State Specific Variables --

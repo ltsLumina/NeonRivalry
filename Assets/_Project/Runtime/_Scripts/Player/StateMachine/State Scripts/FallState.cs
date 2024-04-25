@@ -7,9 +7,6 @@ using UnityEngine;
  *----------------------------------------------------------------------------*/
 public class FallState : State
 {
-    public override StateType Type => StateType.Fall;
-    public override int Priority => statePriorities[Type];
-
     public bool IsFalling { get; private set; }
 
     // -- State Specific Variables --

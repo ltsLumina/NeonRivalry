@@ -92,6 +92,9 @@ public class InputManager : MonoBehaviour
     public void OnPunch(InputAction.CallbackContext context) => PerformAttack(context, AttackType.Punch);
     public void OnKick(InputAction.CallbackContext context) => PerformAttack(context, AttackType.Kick);
     public void OnSlash(InputAction.CallbackContext context) => PerformAttack(context, AttackType.Slash);
+    
+    // Due to a bug in the Input System, the OnUnique method must be called manually inside the PlayerController script,
+    // rather than being called through a UnityEvent like the other attack methods.
     public void OnUnique(InputAction.CallbackContext context) => PerformAttack(context, AttackType.Unique);
 
     public void OnPause(InputAction.CallbackContext context)

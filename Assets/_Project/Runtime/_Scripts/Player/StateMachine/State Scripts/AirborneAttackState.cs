@@ -34,9 +34,6 @@ public class AirborneAttackState : State
     public bool IsAirborneAttacking { get; private set; }
     public bool IsAirborne { get; private set; }
 
-    public override StateType Type => StateType.AirborneAttack;
-    public override int Priority => statePriorities[Type];
-
     // -- State Specific Variables --
     readonly float fallGravityMultiplier;
     readonly float jumpHaltForce;
@@ -85,9 +82,6 @@ public class AirborneAttackState : State
             if (!player.IsGrounded())
             {
                 Logger.Debug("Attacking in the air!", LogType.Log, StateType.AirborneAttack);
-                
-                // Stop the player once they attack in the air, if the moveData says so.
-                //player.Rigidbody.velocity = new Vector2(player.Rigidbody.velocity.x, 0);
 
                 // Apply gravity
                 if (player.Rigidbody.velocity.y < 0) player.Rigidbody.AddForce(fallGravityMultiplier * Vector3.down, ForceMode.Acceleration);

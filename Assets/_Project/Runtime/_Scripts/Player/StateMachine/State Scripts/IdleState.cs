@@ -2,9 +2,6 @@
 
 public class IdleState : State
 {
-    public override StateType Type => StateType.Idle;
-    public override int Priority => statePriorities[Type];
-
     public IdleState(PlayerController player) : base(player)
     { /*Empty Constructor as the Idle state doesn't require anything. (Yet) */ }
 

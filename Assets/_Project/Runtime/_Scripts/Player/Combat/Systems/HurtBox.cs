@@ -26,7 +26,6 @@ public class HurtBox : MonoBehaviour
     [SerializeField] Gradient blockStrainGradient;
     
     int ID => victim.PlayerID;
-    int TotalBlocks { get; set; }
     
     PlayerController victim;
     Gamepad gamepad;

@@ -7,9 +7,6 @@ using UnityEngine;
  *----------------------------------------------------------------------------*/
 public class JumpState : State
 {
-    public override StateType Type => StateType.Jump;
-    public override int Priority => statePriorities[Type];
-
     public bool IsJumping { get; private set; }
 
     readonly float gravityScale;
