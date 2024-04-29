@@ -18,7 +18,7 @@ For more information, please visit [LBS Game Awards official website.](https://l
 [!] At the time of writing, the award show has not been held; thus, no awards have been given.
 
 ## Created By
-   - [@ItsLumina](https://github.com/ltsLumina)
+   - [@ItsLumina](https://github.com/ltsLumina) [![wakatime](https://wakatime.com/badge/user/018b0c84-c3a0-4f65-b3b0-741d40b02439/project/018b0c86-ae74-4946-b060-861371acd17a.svg)](https://wakatime.com/badge/user/018b0c84-c3a0-4f65-b3b0-741d40b02439/project/018b0c86-ae74-4946-b060-861371acd17a)
    - [@Kudowastaken](https://github.com/Kudowastaken)
    - [@Ministar200](https://github.com/Ministar200)
    - [@sharonchaos](https://github.com/sharonchaos)
