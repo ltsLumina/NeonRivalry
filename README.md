@@ -1,5 +1,8 @@
 # Neon Rivalry
-![NeonRivalry_COVERART (1)](https://github.com/ltsLumina/FightingGame/assets/119983088/63bf24ac-f5d7-4973-9053-f81e23b5ba9c)
+[![Click to view official Trailer](https://github.com/ltsLumina/FightingGame/assets/119983088/63bf24ac-f5d7-4973-9053-f81e23b5ba9c)](https://www.youtube.com/watch?v=UevxVm1XZMU)
+> Click the image to view the official Trailer.
+
+#
 
 A 3D, toon-styled Fighting Game inspired by Guilty Gear Strive made in Unity at LBS Kreativa Gymnasiet Gothenburg, Sweden.
 
