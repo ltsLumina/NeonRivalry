@@ -15,7 +15,7 @@ Each school nominates up to four games that will compete at LBS Game Awards in a
 For more information, please visit [LBS Game Awards official website.](https://lbs.se/lbs-awards/game-awards/)
 
 # Awards
-[!] At the time of writing, the award show has not been held; thus, no awards have been given.
+- **LBS GAME AWARDS 2024** - BEST TRAILER
 
 ## Created By
    - [@ItsLumina](https://github.com/ltsLumina) [![wakatime](https://wakatime.com/badge/user/018b0c84-c3a0-4f65-b3b0-741d40b02439/project/018b0c86-ae74-4946-b060-861371acd17a.svg)](https://wakatime.com/badge/user/018b0c84-c3a0-4f65-b3b0-741d40b02439/project/018b0c86-ae74-4946-b060-861371acd17a)
